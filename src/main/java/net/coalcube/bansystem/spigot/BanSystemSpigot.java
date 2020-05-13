@@ -28,24 +28,20 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     private static BanManager banmanager;
 
     public static MySQL mysql;
-    private UpdateChecker updatechecker;
-    private PluginManager pluginmanager;
-    private UpdateManager updatemanager;
     private ServerSocket serversocket;
     private TimeFormatUtil timeFormatUtil;
-    public static Config config;
-    public static Config messages;
-    public static Config blacklist;
-    public static Config bans;
-    public static Config banhistories;
-    public static Config unbans;
-    public static String Banscreen;
+    private static Config config;
+    private static Config messages;
+    private static Config blacklist;
+    private static Config bans;
+    private static Config banhistories;
+    private static Config unbans;
+    private static String Banscreen;
     private static File fileDatabaseFolder;
     private static String hostname, database, user, pw;
     private static int port;
     private static CommandSender console;
-    public static String PREFIX = "§8§l┃ §cBanSystem §8» §7",
-            NOPERMISSION, NOPLAYER, NODBCONNECTION;
+    public static String PREFIX = "§8§l┃ §cBanSystem §8» §7";
 
     @Override
     public void onEnable() {
@@ -54,9 +50,9 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         BanSystem.setInstance(this);
 
         instance = this;
-        pluginmanager = Bukkit.getPluginManager();
+        PluginManager pluginmanager = Bukkit.getPluginManager();
         console = Bukkit.getConsoleSender();
-        updatechecker = new UpdateChecker(65863);
+        UpdateChecker updatechecker = new UpdateChecker(65863);
         timeFormatUtil = new TimeFormatUtil();
 
         console.sendMessage("§c  ____                    ____                  _                      ");
@@ -104,16 +100,11 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         } else {
             fileDatabaseFolder = new File(this.getDataFolder().getPath() + "/database");
             createFileDatabase();
-            banmanager = new BanManagerFile(config, messages, bans, banhistories, unbans, fileDatabaseFolder);
+            banmanager = new BanManagerFile(bans, banhistories, unbans, fileDatabaseFolder);
             mysql = null;
         }
 
-        Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
-            @Override
-            public void run() {
-                UUIDFetcher.clearCache();
-            }
-        }, 72000, 72000);
+        Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, () -> UUIDFetcher.clearCache(), 72000, 72000);
 
         if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.autoban.enable"))
             console.sendMessage(
@@ -122,7 +113,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
         console.sendMessage(PREFIX + "§7Das BanSystem wurde gestartet.");
 
-        updatemanager = new UpdateManager(mysql);
+        UpdateManager updatemanager = new UpdateManager(mysql);
 
         try {
             if (updatechecker.checkForUpdates()) {
@@ -240,9 +231,6 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     public void loadConfig() {
         try {
             PREFIX = messages.getString("prefix").replaceAll("&", "§");
-            NOPERMISSION = messages.getString("NoPermissionMessage").replaceAll("%P%", PREFIX).replaceAll("&", "§");
-            NOPLAYER = messages.getString("NoPlayerMessage").replaceAll("%P%", PREFIX).replaceAll("&", "§");
-            NODBCONNECTION = messages.getString("NoMySQLconnection").replaceAll("%P%", PREFIX).replaceAll("&", "§");
 
             Banscreen = "";
             for (String screen : messages.getStringList("Ban.Network.Screen")) {
@@ -265,13 +253,9 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     @Override
     public User getUser(String name) {
         SpigotUser su = new SpigotUser(Bukkit.getPlayer(name));
-        if(su != null)
-            return su;
-
-        return null;
+        return su;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void disconnect(User u, String msg) {
         if (u.getRawUser() instanceof Player) {

@@ -27,11 +27,6 @@ public class AsyncPlayerChatListener implements Listener {
         this.messages = messages;
     }
 
-
-
-
-
-
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncPlayerChatEvent e) {
         if (BanSystemSpigot.mysql.isConnected()) {
@@ -40,7 +35,7 @@ public class AsyncPlayerChatListener implements Listener {
                 if (banManager.getEnd(p.getUniqueId(), Type.CHAT) > System.currentTimeMillis()
                         || banManager.getEnd(p.getUniqueId(), Type.CHAT) == -1) {
                     e.setCancelled(true);
-                    for (String message : BanSystemSpigot.messages.getStringList("Ban.Chat.Screen")) {
+                    for (String message : messages.getStringList("Ban.Chat.Screen")) {
                         p.sendMessage(message.replaceAll("%P%", BanSystemSpigot.PREFIX)
                                 .replaceAll("%reason%", banManager.getReason(p.getUniqueId(), Type.CHAT))
                                 .replaceAll("%reamingtime%",
@@ -61,12 +56,12 @@ public class AsyncPlayerChatListener implements Listener {
                     }
 
                     Bukkit.getConsoleSender()
-                            .sendMessage(BanSystemSpigot.messages.getString("Ban.Chat.autounmute")
+                            .sendMessage(messages.getString("Ban.Chat.autounmute")
                                     .replaceAll("%P%", BanSystemSpigot.PREFIX).replaceAll("%player%", p.getDisplayName())
                                     .replaceAll("&", "§"));
                     for (Player all : Bukkit.getOnlinePlayers()) {
                         if (all.hasPermission("system.ban")) {
-                            all.sendMessage(BanSystemSpigot.messages.getString("Ban.Chat.autounmute")
+                            all.sendMessage(messages.getString("Ban.Chat.autounmute")
                                     .replaceAll("%P%", BanSystemSpigot.PREFIX).replaceAll("%player%", p.getDisplayName())
                                     .replaceAll("&", "§"));
                         }

@@ -141,6 +141,7 @@ public class ConfigurationUtil {
                         "§7Verbleibende Zeit §8» §c%reamingtime%", "§8§m----------------------------" }));
         messages.set("Ban.Chat.autounmute", "%P%§e%player% §7wurde §eautomatisch §7entmuted.");
         messages.set("Ban.success", "%P%§7Du hast §e%Player% §7erfolgreich §cgebannt/gemuted.");
+        messages.set("Ban.faild", "%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.");
         messages.set("Ban.notify",
                 Arrays.asList(new String[] { "%P%§8§m-------------------", "%P%§e%player% §7wurde Gebannt.",
                         "%P%Grund §8» §c%reason%", "%P%Verbleibende Zeit §8» §c%reamingTime%",

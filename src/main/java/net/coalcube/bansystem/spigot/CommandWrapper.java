@@ -24,7 +24,7 @@ public class CommandWrapper implements CommandExecutor, TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String alias,
                                       String[] args) {
-        return tab ? TabCompleteUtil.completePlayerNames(sender, args) : new ArrayList<String>();
+        return tab ? TabCompleteUtil.completePlayerNames(sender, args) : new ArrayList<>();
     }
 
     @Override

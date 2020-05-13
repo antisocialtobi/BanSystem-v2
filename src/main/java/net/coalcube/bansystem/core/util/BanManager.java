@@ -2,6 +2,7 @@ package net.coalcube.bansystem.core.util;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,9 +25,9 @@ public interface BanManager {
     String getBanner(UUID player, Type type);
     Long getRemainingTime(UUID player, Type type);
     String getReason(UUID player, Type type);
-    int getLevel(UUID player, String reason);
-    List<History> getHistory(UUID player) ;
-    boolean hashistory(UUID player);
-    boolean hashistory(UUID player, String reason);
+    int getLevel(UUID player, String reason) throws UnknownHostException;
+    List<History> getHistory(UUID player) throws UnknownHostException;
+    boolean hashistory(UUID player) throws UnknownHostException;
+    boolean hashistory(UUID player, String reason) throws UnknownHostException;
     boolean isBanned(UUID player, Type type);
 }

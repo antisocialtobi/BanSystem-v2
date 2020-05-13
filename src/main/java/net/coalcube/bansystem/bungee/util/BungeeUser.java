@@ -44,8 +44,7 @@ public class BungeeUser implements User {
     @Deprecated
     @Override
     public InetAddress getAddress() {
-        InetAddress address = ((ProxiedPlayer) sender).getAddress().getAddress();
-        return address;
+        return ((ProxiedPlayer) sender).getAddress().getAddress();
     }
 
     @Override

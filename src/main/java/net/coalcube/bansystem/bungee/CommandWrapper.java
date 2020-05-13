@@ -26,7 +26,7 @@ public class CommandWrapper extends net.md_5.bungee.api.plugin.Command implement
 
     @Override
     public Iterable<String> onTabComplete(CommandSender arg0, String[] arg1) {
-        return tab ? TabCompleteUtil.completePlayerNames(arg0, arg1) : new ArrayList<String>();
+        return tab ? TabCompleteUtil.completePlayerNames(arg0, arg1) : new ArrayList<>();
     }
 
 }

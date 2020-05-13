@@ -3,6 +3,7 @@ package net.coalcube.bansystem.core.command;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.util.*;
 
+import java.net.UnknownHostException;
 import java.util.UUID;
 
 public class CMDdeletehistory implements Command {
@@ -29,27 +30,37 @@ public class CMDdeletehistory implements Command {
                                 .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
                         return;
                     }
-                    if (banmanager.hashistory(uuid)) {
-                        banmanager.clearHistory(uuid);
-                        user.sendMessage(messages.getString("Deletehistory.success")
-                                .replaceAll("%P%", messages.getString("prefix"))
-                                .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("&", "§"));
-                        for (User all : BanSystem.getInstance().getAllPlayers()) {
-                            if (all.hasPermission("bansys.notify") && all != user) {
-                                all.sendMessage(messages.getString("Deletehistory.notify")
-                                        .replaceAll("%P%", messages.getString("prefix"))
-                                        .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                        .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
+                    try {
+                        if (banmanager.hashistory(uuid)) {
+                            banmanager.clearHistory(uuid);
+                            user.sendMessage(messages.getString("Deletehistory.success")
+                                    .replaceAll("%P%", messages.getString("prefix"))
+                                    .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("&", "§"));
+                            for (User all : BanSystem.getInstance().getAllPlayers()) {
+                                if (all.hasPermission("bansys.notify") && all != user) {
+                                    all.sendMessage(messages.getString("Deletehistory.notify")
+                                            .replaceAll("%P%", messages.getString("prefix"))
+                                            .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                            .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
+                                }
                             }
+                            BanSystem.getInstance().getConsole()
+                                    .sendMessage(messages.getString("Deletehistory.notify")
+                                            .replaceAll("%P%", messages.getString("prefix"))
+                                            .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                            .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
+                        } else {
+                            user.sendMessage(messages.getString("History.historynotfound")
+                                    .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
                         }
-                        BanSystem.getInstance().getConsole()
-                                .sendMessage(messages.getString("Deletehistory.notify")
-                                        .replaceAll("%P%", messages.getString("prefix"))
-                                        .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                        .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
-                    } else {
-                        user.sendMessage(messages.getString("History.historynotfound")
-                                .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
+                    } catch (UnknownHostException e) {
+
+                        /**
+                         * TODO: send user error message
+                         */
+
+
+                        e.printStackTrace();
                     }
                 } else {
                     user.sendMessage(messages.getString("Deletehistory.usage")

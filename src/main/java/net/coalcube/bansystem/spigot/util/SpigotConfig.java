@@ -34,7 +34,7 @@ public class SpigotConfig implements Config {
 
     @Override
     public List<String> getKeys() {
-        List<String> res = new ArrayList<String>();
+        List<String> res = new ArrayList<>();
         res.addAll(config.getKeys(false));
         return res;
     }

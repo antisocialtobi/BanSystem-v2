@@ -22,18 +22,13 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class BanSystemBungee extends Plugin implements BanSystem {
 
-    private static Plugin instance;
     private static BanManager banmanager;
 
     private MySQL mysql;
-    private UpdateChecker updatechecker;
-    private PluginManager pluginmanager;
-    private UpdateManager updatemanager;
     private ServerSocket serversocket;
     public static Config config;
     public static Config messages;
@@ -55,10 +50,9 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
         BanSystem.setInstance(this);
 
-        instance = this;
-        pluginmanager = ProxyServer.getInstance().getPluginManager();
+        PluginManager pluginmanager = ProxyServer.getInstance().getPluginManager();
         console = ProxyServer.getInstance().getConsole();
-        updatechecker = new UpdateChecker(65863);
+        UpdateChecker updatechecker = new UpdateChecker(65863);
 
         console.sendMessage(new TextComponent("§c  ____                    ____                  _                      "));
         console.sendMessage(new TextComponent("§c | __ )    __ _   _ __   / ___|   _   _   ___  | |_    ___   _ __ ___  "));
@@ -105,13 +99,11 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         } else {
             fileDatabaseFolder = new File(this.getDataFolder().getPath() + "/database");
             createFileDatabase();
-            banmanager = new BanManagerFile(config, messages, bans, banhistories, unbans, fileDatabaseFolder);
+            banmanager = new BanManagerFile(bans, banhistories, unbans, fileDatabaseFolder);
             mysql = null;
         }
 
-        ProxyServer.getInstance().getScheduler().schedule(this, () -> {
-            UUIDFetcher.clearCache();
-        }, 1, 1, TimeUnit.HOURS);
+        ProxyServer.getInstance().getScheduler().schedule(this, () -> UUIDFetcher.clearCache(), 1, 1, TimeUnit.HOURS);
 
         if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.autoban.enable"))
             ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(
@@ -120,7 +112,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
         console.sendMessage(new TextComponent(BanSystemBungee.PREFIX + "§7Das BanSystem wurde gestartet."));
 
-        updatemanager = new UpdateManager(mysql);
+        UpdateManager updatemanager = new UpdateManager(mysql);
 
         try {
             if (updatechecker.checkForUpdates()) {
@@ -262,10 +254,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     @Override
     public User getUser(String name) {
         BungeeUser bu = new BungeeUser(ProxyServer.getInstance().getPlayer(name));
-        if(bu != null)
-            return bu;
-
-        return null;
+        return bu;
     }
 
     @SuppressWarnings("deprecation")

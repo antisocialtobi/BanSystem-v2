@@ -28,9 +28,8 @@ public class MySQL {
 
     public ResultSet getResult(String s) throws SQLException {
         Statement stmt = con.createStatement();
-        ResultSet rs = stmt.executeQuery(s);
 
-        return rs;
+        return stmt.executeQuery(s);
     }
 
     public void update(String qry) throws SQLException {

@@ -11,8 +11,6 @@ import java.util.UUID;
 
 public class BanManagerFile implements BanManager {
 
-    private Config messages;
-    private Config config;
     private Config bans;
     private Config banhistories;
     private Config unbans;
@@ -20,9 +18,7 @@ public class BanManagerFile implements BanManager {
     private File unbansFile;
     private File banhistoriesFile;
 
-    public BanManagerFile(Config config, Config messages, Config bans, Config banhistories, Config unbans, File database) {
-        this.messages = messages;
-        this.config = config;
+    public BanManagerFile(Config bans, Config banhistories, Config unbans, File database) {
         this.bans = bans;
         this.banhistories = banhistories;
         this.unbans = unbans;
@@ -162,11 +158,11 @@ public class BanManagerFile implements BanManager {
     }
 
     @Override
-    public int getLevel(UUID player, String reason) {
+    public int getLevel(UUID player, String reason) throws UnknownHostException {
         int lvl = 0;
 
         for(History h : getHistory(player)) {
-            if(h.getReason() == reason)
+            if(h.getReason().equals(reason))
                 lvl++;
         }
 
@@ -174,18 +170,14 @@ public class BanManagerFile implements BanManager {
     }
 
     @Override
-    public List<History> getHistory(UUID player) {
-        List<History> histories = new ArrayList();
+    public List<History> getHistory(UUID player) throws UnknownHostException {
+        List<History> histories = new ArrayList<>();
         List<String> selection = banhistories.getSection(player.toString()).getKeys();
 
         for (String cd : selection) {
             Inet4Address v4 = null;
             if(banhistories.getString(player + "." + cd + ".ip") != null) {
-                try {
-                    v4 = (Inet4Address) Inet4Address.getByName(banhistories.getString(player + "." + cd + ".ip"));
-                } catch (UnknownHostException e) {
-                    v4 = null;
-                }
+                v4 = (Inet4Address) Inet4Address.getByName(banhistories.getString(player + "." + cd + ".ip"));
             }
 
             History h = new History(player,
@@ -202,12 +194,12 @@ public class BanManagerFile implements BanManager {
     }
 
     @Override
-    public boolean hashistory(UUID player) {
-        return getHistory(player).isEmpty() ? true : false;
+    public boolean hashistory(UUID player) throws UnknownHostException {
+        return !getHistory(player).isEmpty();
     }
 
     @Override
-    public boolean hashistory(UUID player, String reason) {
+    public boolean hashistory(UUID player, String reason) throws UnknownHostException {
         for(History h : getHistory(player)) {
             if(h.getReason().equals(reason))
                 return true;
@@ -217,6 +209,6 @@ public class BanManagerFile implements BanManager {
 
     @Override
     public boolean isBanned(UUID player, Type type) {
-        return (bans.getString(player + "." + type.toString()) != null ? true : false);
+        return bans.getString(player + "." + type.toString()) != null;
     }
 }

@@ -81,7 +81,14 @@ public class CMDban implements Command {
                 return;
             }
 
-            setParameters(user, args);
+            try {
+                setParameters(user, args);
+            } catch (UnknownHostException e) {
+                user.sendMessage(messages.getString("Ban.faild")
+                        .replaceAll("%P%", messages.getString("prefix"))
+                        .replaceAll("&", "§"));
+                e.printStackTrace();
+            }
 
             uuid = UUIDFetcher.getUUID(args[0]);
             if (uuid == null) {
@@ -192,7 +199,7 @@ public class CMDban implements Command {
         return false;
     }
 
-    private void setParameters(User user, String[] args) {
+    private void setParameters(User user, String[] args) throws UnknownHostException {
 
         // set creator
         if (user.getUniqueId() != null) {
@@ -212,7 +219,7 @@ public class CMDban implements Command {
                     lvl = 1;
                 }
                 for (String lvlkey : config.getSection("IDs." + key + ".lvl").getKeys()) {
-                    if ((byte) Byte.valueOf(lvlkey) == lvl) {
+                    if (Byte.valueOf(lvlkey) == lvl) {
                         duration = config.getLong("IDs." + key + ".lvl." + lvlkey + ".duration");
                     }
                 }

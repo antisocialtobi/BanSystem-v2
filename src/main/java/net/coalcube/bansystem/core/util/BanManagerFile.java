@@ -194,6 +194,11 @@ public class BanManagerFile implements BanManager {
     }
 
     @Override
+    public List<UUID> getBannedPlayersWithSameIP(InetAddress address) {
+        return null;
+    }
+
+    @Override
     public boolean hashistory(UUID player) throws UnknownHostException {
         return !getHistory(player).isEmpty();
     }

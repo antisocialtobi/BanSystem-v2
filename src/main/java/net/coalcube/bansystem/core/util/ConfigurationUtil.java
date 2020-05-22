@@ -125,28 +125,43 @@ public class ConfigurationUtil {
         messages.set("NoPlayerMessage", "%P%§cDu bist kein Spieler!");
         messages.set("Playerdoesnotexist", "%P%§cDieser Spieler existiert nicht!");
         messages.set("PlayerNotFound", "%P%§cDer Spieler wurde nicht gefunden.");
-        messages.set("NoMySQLconnection",
+        messages.set("NoDBConnection",
                 "%P%§cDie Datenbankverbindung besteht nicht. Wende dich bitte an einen Administrator.");
         messages.set("Playernotbanned", "%P%§cDieser Spieler ist nicht gebannt/gemuted!");
         messages.set("Datetimepattern", "dd.MM.yyyy HH:mm:ss");
 
         messages.set("Ban.Network.Screen",
-                Arrays.asList(new String[] { "§8§m----------------------§r", " ", "§4Du wurdest §lGebannt!",
-                        "§7Grund §8» §c%Reason%", "§7Verbleibende Zeit §8» §3%ReamingTime%", " ",
+                Arrays.asList(new String[] {
+                        "§8§m----------------------§r",
+                        " ",
+                        "§4Du wurdest §lGebannt!",
+                        "§7Grund §8» §c%Reason%",
+                        "§7Verbleibende Zeit §8» §3%ReamingTime%",
+                        " ",
                         "§8§m----------------------" }));
         messages.set("Ban.Network.autounban", "%P%§e%player% §7wurde §eautomatisch §7entbannt.");
         messages.set("Ban.Chat.Screen",
-                Arrays.asList(new String[] { "§8§m----------------------------",
-                        "§4Du bist aus dem chat gebannt!", "§7Grund §8» §c%reason%",
-                        "§7Verbleibende Zeit §8» §c%reamingtime%", "§8§m----------------------------" }));
-        messages.set("Ban.Chat.autounmute", "%P%§e%player% §7wurde §eautomatisch §7entmuted.");
+                Arrays.asList(new String[] {
+                        "§8§m----------------------------",
+                        "§4Du bist aus dem chat gebannt!",
+                        "§7Grund §8» §c%reason%",
+                        "§7Verbleibende Zeit §8» §c%reamingtime%",
+                        "§8§m----------------------------" }));
+        messages.set("Ban.Chat.autounmute.success", "%P%§e%player% §7wurde §eautomatisch §7entmuted.");
+        messages.set("Ban.Chat.autounmute.faild", "%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.");
         messages.set("Ban.success", "%P%§7Du hast §e%Player% §7erfolgreich §cgebannt/gemuted.");
         messages.set("Ban.faild", "%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.");
         messages.set("Ban.notify",
-                Arrays.asList(new String[] { "%P%§8§m-------------------", "%P%§e%player% §7wurde Gebannt.",
-                        "%P%Grund §8» §c%reason%", "%P%Verbleibende Zeit §8» §c%reamingTime%",
-                        "%P%Von §8» §c%banner%", "%P%Type §8» §c%type%", "%P%§8§m-------------------" }));
-        messages.set("Ban.cannotbanteammembers", "%P%§cDu kannst keine Teammitglieder bannen.");
+                Arrays.asList(new String[] {
+                        "%P%§8§m-------------------",
+                        "%P%§e%player% §7wurde Gebannt.",
+                        "%P%Grund §8» §c%reason%",
+                        "%P%Verbleibende Zeit §8» §c%reamingTime%",
+                        "%P%Von §8» §c%banner%",
+                        "%P%Type §8» §c%type%",
+                        "%P%§8§m-------------------" }));
+        messages.set("Ban.cannotban.teammembers", "%P%§cDu kannst keine Teammitglieder bannen.");
+        messages.set("Ban.cannotban.bypassedplayers", "%P%§cDu kannst keine Spieler Bannen die eine Bypass Permission haben.");
         messages.set("Ban.onlyadmins", "%P%§cDas dürfen nur Admins und Owner!");
         messages.set("Ban.invalidinput", "%P%§cUngültige Eingabe!");
         messages.set("Ban.alreadybanned", "%P%§cDieser Spieler ist berreits gebannt/gemuted.");
@@ -158,6 +173,37 @@ public class ConfigurationUtil {
         messages.set("Ban.ID.NoPermission", "%P%§cFür diese ID hast du keine Berechtigung!");
 
         messages.set("Check.usage", "%P%§cBenutze §8» §e/check §8<§7Spieler§8>");
+        messages.set("Check.faild", "%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.");
+        messages.set("Check.chat", Arrays.asList(new String[] {
+                "%P%§8§m------§8» §e%player% §8«§m------",
+                "%P%§7Von §8» §c%banner%",
+                "%P%§7Grund §8» §c%reason%",
+                "%P%§7Verbleibende Zeit §8» §c%reamingtime%",
+                "%P%§7Type §8» §c%type%",
+                "%P%§7Level §8» §c%level%",
+                "%P%§8§m-----------------"}));
+        messages.set("Check.network", Arrays.asList(new String[] {
+                "%P%§8§m------§8» §e%player% §8«§m------",
+                "%P%§7Von §8» §c%banner%",
+                "%P%§7Grund §8» §c%reason%",
+                "%P%§7Verbleibende Zeit §8» §c%reamingtime%",
+                "%P%§7Type §8» §c%type%",
+                "%P%§7Level §8» §c%level%",
+                "%P%§8§m-----------------"}));
+        messages.set("Check.networkandchat", Arrays.asList(new String[] {
+                "%P%§8§m------§8» §e%player% §8«§m------",
+                "%P%§7Von §8» §c%bannernetwork%",
+                "%P%§7Grund §8» §c%reasonnetwork%",
+                "%P%§7Verbleibende Zeit §8» §c%reamingtimenetwork%",
+                "%P%§7Type §8» §cNetzwerk",
+                "%P%§7Level §8» §c%levelnetwork%",
+                "%P%",
+                "%P%§7Von §8» §c%bannerchat%",
+                "%P%§7Grund §8» §c%reasonchat%",
+                "%P%§7Verbleibende Zeit §8» §c%reamingtimechat%",
+                "%P%§7Type §8» §cChat",
+                "%P%§7Level §8» §c%levelchat%",
+                "%P%§8§m-----------------"}));
 
         messages.set("Deletehistory.notify",
                 "%P%Die History von §e%player% §7wurde von §e%sender% §7gelöscht.");
@@ -166,6 +212,7 @@ public class ConfigurationUtil {
 
         messages.set("History.historynotfound", "%P%§cDieser Spieler hat keine History");
         messages.set("History.usage", "%P%§cBenutze §8» §e/history §8<§7Spieler§8>");
+        messages.set("History.faild", "%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.");
 
         messages.set("Kick.usage", "%P%§cBenutze §8» §e/kick §8<§7Spieler§8> §8[§7Grund§8]");
         messages.set("Kick.cannotkickyouselfe", "%P%§cDu kannst dich nicht selbst Kicken!");

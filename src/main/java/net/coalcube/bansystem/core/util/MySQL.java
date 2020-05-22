@@ -72,6 +72,12 @@ public class MySQL {
                 " `password` VARCHAR(200) NOT NULL ," +
                 " `creationdate` DATETIME NOT NULL ) ENGINE = InnoDB;");
 
+        update("CREATE TABLE IF NOT EXISTS `kicks` " +
+                "( `player` VARCHAR(100) NOT NULL ," +
+                " `creator` VARCHAR(100) NOT NULL ," +
+                " `reason` VARCHAR(100) NOT NULL ," +
+                " `creationdate` DATETIME NOT NULL ) ENGINE = InnoDB;");
+
         if(!config.getBoolean("needReason.Unban") && !config.getBoolean("needReason.Unmute")) {
             update("CREATE TABLE IF NOT EXISTS `unbans` " +
                     "( `player` VARCHAR(36) NOT NULL ," +

@@ -53,6 +53,9 @@ public class CMDkick implements Command {
 
     @Override
     public void execute(User p, String[] args) {
+        /**
+         * TODO: Kick bypass permissions and database logging
+         */
         if (p.hasPermission("bansys.kick")) {
             if (mysql.isConnected()) {
                 if (args.length == 1) {

@@ -1,9 +1,8 @@
 package net.coalcube.bansystem.bungee;
 
-import net.coalcube.bansystem.bungee.event.ChatListener;
-import net.coalcube.bansystem.bungee.event.LoginListener;
+import net.coalcube.bansystem.bungee.listener.ChatListener;
+import net.coalcube.bansystem.bungee.listener.LoginListener;
 import net.coalcube.bansystem.bungee.util.BungeeConfig;
-import net.coalcube.bansystem.bungee.util.BungeePlayer;
 import net.coalcube.bansystem.bungee.util.BungeeUser;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.command.*;
@@ -30,13 +29,16 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
     private MySQL mysql;
     private ServerSocket serversocket;
-    public static Config config;
-    public static Config messages;
-    public static Config blacklist;
-    public static Config bans;
-    public static Config banhistories;
-    public static Config unbans;
-    public static String Banscreen;
+    private static Config config;
+    private static Config messages;
+    private static Config blacklist;
+    private static Config bans;
+    private static Config banHistories;
+    private static Config unBans;
+    private static String banScreen;
+    private static List<String> blockedCommands;
+    private static List<String> ads;
+    private static List<String> blockedWords;
     private static File fileDatabaseFolder;
     private static String hostname, database, user, pw;
     private static int port;
@@ -99,7 +101,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         } else {
             fileDatabaseFolder = new File(this.getDataFolder().getPath() + "/database");
             createFileDatabase();
-            banmanager = new BanManagerFile(bans, banhistories, unbans, fileDatabaseFolder);
+            banmanager = new BanManagerFile(bans, banHistories, unBans, fileDatabaseFolder);
             mysql = null;
         }
 
@@ -208,17 +210,17 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             File banhistoriesfile = new File(fileDatabaseFolder.getPath(), "banhistories.yml");
             if (!banhistoriesfile.exists()) {
                 banhistoriesfile.createNewFile();
-                banhistories = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(banhistoriesfile));
+                banHistories = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(banhistoriesfile));
             }
             File unbansfile = new File(fileDatabaseFolder.getPath(), "unbans.yml");
             if (!unbansfile.exists()) {
                 unbansfile.createNewFile();
-                unbans = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(unbansfile));
+                unBans = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(unbansfile));
             }
 
             bans = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(bansfile));
-            banhistories = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(banhistoriesfile));
-            unbans = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(unbansfile));
+            banHistories = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(banhistoriesfile));
+            unBans = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(unbansfile));
         } catch (IOException e) {
             console.sendMessage(new TextComponent(PREFIX + "Die Filedatenbank konnten nicht erstellt werden."));
             e.printStackTrace();
@@ -233,18 +235,35 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             NOPLAYER = messages.getString("NoPlayerMessage").replaceAll("%P%", PREFIX).replaceAll("&", "§");
             NODBCONNECTION = messages.getString("NoMySQLconnection").replaceAll("%P%", PREFIX).replaceAll("&", "§");
 
-            Banscreen = "";
+            banScreen = "";
             for (String screen : messages.getStringList("Ban.Network.Screen")) {
-                if (Banscreen == null) {
-                    Banscreen = screen.replaceAll("%P%", PREFIX) + "\n";
+                if (banScreen == null) {
+                    banScreen = screen.replaceAll("%P%", PREFIX) + "\n";
                 } else
-                    Banscreen = Banscreen + screen.replaceAll("%P%", PREFIX) + "\n";
+                    banScreen = banScreen + screen.replaceAll("%P%", PREFIX) + "\n";
             }
             user = config.getString("mysql.user");
             hostname = config.getString("mysql.host");
             port = config.getInt("mysql.port");
             pw = config.getString("mysql.password");
             database = config.getString("mysql.database");
+
+            ads = new ArrayList<>();
+            blockedCommands = new ArrayList<>();
+            blockedWords = new ArrayList<>();
+
+            for(String ad : blacklist.getStringList("Ads")) {
+                ads.add(ad);
+            }
+
+            for(String cmd : config.getStringList("mute.blockedCommands")) {
+                blockedCommands.add(cmd);
+            }
+
+            for(String word : blacklist.getStringList("Words")) {
+                blockedWords.add(word);
+            }
+
         } catch (NullPointerException e) {
             System.err.println("[Bansystem] Es ist ein Fehler beim laden der Config/messages Datei aufgetreten. "
                     + e.getMessage());

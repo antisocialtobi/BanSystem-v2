@@ -1,4 +1,4 @@
-package net.coalcube.bansystem.bungee.event;
+package net.coalcube.bansystem.bungee.listener;
 
 import net.md_5.bungee.api.plugin.Listener;
 

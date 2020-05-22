@@ -1,9 +1,7 @@
 package net.coalcube.bansystem.core;
 
 import java.util.List;
-import java.util.UUID;
 
-import net.coalcube.bansystem.bungee.util.BungeePlayer;
 import net.coalcube.bansystem.core.util.Config;
 import net.coalcube.bansystem.core.util.MySQL;
 import net.coalcube.bansystem.core.util.TimeFormatUtil;

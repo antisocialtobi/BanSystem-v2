@@ -27,6 +27,7 @@ public interface BanManager {
     String getReason(UUID player, Type type);
     int getLevel(UUID player, String reason) throws UnknownHostException;
     List<History> getHistory(UUID player) throws UnknownHostException;
+    List<UUID> getBannedPlayersWithSameIP(InetAddress address);
     boolean hashistory(UUID player) throws UnknownHostException;
     boolean hashistory(UUID player, String reason) throws UnknownHostException;
     boolean isBanned(UUID player, Type type);

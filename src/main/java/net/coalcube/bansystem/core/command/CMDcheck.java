@@ -1,5 +1,6 @@
 package net.coalcube.bansystem.core.command;
 
+import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.util.*;
 
 import java.net.UnknownHostException;
@@ -29,45 +30,83 @@ public class CMDcheck implements Command {
                         return;
                     }
 
-                    if (bm.isBanned(uuid, Type.CHAT) && bm.isBanned(uuid, Type.NETWORK)) {
+                    try {
+                        if (bm.isBanned(uuid, Type.CHAT) && bm.isBanned(uuid, Type.NETWORK)) {
 
-                        user.sendMessage(messages.getString("prefix") + "§8§m------§8» §e" + UUIDFetcher.getName(uuid) + " §8«§m------");
-                        user.sendMessage(messages.getString("prefix") + "§7Von §8» §c" + bm.getBanner(uuid, Type.CHAT));
-                        user.sendMessage(messages.getString("prefix") + "§7Grund §8» §c" + bm.getReason(uuid, Type.CHAT));
-                        user.sendMessage(messages.getString("prefix") + "§7Verbleibende Zeit §8» §c" + bm.getRemainingTime(uuid, Type.CHAT));
-                        user.sendMessage(messages.getString("prefix") + "§7Type §8» §c" + Type.CHAT);
-                        user.sendMessage(messages.getString("prefix") + "§7Level §8» §c" + bm.getLevel(uuid, bm.getReason(uuid, Type.CHAT)));
-                        user.sendMessage(messages.getString("prefix"));
-                        user.sendMessage(messages.getString("prefix") + "§7Von §8» §c" + bm.getBanner(uuid, Type.NETWORK));
-                        user.sendMessage(messages.getString("prefix") + "§7Grund §8» §c" + bm.getReason(uuid, Type.NETWORK));
-                        user.sendMessage(messages.getString("prefix") + "§7Verbleibende Zeit §8» §c" + bm.getRemainingTime(uuid, Type.NETWORK));
-                        user.sendMessage(messages.getString("prefix") + "§7Type §8» §c" + Type.NETWORK);
-                        user.sendMessage(messages.getString("prefix") + "§7Level §8» §c" + bm.getLevel(uuid, bm.getReason(uuid, Type.NETWORK)));
-                        user.sendMessage(messages.getString("prefix") + "§8§m-----------------");
+                            String player = UUIDFetcher.getName(uuid);
+                            String bannerchat = bm.getBanner(uuid, Type.CHAT);
+                            String bannernetwork = bm.getBanner(uuid, Type.NETWORK);
+                            String reasonchat = bm.getReason(uuid, Type.CHAT);
+                            String reasonnetwork = bm.getReason(uuid, Type.NETWORK);
+                            String reamingtimechat = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(bm.getRemainingTime(uuid, Type.CHAT));
+                            String reamingtimenetwork = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(bm.getRemainingTime(uuid, Type.NETWORK));
+                            String lvlchat = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.CHAT)));
+                            String lvlnetwork = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.NETWORK)));
 
-                    } else if (bm.isBanned(uuid, Type.CHAT)) {
+                            for(String m : messages.getStringList("Check.networkandchat")) {
+                                user.sendMessage(m
+                                        .replaceAll("%P%", messages.getString("prefix"))
+                                        .replaceAll("%player%", player)
+                                        .replaceAll("%bannerchat%", bannerchat)
+                                        .replaceAll("%reasonchat%", reasonchat)
+                                        .replaceAll("%reamingtimechat%", reamingtimechat)
+                                        .replaceAll("%levelchat%", lvlchat)
+                                        .replaceAll("%bannernetwork%", bannernetwork)
+                                        .replaceAll("%reasonnetwork%", reasonnetwork)
+                                        .replaceAll("%reamingtimenetwork%", reamingtimenetwork)
+                                        .replaceAll("%levelnetwork%", lvlnetwork)
+                                        .replaceAll("&", "§"));
+                            }
 
-                        user.sendMessage(messages.getString("prefix") + "§8§m------§8» §e" + UUIDFetcher.getName(uuid) + " §8«§m------");
-                        user.sendMessage(messages.getString("prefix") + "§7Von §8» §c" + bm.getBanner(uuid, Type.CHAT));
-                        user.sendMessage(messages.getString("prefix") + "§7Grund §8» §c" + bm.getReason(uuid, Type.CHAT));
-                        user.sendMessage(messages.getString("prefix") + "§7Verbleibende Zeit §8» §c" + bm.getRemainingTime(uuid, Type.CHAT));
-                        user.sendMessage(messages.getString("prefix") + "§7Type §8» §c" + Type.CHAT);
-                        user.sendMessage(messages.getString("prefix") + "§7Level §8» §c" + bm.getLevel(uuid, bm.getReason(uuid, Type.CHAT)));
-                        user.sendMessage(messages.getString("prefix") + "§8§m-----------------");
+                        } else if (bm.isBanned(uuid, Type.CHAT)) {
 
-                    } else if (bm.isBanned(uuid, Type.NETWORK)) {
-                        user.sendMessage(messages.getString("prefix") + "§8§m------§8» §e" + UUIDFetcher.getName(uuid) + " §8«§m------");
-                        user.sendMessage(messages.getString("prefix") + "§7Von §8» §c" + bm.getBanner(uuid, Type.NETWORK));
-                        user.sendMessage(messages.getString("prefix") + "§7Grund §8» §c" + bm.getReason(uuid, Type.NETWORK));
-                        user.sendMessage(messages.getString("prefix") + "§7Verbleibende Zeit §8» §c" + bm.getRemainingTime(uuid, Type.NETWORK));
-                        user.sendMessage(messages.getString("prefix") + "§7Type §8» §c" + Type.NETWORK);
-                        user.sendMessage(messages.getString("prefix") + "§7Level §8» §c" + bm.getLevel(uuid, bm.getReason(uuid, Type.NETWORK)));
-                        user.sendMessage(messages.getString("prefix") + "§8§m-----------------");
-                    } else {
-                        user.sendMessage(messages.getString("Playernotbanned")
+                            String player = UUIDFetcher.getName(uuid);
+                            String banner = bm.getBanner(uuid, Type.CHAT);
+                            String reason = bm.getReason(uuid, Type.CHAT);
+                            String reamingtime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(bm.getRemainingTime(uuid, Type.CHAT));
+                            String lvl = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.CHAT)));
+
+                            for(String m : messages.getStringList("Check.chat")) {
+                                user.sendMessage(m
+                                        .replaceAll("%P%", messages.getString("prefix"))
+                                        .replaceAll("%player%", player)
+                                        .replaceAll("%banner%", banner)
+                                        .replaceAll("%reason%", reason)
+                                        .replaceAll("%reamingtime%", reamingtime)
+                                        .replaceAll("%level%", lvl)
+                                        .replaceAll("&", "§"));
+                            }
+
+                        } else if (bm.isBanned(uuid, Type.NETWORK)) {
+
+                            String player = UUIDFetcher.getName(uuid);
+                            String banner = bm.getBanner(uuid, Type.NETWORK);
+                            String reason = bm.getReason(uuid, Type.NETWORK);
+                            String reamingtime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(bm.getRemainingTime(uuid, Type.NETWORK));
+                            String lvl = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.NETWORK)));
+
+                            for(String m : messages.getStringList("Check.network")) {
+                                user.sendMessage(m
+                                        .replaceAll("%P%", messages.getString("prefix"))
+                                        .replaceAll("%player%", player)
+                                        .replaceAll("%banner%", banner)
+                                        .replaceAll("%reason%", reason)
+                                        .replaceAll("%reamingtime%", reamingtime)
+                                        .replaceAll("%level%", lvl)
+                                        .replaceAll("&", "§"));
+                            }
+
+                        } else {
+                            user.sendMessage(messages.getString("Playernotbanned")
+                                    .replaceAll("%P%", messages.getString("prefix"))
+                                    .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                    .replaceAll("&", "§"));
+                        }
+                    } catch (UnknownHostException e) {
+                        user.sendMessage(messages.getString("Check.faild")
                                 .replaceAll("%P%", messages.getString("prefix"))
-                                .replaceAll("%player%", UUIDFetcher.getName(uuid))
                                 .replaceAll("&", "§"));
+                        e.printStackTrace();
                     }
                 } else {
                     user.sendMessage(messages.getString("Check.usage")

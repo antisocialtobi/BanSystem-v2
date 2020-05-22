@@ -2,6 +2,7 @@ package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.util.*;
 
+import java.net.UnknownHostException;
 import java.util.UUID;
 
 public class CMDhistory implements Command {
@@ -28,13 +29,19 @@ public class CMDhistory implements Command {
                                 .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
                         return;
                     }
-                    if (banManager.hashistory(uuid)) {
-                        // send history
+                    try {
+                        if (banManager.hashistory(uuid)) {
 
+                            /**
+                             * TODO: send histroy
+                             */
 
-                    } else {
-                        user.sendMessage(messages.getString("History.historynotfound")
-                                .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
+                        } else {
+                            user.sendMessage(messages.getString("History.historynotfound")
+                                    .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
+                        }
+                    } catch (UnknownHostException e) {
+                        e.printStackTrace();
                     }
                 } else {
                     user.sendMessage(messages.getString("History.usage")

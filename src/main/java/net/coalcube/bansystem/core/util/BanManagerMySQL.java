@@ -3,6 +3,7 @@ package net.coalcube.bansystem.core.util;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class BanManagerMySQL implements BanManager {
@@ -115,6 +116,11 @@ public class BanManagerMySQL implements BanManager {
 
     @Override
     public ArrayList<History> getHistory(UUID player) {
+        return null;
+    }
+
+    @Override
+    public List<UUID> getBannedPlayersWithSameIP(InetAddress address) {
         return null;
     }
 

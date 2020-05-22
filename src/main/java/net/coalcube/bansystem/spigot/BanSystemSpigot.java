@@ -4,22 +4,28 @@ import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.command.*;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.spigot.listener.AsyncPlayerChatListener;
-import net.coalcube.bansystem.spigot.listener.ChatListener;
+import net.coalcube.bansystem.spigot.listener.PlayerCommandPreprocessListener;
+import net.coalcube.bansystem.spigot.listener.PlayerConnectionListener;
 import net.coalcube.bansystem.spigot.util.SpigotConfig;
 import net.coalcube.bansystem.spigot.util.SpigotUser;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.*;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class BanSystemSpigot extends JavaPlugin implements BanSystem {
@@ -37,6 +43,10 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     private static Config banhistories;
     private static Config unbans;
     private static String Banscreen;
+    private static List<String> blockedCommands;
+    private static List<String> ads;
+    private static List<String> blockedWords;
+    private static Map<InetAddress, UUID> bannedIPs;
     private static File fileDatabaseFolder;
     private static String hostname, database, user, pw;
     private static int port;
@@ -75,6 +85,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             } catch (SQLException e) {
                 console.sendMessage(PREFIX + "§7Datenbankverbindung konnte §4nicht §7hergestellt werden.");
                 console.sendMessage(PREFIX + "§cBitte überprüfe die eingetragenen MySQL daten in der Config.yml.");
+                e.printStackTrace();
             }
             try {
                 if(mysql.isConnected()) {
@@ -83,7 +94,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
                 }
             } catch (SQLException e) {
                 console.sendMessage(PREFIX + "§7Die MySQL Tabellen §ckonnten nicht §7erstellt werden.");
-                console.sendMessage(PREFIX + e.getMessage() + " " + e.getCause());
+                e.printStackTrace();
             }
             try {
                 if(mysql.isConnected()) {
@@ -93,7 +104,19 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
             } catch (SQLException e) {
                 console.sendMessage(PREFIX + "§7Die IDs konnten nicht mit MySQL synchronisiert werden.");
-                console.sendMessage(PREFIX + e.getMessage() + " " + e.getCause());
+                e.printStackTrace();
+            }
+
+            try {
+                ResultSet resultSet = mysql.getResult("SELECT * FROM `bans`");
+
+                while (resultSet.next()) {
+                    bannedIPs.put(InetAddress.getByName(resultSet.getString("ip")),
+                            UUID.fromString(resultSet.getString("player")));
+                }
+                console.sendMessage(PREFIX + "§7Die Gebannten Spieler wurden initialisiert§7.");
+            } catch (SQLException | UnknownHostException e) {
+                console.sendMessage(PREFIX + "§7Die Gebannten Spieler konnten nicht initialisiert werden.");
                 e.printStackTrace();
             }
 
@@ -132,6 +155,9 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 //            }
 //        }).start();
 
+
+
+
         init(pluginmanager);
 
     }
@@ -153,10 +179,10 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
 
         AsyncPlayerChatEvent.getHandlerList().unregister(instance);
-        /*PlayerCommandPreprocessEvent.getHandlerList().unregister(instance);
+        PlayerCommandPreprocessEvent.getHandlerList().unregister(instance);
         PlayerQuitEvent.getHandlerList().unregister(instance);
         PlayerJoinEvent.getHandlerList().unregister(instance);
-        PlayerPreLoginEvent.getHandlerList().unregister(instance);*/
+        PlayerPreLoginEvent.getHandlerList().unregister(instance);
 
         console.sendMessage(BanSystemSpigot.PREFIX + "§7Das BanSystem wurde gestoppt.");
 
@@ -244,6 +270,23 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             port = config.getInt("mysql.port");
             pw = config.getString("mysql.password");
             database = config.getString("mysql.database");
+
+            ads = new ArrayList<>();
+            blockedCommands = new ArrayList<>();
+            blockedWords = new ArrayList<>();
+
+            for(String ad : blacklist.getSection("Ads").getKeys()) {
+                ads.add(ad);
+            }
+
+            for(String cmd : config.getSection("mute.blockedCommands").getKeys()) {
+                blockedCommands.add(cmd);
+            }
+
+            for(String word : blacklist.getSection("Words").getKeys()) {
+                blockedWords.add(word);
+            }
+
         } catch (NullPointerException e) {
             System.err.println("[Bansystem] Es ist ein Fehler beim laden der Config/messages Datei aufgetreten. "
                     + e.getMessage());
@@ -259,7 +302,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     @Override
     public void disconnect(User u, String msg) {
         if (u.getRawUser() instanceof Player) {
-            ((Player) u.getRawUser()).disconnect(msg);
+            ((Player) u.getRawUser()).kickPlayer(msg);
         }
     }
 
@@ -285,6 +328,8 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         getCommand("bansys").setExecutor(new CommandWrapper(new CMDbansystem(messages, config, mysql), false));
 
         pluginManager.registerEvents(new AsyncPlayerChatListener(config, messages, banmanager), this);
+        pluginManager.registerEvents(new PlayerCommandPreprocessListener(banmanager, config, messages, blockedCommands), this);
+        pluginManager.registerEvents(new PlayerConnectionListener(banmanager, config, messages, Banscreen, instance), this);
     }
 
     public MySQL getMySQL() {
@@ -317,5 +362,13 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
     public static BanManager getBanmanager() {
         return banmanager;
+    }
+
+    public static Plugin getPlugin() {
+        return instance;
+    }
+
+    public static Map<InetAddress, UUID> getBannedIPs() {
+        return bannedIPs;
     }
 }

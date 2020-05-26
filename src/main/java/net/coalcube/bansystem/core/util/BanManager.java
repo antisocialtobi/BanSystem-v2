@@ -11,14 +11,14 @@ public interface BanManager {
     void ban(UUID player, long time, UUID creator, Type type, String reason) throws IOException;
     void ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) throws IOException;
     void ban(UUID player, long time, String creator, Type type, String reason) throws IOException;
-    void unban(UUID player, UUID unbanner, String reason) throws IOException;
-    void unban(UUID player, String unbanner, String reason) throws IOException;
-    void unban(UUID player, UUID unbanner) throws IOException;
-    void unban(UUID player, String unbanner) throws IOException;
-    void unmute(UUID player, UUID unbanner, String reason) throws IOException;
-    void unmute(UUID player, String unbanner, String reason) throws IOException;
-    void unmute(UUID player, UUID unbanner) throws IOException;
-    void unmute(UUID player, String unbanner) throws IOException;
+    void unBan(UUID player, UUID unBanner, String reason) throws IOException;
+    void unBan(UUID player, String unBanner, String reason) throws IOException;
+    void unBan(UUID player, UUID unBanner) throws IOException;
+    void unBan(UUID player, String unBanner) throws IOException;
+    void unMute(UUID player, UUID unBanner, String reason) throws IOException;
+    void unMute(UUID player, String unBanner, String reason) throws IOException;
+    void unMute(UUID player, UUID unBanner) throws IOException;
+    void unMute(UUID player, String unBanner) throws IOException;
     void clearHistory(UUID player);
     String getBanReason(UUID player, Type type);
     Long getEnd(UUID player, Type type);
@@ -28,7 +28,7 @@ public interface BanManager {
     int getLevel(UUID player, String reason) throws UnknownHostException;
     List<History> getHistory(UUID player) throws UnknownHostException;
     List<UUID> getBannedPlayersWithSameIP(InetAddress address);
-    boolean hashistory(UUID player) throws UnknownHostException;
-    boolean hashistory(UUID player, String reason) throws UnknownHostException;
+    boolean hasHistory(UUID player) throws UnknownHostException;
+    boolean hasHistory(UUID player, String reason) throws UnknownHostException;
     boolean isBanned(UUID player, Type type);
 }

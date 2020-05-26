@@ -229,7 +229,7 @@ public class CMDban implements Command {
                 /**
                  * TODO: fix that you have no lvl limit and check that its work fine
                  */
-                if (banmanager.hashistory(uuid, reason)) {
+                if (banmanager.hasHistory(uuid, reason)) {
                     if(!isMaxBanLvl(args[1], banmanager.getLevel(uuid, reason))) {
                         lvl = (byte) (banmanager.getLevel(uuid, reason) + 1);
                     } else {

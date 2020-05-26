@@ -1,15 +1,14 @@
 package net.coalcube.bansystem.core.util;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class BanManagerMySQL implements BanManager {
 
-    private final Config messages;
-    private final Config config;
+    private final Config messages, config;
     private final MySQL mysql;
 
     public BanManagerMySQL(Config config, Config messages, MySQL mysql) {
@@ -18,64 +17,63 @@ public class BanManagerMySQL implements BanManager {
         this.mysql = mysql;
     }
 
-
     @Override
-    public void ban(UUID player, long time, UUID creator, Type type, String reason, InetAddress v4adress) {
+    public void ban(UUID player, long time, UUID creator, Type type, String reason, InetAddress v4adress) throws IOException {
 
     }
 
     @Override
-    public void ban(UUID player, long time, UUID creator, Type type, String reason) {
+    public void ban(UUID player, long time, UUID creator, Type type, String reason) throws IOException {
 
     }
 
     @Override
-    public void ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) {
+    public void ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) throws IOException {
 
     }
 
     @Override
-    public void ban(UUID player, long time, String creator, Type type, String reason) {
+    public void ban(UUID player, long time, String creator, Type type, String reason) throws IOException {
 
     }
 
     @Override
-    public void unban(UUID player, UUID unbanner, String reason) {
+    public void unBan(UUID player, UUID unBanner, String reason) throws IOException {
 
     }
 
     @Override
-    public void unban(UUID player, String unbanner, String reason) {
+    public void unBan(UUID player, String unBanner, String reason) throws IOException {
 
     }
 
     @Override
-    public void unban(UUID player, UUID unbanner) {
+    public void unBan(UUID player, UUID unBanner) throws IOException {
 
     }
 
     @Override
-    public void unban(UUID player, String unbanner) {
+    public void unBan(UUID player, String unBanner) throws IOException {
 
     }
 
     @Override
-    public void unmute(UUID player, UUID unbanner, String reason) {
+    public void unMute(UUID player, UUID unBanner, String reason) throws IOException {
 
     }
 
     @Override
-    public void unmute(UUID player, String unbanner, String reason) {
+    public void unMute(UUID player, String unBanner, String reason) throws IOException {
 
     }
 
     @Override
-    public void unmute(UUID player, UUID unbanner) {
+    public void unMute(UUID player, UUID unBanner) throws IOException {
 
     }
 
     @Override
-    public void unmute(UUID player, String unbanner) {
+    public void unMute(UUID player, String unBanner) throws IOException {
 
     }
 
@@ -101,7 +99,7 @@ public class BanManagerMySQL implements BanManager {
 
     @Override
     public Long getRemainingTime(UUID player, Type type) {
-        return (long) 86400000;
+        return null;
     }
 
     @Override
@@ -110,12 +108,12 @@ public class BanManagerMySQL implements BanManager {
     }
 
     @Override
-    public int getLevel(UUID player, String reason) {
+    public int getLevel(UUID player, String reason) throws UnknownHostException {
         return 0;
     }
 
     @Override
-    public ArrayList<History> getHistory(UUID player) {
+    public List<History> getHistory(UUID player) throws UnknownHostException {
         return null;
     }
 
@@ -124,14 +122,13 @@ public class BanManagerMySQL implements BanManager {
         return null;
     }
 
-
     @Override
-    public boolean hashistory(UUID player) {
+    public boolean hasHistory(UUID player) throws UnknownHostException {
         return false;
     }
 
     @Override
-    public boolean hashistory(UUID player, String reason) {
+    public boolean hasHistory(UUID player, String reason) throws UnknownHostException {
         return false;
     }
 

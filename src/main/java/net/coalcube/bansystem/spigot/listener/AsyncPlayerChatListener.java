@@ -17,9 +17,8 @@ import java.io.IOException;
 
 public class AsyncPlayerChatListener implements Listener {
 
-    private static BanManager banManager;
-    private static Config config, messages;
-
+    private BanManager banManager;
+    private Config config, messages;
 
     public AsyncPlayerChatListener(Config config, Config messages, BanManager banManager) {
         this.banManager = banManager;
@@ -36,7 +35,7 @@ public class AsyncPlayerChatListener implements Listener {
                         || banManager.getEnd(p.getUniqueId(), Type.CHAT) == -1) {
                     e.setCancelled(true);
                     for (String message : messages.getStringList("Ban.Chat.Screen")) {
-                        p.sendMessage(message.replaceAll("%P%", BanSystemSpigot.PREFIX)
+                        p.sendMessage(message.replaceAll("%P%", BanSystemSpigot.prefix)
                                 .replaceAll("%reason%", banManager.getReason(p.getUniqueId(), Type.CHAT))
                                 .replaceAll("%reamingtime%",
                                         BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(banManager.getRemainingTime(p.getUniqueId(), Type.CHAT)))
@@ -45,9 +44,9 @@ public class AsyncPlayerChatListener implements Listener {
                 } else {
                     try {
                         if(config.getBoolean("needReason.Unmute")) {
-                            banManager.unmute(p.getUniqueId(), Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
+                            banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
                         } else {
-                            banManager.unmute(p.getUniqueId(), Bukkit.getConsoleSender().getName());
+                            banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName());
                         }
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
@@ -55,12 +54,12 @@ public class AsyncPlayerChatListener implements Listener {
 
                     Bukkit.getConsoleSender()
                             .sendMessage(messages.getString("Ban.Chat.autounmute")
-                                    .replaceAll("%P%", BanSystemSpigot.PREFIX).replaceAll("%player%", p.getDisplayName())
+                                    .replaceAll("%P%", BanSystemSpigot.prefix).replaceAll("%player%", p.getDisplayName())
                                     .replaceAll("&", "§"));
                     for (Player all : Bukkit.getOnlinePlayers()) {
                         if (all.hasPermission("system.ban")) {
                             all.sendMessage(messages.getString("Ban.Chat.autounmute")
-                                    .replaceAll("%P%", BanSystemSpigot.PREFIX).replaceAll("%player%", p.getDisplayName())
+                                    .replaceAll("%P%", BanSystemSpigot.prefix).replaceAll("%player%", p.getDisplayName())
                                     .replaceAll("&", "§"));
                         }
                     }

@@ -36,22 +36,15 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     public static MySQL mysql;
     private ServerSocket serversocket;
     private TimeFormatUtil timeFormatUtil;
-    private static Config config;
-    private static Config messages;
-    private static Config blacklist;
-    private static Config bans;
-    private static Config banhistories;
-    private static Config unbans;
+    private Config config, messages, blacklist, bans, banhistories, unbans;
     private static String Banscreen;
-    private static List<String> blockedCommands;
-    private static List<String> ads;
-    private static List<String> blockedWords;
+    private static List<String> blockedCommands, ads, blockedWords;
     private static Map<InetAddress, UUID> bannedIPs;
-    private static File fileDatabaseFolder;
-    private static String hostname, database, user, pw;
-    private static int port;
-    private static CommandSender console;
-    public static String PREFIX = "§8§l┃ §cBanSystem §8» §7";
+    private File fileDatabaseFolder;
+    private String hostname, database, user, pw;
+    private int port;
+    private CommandSender console;
+    public static String prefix = "§8§l┃ §cBanSystem §8» §7";
 
     @Override
     public void onEnable() {
@@ -81,29 +74,29 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             banmanager = new BanManagerMySQL(config, messages, mysql);
             try {
                 mysql.connect();
-                console.sendMessage(PREFIX + "§7Datenbankverbindung §2erfolgreich §7hergestellt.");
+                console.sendMessage(prefix + "§7Datenbankverbindung §2erfolgreich §7hergestellt.");
             } catch (SQLException e) {
-                console.sendMessage(PREFIX + "§7Datenbankverbindung konnte §4nicht §7hergestellt werden.");
-                console.sendMessage(PREFIX + "§cBitte überprüfe die eingetragenen MySQL daten in der Config.yml.");
+                console.sendMessage(prefix + "§7Datenbankverbindung konnte §4nicht §7hergestellt werden.");
+                console.sendMessage(prefix + "§cBitte überprüfe die eingetragenen MySQL daten in der Config.yml.");
                 e.printStackTrace();
             }
             try {
                 if(mysql.isConnected()) {
                     mysql.createTables(config);
-                    console.sendMessage(PREFIX + "§7Die MySQL Tabellen wurden §2erstellt§7.");
+                    console.sendMessage(prefix + "§7Die MySQL Tabellen wurden §2erstellt§7.");
                 }
             } catch (SQLException e) {
-                console.sendMessage(PREFIX + "§7Die MySQL Tabellen §ckonnten nicht §7erstellt werden.");
+                console.sendMessage(prefix + "§7Die MySQL Tabellen §ckonnten nicht §7erstellt werden.");
                 e.printStackTrace();
             }
             try {
                 if(mysql.isConnected()) {
                     mysql.syncIDs(config);
-                    console.sendMessage(PREFIX + "§7Die Ban IDs wurden §2synchronisiert§7.");
+                    console.sendMessage(prefix + "§7Die Ban IDs wurden §2synchronisiert§7.");
                 }
 
             } catch (SQLException e) {
-                console.sendMessage(PREFIX + "§7Die IDs konnten nicht mit MySQL synchronisiert werden.");
+                console.sendMessage(prefix + "§7Die IDs konnten nicht mit MySQL synchronisiert werden.");
                 e.printStackTrace();
             }
 
@@ -114,9 +107,9 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
                     bannedIPs.put(InetAddress.getByName(resultSet.getString("ip")),
                             UUID.fromString(resultSet.getString("player")));
                 }
-                console.sendMessage(PREFIX + "§7Die Gebannten Spieler wurden initialisiert§7.");
+                console.sendMessage(prefix + "§7Die Gebannten Spieler wurden initialisiert§7.");
             } catch (SQLException | UnknownHostException e) {
-                console.sendMessage(PREFIX + "§7Die Gebannten Spieler konnten nicht initialisiert werden.");
+                console.sendMessage(prefix + "§7Die Gebannten Spieler konnten nicht initialisiert werden.");
                 e.printStackTrace();
             }
 
@@ -131,17 +124,17 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
         if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.autoban.enable"))
             console.sendMessage(
-                    PREFIX + "§cBitte trage die IP des Servers in der config.yml ein.");
+                    prefix + "§cBitte trage die IP des Servers in der config.yml ein.");
 
 
-        console.sendMessage(PREFIX + "§7Das BanSystem wurde gestartet.");
+        console.sendMessage(prefix + "§7Das BanSystem wurde gestartet.");
 
         UpdateManager updatemanager = new UpdateManager(mysql);
 
         try {
             if (updatechecker.checkForUpdates()) {
-                console.sendMessage(PREFIX + "§cEin neues Update ist verfügbar.");
-                console.sendMessage(PREFIX + "§7Lade es dir unter " +
+                console.sendMessage(prefix + "§cEin neues Update ist verfügbar.");
+                console.sendMessage(prefix + "§7Lade es dir unter " +
                         "§ehttps://www.spigotmc.org/resources/bansystem-mit-ids.65863/ §7runter um aktuell zu bleiben.");
             }
         } catch (Exception e) {
@@ -184,7 +177,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         PlayerJoinEvent.getHandlerList().unregister(instance);
         PlayerPreLoginEvent.getHandlerList().unregister(instance);
 
-        console.sendMessage(BanSystemSpigot.PREFIX + "§7Das BanSystem wurde gestoppt.");
+        console.sendMessage(BanSystemSpigot.prefix + "§7Das BanSystem wurde gestoppt.");
 
     }
 
@@ -248,7 +241,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             banhistories = new SpigotConfig(YamlConfiguration.loadConfiguration(banhistoriesfile));
             unbans = new SpigotConfig(YamlConfiguration.loadConfiguration(unbansfile));
         } catch (IOException e) {
-            console.sendMessage(PREFIX + "Die Filedatenbank konnten nicht erstellt werden.");
+            console.sendMessage(prefix + "Die Filedatenbank konnten nicht erstellt werden.");
             e.printStackTrace();
         }
     }
@@ -256,14 +249,14 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     @Override
     public void loadConfig() {
         try {
-            PREFIX = messages.getString("prefix").replaceAll("&", "§");
+            prefix = messages.getString("prefix").replaceAll("&", "§");
 
             Banscreen = "";
             for (String screen : messages.getStringList("Ban.Network.Screen")) {
                 if (Banscreen == null) {
-                    Banscreen = screen.replaceAll("%P%", PREFIX) + "\n";
+                    Banscreen = screen.replaceAll("%P%", prefix) + "\n";
                 } else
-                    Banscreen = Banscreen + screen.replaceAll("%P%", PREFIX) + "\n";
+                    Banscreen = Banscreen + screen.replaceAll("%P%", prefix) + "\n";
             }
             user = config.getString("mysql.user");
             hostname = config.getString("mysql.host");

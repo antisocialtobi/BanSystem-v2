@@ -29,10 +29,10 @@ import net.md_5.bungee.api.chat.TextComponent;
 @SuppressWarnings("deprecation")
 public class PlayerConnectionListener implements Listener {
 
-    private static BanManager banManager;
-    private static Config config, messages;
-    private static String banScreenRow;
-    private static Plugin instance;
+    private BanManager banManager;
+    private Config config, messages;
+    private String banScreenRow;
+    private Plugin instance;
 
     public PlayerConnectionListener(BanManager banManager, Config config, Config messages, String banScreen, Plugin instance) {
         this.banManager = banManager;
@@ -72,21 +72,21 @@ public class PlayerConnectionListener implements Listener {
                     // autounban
                     try {
                         if (config.getBoolean("needReason.Unban")) {
-                            banManager.unban(e.getUniqueId(), Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
+                            banManager.unBan(e.getUniqueId(), Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
                         } else {
-                            banManager.unban(e.getUniqueId(), Bukkit.getConsoleSender().getName());
+                            banManager.unBan(e.getUniqueId(), Bukkit.getConsoleSender().getName());
                         }
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
                     Bukkit.getConsoleSender()
                             .sendMessage(messages.getString("Ban.Network.autounban")
-                                    .replaceAll("%P%", BanSystemSpigot.PREFIX).replaceAll("%player%", e.getName())
+                                    .replaceAll("%P%", BanSystemSpigot.prefix).replaceAll("%player%", e.getName())
                                     .replaceAll("&", "§"));
                     for (Player all : Bukkit.getOnlinePlayers()) {
                         if (all.hasPermission("bansys.notify")) {
                             all.sendMessage(messages.getString("Ban.Network.autounban")
-                                    .replaceAll("%P%", BanSystemSpigot.PREFIX).replaceAll("%player%", e.getName())
+                                    .replaceAll("%P%", BanSystemSpigot.prefix).replaceAll("%player%", e.getName())
                                     .replaceAll("&", "§"));
                         }
                     }
@@ -105,7 +105,7 @@ public class PlayerConnectionListener implements Listener {
                                     String id = config.getString("VPN.autoban.ID");
                                     String reason = config.getString("IDs." + id + ".reason");
                                     try {
-                                        if (banManager.hashistory(e.getUniqueId(), reason)) {
+                                        if (banManager.hasHistory(e.getUniqueId(), reason)) {
                                             if (!isMaxBanLvl(id, banManager.getLevel(e.getUniqueId(), reason))) {
                                                 lvl = (byte) (banManager.getLevel(e.getUniqueId(), reason) + 1);
                                             } else {
@@ -130,7 +130,7 @@ public class PlayerConnectionListener implements Listener {
                                 } else {
                                     for (Player all : Bukkit.getOnlinePlayers()) {
                                         all.sendMessage(messages.getString("VPN.warning")
-                                                .replaceAll("%P%", BanSystemSpigot.PREFIX)
+                                                .replaceAll("%P%", BanSystemSpigot.prefix)
                                                 .replaceAll("%player%", e.getName()).replaceAll("&", "§"));
                                     }
                                 }
@@ -161,7 +161,7 @@ public class PlayerConnectionListener implements Listener {
                                     String id = config.getString("IPautoban.banid");
                                     String reason = config.getString("IDs." + id + ".reason");
                                     try {
-                                        if (banManager.hashistory(e.getUniqueId(), reason)) {
+                                        if (banManager.hasHistory(e.getUniqueId(), reason)) {
                                             if (!isMaxBanLvl(id, banManager.getLevel(e.getUniqueId(), reason))) {
                                                 lvl = (byte) (banManager.getLevel(e.getUniqueId(), reason) + 1);
                                             } else {
@@ -185,14 +185,14 @@ public class PlayerConnectionListener implements Listener {
                                     }
 
 
-                                    Bukkit.getConsoleSender().sendMessage(BanSystemSpigot.PREFIX + "§cDer 2. Account von §e"
+                                    Bukkit.getConsoleSender().sendMessage(BanSystemSpigot.prefix + "§cDer 2. Account von §e"
                                             + names + " §cwurde automatisch gebannt für §e"
                                             + config.getString(
                                             "IDs." + config.getInt("IPautoban.banid") + ".reason")
                                             + "§c.");
                                     for (Player all : Bukkit.getOnlinePlayers()) {
                                         if (all.hasPermission("bansys.notify")) {
-                                            all.sendMessage(BanSystemSpigot.PREFIX + "§cDer 2. Account von §e" + names
+                                            all.sendMessage(BanSystemSpigot.prefix + "§cDer 2. Account von §e" + names
                                                     + " §cwurde automatisch gebannt für §e"
                                                     + config.getString("IDs."
                                                     + config.getInt("IPautoban.banid") + ".reason")
@@ -207,11 +207,11 @@ public class PlayerConnectionListener implements Listener {
                                     if (!config.getBoolean("Ban.KickDelay.enable"))
                                         e.disallow(Result.KICK_BANNED, component);
                                 } else {
-                                    Bukkit.getConsoleSender().sendMessage(BanSystemSpigot.PREFIX + "§e" + e.getName()
+                                    Bukkit.getConsoleSender().sendMessage(BanSystemSpigot.prefix + "§e" + e.getName()
                                             + " §cist womöglich ein 2. Account von §e" + names);
                                     for (Player all : Bukkit.getOnlinePlayers()) {
                                         if (all.hasPermission("bansys.notify")) {
-                                            all.sendMessage(BanSystemSpigot.PREFIX + "§e" + e.getName()
+                                            all.sendMessage(BanSystemSpigot.prefix + "§e" + e.getName()
                                                     + " §cist womöglich ein 2. Account von §e" + names);
                                         }
                                     }
@@ -239,10 +239,10 @@ public class PlayerConnectionListener implements Listener {
             try {
                 if (new UpdateChecker(65863).checkForUpdates()) {
 
-                    p.sendMessage(BanSystemSpigot.PREFIX + "§cEin neues Update ist verfügbar.");
+                    p.sendMessage(BanSystemSpigot.prefix + "§cEin neues Update ist verfügbar.");
 
                     TextComponent comp = new TextComponent();
-                    comp.setText(BanSystemSpigot.PREFIX
+                    comp.setText(BanSystemSpigot.prefix
                             + "§7Lade es dir unter §ehttps://www.spigotmc.org/resources/bansystem-mit-ids.65863/ §7runter um aktuell zu bleiben.");
                     comp.setClickEvent(new ClickEvent(Action.OPEN_URL,
                             "https://www.spigotmc.org/resources/bansystem-mit-ids.65863/"));

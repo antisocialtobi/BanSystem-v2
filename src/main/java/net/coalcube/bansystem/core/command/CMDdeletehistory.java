@@ -31,7 +31,7 @@ public class CMDdeletehistory implements Command {
                         return;
                     }
                     try {
-                        if (banmanager.hashistory(uuid)) {
+                        if (banmanager.hasHistory(uuid)) {
                             banmanager.clearHistory(uuid);
                             user.sendMessage(messages.getString("Deletehistory.success")
                                     .replaceAll("%P%", messages.getString("prefix"))

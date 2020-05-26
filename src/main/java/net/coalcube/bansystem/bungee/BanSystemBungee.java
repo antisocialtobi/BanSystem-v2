@@ -25,30 +25,25 @@ import java.util.concurrent.TimeUnit;
 
 public class BanSystemBungee extends Plugin implements BanSystem {
 
-    private static BanManager banmanager;
+    private static Plugin instance;
+    private BanManager banmanager;
 
     private MySQL mysql;
     private ServerSocket serversocket;
-    private static Config config;
-    private static Config messages;
-    private static Config blacklist;
-    private static Config bans;
-    private static Config banHistories;
-    private static Config unBans;
-    private static String banScreen;
-    private static List<String> blockedCommands;
-    private static List<String> ads;
-    private static List<String> blockedWords;
-    private static File fileDatabaseFolder;
-    private static String hostname, database, user, pw;
-    private static int port;
-    private static CommandSender console;
+    private Config config, messages, blacklist, bans, banHistories, unBans;
+    private String banScreen;
+    private List<String> blockedCommands, ads, blockedWords;
+    private File fileDatabaseFolder;
+    private String hostname, database, user, pw;
+    private int port;
+    private CommandSender console;
     public static String prefix = "§8§l┃ §cBanSystem §8» §7";
 
     @Override
     public void onEnable() {
         super.onEnable();
 
+        instance = this;
         BanSystem.setInstance(this);
 
         PluginManager pluginmanager = ProxyServer.getInstance().getPluginManager();
@@ -333,15 +328,19 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         return this.getDescription().getVersion();
     }
 
-    public static List<String> getAds() {
+    public List<String> getAds() {
         return ads;
     }
 
-    public static List<String> getBlockedCommands() {
+    public List<String> getBlockedCommands() {
         return blockedCommands;
     }
 
-    public static List<String> getBlockedWords() {
+    public List<String> getBlockedWords() {
         return blockedWords;
+    }
+
+    public static Plugin getInstance() {
+        return instance;
     }
 }

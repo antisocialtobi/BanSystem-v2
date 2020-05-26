@@ -30,7 +30,7 @@ public class CMDhistory implements Command {
                         return;
                     }
                     try {
-                        if (banManager.hashistory(uuid)) {
+                        if (banManager.hasHistory(uuid)) {
 
                             /**
                              * TODO: send histroy

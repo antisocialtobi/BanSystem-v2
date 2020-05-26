@@ -11,20 +11,16 @@ import java.util.UUID;
 
 public class BanManagerFile implements BanManager {
 
-    private final Config BANS;
-    private final Config BANHISTORIES;
-    private final Config UNBANS;
-    private final File BANSFILE;
-    private final File UNBANSFILE;
-    private final File BANHISTORIESFILE;
+    private final Config bans, banHistories, unBans;
+    private final File bansFile, unBansFile, banHistoriesFile;
 
-    public BanManagerFile(Config bans, Config banhistories, Config unbans, File database) {
-        this.BANS = bans;
-        this.BANHISTORIES = banhistories;
-        this.UNBANS = unbans;
-        this.BANSFILE = new File(database.getPath(), "bans.yml");
-        this.BANHISTORIESFILE = new File(database.getPath(), "banhistories.yml");
-        this.UNBANSFILE = new File(database.getPath(), "unbans.yml");
+    public BanManagerFile(Config bans, Config banHistories, Config unBans, File database) {
+        this.bans = bans;
+        this.banHistories = banHistories;
+        this.unBans = unBans;
+        this.bansFile = new File(database.getPath(), "bans.yml");
+        this.banHistoriesFile = new File(database.getPath(), "banhistories.yml");
+        this.unBansFile = new File(database.getPath(), "unbans.yml");
     }
 
     @Override
@@ -41,24 +37,24 @@ public class BanManagerFile implements BanManager {
     public void ban(UUID player, long time, String creator, Type type, String reason, InetAddress adress) throws IOException {
         Long currenttime = System.currentTimeMillis();
 
-        BANS.set(player + "." + type.toString() + ".duration", time);
-        BANS.set(player + "." + type.toString() + ".creator", creator);
-        BANS.set(player + "." + type.toString() + ".reason", reason);
-        BANS.set(player + "." + type.toString() + ".creationdate", currenttime);
-        BANS.set(player + "." + type.toString() + ".end", currenttime + time);
+        bans.set(player + "." + type.toString() + ".duration", time);
+        bans.set(player + "." + type.toString() + ".creator", creator);
+        bans.set(player + "." + type.toString() + ".reason", reason);
+        bans.set(player + "." + type.toString() + ".creationdate", currenttime);
+        bans.set(player + "." + type.toString() + ".end", currenttime + time);
         if(adress != null)
-            BANS.set(player + "." + type.toString() + ".ip", adress.getAddress());
+            bans.set(player + "." + type.toString() + ".ip", adress.getAddress());
 
-        BANHISTORIES.set(player + "." + currenttime + ".duration", time);
-        BANHISTORIES.set(player + "." + currenttime + ".creator", creator);
-        BANHISTORIES.set(player + "." + currenttime + ".reason", reason);
-        BANHISTORIES.set(player + "." + currenttime + ".type", type.toString());
-        BANHISTORIES.set(player + "." + currenttime + ".end", currenttime + time);
+        banHistories.set(player + "." + currenttime + ".duration", time);
+        banHistories.set(player + "." + currenttime + ".creator", creator);
+        banHistories.set(player + "." + currenttime + ".reason", reason);
+        banHistories.set(player + "." + currenttime + ".type", type.toString());
+        banHistories.set(player + "." + currenttime + ".end", currenttime + time);
         if(adress != null)
-            BANHISTORIES.set(player + "." + type.toString() + ".ip", adress.getAddress());
+            banHistories.set(player + "." + type.toString() + ".ip", adress.getAddress());
 
-        BANS.save(BANSFILE);
-        BANHISTORIES.save(BANHISTORIESFILE);
+        bans.save(bansFile);
+        banHistories.save(banHistoriesFile);
     }
 
     @Override
@@ -67,64 +63,64 @@ public class BanManagerFile implements BanManager {
     }
 
     @Override
-    public void unban(UUID player, UUID unbanner, String reason) throws IOException {
-        unban(player, unbanner.toString(), reason);
+    public void unBan(UUID player, UUID unBanner, String reason) throws IOException {
+        unBan(player, unBanner.toString(), reason);
     }
 
     @Override
-    public void unban(UUID player, String unbanner, String reason) throws IOException {
-        UNBANS.set(player + "." + Type.NETWORK.toString() + ".unbanner", unbanner);
-        UNBANS.set(player + "." + Type.NETWORK.toString() + ".date", System.currentTimeMillis());
+    public void unBan(UUID player, String unBanner, String reason) throws IOException {
+        unBans.set(player + "." + Type.NETWORK.toString() + ".unbanner", unBanner);
+        unBans.set(player + "." + Type.NETWORK.toString() + ".date", System.currentTimeMillis());
         if(reason != null)
-            UNBANS.set(player + Type.CHAT.toString() + ".reason", reason);
+            unBans.set(player + Type.CHAT.toString() + ".reason", reason);
 
         if(isBanned(player, Type.CHAT))
-            BANS.set(player.toString() + "." + Type.NETWORK.toString(), null);
+            bans.set(player.toString() + "." + Type.NETWORK.toString(), null);
         else
-            BANS.set(player.toString(), null);
+            bans.set(player.toString(), null);
 
 
-        BANS.save(BANSFILE);
-        UNBANS.save(UNBANSFILE);
+        bans.save(bansFile);
+        unBans.save(unBansFile);
     }
 
     @Override
-    public void unban(UUID player, UUID unbanner) throws IOException {
-        unban(player, unbanner.toString(), null);
+    public void unBan(UUID player, UUID unBanner) throws IOException {
+        unBan(player, unBanner.toString(), null);
     }
 
     @Override
-    public void unban(UUID player, String unbanner) throws IOException {
-        unban(player, unbanner, null);
+    public void unBan(UUID player, String unBanner) throws IOException {
+        unBan(player, unBanner, null);
     }
 
     @Override
-    public void unmute(UUID player, UUID unbanner, String reason) throws IOException {
-        unmute(player, unbanner.toString(), reason);
+    public void unMute(UUID player, UUID unBanner, String reason) throws IOException {
+        unMute(player, unBanner.toString(), reason);
     }
 
     @Override
-    public void unmute(UUID player, String unbanner, String reason) throws IOException {
-        UNBANS.set(player + "." + Type.CHAT.toString() + ".unbanner", unbanner);
-        UNBANS.set(player + "." + Type.CHAT.toString() + ".date", System.currentTimeMillis());
+    public void unMute(UUID player, String unbanner, String reason) throws IOException {
+        unBans.set(player + "." + Type.CHAT.toString() + ".unbanner", unbanner);
+        unBans.set(player + "." + Type.CHAT.toString() + ".date", System.currentTimeMillis());
         if(reason != null)
-            UNBANS.set(player + "." + Type.CHAT.toString() + ".reason", reason);
+            unBans.set(player + "." + Type.CHAT.toString() + ".reason", reason);
 
 
-        BANS.set(player.toString() + "." + Type.CHAT.toString(), null);
+        bans.set(player.toString() + "." + Type.CHAT.toString(), null);
 
-        UNBANS.save(UNBANSFILE);
-        BANS.save(BANSFILE);
+        unBans.save(unBansFile);
+        bans.save(bansFile);
     }
 
     @Override
-    public void unmute(UUID player, UUID unbanner) throws IOException {
-        unmute(player, unbanner.toString(), null);
+    public void unMute(UUID player, UUID unbanner) throws IOException {
+        unMute(player, unbanner.toString(), null);
     }
 
     @Override
-    public void unmute(UUID player, String unbanner) throws IOException {
-        unmute(player, unbanner, null);
+    public void unMute(UUID player, String unbanner) throws IOException {
+        unMute(player, unbanner, null);
     }
 
     @Override
@@ -134,27 +130,27 @@ public class BanManagerFile implements BanManager {
 
     @Override
     public String getBanReason(UUID player, Type type) {
-        return BANS.getString(player + "." + type.toString() + ".reason");
+        return bans.getString(player + "." + type.toString() + ".reason");
     }
 
     @Override
     public Long getEnd(UUID player, Type type) {
-        return BANS.getLong(player + "." + type.toString() + ".end");
+        return bans.getLong(player + "." + type.toString() + ".end");
     }
 
     @Override
     public String getBanner(UUID player, Type type) {
-        return BANS.getString(player + "." + type.toString() + ".creator");
+        return bans.getString(player + "." + type.toString() + ".creator");
     }
 
     @Override
     public Long getRemainingTime(UUID player, Type type) {
-        return System.currentTimeMillis() - BANS.getLong(player + "." + type.toString() + ".end");
+        return System.currentTimeMillis() - bans.getLong(player + "." + type.toString() + ".end");
     }
 
     @Override
     public String getReason(UUID player, Type type) {
-        return BANS.getString(player + "." + type.toString() + ".reason");
+        return bans.getString(player + "." + type.toString() + ".reason");
     }
 
     @Override
@@ -172,20 +168,20 @@ public class BanManagerFile implements BanManager {
     @Override
     public List<History> getHistory(UUID player) throws UnknownHostException {
         List<History> histories = new ArrayList<>();
-        List<String> selection = BANHISTORIES.getSection(player.toString()).getKeys();
+        List<String> selection = banHistories.getSection(player.toString()).getKeys();
 
         for (String cd : selection) {
             Inet4Address v4 = null;
-            if(BANHISTORIES.getString(player + "." + cd + ".ip") != null) {
-                v4 = (Inet4Address) Inet4Address.getByName(BANHISTORIES.getString(player + "." + cd + ".ip"));
+            if(banHistories.getString(player + "." + cd + ".ip") != null) {
+                v4 = (Inet4Address) Inet4Address.getByName(banHistories.getString(player + "." + cd + ".ip"));
             }
 
             History h = new History(player,
-                    BANHISTORIES.getString(player + "." + cd + ".creator"),
-                    BANHISTORIES.getString(player + "." + cd + ".reason"),
+                    banHistories.getString(player + "." + cd + ".creator"),
+                    banHistories.getString(player + "." + cd + ".reason"),
                     Long.valueOf(cd),
-                    BANHISTORIES.getLong(player + "." + cd + ".end"),
-                    Type.valueOf(BANHISTORIES.getString(player + "." + cd + ".type")),
+                    banHistories.getLong(player + "." + cd + ".end"),
+                    Type.valueOf(banHistories.getString(player + "." + cd + ".type")),
                     v4);
 
             histories.add(h);
@@ -199,12 +195,12 @@ public class BanManagerFile implements BanManager {
     }
 
     @Override
-    public boolean hashistory(UUID player) throws UnknownHostException {
+    public boolean hasHistory(UUID player) throws UnknownHostException {
         return !getHistory(player).isEmpty();
     }
 
     @Override
-    public boolean hashistory(UUID player, String reason) throws UnknownHostException {
+    public boolean hasHistory(UUID player, String reason) throws UnknownHostException {
         for(History h : getHistory(player)) {
             if(h.getReason().equals(reason))
                 return true;
@@ -214,6 +210,6 @@ public class BanManagerFile implements BanManager {
 
     @Override
     public boolean isBanned(UUID player, Type type) {
-        return BANS.getString(player + "." + type.toString()) != null;
+        return bans.getString(player + "." + type.toString()) != null;
     }
 }

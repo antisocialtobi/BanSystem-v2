@@ -116,6 +116,7 @@ public class CMDban implements Command {
                     }
                     if (BanSystem.getInstance().getUser(args[0]).getUniqueId() != null) {
                         User target = BanSystem.getInstance().getUser(args[0]);
+                        address = target.getAddress();
                         if (target.hasPermission("bansys.ban") && !user.hasPermission("bansys.ban.admin")) {
                             user.sendMessage(messages.getString("Ban.cannotban.teammembers")
                                     .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));

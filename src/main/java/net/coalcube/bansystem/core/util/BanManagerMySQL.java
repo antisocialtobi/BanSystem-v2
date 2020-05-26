@@ -8,9 +8,9 @@ import java.util.UUID;
 
 public class BanManagerMySQL implements BanManager {
 
-    private Config messages;
-    private Config config;
-    private MySQL mysql;
+    private final Config messages;
+    private final Config config;
+    private final MySQL mysql;
 
     public BanManagerMySQL(Config config, Config messages, MySQL mysql) {
         this.messages = messages;

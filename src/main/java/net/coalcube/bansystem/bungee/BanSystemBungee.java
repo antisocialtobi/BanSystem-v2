@@ -43,8 +43,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     private static String hostname, database, user, pw;
     private static int port;
     private static CommandSender console;
-    public static String PREFIX = "§8§l┃ §cBanSystem §8» §7",
-            NOPERMISSION, NOPLAYER, NODBCONNECTION;
+    public static String prefix = "§8§l┃ §cBanSystem §8» §7";
 
     @Override
     public void onEnable() {
@@ -72,29 +71,29 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             banmanager = new BanManagerMySQL(config, messages, mysql);
             try {
                 mysql.connect();
-                console.sendMessage(new TextComponent(PREFIX + "§7Datenbankverbindung §2erfolgreich §7hergestellt."));
+                console.sendMessage(new TextComponent(prefix + "§7Datenbankverbindung §2erfolgreich §7hergestellt."));
             } catch (SQLException e) {
-                console.sendMessage(new TextComponent(PREFIX + "§7Datenbankverbindung konnte §4nicht §7hergestellt werden."));
-                console.sendMessage(new TextComponent(PREFIX + "§cBitte überprüfe die eingetragenen MySQL daten in der Config.yml."));
+                console.sendMessage(new TextComponent(prefix + "§7Datenbankverbindung konnte §4nicht §7hergestellt werden."));
+                console.sendMessage(new TextComponent(prefix + "§cBitte überprüfe die eingetragenen MySQL daten in der Config.yml."));
             }
             try {
                 if(mysql.isConnected()) {
                     mysql.createTables(config);
-                    console.sendMessage(new TextComponent(PREFIX + "§7Die MySQL Tabellen wurden §2erstellt§7."));
+                    console.sendMessage(new TextComponent(prefix + "§7Die MySQL Tabellen wurden §2erstellt§7."));
                 }
             } catch (SQLException e) {
-                console.sendMessage(new TextComponent(PREFIX + "§7Die MySQL Tabellen §ckonnten nicht §7erstellt werden."));
-                console.sendMessage(new TextComponent(PREFIX + e.getMessage() + " " + e.getCause()));
+                console.sendMessage(new TextComponent(prefix + "§7Die MySQL Tabellen §ckonnten nicht §7erstellt werden."));
+                console.sendMessage(new TextComponent(prefix + e.getMessage() + " " + e.getCause()));
             }
             try {
                 if(mysql.isConnected()) {
                     mysql.syncIDs(config);
-                    console.sendMessage(new TextComponent(PREFIX + "§7Die Ban IDs wurden §2synchronisiert§7."));
+                    console.sendMessage(new TextComponent(prefix + "§7Die Ban IDs wurden §2synchronisiert§7."));
                 }
 
             } catch (SQLException e) {
-                console.sendMessage(new TextComponent(PREFIX + "§7Die IDs konnten nicht mit MySQL synchronisiert werden."));
-                console.sendMessage(new TextComponent(PREFIX + e.getMessage() + " " + e.getCause()));
+                console.sendMessage(new TextComponent(prefix + "§7Die IDs konnten nicht mit MySQL synchronisiert werden."));
+                console.sendMessage(new TextComponent(prefix + e.getMessage() + " " + e.getCause()));
                 e.printStackTrace();
             }
 
@@ -109,17 +108,17 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
         if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.autoban.enable"))
             ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(
-                    BanSystemBungee.PREFIX + "§cBitte trage die IP des Servers in der config.yml ein."));
+                    BanSystemBungee.prefix + "§cBitte trage die IP des Servers in der config.yml ein."));
 
 
-        console.sendMessage(new TextComponent(BanSystemBungee.PREFIX + "§7Das BanSystem wurde gestartet."));
+        console.sendMessage(new TextComponent(BanSystemBungee.prefix + "§7Das BanSystem wurde gestartet."));
 
         UpdateManager updatemanager = new UpdateManager(mysql);
 
         try {
             if (updatechecker.checkForUpdates()) {
-                console.sendMessage(new TextComponent(PREFIX + "§cEin neues Update ist verfügbar."));
-                console.sendMessage(new TextComponent(PREFIX + "§7Lade es dir unter " +
+                console.sendMessage(new TextComponent(prefix + "§cEin neues Update ist verfügbar."));
+                console.sendMessage(new TextComponent(prefix + "§7Lade es dir unter " +
                         "§ehttps://www.spigotmc.org/resources/bansystem-mit-ids.65863/ §7runter um aktuell zu bleiben."));
             }
         } catch (Exception e) {
@@ -155,7 +154,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         pm.unregisterListeners(this);
 
         ProxyServer.getInstance().getConsole()
-                .sendMessage(new TextComponent(BanSystemBungee.PREFIX + "§7Das BanSystem wurde gestoppt."));
+                .sendMessage(new TextComponent(prefix + "§7Das BanSystem wurde gestoppt."));
 
     }
 
@@ -193,7 +192,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             messages = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(messagesfile));
             blacklist = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(blacklistfile));
         } catch (IOException e) {
-            console.sendMessage(new TextComponent(PREFIX + "Dateien konnten nicht erstellt werden."));
+            console.sendMessage(new TextComponent(prefix + "Dateien konnten nicht erstellt werden."));
         }
     }
 
@@ -222,7 +221,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             banHistories = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(banhistoriesfile));
             unBans = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(unbansfile));
         } catch (IOException e) {
-            console.sendMessage(new TextComponent(PREFIX + "Die Filedatenbank konnten nicht erstellt werden."));
+            console.sendMessage(new TextComponent(prefix + "Die Filedatenbank konnten nicht erstellt werden."));
             e.printStackTrace();
         }
     }
@@ -230,17 +229,14 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     @Override
     public void loadConfig() {
         try {
-            PREFIX = messages.getString("prefix").replaceAll("&", "§");
-            NOPERMISSION = messages.getString("NoPermissionMessage").replaceAll("%P%", PREFIX).replaceAll("&", "§");
-            NOPLAYER = messages.getString("NoPlayerMessage").replaceAll("%P%", PREFIX).replaceAll("&", "§");
-            NODBCONNECTION = messages.getString("NoMySQLconnection").replaceAll("%P%", PREFIX).replaceAll("&", "§");
+            prefix = messages.getString("prefix").replaceAll("&", "§");
 
             banScreen = "";
             for (String screen : messages.getStringList("Ban.Network.Screen")) {
                 if (banScreen == null) {
-                    banScreen = screen.replaceAll("%P%", PREFIX) + "\n";
+                    banScreen = screen.replaceAll("%P%", prefix) + "\n";
                 } else
-                    banScreen = banScreen + screen.replaceAll("%P%", PREFIX) + "\n";
+                    banScreen = banScreen + screen.replaceAll("%P%", prefix) + "\n";
             }
             user = config.getString("mysql.user");
             hostname = config.getString("mysql.host");
@@ -335,5 +331,17 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     @Override
     public String getVersion() {
         return this.getDescription().getVersion();
+    }
+
+    public static List<String> getAds() {
+        return ads;
+    }
+
+    public static List<String> getBlockedCommands() {
+        return blockedCommands;
+    }
+
+    public static List<String> getBlockedWords() {
+        return blockedWords;
     }
 }

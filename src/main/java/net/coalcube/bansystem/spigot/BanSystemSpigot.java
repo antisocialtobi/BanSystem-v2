@@ -371,4 +371,16 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     public static Map<InetAddress, UUID> getBannedIPs() {
         return bannedIPs;
     }
+
+    public static List<String> getBlockedWords() {
+        return blockedWords;
+    }
+
+    public static List<String> getBlockedCommands() {
+        return blockedCommands;
+    }
+
+    public static List<String> getAds() {
+        return ads;
+    }
 }

@@ -54,12 +54,7 @@ public class CMDdeletehistory implements Command {
                                     .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
                         }
                     } catch (UnknownHostException e) {
-
-                        /**
-                         * TODO: send user error message
-                         */
-
-
+                        user.sendMessage(messages.getString("Deletehistroy.faild").replaceAll("%prefix%", messages.getString("prefix")));
                         e.printStackTrace();
                     }
                 } else {

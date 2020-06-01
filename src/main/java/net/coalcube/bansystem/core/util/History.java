@@ -1,6 +1,6 @@
 package net.coalcube.bansystem.core.util;
 
-import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.util.Date;
 import java.util.UUID;
 
@@ -10,9 +10,9 @@ public class History {
     private String creator, reason;
     private Date createDate, duration;
     private Type type;
-    private Inet4Address ip;
+    private InetAddress ip;
 
-    public History(UUID player, String creator, String reason, Long createDate, Long duration, Type type, Inet4Address ip) {
+    public History(UUID player, String creator, String reason, Long createDate, Long duration, Type type, InetAddress ip) {
         this.player = player;
         this.creator = creator;
         this.reason = reason;
@@ -34,7 +34,7 @@ public class History {
         return duration;
     }
 
-    public Inet4Address getIp() {
+    public InetAddress getIp() {
         return ip;
     }
 

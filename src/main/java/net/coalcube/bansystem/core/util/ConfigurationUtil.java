@@ -160,6 +160,7 @@ public class ConfigurationUtil {
                         "%P%§8§m-------------------"));
         messages.set("Ban.cannotban.teammembers", "%P%§cDu kannst keine Teammitglieder bannen.");
         messages.set("Ban.cannotban.bypassedplayers", "%P%§cDu kannst keine Spieler Bannen die eine Bypass Permission haben.");
+        messages.set("Ban.cannotban.yourself", "%P%§cDu kannst dich nicht selbst bestrafen.");
         messages.set("Ban.onlyadmins", "%P%§cDas dürfen nur Admins und Owner!");
         messages.set("Ban.invalidinput", "%P%§cUngültige Eingabe!");
         messages.set("Ban.alreadybanned", "%P%§cDieser Spieler ist berreits gebannt/gemuted.");

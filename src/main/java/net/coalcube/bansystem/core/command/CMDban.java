@@ -13,10 +13,10 @@ import java.util.UUID;
 
 public class CMDban implements Command {
 
-    private BanManager banmanager;
-    private Config config;
-    private Config messages;
-    private MySQL mysql;
+    private final BanManager banmanager;
+    private final Config config;
+    private final Config messages;
+    private final MySQL mysql;
 
     private Type type;
     private String reason;
@@ -117,6 +117,12 @@ public class CMDban implements Command {
                     if (BanSystem.getInstance().getUser(args[0]).getUniqueId() != null) {
                         User target = BanSystem.getInstance().getUser(args[0]);
                         address = target.getAddress();
+                        if(target == user) {
+                            user.sendMessage(messages.getString("Ban.cannotban.yourself")
+                                    .replaceAll("%P%", messages.getString("prefix"))
+                                    .replaceAll("&", "§"));
+                            return;
+                        }
                         if (target.hasPermission("bansys.ban") && !user.hasPermission("bansys.ban.admin")) {
                             user.sendMessage(messages.getString("Ban.cannotban.teammembers")
                                     .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
@@ -239,7 +245,7 @@ public class CMDban implements Command {
                     lvl = 1;
                 }
                 for (String lvlkey : config.getSection("IDs." + key + ".lvl").getKeys()) {
-                    if (Byte.valueOf(lvlkey) == lvl) {
+                    if (Byte.parseByte(lvlkey) == lvl) {
                         duration = config.getLong("IDs." + key + ".lvl." + lvlkey + ".duration");
                     }
                 }
@@ -270,13 +276,8 @@ public class CMDban implements Command {
         int maxLvl = 0;
 
         for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if(Integer.valueOf(key) > maxLvl) {
-                maxLvl = Integer.valueOf(key);
-            }
+            if(Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
         }
-        if(lvl >= maxLvl) {
-            return true;
-        }
-        return false;
+        return lvl >= maxLvl;
     }
 }

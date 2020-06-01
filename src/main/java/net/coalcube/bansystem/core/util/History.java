@@ -8,16 +8,16 @@ public class History {
 
     private UUID player;
     private String creator, reason;
-    private Date create_date, end_date;
+    private Date createDate, endDate;
     private Type type;
     private Inet4Address ip;
 
-    public History(UUID player, String creator, String reason, Long create_date, Long end_date, Type type, Inet4Address ip) {
+    public History(UUID player, String creator, String reason, Long createDate, Long endDate, Type type, Inet4Address ip) {
         this.player = player;
         this.creator = creator;
         this.reason = reason;
-        this.create_date = new Date(create_date);
-        this.end_date = new Date(end_date);
+        this.createDate = new Date(createDate);
+        this.endDate = new Date(endDate);
         this.type = type;
         this.ip = ip;
     }
@@ -26,12 +26,12 @@ public class History {
         return player;
     }
 
-    public Date getCreate_date() {
-        return create_date;
+    public Date getCreateDate() {
+        return createDate;
     }
 
-    public Date getEnd_date() {
-        return end_date;
+    public Date getEndDate() {
+        return endDate;
     }
 
     public Inet4Address getIp() {

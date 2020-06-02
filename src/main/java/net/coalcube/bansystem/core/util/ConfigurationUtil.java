@@ -128,7 +128,7 @@ public class ConfigurationUtil {
         messages.set("NoDBConnection",
                 "%P%§cDie Datenbankverbindung besteht nicht. Wende dich bitte an einen Administrator.");
         messages.set("Playernotbanned", "%P%§cDieser Spieler ist nicht gebannt/gemuted!");
-        messages.set("Datetimepattern", "dd.MM.yyyy HH:mm:ss");
+        messages.set("DateTimePattern", "dd.MM.yyyy HH:mm:ss");
 
         messages.set("Ban.Network.Screen",
                 Arrays.asList(
@@ -210,6 +210,19 @@ public class ConfigurationUtil {
         messages.set("History.historynotfound", "%P%§cDieser Spieler hat keine History");
         messages.set("History.usage", "%P%§cBenutze §8» §e/history §8<§7Spieler§8>");
         messages.set("History.faild", "%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.");
+        messages.set("History.header", "%P%§8§m-------§8» §e%player% §8«§m-------");
+        messages.set("History.body", Arrays.asList(
+                "%P%",
+                "%P%§7Grund §8» §c%reason%",
+                "%P%§7Erstelldatum §8» §c%creationdate%",
+                "%P%§7Enddatum §8» §c%enddate%",
+                "%P%§7Ersteller §8» §c%creator%",
+                "%P%§7IP §8» §c%ip%",
+                "%P%§7Type §8» §c%type%",
+                "%P%§7ID §8» §c%id%",
+                "%P%",
+                "%P%"));
+        messages.set("History.footer", "%P%§8§m------------------------");
 
         messages.set("Kick.usage", "%P%§cBenutze §8» §e/kick §8<§7Spieler§8> §8[§7Grund§8]");
         messages.set("Kick.cannotkickyouselfe", "%P%§cDu kannst dich nicht selbst Kicken!");

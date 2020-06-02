@@ -13,12 +13,9 @@ import java.util.UUID;
 
 public class BanManagerMySQL implements BanManager {
 
-    private final Config messages, config;
     private final MySQL mysql;
 
-    public BanManagerMySQL(Config config, Config messages, MySQL mysql) {
-        this.messages = messages;
-        this.config = config;
+    public BanManagerMySQL(MySQL mysql) {
         this.mysql = mysql;
     }
 
@@ -43,7 +40,7 @@ public class BanManagerMySQL implements BanManager {
         mysql.update("INSERT INTO `kicks` (`player`, `creator`, `reason`, `creationdate`) " +
                 "VALUES ('" + player + "', '" + creator + "', '" + reason + "', NOW());");
 
-        log("Kicked Player", creator, UUIDFetcher.getName(player), (reason != "" ? "reason: " + reason : ""));
+        log("Kicked Player", creator, UUIDFetcher.getName(player), (!reason.equals("") ? "reason: " + reason : ""));
     }
 
     @Override
@@ -92,7 +89,7 @@ public class BanManagerMySQL implements BanManager {
                 "VALUES ('" + player + "', '" + unBanner + "', NOW(), '" + reason + "','" + Type.NETWORK +"');");
 
         log("Unbanned Player", UUIDFetcher.getName(UUID.fromString(unBanner)), UUIDFetcher.getName(player),
-                (reason != "" ? "reason: " + reason : ""));
+                (!reason.equals("") ? "reason: " + reason : ""));
     }
 
     @Override
@@ -117,7 +114,7 @@ public class BanManagerMySQL implements BanManager {
                 "VALUES ('" + player + "', '" + unBanner + "', NOW(), '" + reason + "','" + Type.CHAT +"');");
 
         log("Unmuted Player", UUIDFetcher.getName(UUID.fromString(unBanner)), UUIDFetcher.getName(player),
-                (reason != "" ? "reason: " + reason : ""));
+                (!reason.equals("") ? "reason: " + reason : ""));
     }
 
     @Override

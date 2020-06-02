@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +22,31 @@ public class BanManagerFile implements BanManager {
         this.bansFile = new File(database.getPath(), "bans.yml");
         this.banHistoriesFile = new File(database.getPath(), "banhistories.yml");
         this.unBansFile = new File(database.getPath(), "unbans.yml");
+    }
+
+    @Override
+    public void log(String action, String creator, String target, String note) {
+
+    }
+
+    @Override
+    public void kick(UUID player, String creator) {
+
+    }
+
+    @Override
+    public void kick(UUID player, UUID creator) {
+
+    }
+
+    @Override
+    public void kick(UUID player, String creator, String reason) {
+
+    }
+
+    @Override
+    public void kick(UUID player, UUID creator, String reason) {
+
     }
 
     @Override
@@ -124,7 +150,7 @@ public class BanManagerFile implements BanManager {
     }
 
     @Override
-    public void clearHistory(UUID player) {
+    public void deleteHistory(UUID player, String actor) {
 
     }
 
@@ -163,6 +189,11 @@ public class BanManagerFile implements BanManager {
         }
 
         return lvl;
+    }
+
+    @Override
+    public Long getCreationDate(UUID player, Type type) throws SQLException {
+        return null;
     }
 
     @Override

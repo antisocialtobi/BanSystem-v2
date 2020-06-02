@@ -3,17 +3,21 @@ package net.coalcube.bansystem.core.command;
 import net.coalcube.bansystem.core.util.*;
 
 import java.net.UnknownHostException;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.UUID;
 
 public class CMDhistory implements Command {
 
-    private BanManager banManager;
-    private Config messages;
-    private MySQL mysql;
+    private final BanManager banManager;
+    private final Config messages;
+    private final Config config;
+    private final MySQL mysql;
 
-    public CMDhistory(BanManager banmanager, Config messages, MySQL mysql) {
+    public CMDhistory(BanManager banmanager, Config messages, Config config, MySQL mysql) {
         this.banManager = banmanager;
         this.messages = messages;
+        this.config = config;
         this.mysql = mysql;
     }
 
@@ -32,15 +36,41 @@ public class CMDhistory implements Command {
                     try {
                         if (banManager.hasHistory(uuid)) {
 
-                            /**
-                             * TODO: send histroy
-                             */
+                            user.sendMessage(messages.getString("History.header")
+                                    .replaceAll("%P%", messages.getString("prefix"))
+                                    .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                    .replaceAll("§", "&"));
+
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
+                            for(History history : banManager.getHistory(uuid)) {
+                                String id = "Not Found";
+                                for(String ids : config.getSection("IDs").getKeys()) {
+                                    if(config.getString("IDs." + ids + ".reason") == history.getReason()) {
+                                        id = config.getString(ids);
+                                    }
+                                }
+                                for(String message : messages.getStringList("History.body")) {
+                                    message.replaceAll("%P%", messages.getString("prefix"))
+                                            .replaceAll("%reason%", history.getReason())
+                                            .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
+                                            .replaceAll("%enddate%", simpleDateFormat.format(history.getEndDate()))
+                                            .replaceAll("%creator%", history.getCreator())
+                                            .replaceAll("%ip%", history.getIp().getHostName())
+                                            .replaceAll("%type%", history.getType().toString())
+                                            .replaceAll("%id%", id)
+                                            .replaceAll("&", "§");
+                                }
+                            }
+
+                            user.sendMessage(messages.getString("History.footer")
+                                    .replaceAll("%P%", messages.getString("prefix"))
+                                    .replaceAll("§", "&"));
 
                         } else {
                             user.sendMessage(messages.getString("History.historynotfound")
                                     .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
                         }
-                    } catch (UnknownHostException e) {
+                    } catch (UnknownHostException | SQLException e) {
                         e.printStackTrace();
                     }
                 } else {

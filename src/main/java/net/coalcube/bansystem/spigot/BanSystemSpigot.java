@@ -71,7 +71,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         // Set mysql instance
         if (config.getBoolean("mysql.enable")) {
             mysql = new MySQL(hostname, port, database, user, pw);
-            banmanager = new BanManagerMySQL(config, messages, mysql);
+            banmanager = new BanManagerMySQL(mysql);
             try {
                 mysql.connect();
                 console.sendMessage(prefix + "§7Datenbankverbindung §2erfolgreich §7hergestellt.");
@@ -268,17 +268,11 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             blockedCommands = new ArrayList<>();
             blockedWords = new ArrayList<>();
 
-            for(String ad : blacklist.getSection("Ads").getKeys()) {
-                ads.add(ad);
-            }
+            ads.addAll(blacklist.getSection("Ads").getKeys());
 
-            for(String cmd : config.getSection("mute.blockedCommands").getKeys()) {
-                blockedCommands.add(cmd);
-            }
+            blockedCommands.addAll(config.getSection("mute.blockedCommands").getKeys());
 
-            for(String word : blacklist.getSection("Words").getKeys()) {
-                blockedWords.add(word);
-            }
+            blockedWords.addAll(blacklist.getSection("Words").getKeys());
 
         } catch (NullPointerException e) {
             System.err.println("[Bansystem] Es ist ein Fehler beim laden der Config/messages Datei aufgetreten. "
@@ -313,7 +307,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         getCommand("ban").setExecutor(new CommandWrapper(new CMDban(banmanager, config, messages, mysql),true));
         getCommand("check").setExecutor(new CommandWrapper(new CMDcheck(banmanager, mysql, messages), true));
         getCommand("deletehistory").setExecutor(new CommandWrapper(new CMDdeletehistory(banmanager, messages, mysql), true));
-        getCommand("history").setExecutor(new CommandWrapper(new CMDhistory(banmanager, messages, mysql), true));
+        getCommand("history").setExecutor(new CommandWrapper(new CMDhistory(banmanager, messages, config, mysql), true));
         getCommand("kick").setExecutor(new CommandWrapper(new CMDkick(messages, mysql), true));
         getCommand("unban").setExecutor(new CommandWrapper(new CMDunban(banmanager, mysql, messages, config), true));
         getCommand("unmute").setExecutor(new CommandWrapper(new CMDunmute(banmanager, messages, config, mysql), true));

@@ -63,7 +63,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         // Set mysql instance
         if (config.getBoolean("mysql.enable")) {
             mysql = new MySQL(hostname, port, database, user, pw);
-            banmanager = new BanManagerMySQL(config, messages, mysql);
+            banmanager = new BanManagerMySQL(mysql);
             try {
                 mysql.connect();
                 console.sendMessage(new TextComponent(prefix + "§7Datenbankverbindung §2erfolgreich §7hergestellt."));
@@ -289,7 +289,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         pluginManager.registerCommand(this, new CommandWrapper("ban", new CMDban(banmanager, config, messages, mysql), true));
         pluginManager.registerCommand(this, new CommandWrapper("check", new CMDcheck(banmanager, mysql, messages), true));
         pluginManager.registerCommand(this, new CommandWrapper("deletehistory", new CMDdeletehistory(banmanager, messages, mysql), true));
-        pluginManager.registerCommand(this, new CommandWrapper("history", new CMDhistory(banmanager, messages, mysql), true));
+        pluginManager.registerCommand(this, new CommandWrapper("history", new CMDhistory(banmanager, messages, config, mysql), true));
         pluginManager.registerCommand(this, new CommandWrapper("kick", new CMDkick(messages, mysql), true));
         pluginManager.registerCommand(this, new CommandWrapper("unban", new CMDunban(banmanager, mysql, messages, config), true));
         pluginManager.registerCommand(this, new CommandWrapper("unmute", new CMDunmute(banmanager, messages, config, mysql), true));

@@ -1,11 +1,6 @@
 package net.coalcube.bansystem.core.util;
 
-import net.coalcube.bansystem.core.BanSystem;
-
 import java.sql.*;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MySQL {
 
@@ -77,6 +72,15 @@ public class MySQL {
                 " `creator` VARCHAR(100) NOT NULL ," +
                 " `reason` VARCHAR(100) NOT NULL ," +
                 " `creationdate` DATETIME NOT NULL ) ENGINE = InnoDB;");
+
+        update("CREATE TABLE `logs` " +
+                "( `id` INT NOT NULL AUTO_INCREMENT ," +
+                " `action` VARCHAR(100) NOT NULL ," +
+                " `target` VARCHAR(100) NOT NULL ," +
+                " `creator` VARCHAR(100) NOT NULL ," +
+                " `note` VARCHAR(100) NOT NULL ," +
+                " `creationdate` DATETIME NOT NULL ," +
+                " PRIMARY KEY (`ID`)) ENGINE = InnoDB;");
 
         if(!config.getBoolean("needReason.Unban") && !config.getBoolean("needReason.Unmute")) {
             update("CREATE TABLE IF NOT EXISTS `unbans` " +

@@ -6,18 +6,20 @@ import java.util.UUID;
 
 public class History {
 
-    private UUID player;
-    private String creator, reason;
-    private Date createDate, duration;
-    private Type type;
-    private InetAddress ip;
+    private final UUID player;
+    private final String creator;
+    private final String reason;
+    private final Date createDate;
+    private final Long duration;
+    private final Type type;
+    private final InetAddress ip;
 
     public History(UUID player, String creator, String reason, Long createDate, Long duration, Type type, InetAddress ip) {
         this.player = player;
         this.creator = creator;
         this.reason = reason;
         this.createDate = new Date(createDate);
-        this.duration = new Date(duration);
+        this.duration = duration;
         this.type = type;
         this.ip = ip;
     }
@@ -30,7 +32,7 @@ public class History {
         return createDate;
     }
 
-    public Date getDuration() {
+    public Long getDuration() {
         return duration;
     }
 
@@ -48,5 +50,9 @@ public class History {
 
     public Type getType() {
         return type;
+    }
+
+    public Date getEndDate() {
+        return new Date(getCreateDate().getTime() + getDuration());
     }
 }

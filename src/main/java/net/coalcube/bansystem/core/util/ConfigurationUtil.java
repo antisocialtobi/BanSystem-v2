@@ -14,13 +14,14 @@ public class ConfigurationUtil {
 
         config.set("IPautoban.enable", false);
         config.set("IPautoban.banid", 9);
+        config.set("IPautoban.onlyNetworkBans", false);
 
         config.set("VPN.enable", true);
         config.set("VPN.autoban.enable", true);
         config.set("VPN.autoban.ID", 11);
         config.set("VPN.serverIP", "00.00.00.00");
 
-        config.set("mute.blockedCommands", Arrays.asList("/msg", "/tell"));
+        config.set("mute.blockedCommands", Arrays.asList("/msg", "/tell", "/me", "/whisper", "/say"));
 
         config.set("needReason.Unban", false);
         config.set("needReason.Unmute", false);
@@ -301,6 +302,8 @@ public class ConfigurationUtil {
                         "%P%§e%player% wurde §7für sein Chatverhalten", "%P%§7automatisch §egebannt/gemuted§7.",
                         "%P%§7Grund §8» §e%reason%", "%P%§7Nachricht §8» §e%message%",
                         "%P%§8§m------------------------------"));
+        messages.set("autoban.ip.notify", "%P%§cDer 2. Account von §e%bannedaccount% §cwurde automatisch gebannt für §e%reason%§c.");
+        messages.set("autoban.ip.warning", "%P%§e%player% §cist womöglich ein 2. Account von §e%bannedaccount%");
 
     }
 

@@ -1,5 +1,7 @@
 package net.coalcube.bansystem.core.util;
 
+import sun.jvm.hotspot.debugger.Address;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -26,6 +28,7 @@ public interface BanManager {
     void unMute(UUID player, UUID unBanner) throws IOException, SQLException;
     void unMute(UUID player, String unBanner) throws IOException, SQLException;
     void deleteHistory(UUID player, String actor) throws SQLException;
+    void setIP(UUID player, InetAddress address);
     String getBanReason(UUID player, Type type) throws SQLException;
     Long getEnd(UUID player, Type type) throws SQLException;
     String getBanner(UUID player, Type type) throws SQLException;
@@ -38,4 +41,5 @@ public interface BanManager {
     boolean hasHistory(UUID player) throws UnknownHostException, SQLException;
     boolean hasHistory(UUID player, String reason) throws UnknownHostException, SQLException;
     boolean isBanned(UUID player, Type type) throws SQLException;
+    boolean isSetIP(UUID player);
 }

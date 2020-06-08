@@ -4,17 +4,21 @@ import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.util.*;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.UUID;
 
 public class CMDunmute implements Command {
 
-    private BanManager bm;
-    private Config messages;
-    private Config config;
-    private MySQL mysql;
+    private final BanManager bm;
+    private final Config messages;
+    private final Config config;
+    private final MySQL mysql;
 
     public CMDunmute(BanManager banmanager, Config messages, Config config, MySQL mysql) {
         this.bm = banmanager;
+        this.messages = messages;
+        this.config = config;
+        this.mysql = mysql;
     }
 
     @Override
@@ -28,76 +32,80 @@ public class CMDunmute implements Command {
                                 messages.getString("prefix")));
                         return;
                     }
-                    if (bm.isBanned(uuid, Type.CHAT)) {
-                        if (args.length > 1 && config.getBoolean("needReason.Unmute")) {
+                    try {
+                        if (bm.isBanned(uuid, Type.CHAT)) {
+                            if (args.length > 1 && config.getBoolean("needReason.Unmute")) {
 
-                            String reason = "";
-                            for (int i = 1; i < args.length; i++) {
-                                reason = reason + args[i] + " ";
-                            }
-
-                            try {
-                                if (user.getUniqueId() != null) {
-                                    bm.unmute(uuid, user.getUniqueId(), reason);
-                                } else
-                                    bm.unmute(uuid, user.getName(), reason);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                user.sendMessage(messages.getString("Unmute.faild")
-                                        .replaceAll("%P%", messages.getString("prefix")));
-                                return;
-                            }
-
-                            user.sendMessage(messages.getString("Unmute.needreason.success")
-                                    .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("%reason%", reason));
-                            for (User all : BanSystem.getInstance().getAllPlayers()) {
-                                if (all.hasPermission("bansys.notify") && all != user) {
-                                    all.sendMessage(messages.getString("Unmute.needreason.notify")
-                                            .replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                            .replaceAll("%sender%", user.getName()).replaceAll("%reason%", reason));
+                                String reason = "";
+                                for (int i = 1; i < args.length; i++) {
+                                    reason = reason + args[i] + " ";
                                 }
+
+                                try {
+                                    if (user.getUniqueId() != null) {
+                                        bm.unMute(uuid, user.getUniqueId(), reason);
+                                    } else
+                                        bm.unMute(uuid, user.getName(), reason);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    user.sendMessage(messages.getString("Unmute.faild")
+                                            .replaceAll("%P%", messages.getString("prefix")));
+                                    return;
+                                }
+
+                                user.sendMessage(messages.getString("Unmute.needreason.success")
+                                        .replaceAll("%P%", messages.getString("prefix"))
+                                        .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("%reason%", reason));
+                                for (User all : BanSystem.getInstance().getAllPlayers()) {
+                                    if (all.hasPermission("bansys.notify") && all != user) {
+                                        all.sendMessage(messages.getString("Unmute.needreason.notify")
+                                                .replaceAll("%P%", messages.getString("prefix"))
+                                                .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                .replaceAll("%sender%", user.getName()).replaceAll("%reason%", reason));
+                                    }
+                                }
+                                BanSystem.getInstance().getConsole()
+                                        .sendMessage(messages.getString("Unmute.needreason.notify")
+                                                .replaceAll("%P%", messages.getString("prefix"))
+                                                .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                .replaceAll("%sender%", user.getName()).replaceAll("%reason%", reason));
+                            } else {
+                                try {
+                                    if (user.getUniqueId() != null) {
+                                        bm.unMute(uuid, user.getUniqueId());
+                                    } else
+                                        bm.unMute(uuid, user.getName());
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    user.sendMessage(messages.getString("Unmute.faild")
+                                            .replaceAll("%P%", messages.getString("prefix")));
+                                    return;
+                                }
+
+                                user.sendMessage(
+                                        messages.getString("Unmute.success").replaceAll("%P%", messages.getString("prefix"))
+                                                .replaceAll("%player%", UUIDFetcher.getName(uuid)));
+                                for (User all : BanSystem.getInstance().getAllPlayers()) {
+                                    if (all.hasPermission("bansys.notify") && all != user) {
+                                        all.sendMessage(messages.getString("Unmute.notify")
+                                                .replaceAll("%P%", messages.getString("prefix"))
+                                                .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
+                                    }
+                                }
+                                BanSystem.getInstance().getConsole()
+                                        .sendMessage(messages.getString("Unmute.notify")
+                                                .replaceAll("%P%", messages.getString("prefix"))
+                                                .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                .replaceAll("%sender%", user.getName()));
                             }
-                            BanSystem.getInstance().getConsole()
-                                    .sendMessage(messages.getString("Unmute.needreason.notify")
-                                            .replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                            .replaceAll("%sender%", user.getName()).replaceAll("%reason%", reason));
                         } else {
-                            try {
-                                if (user.getUniqueId() != null) {
-                                    bm.unmute(uuid, user.getUniqueId());
-                                } else
-                                    bm.unmute(uuid, user.getName());
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                user.sendMessage(messages.getString("Unmute.faild")
-                                        .replaceAll("%P%", messages.getString("prefix")));
-                                return;
-                            }
-
                             user.sendMessage(
-                                    messages.getString("Unmute.success").replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%player%", UUIDFetcher.getName(uuid)));
-                            for (User all : BanSystem.getInstance().getAllPlayers()) {
-                                if (all.hasPermission("bansys.notify") && all != user) {
-                                    all.sendMessage(messages.getString("Unmute.notify")
-                                            .replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                            .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
-                                }
-                            }
-                            BanSystem.getInstance().getConsole()
-                                    .sendMessage(messages.getString("Unmute.notify")
-                                            .replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                            .replaceAll("%sender%", user.getName()));
+                                    messages.getString("Unmute.notmuted").replaceAll("%P%", messages.getString("prefix"))
+                                            .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("&", "§"));
                         }
-                    } else {
-                        user.sendMessage(
-                                messages.getString("Unmute.notmuted").replaceAll("%P%", messages.getString("prefix"))
-                                        .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("&", "§"));
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
                     }
                 } else {
                     user.sendMessage(messages.getString("Unmute.usage")

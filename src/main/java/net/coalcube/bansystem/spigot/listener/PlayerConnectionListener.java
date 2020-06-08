@@ -2,6 +2,7 @@ package net.coalcube.bansystem.spigot.listener;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -26,7 +27,6 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-@SuppressWarnings("deprecation")
 public class PlayerConnectionListener implements Listener {
 
     private BanManager banManager;
@@ -47,50 +47,54 @@ public class PlayerConnectionListener implements Listener {
         boolean isCancelled = false;
 
         if (BanSystemSpigot.mysql.isConnected()) {
-            if (banManager.isBanned(e.getUniqueId(), Type.NETWORK)) {
-                if (banManager.getEnd(e.getUniqueId(), Type.NETWORK) > System.currentTimeMillis()
-                        || banManager.getEnd(e.getUniqueId(), Type.NETWORK) == -1) {
-                    // disallow connecting when user is banned
+            try {
+                if (banManager.isBanned(e.getUniqueId(), Type.NETWORK)) {
+                    if (banManager.getEnd(e.getUniqueId(), Type.NETWORK) > System.currentTimeMillis()
+                            || banManager.getEnd(e.getUniqueId(), Type.NETWORK) == -1) {
+                        // disallow connecting when user is banned
 
-                    String reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(banManager.getRemainingTime(e.getUniqueId(), Type.NETWORK));
+                        String reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(banManager.getRemainingTime(e.getUniqueId(), Type.NETWORK));
 
-                    String banScreen = banScreenRow
-                            .replaceAll("%Reason%", banManager.getReason(e.getUniqueId(), Type.NETWORK))
-                            .replaceAll("%ReamingTime%", reamingTime)
-                            .replaceAll("&", "§");
-                    if (!config.getBoolean("Ban.KickDelay.enable")) e.disallow(Result.KICK_BANNED, banScreen);
-                    isCancelled = true;
+                        String banScreen = banScreenRow
+                                .replaceAll("%Reason%", banManager.getReason(e.getUniqueId(), Type.NETWORK))
+                                .replaceAll("%ReamingTime%", reamingTime)
+                                .replaceAll("&", "§");
+                        if (!config.getBoolean("Ban.KickDelay.enable")) e.disallow(Result.KICK_BANNED, banScreen);
+                        isCancelled = true;
 
-                    /**
-                     * TODO: IP handling when the IP doesn´t in the database
-                     */
+                        /**
+                         * TODO: IP handling when the IP doesn´t in the database
+                         */
 
-                   /* if (banManager.needIP(e.getUniqueId())) {
-                        banManager.setIP(e.getUniqueId(), e.getAddress());
-                    }*/
-                } else {
-                    // autounban
-                    try {
-                        if (config.getBoolean("needReason.Unban")) {
-                            banManager.unBan(e.getUniqueId(), Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
-                        } else {
-                            banManager.unBan(e.getUniqueId(), Bukkit.getConsoleSender().getName());
+                       if (banManager.isSetIP(e.getUniqueId())) {
+                            banManager.setIP(e.getUniqueId(), e.getAddress());
                         }
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                    Bukkit.getConsoleSender()
-                            .sendMessage(messages.getString("Ban.Network.autounban")
-                                    .replaceAll("%P%", BanSystemSpigot.prefix).replaceAll("%player%", e.getName())
-                                    .replaceAll("&", "§"));
-                    for (Player all : Bukkit.getOnlinePlayers()) {
-                        if (all.hasPermission("bansys.notify")) {
-                            all.sendMessage(messages.getString("Ban.Network.autounban")
-                                    .replaceAll("%P%", BanSystemSpigot.prefix).replaceAll("%player%", e.getName())
-                                    .replaceAll("&", "§"));
+                    } else {
+                        // autounban
+                        try {
+                            if (config.getBoolean("needReason.Unban")) {
+                                banManager.unBan(e.getUniqueId(), Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
+                            } else {
+                                banManager.unBan(e.getUniqueId(), Bukkit.getConsoleSender().getName());
+                            }
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                        Bukkit.getConsoleSender()
+                                .sendMessage(messages.getString("Ban.Network.autounban")
+                                        .replaceAll("%P%", BanSystemSpigot.prefix).replaceAll("%player%", e.getName())
+                                        .replaceAll("&", "§"));
+                        for (Player all : Bukkit.getOnlinePlayers()) {
+                            if (all.hasPermission("bansys.notify")) {
+                                all.sendMessage(messages.getString("Ban.Network.autounban")
+                                        .replaceAll("%P%", BanSystemSpigot.prefix).replaceAll("%player%", e.getName())
+                                        .replaceAll("&", "§"));
+                            }
                         }
                     }
                 }
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
             }
             if (!isCancelled) {
                 Bukkit.getScheduler().runTaskLaterAsynchronously(instance, new Runnable() {
@@ -114,7 +118,7 @@ public class PlayerConnectionListener implements Listener {
                                         } else {
                                             lvl = 1;
                                         }
-                                    } catch (UnknownHostException unknownHostException) {
+                                    } catch (UnknownHostException | SQLException unknownHostException) {
                                         unknownHostException.printStackTrace();
                                     }
                                     long time = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
@@ -124,7 +128,7 @@ public class PlayerConnectionListener implements Listener {
                                     try {
                                         banManager.ban(e.getUniqueId(), time, Bukkit.getConsoleSender().getName(),
                                                 type, reason, e.getAddress());
-                                    } catch (IOException ioException) {
+                                    } catch (IOException | SQLException ioException) {
                                         ioException.printStackTrace();
                                     }
                                 } else {
@@ -142,11 +146,19 @@ public class PlayerConnectionListener implements Listener {
                             String names = "";
                             boolean rightType = false;
                             ArrayList<UUID> banned = new ArrayList<>();
-                            banned.addAll(banManager.getBannedPlayersWithSameIP(e.getAddress()));
+                            try {
+                                banned.addAll(banManager.getBannedPlayersWithSameIP(e.getAddress()));
+                            } catch (SQLException throwables) {
+                                throwables.printStackTrace();
+                            }
 
                             for (UUID uuid : banned) {
-                                if (banManager.isBanned(uuid, Type.NETWORK))
-                                    rightType = true;
+                                try {
+                                    if (banManager.isBanned(uuid, Type.NETWORK))
+                                        rightType = true;
+                                } catch (SQLException throwables) {
+                                    throwables.printStackTrace();
+                                }
                                 if (names.length() == 0) {
                                     names = UUIDFetcher.getName(uuid);
                                 } else {
@@ -170,7 +182,7 @@ public class PlayerConnectionListener implements Listener {
                                         } else {
                                             lvl = 1;
                                         }
-                                    } catch (UnknownHostException unknownHostException) {
+                                    } catch (UnknownHostException | SQLException unknownHostException) {
                                         unknownHostException.printStackTrace();
                                     }
                                     long time = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
@@ -180,7 +192,7 @@ public class PlayerConnectionListener implements Listener {
                                     try {
                                         banManager.ban(e.getUniqueId(), time, Bukkit.getConsoleSender().getName(),
                                                 type, reason, e.getAddress());
-                                    } catch (IOException ioException) {
+                                    } catch (IOException | SQLException ioException) {
                                         ioException.printStackTrace();
                                     }
 
@@ -199,11 +211,21 @@ public class PlayerConnectionListener implements Listener {
                                                     + "§c.");
                                         }
                                     }
-                                    String reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(banManager.getRemainingTime(e.getUniqueId(), Type.NETWORK));
+                                    String reamingTime = null;
+                                    try {
+                                        reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(banManager.getRemainingTime(e.getUniqueId(), Type.NETWORK));
+                                    } catch (SQLException throwables) {
+                                        throwables.printStackTrace();
+                                    }
 
-                                    String component = banScreenRow
-                                            .replaceAll("%Reason%", banManager.getReason(e.getUniqueId(), Type.NETWORK))
-                                            .replaceAll("%ReamingTime%", reamingTime);
+                                    String component = null;
+                                    try {
+                                        component = banScreenRow
+                                                .replaceAll("%Reason%", banManager.getReason(e.getUniqueId(), Type.NETWORK))
+                                                .replaceAll("%ReamingTime%", reamingTime);
+                                    } catch (SQLException throwables) {
+                                        throwables.printStackTrace();
+                                    }
                                     if (!config.getBoolean("Ban.KickDelay.enable"))
                                         e.disallow(Result.KICK_BANNED, component);
                                 } else {
@@ -227,8 +249,12 @@ public class PlayerConnectionListener implements Listener {
     @EventHandler
     public void onDisconnect(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        if (banManager.isBanned(p.getUniqueId(), Type.NETWORK)) {
-            e.setQuitMessage(null);
+        try {
+            if (banManager.isBanned(p.getUniqueId(), Type.NETWORK)) {
+                e.setQuitMessage(null);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
     }
 
@@ -256,22 +282,31 @@ public class PlayerConnectionListener implements Listener {
                 e1.printStackTrace();
             }
         }
-        if (config.getBoolean("Ban.KickDelay.enable") && banManager.isBanned(p.getUniqueId(), Type.NETWORK)) {
-            e.setJoinMessage(null);
-            new BukkitRunnable() {
+        try {
+            if (config.getBoolean("Ban.KickDelay.enable") && banManager.isBanned(p.getUniqueId(), Type.NETWORK)) {
+                e.setJoinMessage(null);
+                new BukkitRunnable() {
 
-                @Override
-                public void run() {
+                    @Override
+                    public void run() {
 
-                    String reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(banManager.getRemainingTime(p.getUniqueId(), Type.NETWORK));
+                        String reamingTime = null;
+                        try {
+                            reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(banManager.getRemainingTime(p.getUniqueId(), Type.NETWORK));
 
-                    String banScreen = banScreenRow
-                            .replaceAll("%Reason%", banManager.getReason(p.getUniqueId(), Type.NETWORK))
-                            .replaceAll("%ReamingTime%", reamingTime).replaceAll("&", "§");
-                    p.kickPlayer(banScreen);
+                            String banScreen = banScreenRow
+                                    .replaceAll("%Reason%", banManager.getReason(p.getUniqueId(), Type.NETWORK))
+                                    .replaceAll("%ReamingTime%", reamingTime).replaceAll("&", "§");
+                            p.kickPlayer(banScreen);
+                        } catch (SQLException throwables) {
+                            throwables.printStackTrace();
+                        }
 
-                }
-            }.runTaskLater(BanSystemSpigot.getPlugin(), 20 * config.getInt("Ban.KickDelay.inSecconds"));
+                    }
+                }.runTaskLater(BanSystemSpigot.getPlugin(), 20 * config.getInt("Ban.KickDelay.inSecconds"));
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
     }
 

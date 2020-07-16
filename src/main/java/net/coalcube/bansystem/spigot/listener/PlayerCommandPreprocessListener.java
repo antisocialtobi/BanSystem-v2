@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 public class PlayerCommandPreprocessListener implements Listener {
@@ -39,49 +40,47 @@ public class PlayerCommandPreprocessListener implements Listener {
                     startsWithBlockedCommnad = true;
                 }
             }
-            if(banManager.isBanned(p.getUniqueId(), Type.CHAT)) {
-                if(banManager.getEnd(p.getUniqueId(), Type.CHAT) > System.currentTimeMillis()
-                        || banManager.getEnd(p.getUniqueId(), Type.CHAT) == -1) {
-                    if (startsWithBlockedCommnad) {
-                        e.setCancelled(true);
+            try {
+                if(banManager.isBanned(p.getUniqueId(), Type.CHAT)) {
+                    if(banManager.getEnd(p.getUniqueId(), Type.CHAT) > System.currentTimeMillis()
+                            || banManager.getEnd(p.getUniqueId(), Type.CHAT) == -1) {
+                        if (startsWithBlockedCommnad) {
+                            e.setCancelled(true);
 
-                        String reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
-                                banManager.getRemainingTime(p.getUniqueId(), Type.CHAT));
+                            String reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
+                                    banManager.getRemainingTime(p.getUniqueId(), Type.CHAT));
 
-                        for (String message : messages.getStringList("Ban.Chat.Screen")) {
-                            p.sendMessage(message
-                                    .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("%reason%", banManager.getReason(p.getUniqueId(), Type.CHAT))
-                                    .replaceAll("%reamingtime%", reamingTime)
-                                    .replaceAll("&", "§"));
+                            for (String message : messages.getStringList("Ban.Chat.Screen")) {
+                                p.sendMessage(message
+                                        .replaceAll("%P%", messages.getString("prefix"))
+                                        .replaceAll("%reason%", banManager.getReason(p.getUniqueId(), Type.CHAT))
+                                        .replaceAll("%reamingtime%", reamingTime)
+                                        .replaceAll("&", "§"));
+                            }
                         }
-                    }
-                } else {
-                    try {
+                    } else {
                         if (config.getBoolean("needReason.Unmute")) {
-                            banManager.unmute(p.getUniqueId(), Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
+                            banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
                         } else {
-                            banManager.unmute(p.getUniqueId(), Bukkit.getConsoleSender().getName());
+                            banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName());
                         }
-                    } catch (IOException ex) {
-                        p.sendMessage(messages.getString("Ban.Chat.autounmute.faild"));
+                        Bukkit.getConsoleSender().sendMessage(messages.getString("Ban.Chat.autounmute")
+                                .replaceAll("%P%", messages.getString("prefix"))
+                                .replaceAll("%player%", p.getDisplayName())
+                                .replaceAll("&", "§"));
+                        for(Player all : Bukkit.getOnlinePlayers()) {
+                            if(all.hasPermission("bansys.notify")) {
+                                all.sendMessage(messages.getString("Ban.Chat.autounmute")
+                                        .replaceAll("%P%", messages.getString("prefix"))
+                                        .replaceAll("%player%", p.getDisplayName())
+                                        .replaceAll("&", "§"));
 
-                        ex.printStackTrace();
-                    }
-                    Bukkit.getConsoleSender().sendMessage(messages.getString("Ban.Chat.autounmute")
-                            .replaceAll("%P%", messages.getString("prefix"))
-                            .replaceAll("%player%", p.getDisplayName())
-                            .replaceAll("&", "§"));
-                    for(Player all : Bukkit.getOnlinePlayers()) {
-                        if(all.hasPermission("bansys.notify")) {
-                            all.sendMessage(messages.getString("Ban.Chat.autounmute")
-                                    .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("%player%", p.getDisplayName())
-                                    .replaceAll("&", "§"));
-
+                            }
                         }
                     }
                 }
+            } catch (SQLException | IOException throwables) {
+                throwables.printStackTrace();
             }
         }
     }

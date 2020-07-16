@@ -62,10 +62,6 @@ public class PlayerConnectionListener implements Listener {
                         if (!config.getBoolean("Ban.KickDelay.enable")) e.disallow(Result.KICK_BANNED, banScreen);
                         isCancelled = true;
 
-                        /**
-                         * TODO: IP handling when the IP doesn´t in the database
-                         */
-
                        if (banManager.isSetIP(e.getUniqueId())) {
                             banManager.setIP(e.getUniqueId(), e.getAddress());
                         }

@@ -129,8 +129,6 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
         console.sendMessage(prefix + "§7Das BanSystem wurde gestartet.");
 
-        UpdateManager updatemanager = new UpdateManager(mysql);
-
         try {
             if (updatechecker.checkForUpdates()) {
                 console.sendMessage(prefix + "§cEin neues Update ist verfügbar.");
@@ -308,7 +306,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         getCommand("check").setExecutor(new CommandWrapper(new CMDcheck(banmanager, mysql, messages), true));
         getCommand("deletehistory").setExecutor(new CommandWrapper(new CMDdeletehistory(banmanager, messages, mysql), true));
         getCommand("history").setExecutor(new CommandWrapper(new CMDhistory(banmanager, messages, config, mysql), true));
-        getCommand("kick").setExecutor(new CommandWrapper(new CMDkick(messages, mysql), true));
+        getCommand("kick").setExecutor(new CommandWrapper(new CMDkick(messages, mysql, banmanager), true));
         getCommand("unban").setExecutor(new CommandWrapper(new CMDunban(banmanager, mysql, messages, config), true));
         getCommand("unmute").setExecutor(new CommandWrapper(new CMDunmute(banmanager, messages, config, mysql), true));
         getCommand("bansystem").setExecutor(new CommandWrapper(new CMDbansystem(messages, config, mysql), false));
@@ -326,6 +324,21 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     @Override
     public TimeFormatUtil getTimeFormatUtil() {
         return timeFormatUtil;
+    }
+
+    @Override
+    public String getBanScreen() {
+
+        String banScreen = "";
+
+        for(String line : messages.getStringList("Ban.Network.Screen")) {
+            banScreen += line;
+        }
+
+        banScreen.replaceAll("&", "§");
+        banScreen.replaceAll("%P%", prefix);
+
+        return banScreen;
     }
 
     @Override

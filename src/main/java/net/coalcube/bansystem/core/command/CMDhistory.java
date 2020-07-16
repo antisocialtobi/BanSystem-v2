@@ -39,18 +39,19 @@ public class CMDhistory implements Command {
                             user.sendMessage(messages.getString("History.header")
                                     .replaceAll("%P%", messages.getString("prefix"))
                                     .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                    .replaceAll("§", "&"));
+                                    .replaceAll("&", "§"));
+
+                            user.sendMessage(messages.getString("prefix"));
 
                             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
                             for(History history : banManager.getHistory(uuid)) {
                                 String id = "Not Found";
                                 for(String ids : config.getSection("IDs").getKeys()) {
-                                    if(config.getString("IDs." + ids + ".reason") == history.getReason()) {
-                                        id = config.getString(ids);
-                                    }
+                                    if(config.getString("IDs." + ids + ".reason") == history.getReason())
+                                        id = ids;
                                 }
                                 for(String message : messages.getStringList("History.body")) {
-                                    message.replaceAll("%P%", messages.getString("prefix"))
+                                    user.sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
                                             .replaceAll("%reason%", history.getReason())
                                             .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
                                             .replaceAll("%enddate%", simpleDateFormat.format(history.getEndDate()))
@@ -58,13 +59,12 @@ public class CMDhistory implements Command {
                                             .replaceAll("%ip%", history.getIp().getHostName())
                                             .replaceAll("%type%", history.getType().toString())
                                             .replaceAll("%id%", id)
-                                            .replaceAll("&", "§");
+                                            .replaceAll("&", "§"));
                                 }
                             }
-
                             user.sendMessage(messages.getString("History.footer")
                                     .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("§", "&"));
+                                    .replaceAll("&", "§"));
 
                         } else {
                             user.sendMessage(messages.getString("History.historynotfound")

@@ -43,4 +43,6 @@ public interface BanSystem {
 
     TimeFormatUtil getTimeFormatUtil();
 
+    String getBanScreen();
+
 }

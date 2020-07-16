@@ -5,10 +5,10 @@ public class TimeFormatUtil {
     public String getFormattedRemainingTime(Long remainingTime) {
         long millis = remainingTime;
 
-        int seconds = 0;
-        int minutes = 0;
-        int hours = 0;
-        int days = 0;
+        long seconds = 0;
+        long minutes = 0;
+        long hours = 0;
+        long days = 0;
         while (millis > 999) {
             millis -= 1000;
             seconds++;

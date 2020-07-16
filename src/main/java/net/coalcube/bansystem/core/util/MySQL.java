@@ -73,12 +73,12 @@ public class MySQL {
                 " `reason` VARCHAR(100) NOT NULL ," +
                 " `creationdate` DATETIME NOT NULL ) ENGINE = InnoDB;");
 
-        update("CREATE TABLE `logs` " +
+        update("CREATE TABLE IF NOT EXISTS `logs` " +
                 "( `id` INT NOT NULL AUTO_INCREMENT ," +
                 " `action` VARCHAR(100) NOT NULL ," +
                 " `target` VARCHAR(100) NOT NULL ," +
                 " `creator` VARCHAR(100) NOT NULL ," +
-                " `note` VARCHAR(100) NOT NULL ," +
+                " `note` VARCHAR(500) NOT NULL ," +
                 " `creationdate` DATETIME NOT NULL ," +
                 " PRIMARY KEY (`ID`)) ENGINE = InnoDB;");
 

@@ -22,7 +22,7 @@ public class CMDban implements Command {
     private Type type;
     private String reason;
     private String creator;
-    private byte lvl;
+    private int lvl;
     private long duration;
     private UUID uuid;
     private InetAddress address;
@@ -77,6 +77,13 @@ public class CMDban implements Command {
         }
 
         if (args.length == 2) {
+            uuid = UUIDFetcher.getUUID(args[0]);
+            if (uuid == null) {
+                user.sendMessage(messages.getString("Playerdoesnotexist")
+                        .replaceAll("%P%", messages.getString("prefix"))
+                        .replaceAll("&", "§"));
+                return;
+            }
 
             // Unknown ID
             if (!config.getSection("IDs").getKeys().contains(args[1])) {
@@ -96,14 +103,6 @@ public class CMDban implements Command {
                 e.printStackTrace();
             }
 
-            uuid = UUIDFetcher.getUUID(args[0]);
-            if (uuid == null) {
-                user.sendMessage(messages.getString("Playerdoesnotexist")
-                        .replaceAll("%P%", messages.getString("prefix"))
-                        .replaceAll("&", "§"));
-                return;
-            }
-
             if (type != null) {
                 if (user.hasPermission("bansys.ban." + args[1]) || user.hasPermission("bansys.ban.all")
                         || user.hasPermission("bansys.ban.admin")) {
@@ -119,10 +118,12 @@ public class CMDban implements Command {
                     } catch (SQLException throwables) {
                         throwables.printStackTrace();
                     }
+
+                    // if target is online
                     if (BanSystem.getInstance().getUser(args[0]).getUniqueId() != null) {
                         User target = BanSystem.getInstance().getUser(args[0]);
                         address = target.getAddress();
-                        if(target == user) {
+                        if (target == user) {
                             user.sendMessage(messages.getString("Ban.cannotban.yourself")
                                     .replaceAll("%P%", messages.getString("prefix"))
                                     .replaceAll("&", "§"));
@@ -133,50 +134,44 @@ public class CMDban implements Command {
                                     .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
                             return;
                         }
-                        if (target.hasPermission("bansys.ban.bypass")){
+                        if (target.hasPermission("bansys.ban.bypass")) {
                             user.sendMessage(messages.getString("Ban.cannotban.bypassedplayers")
                                     .replaceAll("%P%", messages.getString("prefix"))
                                     .replaceAll("&", "§"));
                         }
-
-                        /**
-                         * TODO: Fix this piece of shit and bring it in a nice and clear shape
-                         */
-
                         // Kick or send mute message
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
+                        String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
                         if (type == Type.NETWORK) {
-                            String banscreen = "";
-                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
-                            String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis()+duration));
+                            String banScreen = BanSystem.getInstance().getBanScreen();
 
-                            for (String screen : messages.getStringList("Ban.Network.Screen")) {
-                                try {
-                                    screen.replaceAll("%Reason%", reason)
-                                            .replaceAll("%ReamingTime%", BanSystem.getInstance().getTimeFormatUtil()
-                                                    .getFormattedRemainingTime(banmanager.getRemainingTime(uuid, type)))
-                                            .replaceAll("%creator", creator)
-                                            .replaceAll("%enddate%", enddate)
-                                            .replaceAll("%lvl%", String.valueOf(lvl))
-                                            .replaceAll("&", "§");
-                                } catch (SQLException throwables) {
-                                    throwables.printStackTrace();
-                                }
-
-                                banscreen += screen+"\n";
-                            }
-                            BanSystem.getInstance().disconnect(target, banscreen);
+                            BanSystem.getInstance().disconnect(target, banScreen
+                                    .replaceAll("%Reason%", reason)
+                                    .replaceAll("%ReamingTime%", BanSystem.getInstance().getTimeFormatUtil()
+                                            .getFormattedRemainingTime(duration))
+                                    .replaceAll("%creator", creator)
+                                    .replaceAll("%enddate%", enddate)
+                                    .replaceAll("%lvl%", String.valueOf(lvl)));
                         } else {
                             for (String message : messages.getStringList("Ban.Chat.Screen")) {
-                                target.sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
-                                        .replaceAll("%reason%", reason).replaceAll("%Player%", target.getDisplayName())
-                                        .replaceAll("%reason%", reason).replaceAll("&", "§"));
+                                target.sendMessage(message
+                                        .replaceAll("%P%", messages.getString("prefix"))
+                                        .replaceAll("%reason%", reason)
+                                        .replaceAll("%Player%", target.getDisplayName())
+                                        .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
+                                                .getFormattedRemainingTime(duration))
+                                        .replaceAll("%creator", creator)
+                                        .replaceAll("%enddate%", enddate)
+                                        .replaceAll("%lvl%", String.valueOf(lvl))
+                                        .replaceAll("&", "§"));
                             }
                         }
-
-
                     }
                     try {
-                        banmanager.ban(uuid, duration, creator, type, reason, address);
+                        if (address != null)
+                            banmanager.ban(uuid, duration, creator, type, reason, address);
+                        else
+                            banmanager.ban(uuid, duration, creator, type, reason);
                     } catch (IOException | SQLException e) {
                         e.printStackTrace();
                     }
@@ -185,30 +180,23 @@ public class CMDban implements Command {
                             .replaceAll("%Player%", UUIDFetcher.getName(uuid)).replaceAll("%reason%", reason)
                             .replaceAll("&", "§"));
                     for (String message : messages.getStringList("Ban.notify")) {
-                        try {
-                            BanSystem.getInstance().getConsole()
-                                    .sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("%reason%", reason)
-                                            .replaceAll("%reamingTime%", BanSystem.getInstance().getTimeFormatUtil()
-                                                    .getFormattedRemainingTime(banmanager.getRemainingTime(uuid, type)))
-                                            .replaceAll("%banner%", creator).replaceAll("%type%", type.toString())
-                                            .replaceAll("&", "§"));
-                        } catch (SQLException throwables) {
-                            throwables.printStackTrace();
-                        }
+                        BanSystem.getInstance().getConsole()
+                                .sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
+                                        .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("%reason%", reason)
+                                        .replaceAll("%reamingTime%", BanSystem.getInstance().getTimeFormatUtil()
+                                                .getFormattedRemainingTime(duration))
+                                        .replaceAll("%banner%", creator).replaceAll("%type%", type.toString())
+                                        .replaceAll("&", "§"));
                     }
                     for (User all : BanSystem.getInstance().getAllPlayers()) {
                         if (all.hasPermission("bansys.notify") && (all != user)) {
                             for (String message : messages.getStringList("Ban.notify")) {
-                                try {
-                                    all.sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("%reason%", reason)
-                                            .replaceAll("%reamingTime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(banmanager.getRemainingTime(uuid, type)))
-                                            .replaceAll("%banner%", creator).replaceAll("%type%", type.toString())
-                                            .replaceAll("&", "§"));
-                                } catch (SQLException throwables) {
-                                    throwables.printStackTrace();
-                                }
+                                all.sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
+                                        .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("%reason%", reason)
+                                        .replaceAll("%reamingTime%", BanSystem.getInstance().getTimeFormatUtil()
+                                                .getFormattedRemainingTime(duration))
+                                        .replaceAll("%banner%", creator).replaceAll("%type%", type.toString())
+                                        .replaceAll("&", "§"));
                             }
                         }
                     }
@@ -216,6 +204,8 @@ public class CMDban implements Command {
                     user.sendMessage(messages.getString("Ban.ID.NoPermission").replaceAll("%P%",
                             messages.getString("prefix")));
 
+            } else {
+                System.out.println("Type is null");
             }
             return;
         }
@@ -246,51 +236,55 @@ public class CMDban implements Command {
         }
 
         // set ID
-        for (String key : config.getSection("IDs").getKeys()) {
-            if (args[1].equalsIgnoreCase(key)) {
+        if (config.getSection("IDs").getKeys().contains(args[1])) {
+            String id = args[1];
+            //set reason
+            reason = config.getString("IDs." + id + ".reason");
 
-                // set lvl
+            // set lvl
 
-                /**
-                 * TODO: fix that you have no lvl limit and check that its work fine
-                 */
-                try {
-                    if (banmanager.hasHistory(uuid, reason)) {
-                        if(!isMaxBanLvl(args[1], banmanager.getLevel(uuid, reason))) {
-                            lvl = (byte) (banmanager.getLevel(uuid, reason) + 1);
-                        } else {
-                            lvl = (byte) banmanager.getLevel(uuid, reason);
-                        }
+            /**
+             * TODO: fix that you have no lvl limit and check that its work fine
+             */
+            try {
+                if (banmanager.hasHistory(uuid, reason)) {
+                    if (!isMaxBanLvl(args[1], banmanager.getLevel(uuid, reason))) {
+                        System.out.println("lvl is not maxlvl");
+                        lvl = (banmanager.getLevel(uuid, reason) + 1);
                     } else {
-                        lvl = 1;
+                        System.out.println("lvl is maxlvl");
+                        lvl = getMaxLvl(args[1]);
                     }
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                }
-                for (String lvlkey : config.getSection("IDs." + key + ".lvl").getKeys()) {
-                    if (Byte.parseByte(lvlkey) == lvl) {
-                        duration = config.getLong("IDs." + key + ".lvl." + lvlkey + ".duration");
-                    }
-                }
-                if (duration == 0) {
-                    duration = -1;
-                }
 
-                // check Admin permissions
-                if (config.getBoolean("IDs." + key + ".onlyAdmins")) {
-                    if (!user.hasPermission("bansys.ban.admin")) {
-                        user.sendMessage(messages.getString("Ban.onlyadmins")
-                                .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
-                        return;
-                    }
+                } else {
+                    lvl = 1;
                 }
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
 
-                //set reason
-                reason = config.getString("IDs." + key + ".reason");
 
-                //set Type
-                type = Type.valueOf(config.getString("IDs." + key + ".lvl." + lvl + ".type"));
+            System.out.println(lvl);
 
+            //set duration
+            for (String lvlkey : config.getSection("IDs." + id + ".lvl").getKeys()) {
+                if (Integer.valueOf(lvlkey) == lvl) {
+                    duration = config.getLong("IDs." + id + ".lvl." + lvlkey + ".duration");
+                    duration = (duration == -1) ? duration : duration * 1000;
+                    type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvlkey + ".type"));
+                }
+            }
+            if (duration == 0) {
+                duration = -1;
+            }
+
+            // check Admin permissions
+            if (config.getBoolean("IDs." + id + ".onlyAdmins")) {
+                if (!user.hasPermission("bansys.ban.admin")) {
+                    user.sendMessage(messages.getString("Ban.onlyadmins")
+                            .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
+                    return;
+                }
             }
         }
     }
@@ -299,8 +293,17 @@ public class CMDban implements Command {
         int maxLvl = 0;
 
         for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if(Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
+            if (Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
         }
         return lvl >= maxLvl;
+    }
+
+    private int getMaxLvl(String id) {
+        int maxLvl = 0;
+
+        for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
+            if (Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
+        }
+        return maxLvl;
     }
 }

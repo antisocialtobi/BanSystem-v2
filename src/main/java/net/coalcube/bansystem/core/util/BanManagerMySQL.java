@@ -22,7 +22,7 @@ public class BanManagerMySQL implements BanManager {
     @Override
     public void log(String action, String creator, String target, String note) throws SQLException {
         mysql.update("INSERT INTO `logs` (`action`, `target`, `creator`, `note`, `creationdate`) " +
-                "VALUES ('" + action + "', '" + creator + "','" + target + "', '" + note + "', NOW());");
+                "VALUES ('" + action + "', '" + target + "','" + creator + "', '" + note + "', NOW());");
     }
 
     @Override
@@ -55,18 +55,18 @@ public class BanManagerMySQL implements BanManager {
 
     @Override
     public void ban(UUID player, long time, UUID creator, Type type, String reason) throws IOException, SQLException {
-        ban(player, time, creator.toString(), type, reason, null);
+        ban(player, time, creator.toString(), type, reason);
     }
 
     @Override
     public void ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException {
         mysql.update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
-                "VALUES ('" + player + "', '" + time + "', NOW(), '" + creator + "', '" + reason + "', '" + v4adress.getHostName() + "', '" + type +"');");
+                "VALUES ('" + player + "', '" + time + "', NOW(), '" + creator + "', '" + reason + "', '" + v4adress.getHostName() + "', '" + type + "');");
 
         mysql.update("INSERT INTO `banhistories` (`player`, `duration`, `creator`, `reason`, `ip`, `type`, `creationdate`) " +
-                "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + v4adress.getHostName() + "', '" + type +"', NOW());");
+                "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + v4adress.getHostName() + "', '" + type + "', NOW());");
 
-        log("Banned Player", UUIDFetcher.getName(UUID.fromString(creator)), UUIDFetcher.getName(player),
+        log("Banned Player", creator, UUIDFetcher.getName(player),
                 "reason: " + reason + ", " +
                         "duration: " + BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(time) + ", " +
                         "Type: " + type);
@@ -74,7 +74,11 @@ public class BanManagerMySQL implements BanManager {
 
     @Override
     public void ban(UUID player, long time, String creator, Type type, String reason) throws IOException, SQLException {
-        ban(player, time, creator, type, reason, null);
+        mysql.update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
+                "VALUES ('" + player + "', '" + time + "', NOW(), '" + creator + "', '" + reason + "', '','" + type + "');");
+
+        mysql.update("INSERT INTO `banhistories` (`player`, `duration`, `creator`, `reason`, `type`, `ip`,`creationdate`) " +
+                "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + type + "', '', NOW());");
     }
 
     @Override
@@ -84,22 +88,26 @@ public class BanManagerMySQL implements BanManager {
 
     @Override
     public void unBan(UUID player, String unBanner, String reason) throws IOException, SQLException {
-        mysql.update("DELETE FROM `bans` WHERE player = '" + player + "', type = '" + Type.NETWORK + "'");
+        mysql.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.NETWORK + "'");
         mysql.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `reason`, `type`) " +
                 "VALUES ('" + player + "', '" + unBanner + "', NOW(), '" + reason + "','" + Type.NETWORK +"');");
 
-        log("Unbanned Player", UUIDFetcher.getName(UUID.fromString(unBanner)), UUIDFetcher.getName(player),
+        log("Unbanned Player", unBanner, UUIDFetcher.getName(player),
                 (!reason.equals("") ? "reason: " + reason : ""));
     }
 
     @Override
     public void unBan(UUID player, UUID unBanner) throws IOException, SQLException {
-        unBan(player, unBanner, "");
+        unBan(player, unBanner);
     }
 
     @Override
     public void unBan(UUID player, String unBanner) throws IOException, SQLException {
-        unBan(player, unBanner, "");
+        mysql.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.NETWORK + "'");
+        mysql.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `type`) " +
+                "VALUES ('" + player + "', '" + unBanner + "', NOW(), '" + Type.NETWORK +"');");
+
+        log("Unbanned Player", unBanner, UUIDFetcher.getName(player),"");
     }
 
     @Override
@@ -109,34 +117,43 @@ public class BanManagerMySQL implements BanManager {
 
     @Override
     public void unMute(UUID player, String unBanner, String reason) throws IOException, SQLException {
-        mysql.update("DELETE FROM `bans` WHERE player = '" + player + "', type = '" + Type.CHAT + "'");
+        mysql.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.CHAT + "'");
         mysql.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `reason`, `type`) " +
                 "VALUES ('" + player + "', '" + unBanner + "', NOW(), '" + reason + "','" + Type.CHAT +"');");
 
-        log("Unmuted Player", UUIDFetcher.getName(UUID.fromString(unBanner)), UUIDFetcher.getName(player),
+        log("Unmuted Player", unBanner, UUIDFetcher.getName(player),
                 (!reason.equals("") ? "reason: " + reason : ""));
     }
 
     @Override
     public void unMute(UUID player, UUID unBanner) throws IOException, SQLException {
-        unMute(player, unBanner.toString(), "");
+        unMute(player, unBanner.toString());
     }
 
     @Override
     public void unMute(UUID player, String unBanner) throws IOException, SQLException {
-        unMute(player, unBanner, "");
+        mysql.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.CHAT + "'");
+        mysql.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `type`) " +
+                "VALUES ('" + player + "', '" + unBanner + "', NOW(),'" + Type.CHAT +"');");
+
+        log("Unmuted Player", unBanner, UUIDFetcher.getName(player),"");
     }
 
     @Override
     public void deleteHistory(UUID player, String actor) throws SQLException {
-        mysql.update("DELETE FROM `banhistories` WHERE player = '" + player + "', type = '" + Type.CHAT + "';");
+        mysql.update("DELETE FROM `banhistories` WHERE player = '" + player + "';");
 
-        log("Deleted History", actor, UUIDFetcher.getName(player), "");
+        log("Deleted History", actor, player.toString(), "");
+    }
+
+    @Override
+    public void setIP(UUID player, InetAddress address) throws SQLException {
+        mysql.update("UPDATE `bans` SET ip='" + address.getHostName() + "' WHERE ip IS NULL;");
     }
 
     @Override
     public String getBanReason(UUID player, Type type) throws SQLException {
-        ResultSet resultSet = mysql.getResult("SELECT reason FROM `bans` WHERE player = '" + player + "', type = '" + type + "';");
+        ResultSet resultSet = mysql.getResult("SELECT reason FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
         while (resultSet.next()) {
             return resultSet.getString("reason");
         }
@@ -145,16 +162,18 @@ public class BanManagerMySQL implements BanManager {
 
     @Override
     public Long getEnd(UUID player, Type type) throws SQLException {
-        ResultSet resultSet = mysql.getResult("SELECT duration FROM `bans` WHERE player = '" + player + "', type = '" + type + "';");
+        ResultSet resultSet = mysql.getResult("SELECT duration FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
         while (resultSet.next()) {
-            return getCreationDate(player, type) + resultSet.getLong("duration");
+            Long duration = resultSet.getLong("duration");
+
+            return (duration == -1) ? duration : getCreationDate(player, type) + duration ;
         }
         return null;
     }
 
     @Override
     public String getBanner(UUID player, Type type) throws SQLException {
-        ResultSet resultSet = mysql.getResult("SELECT creator FROM `bans` WHERE player = '" + player + "', type = '" + type + "';");
+        ResultSet resultSet = mysql.getResult("SELECT creator FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
         while (resultSet.next()) {
             return resultSet.getString("creator");
         }
@@ -163,12 +182,12 @@ public class BanManagerMySQL implements BanManager {
 
     @Override
     public Long getRemainingTime(UUID player, Type type) throws SQLException {
-        return getEnd(player, type) - System.currentTimeMillis();
+        return (getEnd(player, type) == -1) ? -1 : getEnd(player, type) - System.currentTimeMillis();
     }
 
     @Override
     public String getReason(UUID player, Type type) throws SQLException {
-        ResultSet resultSet = mysql.getResult("SELECT reason FROM `bans` WHERE player = '" + player + "', type = '" + type + "';");
+        ResultSet resultSet = mysql.getResult("SELECT reason FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
         while (resultSet.next()) {
             return resultSet.getString("reason");
         }
@@ -177,7 +196,7 @@ public class BanManagerMySQL implements BanManager {
 
     @Override
     public int getLevel(UUID player, String reason) throws UnknownHostException, SQLException {
-        ResultSet resultSet = mysql.getResult("SELECT * FROM `bans` WHERE player = '" + player + "', reason = '" + reason + "';");
+        ResultSet resultSet = mysql.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "' AND reason = '" + reason + "';");
         int lvl = 0;
         while (resultSet.next()) {
             lvl ++;
@@ -187,9 +206,9 @@ public class BanManagerMySQL implements BanManager {
 
     @Override
     public Long getCreationDate(UUID player, Type type) throws SQLException {
-        ResultSet resultSet = mysql.getResult("SELECT creationdate FROM `bans` WHERE player = '" + player + "', type = '" + type + "';");
+        ResultSet resultSet = mysql.getResult("SELECT creationdate FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
         while (resultSet.next()) {
-            return resultSet.getDate("creationdate").getTime();
+            return resultSet.getTimestamp("creationdate").getTime();
         }
         return null;
     }
@@ -203,7 +222,7 @@ public class BanManagerMySQL implements BanManager {
                     resultSet.getString("player")),
                     resultSet.getString("creator"),
                     resultSet.getString("reason"),
-                    resultSet.getDate("creationdate").getTime(),
+                    resultSet.getTimestamp("creationdate").getTime(),
                     resultSet.getLong("duration"),
                     Type.valueOf(resultSet.getString("type")),
                     InetAddress.getByName(resultSet.getString("ip"))));
@@ -232,7 +251,7 @@ public class BanManagerMySQL implements BanManager {
 
     @Override
     public boolean hasHistory(UUID player, String reason) throws UnknownHostException, SQLException {
-        ResultSet resultSet = mysql.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "', reason = '" + reason + "';");
+        ResultSet resultSet = mysql.getResult("SELECT * FROM `banhistories` WHERE player='" + player + "' AND reason='" + reason + "';");
         while (resultSet.next()) {
             return true;
         }
@@ -241,10 +260,15 @@ public class BanManagerMySQL implements BanManager {
 
     @Override
     public boolean isBanned(UUID player, Type type) throws SQLException {
-        ResultSet resultSet = mysql.getResult("SELECT * FROM `bans` WHERE player = '" + player + "', type = '" + type + "';");
+        ResultSet resultSet = mysql.getResult("SELECT * FROM `bans` WHERE player = '" + player + "' and type = '" + type.toString() + "';");
         while (resultSet.next()) {
             return true;
         }
+        return false;
+    }
+
+    @Override
+    public boolean isSetIP(UUID player) {
         return false;
     }
 }

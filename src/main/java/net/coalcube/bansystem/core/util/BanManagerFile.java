@@ -155,6 +155,11 @@ public class BanManagerFile implements BanManager {
     }
 
     @Override
+    public void setIP(UUID player, InetAddress address) {
+
+    }
+
+    @Override
     public String getBanReason(UUID player, Type type) {
         return bans.getString(player + "." + type.toString() + ".reason");
     }
@@ -242,5 +247,10 @@ public class BanManagerFile implements BanManager {
     @Override
     public boolean isBanned(UUID player, Type type) {
         return bans.getString(player + "." + type.toString()) != null;
+    }
+
+    @Override
+    public boolean isSetIP(UUID player) {
+        return false;
     }
 }

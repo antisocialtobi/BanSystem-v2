@@ -18,6 +18,7 @@ import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +27,15 @@ import java.util.concurrent.TimeUnit;
 public class BanSystemBungee extends Plugin implements BanSystem {
 
     private static Plugin instance;
-    private BanManager banmanager;
+    private BanManager banManager;
 
     private MySQL mysql;
     private ServerSocket serversocket;
+    private TimeFormatUtil timeFormatUtil;
     private Config config, messages, blacklist, bans, banHistories, unBans;
     private String banScreen;
     private List<String> blockedCommands, ads, blockedWords;
+    private List<InetAddress> bannedAddresses;
     private File fileDatabaseFolder;
     private String hostname, database, user, pw;
     private int port;
@@ -49,6 +52,8 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         PluginManager pluginmanager = ProxyServer.getInstance().getPluginManager();
         console = ProxyServer.getInstance().getConsole();
         UpdateChecker updatechecker = new UpdateChecker(65863);
+        bannedAddresses = new ArrayList<>();
+        timeFormatUtil = new TimeFormatUtil();
 
         console.sendMessage(new TextComponent("§c  ____                    ____                  _                      "));
         console.sendMessage(new TextComponent("§c | __ )    __ _   _ __   / ___|   _   _   ___  | |_    ___   _ __ ___  "));
@@ -63,7 +68,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         // Set mysql instance
         if (config.getBoolean("mysql.enable")) {
             mysql = new MySQL(hostname, port, database, user, pw);
-            banmanager = new BanManagerMySQL(mysql);
+            banManager = new BanManagerMySQL(mysql);
             try {
                 mysql.connect();
                 console.sendMessage(new TextComponent(prefix + "§7Datenbankverbindung §2erfolgreich §7hergestellt."));
@@ -95,11 +100,11 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         } else {
             fileDatabaseFolder = new File(this.getDataFolder().getPath() + "/database");
             createFileDatabase();
-            banmanager = new BanManagerFile(bans, banHistories, unBans, fileDatabaseFolder);
+            banManager = new BanManagerFile(bans, banHistories, unBans, fileDatabaseFolder);
             mysql = null;
         }
 
-        ProxyServer.getInstance().getScheduler().schedule(this, () -> UUIDFetcher.clearCache(), 1, 1, TimeUnit.HOURS);
+        ProxyServer.getInstance().getScheduler().schedule(this, UUIDFetcher::clearCache, 1, 1, TimeUnit.HOURS);
 
         if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.autoban.enable"))
             ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(
@@ -107,8 +112,6 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
 
         console.sendMessage(new TextComponent(BanSystemBungee.prefix + "§7Das BanSystem wurde gestartet."));
-
-        UpdateManager updatemanager = new UpdateManager(mysql);
 
         try {
             if (updatechecker.checkForUpdates()) {
@@ -229,9 +232,9 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             banScreen = "";
             for (String screen : messages.getStringList("Ban.Network.Screen")) {
                 if (banScreen == null) {
-                    banScreen = screen.replaceAll("%P%", prefix) + "\n";
+                    banScreen = screen.replaceAll("%P%", prefix).replaceAll("&", "§") + "\n";
                 } else
-                    banScreen = banScreen + screen.replaceAll("%P%", prefix) + "\n";
+                    banScreen += screen.replaceAll("%P%", prefix).replaceAll("&", "§") + "\n";
             }
             user = config.getString("mysql.user");
             hostname = config.getString("mysql.host");
@@ -243,17 +246,11 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             blockedCommands = new ArrayList<>();
             blockedWords = new ArrayList<>();
 
-            for(String ad : blacklist.getStringList("Ads")) {
-                ads.add(ad);
-            }
+            ads.addAll(blacklist.getStringList("Ads"));
 
-            for(String cmd : config.getStringList("mute.blockedCommands")) {
-                blockedCommands.add(cmd);
-            }
+            blockedCommands.addAll(config.getStringList("mute.blockedCommands"));
 
-            for(String word : blacklist.getStringList("Words")) {
-                blockedWords.add(word);
-            }
+            blockedWords.addAll(blacklist.getStringList("Words"));
 
         } catch (NullPointerException e) {
             System.err.println("[Bansystem] Es ist ein Fehler beim laden der Config/messages Datei aufgetreten. "
@@ -286,18 +283,18 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     }
 
     private void init(PluginManager pluginManager) {
-        pluginManager.registerCommand(this, new CommandWrapper("ban", new CMDban(banmanager, config, messages, mysql), true));
-        pluginManager.registerCommand(this, new CommandWrapper("check", new CMDcheck(banmanager, mysql, messages), true));
-        pluginManager.registerCommand(this, new CommandWrapper("deletehistory", new CMDdeletehistory(banmanager, messages, mysql), true));
-        pluginManager.registerCommand(this, new CommandWrapper("history", new CMDhistory(banmanager, messages, config, mysql), true));
-        pluginManager.registerCommand(this, new CommandWrapper("kick", new CMDkick(messages, mysql), true));
-        pluginManager.registerCommand(this, new CommandWrapper("unban", new CMDunban(banmanager, mysql, messages, config), true));
-        pluginManager.registerCommand(this, new CommandWrapper("unmute", new CMDunmute(banmanager, messages, config, mysql), true));
+        pluginManager.registerCommand(this, new CommandWrapper("ban", new CMDban(banManager, config, messages, mysql), true));
+        pluginManager.registerCommand(this, new CommandWrapper("check", new CMDcheck(banManager, mysql, messages), true));
+        pluginManager.registerCommand(this, new CommandWrapper("deletehistory", new CMDdeletehistory(banManager, messages, mysql), true));
+        pluginManager.registerCommand(this, new CommandWrapper("history", new CMDhistory(banManager, messages, config, mysql), true));
+        pluginManager.registerCommand(this, new CommandWrapper("kick", new CMDkick(messages, mysql, banManager), true));
+        pluginManager.registerCommand(this, new CommandWrapper("unban", new CMDunban(banManager, mysql, messages, config), true));
+        pluginManager.registerCommand(this, new CommandWrapper("unmute", new CMDunmute(banManager, messages, config, mysql), true));
         pluginManager.registerCommand(this, new CommandWrapper("bansystem", new CMDbansystem(messages, config, mysql), false));
         pluginManager.registerCommand(this, new CommandWrapper("bansys", new CMDbansystem(messages, config, mysql), false));
 
-        pluginManager.registerListener(this, new LoginListener());
-        pluginManager.registerListener(this, new ChatListener());
+        pluginManager.registerListener(this, new LoginListener(banManager, config, messages, mysql, bannedAddresses));
+        pluginManager.registerListener(this, new ChatListener(banManager, config, messages, mysql));
     }
 
     public MySQL getMySQL() {
@@ -306,7 +303,12 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
     @Override
     public TimeFormatUtil getTimeFormatUtil() {
-        return null;
+        return timeFormatUtil;
+    }
+
+    @Override
+    public String getBanScreen() {
+        return banScreen;
     }
 
     @Override

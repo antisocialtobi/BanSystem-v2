@@ -1,7 +1,7 @@
 name: BanSystem
 version: 2.0
 author: Tobi
-main: net.coalcube.bansystem.bungee.BanSystemBungee
+main: net.coalcube.bansystem.spigot.BanSystemSpigot
 commands:
   ban:
   unban:

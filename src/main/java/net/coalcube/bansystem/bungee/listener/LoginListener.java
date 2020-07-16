@@ -10,7 +10,6 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
-import org.bukkit.Bukkit;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -48,29 +47,24 @@ public class LoginListener implements Listener {
                 try {
                     if (banManager.isBanned(uuid, Type.NETWORK)) {
                         try {
-                            if (banManager.getEnd(uuid, Type.NETWORK) > System
-                                    .currentTimeMillis()
+                            if (banManager.getEnd(uuid, Type.NETWORK) > System.currentTimeMillis()
                                     || banManager.getEnd(uuid, Type.NETWORK) == -1) {
-                                String banscreen = "";
+                                String banScreen = BanSystem.getInstance().getBanScreen();
                                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
                                 String enddate = simpleDateFormat.format(new Date(banManager.getEnd(uuid, Type.NETWORK)));
-
-                                for (String screen : messages.getStringList("Ban.Network.Screen")) {
-                                    try {
-                                        screen.replaceAll("%Reason%", banManager.getReason(uuid, Type.NETWORK));
-                                        screen.replaceAll("%ReamingTime%", BanSystem.getInstance().getTimeFormatUtil()
-                                                .getFormattedRemainingTime(banManager.getRemainingTime(uuid, Type.NETWORK)));
-                                        screen.replaceAll("%creator", banManager.getBanner(uuid, Type.NETWORK));
-                                        screen.replaceAll("%enddate%", enddate);
-                                        screen.replaceAll("%lvl%", String.valueOf(banManager.getLevel(uuid, banManager.getReason(uuid, Type.NETWORK))));
-                                        screen.replaceAll("&", "§");
-                                    } catch (SQLException | UnknownHostException throwables) {
-                                        throwables.printStackTrace();
-                                    }
-
-                                    banscreen += screen+"\n";
+                                try {
+                                    e.setCancelReason(banScreen
+                                            .replaceAll("%Reason%", banManager.getReason(uuid, Type.NETWORK))
+                                            .replaceAll("%Reason%", banManager.getReason(uuid, Type.NETWORK))
+                                            .replaceAll("%ReamingTime%", BanSystem.getInstance().getTimeFormatUtil()
+                                                    .getFormattedRemainingTime(banManager.getRemainingTime(uuid, Type.NETWORK)))
+                                            .replaceAll("%creator", banManager.getBanner(uuid, Type.NETWORK))
+                                            .replaceAll("%enddate%", enddate)
+                                            .replaceAll("&", "§")
+                                            .replaceAll("%lvl%", String.valueOf(banManager.getLevel(uuid, banManager.getReason(uuid, Type.NETWORK)))));
+                                } catch (UnknownHostException unknownHostException) {
+                                    unknownHostException.printStackTrace();
                                 }
-                                e.setCancelReason(banscreen);
                                 e.setCancelled(true);
                                 // p.disconnect(component);
                                 if (!banManager.isSetIP(e.getConnection().getUniqueId())) {
@@ -79,9 +73,9 @@ public class LoginListener implements Listener {
                             } else {
                                 try {
                                     if(config.getBoolean("needReason.Unmute")) {
-                                        banManager.unBan(uuid, Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
+                                        banManager.unBan(uuid, ProxyServer.getInstance().getConsole().getName(), "Strafe abgelaufen");
                                     } else {
-                                        banManager.unBan(uuid, Bukkit.getConsoleSender().getName());
+                                        banManager.unBan(uuid, ProxyServer.getInstance().getConsole().getName());
                                     }
                                 } catch (IOException ioException) {
                                     ioException.printStackTrace();

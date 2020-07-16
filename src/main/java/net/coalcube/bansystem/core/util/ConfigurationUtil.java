@@ -178,14 +178,14 @@ public class ConfigurationUtil {
                 "%P%§7Von §8» §c%banner%",
                 "%P%§7Grund §8» §c%reason%",
                 "%P%§7Verbleibende Zeit §8» §c%reamingtime%",
-                "%P%§7Type §8» §c%type%",
+                "%P%§7Type §8» §cChat",
                 "%P%§7Level §8» §c%level%",
                 "%P%§8§m-----------------"));
         messages.set("Check.network", Arrays.asList("%P%§8§m------§8» §e%player% §8«§m------",
                 "%P%§7Von §8» §c%banner%",
                 "%P%§7Grund §8» §c%reason%",
                 "%P%§7Verbleibende Zeit §8» §c%reamingtime%",
-                "%P%§7Type §8» §c%type%",
+                "%P%§7Type §8» §cNetzwerk",
                 "%P%§7Level §8» §c%level%",
                 "%P%§8§m-----------------"));
         messages.set("Check.networkandchat", Arrays.asList("%P%§8§m------§8» §e%player% §8«§m------",
@@ -213,7 +213,6 @@ public class ConfigurationUtil {
         messages.set("History.faild", "%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.");
         messages.set("History.header", "%P%§8§m-------§8» §e%player% §8«§m-------");
         messages.set("History.body", Arrays.asList(
-                "%P%",
                 "%P%§7Grund §8» §c%reason%",
                 "%P%§7Erstelldatum §8» §c%creationdate%",
                 "%P%§7Enddatum §8» §c%enddate%",
@@ -221,7 +220,6 @@ public class ConfigurationUtil {
                 "%P%§7IP §8» §c%ip%",
                 "%P%§7Type §8» §c%type%",
                 "%P%§7ID §8» §c%id%",
-                "%P%",
                 "%P%"));
         messages.set("History.footer", "%P%§8§m------------------------");
 

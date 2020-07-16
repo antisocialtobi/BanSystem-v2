@@ -53,6 +53,6 @@ public class History {
     }
 
     public Date getEndDate() {
-        return new Date(getCreateDate().getTime() + getDuration());
+        return new Date(getCreateDate().getTime() + getDuration()*1000);
     }
 }

@@ -4,6 +4,7 @@ import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.util.*;
 
 import java.net.UnknownHostException;
+import java.sql.SQLException;
 import java.util.UUID;
 
 public class CMDcheck implements Command {
@@ -74,6 +75,7 @@ public class CMDcheck implements Command {
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%reamingtime%", reamingtime)
                                         .replaceAll("%level%", lvl)
+                                        .replaceAll("%type%", Type.CHAT.toString())
                                         .replaceAll("&", "§"));
                             }
 
@@ -93,6 +95,7 @@ public class CMDcheck implements Command {
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%reamingtime%", reamingtime)
                                         .replaceAll("%level%", lvl)
+                                        .replaceAll("%type%", Type.NETWORK.toString())
                                         .replaceAll("&", "§"));
                             }
 
@@ -102,7 +105,7 @@ public class CMDcheck implements Command {
                                     .replaceAll("%player%", UUIDFetcher.getName(uuid))
                                     .replaceAll("&", "§"));
                         }
-                    } catch (UnknownHostException e) {
+                    } catch (UnknownHostException | SQLException e) {
                         user.sendMessage(messages.getString("Check.faild")
                                 .replaceAll("%P%", messages.getString("prefix"))
                                 .replaceAll("&", "§"));

@@ -12,20 +12,20 @@ public class CMDhistory implements Command {
     private final BanManager banManager;
     private final Config messages;
     private final Config config;
-    private final MySQL mysql;
+    private final Database sql;
 
-    public CMDhistory(BanManager banmanager, Config messages, Config config, MySQL mysql) {
+    public CMDhistory(BanManager banmanager, Config messages, Config config, Database sql) {
         this.banManager = banmanager;
         this.messages = messages;
         this.config = config;
-        this.mysql = mysql;
+        this.sql = sql;
     }
 
 
     @Override
     public void execute(User user, String[] args) {
         if (user.hasPermission("bansys.history.show")) {
-            if (mysql.isConnected()) {
+            if (sql.isConnected()) {
                 if (args.length == 1) {
                     UUID uuid = UUIDFetcher.getUUID(args[0]);
                     if (uuid == null) {
@@ -47,7 +47,7 @@ public class CMDhistory implements Command {
                             for(History history : banManager.getHistory(uuid)) {
                                 String id = "Not Found";
                                 for(String ids : config.getSection("IDs").getKeys()) {
-                                    if(config.getString("IDs." + ids + ".reason") == history.getReason())
+                                    if(config.getString("IDs." + ids + ".reason").equals(history.getReason()))
                                         id = ids;
                                 }
                                 for(String message : messages.getStringList("History.body")) {

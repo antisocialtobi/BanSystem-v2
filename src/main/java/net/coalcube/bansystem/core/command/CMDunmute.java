@@ -12,19 +12,19 @@ public class CMDunmute implements Command {
     private final BanManager bm;
     private final Config messages;
     private final Config config;
-    private final MySQL mysql;
+    private final Database sql;
 
-    public CMDunmute(BanManager banmanager, Config messages, Config config, MySQL mysql) {
+    public CMDunmute(BanManager banmanager, Config messages, Config config, Database sql) {
         this.bm = banmanager;
         this.messages = messages;
         this.config = config;
-        this.mysql = mysql;
+        this.sql = sql;
     }
 
     @Override
     public void execute(User user, String[] args) {
         if (user.hasPermission("bansys.unmute")) {
-            if (mysql.isConnected()) {
+            if (sql.isConnected()) {
                 if (args.length == 1) {
                     UUID uuid = UUIDFetcher.getUUID(args[0]);
                     if (uuid == null) {

@@ -10,13 +10,13 @@ import java.util.UUID;
 public class CMDunban implements Command {
 
     private final BanManager banManager;
-    private final MySQL mysql;
+    private final Database sql;
     private final Config messages;
     private final Config config;
 
-    public CMDunban(BanManager banmanager, MySQL mysql, Config messages, Config config) {
+    public CMDunban(BanManager banmanager, Database sql, Config messages, Config config) {
         this.banManager = banmanager;
-        this.mysql = mysql;
+        this.sql = sql;
         this.messages = messages;
         this.config = config;
     }
@@ -24,7 +24,7 @@ public class CMDunban implements Command {
     @Override
     public void execute(User user, String[] args) {
         if (user.hasPermission("bansys.unban")) {
-            if (mysql.isConnected()) {
+            if (sql.isConnected()) {
                 if (args.length == 1) {
                     UUID uuid = UUIDFetcher.getUUID(args[0]);
                     if (uuid == null) {

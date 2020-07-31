@@ -29,14 +29,16 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     private static Plugin instance;
     private BanManager banManager;
 
+    private Database sql;
     private MySQL mysql;
+    private SQLite sqlite;
     private ServerSocket serversocket;
     private TimeFormatUtil timeFormatUtil;
-    private Config config, messages, blacklist, bans, banHistories, unBans;
+    private Config config, messages, blacklist;
     private String banScreen;
     private List<String> blockedCommands, ads, blockedWords;
     private List<InetAddress> bannedAddresses;
-    private File fileDatabaseFolder;
+    private File fileDatabaseFolder, sqlitedatabase;
     private String hostname, database, user, pw;
     private int port;
     private CommandSender console;
@@ -68,6 +70,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         // Set mysql instance
         if (config.getBoolean("mysql.enable")) {
             mysql = new MySQL(hostname, port, database, user, pw);
+            sql = mysql;
             banManager = new BanManagerMySQL(mysql);
             try {
                 mysql.connect();
@@ -100,8 +103,26 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         } else {
             fileDatabaseFolder = new File(this.getDataFolder().getPath() + "/database");
             createFileDatabase();
-            banManager = new BanManagerFile(bans, banHistories, unBans, fileDatabaseFolder);
-            mysql = null;
+            sqlite = new SQLite(sqlitedatabase);
+            banManager = new BanManagerSQLite(sqlite);
+            sql = sqlite;
+            try {
+                sqlite.connect();
+                console.sendMessage(new TextComponent(prefix + "§7Datenbankverbindung §2erfolgreich §7hergestellt."));
+            } catch (SQLException e) {
+                console.sendMessage(new TextComponent(prefix + "§7Datenbankverbindung konnte §4nicht §7hergestellt werden."));
+                console.sendMessage(new TextComponent(prefix + "§cBitte überprüfe die eingetragenen SQlite daten in der Config.yml."));
+                e.printStackTrace();
+            }
+            try {
+                if(sqlite.isConnected()) {
+                    sqlite.createTables(config);
+                    console.sendMessage(new TextComponent(prefix + "§7Die SQLite Tabellen wurden §2erstellt§7."));
+                }
+            } catch (SQLException e) {
+                console.sendMessage(new TextComponent(prefix + "§7Die SQLite Tabellen §ckonnten nicht §7erstellt werden."));
+                console.sendMessage(new TextComponent(prefix + e.getMessage() + " " + e.getCause()));
+            }
         }
 
         ProxyServer.getInstance().getScheduler().schedule(this, UUIDFetcher::clearCache, 1, 1, TimeUnit.HOURS);
@@ -140,8 +161,8 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
         try {
             if (config.getBoolean("mysql.enable")) {
-                if (mysql.isConnected())
-                    mysql.disconnect();
+                if (sql.isConnected())
+                    sql.disconnect();
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -199,27 +220,13 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             if (!fileDatabaseFolder.exists()) {
                 fileDatabaseFolder.mkdir();
             }
-            File bansfile = new File(fileDatabaseFolder.getPath(), "bans.yml");
-            if (!bansfile.exists()) {
-                bansfile.createNewFile();
-                bans = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(bansfile));
-            }
-            File banhistoriesfile = new File(fileDatabaseFolder.getPath(), "banhistories.yml");
-            if (!banhistoriesfile.exists()) {
-                banhistoriesfile.createNewFile();
-                banHistories = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(banhistoriesfile));
-            }
-            File unbansfile = new File(fileDatabaseFolder.getPath(), "unbans.yml");
-            if (!unbansfile.exists()) {
-                unbansfile.createNewFile();
-                unBans = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(unbansfile));
-            }
+            sqlitedatabase = new File(fileDatabaseFolder.getPath(), "database.db");
 
-            bans = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(bansfile));
-            banHistories = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(banhistoriesfile));
-            unBans = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(unbansfile));
+            if (!sqlitedatabase.exists()) {
+                sqlitedatabase.createNewFile();
+            }
         } catch (IOException e) {
-            console.sendMessage(new TextComponent(prefix + "Die Filedatenbank konnten nicht erstellt werden."));
+            console.sendMessage(new TextComponent(prefix + "Die SQLite datenbank konnten nicht erstellt werden."));
             e.printStackTrace();
         }
     }
@@ -283,22 +290,22 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     }
 
     private void init(PluginManager pluginManager) {
-        pluginManager.registerCommand(this, new CommandWrapper("ban", new CMDban(banManager, config, messages, mysql), true));
-        pluginManager.registerCommand(this, new CommandWrapper("check", new CMDcheck(banManager, mysql, messages), true));
-        pluginManager.registerCommand(this, new CommandWrapper("deletehistory", new CMDdeletehistory(banManager, messages, mysql), true));
-        pluginManager.registerCommand(this, new CommandWrapper("history", new CMDhistory(banManager, messages, config, mysql), true));
-        pluginManager.registerCommand(this, new CommandWrapper("kick", new CMDkick(messages, mysql, banManager), true));
-        pluginManager.registerCommand(this, new CommandWrapper("unban", new CMDunban(banManager, mysql, messages, config), true));
-        pluginManager.registerCommand(this, new CommandWrapper("unmute", new CMDunmute(banManager, messages, config, mysql), true));
-        pluginManager.registerCommand(this, new CommandWrapper("bansystem", new CMDbansystem(messages, config, mysql), false));
-        pluginManager.registerCommand(this, new CommandWrapper("bansys", new CMDbansystem(messages, config, mysql), false));
+        pluginManager.registerCommand(this, new CommandWrapper("ban", new CMDban(banManager, config, messages, sql), true));
+        pluginManager.registerCommand(this, new CommandWrapper("check", new CMDcheck(banManager, sql, messages), true));
+        pluginManager.registerCommand(this, new CommandWrapper("deletehistory", new CMDdeletehistory(banManager, messages, sql), true));
+        pluginManager.registerCommand(this, new CommandWrapper("history", new CMDhistory(banManager, messages, config, sql), true));
+        pluginManager.registerCommand(this, new CommandWrapper("kick", new CMDkick(messages, sql, banManager), true));
+        pluginManager.registerCommand(this, new CommandWrapper("unban", new CMDunban(banManager, sql, messages, config), true));
+        pluginManager.registerCommand(this, new CommandWrapper("unmute", new CMDunmute(banManager, messages, config, sql), true));
+        pluginManager.registerCommand(this, new CommandWrapper("bansystem", new CMDbansystem(messages, config, sql, mysql), false));
+        pluginManager.registerCommand(this, new CommandWrapper("bansys", new CMDbansystem(messages, config, sql, mysql), false));
 
-        pluginManager.registerListener(this, new LoginListener(banManager, config, messages, mysql, bannedAddresses));
-        pluginManager.registerListener(this, new ChatListener(banManager, config, messages, mysql));
+        pluginManager.registerListener(this, new LoginListener(banManager, config, messages, sql, bannedAddresses));
+        pluginManager.registerListener(this, new ChatListener(banManager, config, messages, sql));
     }
 
-    public MySQL getMySQL() {
-        return mysql;
+    public Database getSQL() {
+        return sql;
     }
 
     @Override

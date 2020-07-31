@@ -2,10 +2,7 @@ package net.coalcube.bansystem.core;
 
 import java.util.List;
 
-import net.coalcube.bansystem.core.util.Config;
-import net.coalcube.bansystem.core.util.MySQL;
-import net.coalcube.bansystem.core.util.TimeFormatUtil;
-import net.coalcube.bansystem.core.util.User;
+import net.coalcube.bansystem.core.util.*;
 
 public interface BanSystem {
 
@@ -39,7 +36,7 @@ public interface BanSystem {
 
     void loadConfig();
 
-    MySQL getMySQL();
+    Database getSQL();
 
     TimeFormatUtil getTimeFormatUtil();
 

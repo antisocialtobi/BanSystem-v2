@@ -10,19 +10,19 @@ import java.util.UUID;
 public class CMDcheck implements Command {
 
     private BanManager bm;
-    private MySQL mysql;
+    private Database sql;
     private Config messages;
 
-    public CMDcheck(BanManager banmanager, MySQL mysql, Config messages) {
+    public CMDcheck(BanManager banmanager, Database sql, Config messages) {
         this.bm = banmanager;
-        this.mysql = mysql;
+        this.sql = sql;
         this.messages = messages;
     }
 
     @Override
     public void execute(User user, String[] args) {
         if (user.hasPermission("bansys.check")) {
-            if (mysql.isConnected()) {
+            if (sql.isConnected()) {
                 if (args.length == 1) {
                     UUID uuid = UUIDFetcher.getUUID(args[0]);
                     if (uuid == null) {

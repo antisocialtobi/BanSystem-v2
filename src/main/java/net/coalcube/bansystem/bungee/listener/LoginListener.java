@@ -24,21 +24,21 @@ public class LoginListener implements Listener {
     private final BanManager banManager;
     private final Config config;
     private final Config messages;
-    private final MySQL mysql;
+    private final Database sql;
     private final List<InetAddress> bannedAddresses;
 
-    public LoginListener(BanManager banManager, Config config, Config messages, MySQL mysql, List<InetAddress> bannedAddresses) {
+    public LoginListener(BanManager banManager, Config config, Config messages, Database sql, List<InetAddress> bannedAddresses) {
         this.banManager = banManager;
         this.config = config;
         this.messages = messages;
-        this.mysql = mysql;
+        this.sql = sql;
         this.bannedAddresses = bannedAddresses;
     }
 
     @SuppressWarnings("deprecation")
     @EventHandler
     public void onLogin(LoginEvent e) {
-        if (mysql.isConnected()) {
+        if (!(config.getBoolean("mysql.enable") && !sql.isConnected())) {
             e.registerIntent(BanSystemBungee.getInstance());
             new Thread(() -> {
                 PendingConnection con = e.getConnection();

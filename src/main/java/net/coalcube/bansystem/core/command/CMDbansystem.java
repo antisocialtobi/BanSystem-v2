@@ -2,6 +2,7 @@ package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.util.Config;
+import net.coalcube.bansystem.core.util.Database;
 import net.coalcube.bansystem.core.util.MySQL;
 import net.coalcube.bansystem.core.util.User;
 
@@ -10,14 +11,16 @@ import java.util.UUID;
 
 public class CMDbansystem implements Command {
 
-    private MySQL mysql;
+    private Database sql;
+    private MySQL mySQL;
     private Config config;
     private Config messages;
 
-    public CMDbansystem(Config messages, Config config, MySQL mysql) {
+    public CMDbansystem(Config messages, Config config, Database sql, MySQL mysql) {
         this.config = config;
         this.messages = messages;
-        this.mysql = mysql;
+        this.sql = sql;
+        this.mySQL = mysql;
     }
 
     @Override
@@ -53,10 +56,10 @@ public class CMDbansystem implements Command {
                             .replaceAll("&", "§"));
                 } else if(args[0].equalsIgnoreCase("syncids")) {
                     if(config.getBoolean("mysql.enable")) {
-                        if(mysql.isConnected()) {
+                        if(sql.isConnected()) {
                             try {
                                 BanSystem.getInstance().loadConfig();
-                                mysql.syncIDs(config);
+                                mySQL.syncIDs(config);
                                 user.sendMessage(messages.getString("bansystem.ids.sync.success")
                                         .replaceAll("%P%", messages.getString("prefix"))
                                         .replaceAll("&", "§"));

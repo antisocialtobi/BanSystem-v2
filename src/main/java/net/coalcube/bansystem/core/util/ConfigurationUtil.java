@@ -310,13 +310,15 @@ public class ConfigurationUtil {
          * TODO add more blacklisted words
          */
 
-        blacklist.set("Words", Arrays.asList("Arsch", "Nutte", "Hure"));
+        blacklist.set("Words", Arrays.asList("Arsch", "Nutte", "Hure", "Tits", "Pussy", "ez", "Fick",
+                "Basdard", "Muschi", "beschissen"));
 
         /**
          * TODO add more blacklisted ads
          */
 
         blacklist.set("Ads",
-                Arrays.asList(".de", ".net", ".at", ".com", ".be", ".eu", ".shop"));
+                Arrays.asList(".de", ". de", ".  de", "PUNKT de", ".net", ". net", ".  net", "PUNKT net", ".at", ".com",
+                        ".be", ".eu", ".shop", ".it", "www.", "de.", "shop.", ".dev", ".xyz", ".wtf"));
     }
 }

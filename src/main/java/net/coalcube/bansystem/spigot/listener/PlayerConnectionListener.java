@@ -46,7 +46,7 @@ public class PlayerConnectionListener implements Listener {
     public void onPreLogin(PlayerPreLoginEvent e) {
         boolean isCancelled = false;
 
-        if (BanSystemSpigot.mysql.isConnected()) {
+        if (BanSystem.getInstance().getSQL().isConnected()) {
             try {
                 if (banManager.isBanned(e.getUniqueId(), Type.NETWORK)) {
                     if (banManager.getEnd(e.getUniqueId(), Type.NETWORK) > System.currentTimeMillis()

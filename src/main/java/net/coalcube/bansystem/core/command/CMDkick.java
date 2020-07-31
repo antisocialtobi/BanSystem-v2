@@ -1,22 +1,19 @@
 package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.util.BanManager;
-import net.coalcube.bansystem.core.util.Config;
-import net.coalcube.bansystem.core.util.MySQL;
-import net.coalcube.bansystem.core.util.User;
+import net.coalcube.bansystem.core.util.*;
 
 import java.sql.SQLException;
 
 public class CMDkick implements Command {
 
     private final Config messages;
-    private final MySQL mysql;
+    private final Database sql;
     private final BanManager banManager;
 
-    public CMDkick(Config messages, MySQL mysql, BanManager banManager) {
+    public CMDkick(Config messages, Database sql, BanManager banManager) {
         this.messages = messages;
-        this.mysql = mysql;
+        this.sql = sql;
         this.banManager = banManager;
     }
 
@@ -24,7 +21,7 @@ public class CMDkick implements Command {
         BanSystem.getInstance().disconnect(target, messages.getString("Kick.noreason.screen").replaceAll("&", "§"));
         p.sendMessage(messages.getString("Kick.success").replaceAll("%P%", messages.getString("prefix"))
                 .replaceAll("%player%", target.getName()).replaceAll("&", "§"));
-        if (mysql.isConnected()) {
+        if (sql.isConnected()) {
             if (p.getUniqueId() == null)
                 banManager.kick(target.getUniqueId(), p.getName());
             else

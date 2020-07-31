@@ -17,7 +17,7 @@ public class CMDban implements Command {
     private final BanManager banmanager;
     private final Config config;
     private final Config messages;
-    private final MySQL mysql;
+    private final Database sql;
 
     private Type type;
     private String reason;
@@ -27,11 +27,11 @@ public class CMDban implements Command {
     private UUID uuid;
     private InetAddress address;
 
-    public CMDban(BanManager banmanager, Config config, Config messages, MySQL mysql) {
+    public CMDban(BanManager banmanager, Config config, Config messages, Database sql) {
         this.banmanager = banmanager;
         this.config = config;
         this.messages = messages;
-        this.mysql = mysql;
+        this.sql = sql;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class CMDban implements Command {
             return;
         }
 
-        if (config.getBoolean("mysql.enable") && !mysql.isConnected()) {
+        if (config.getBoolean("mysql.enable") && !sql.isConnected()) {
             user.sendMessage(messages.getString("NoDBConnection")
                     .replaceAll("&", "§")
                     .replaceAll("%P%", messages.getString("prefix")));

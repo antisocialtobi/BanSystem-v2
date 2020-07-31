@@ -2,6 +2,7 @@ package net.coalcube.bansystem.spigot.listener;
 
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.util.BanManager;
+import net.coalcube.bansystem.core.util.BanManagerMySQL;
 import net.coalcube.bansystem.core.util.Config;
 import net.coalcube.bansystem.core.util.Type;
 import org.bukkit.Bukkit;
@@ -30,7 +31,7 @@ public class PlayerCommandPreprocessListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onCommandPreprocess(PlayerCommandPreprocessEvent e) {
-        if(BanSystem.getInstance().getMySQL().isConnected()) {
+        if(BanSystem.getInstance().getSQL().isConnected()) {
             Player p = e.getPlayer();
             String msg = e.getMessage();
             boolean startsWithBlockedCommnad = false;

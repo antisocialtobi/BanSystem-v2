@@ -11,19 +11,19 @@ public class CMDdeletehistory implements Command {
 
     private BanManager banmanager;
     private Config messages;
-    private MySQL mysql;
+    private Database sql;
 
-    public CMDdeletehistory(BanManager banmanager, Config messages, MySQL mysql) {
+    public CMDdeletehistory(BanManager banmanager, Config messages, Database sql) {
         this.banmanager = banmanager;
         this.messages = messages;
-        this.mysql = mysql;
+        this.sql = sql;
     }
 
 
     @Override
     public void execute(User user, String[] args) {
         if (user.hasPermission("bansys.history.delete")) {
-            if (mysql.isConnected()) {
+            if (sql.isConnected()) {
                 if (args.length == 1) {
                     UUID uuid = UUIDFetcher.getUUID(args[0]);
                     if (uuid == null) {
@@ -33,7 +33,7 @@ public class CMDdeletehistory implements Command {
                     }
                     try {
                         if (banmanager.hasHistory(uuid)) {
-                            banmanager.deleteHistory(uuid, user.getName());
+                            banmanager.deleteHistory(uuid);
                             user.sendMessage(messages.getString("Deletehistory.success")
                                     .replaceAll("%P%", messages.getString("prefix"))
                                     .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("&", "§"));

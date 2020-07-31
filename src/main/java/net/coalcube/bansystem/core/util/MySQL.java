@@ -2,7 +2,7 @@ package net.coalcube.bansystem.core.util;
 
 import java.sql.*;
 
-public class MySQL {
+public class MySQL implements Database {
 
     private String host, database, username, password;
     private int port;

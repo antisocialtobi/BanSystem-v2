@@ -1,9 +1,7 @@
 package net.coalcube.bansystem.spigot.listener;
 
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.util.BanManager;
-import net.coalcube.bansystem.core.util.Config;
-import net.coalcube.bansystem.core.util.Type;
+import net.coalcube.bansystem.core.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,18 +16,20 @@ import java.sql.SQLException;
 
 public class AsyncPlayerChatListener implements Listener {
 
-    private BanManager banManager;
-    private Config config, messages;
+    private final BanManager banManager;
+    private final Config config, messages;
+    private final MySQL mysql;
 
-    public AsyncPlayerChatListener(Config config, Config messages, BanManager banManager) {
+    public AsyncPlayerChatListener(Config config, Config messages, BanManager banManager, MySQL mysql) {
         this.banManager = banManager;
         this.config = config;
         this.messages = messages;
+        this.mysql = mysql;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncPlayerChatEvent e) {
-        if (BanSystemSpigot.mysql.isConnected()) {
+        if (!(config.getBoolean("mysql.enable") && !mysql.isConnected())) {
             Player p = e.getPlayer();
             try {
                 if (banManager.isBanned(p.getUniqueId(), Type.CHAT)) {
@@ -70,38 +70,6 @@ public class AsyncPlayerChatListener implements Listener {
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
-/*            String msg = e.getMessage();
-            if(msg.startsWith("/msg") || !msg.startsWith("/")) {
-                if(banManager.isBanned(p.getUniqueId(), Type.CHAT)) {
-                    if(banManager.getEnd(p.getUniqueId(), Type.CHAT) > System.currentTimeMillis() || banManager.getEnd(p.getUniqueId(), Type.CHAT) == -1) {
-                        e.setCancelled(true);
-                        for (String message : messages.getStringList("Ban.Chat.Screen")) {
-                            p.sendMessage(message.replaceAll("%P%", BanSystemSpigot.PREFIX).replaceAll("%reason%", banManager.getReason(p.getUniqueId(), Type.CHAT))
-                                    .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                            .getFormattedRemainingTime(banManager.getRemainingTime(p.getUniqueId(), Type.CHAT)))
-                                    .replaceAll("&", "§"));
-                        }
-                    } else {
-                        try {
-                            banManager.unmute(p.getUniqueId(), BanSystem.getInstance().getConsole().getName());
-                        } catch (IOException ioException) {
-                            ioException.printStackTrace();
-                        }
-                        Bukkit.getConsoleSender().sendMessage(messages.getString("Ban.Chat.autounmute")
-                                .replaceAll("%P%", BanSystemSpigot.PREFIX)
-                                .replaceAll("%player%", p.getDisplayName())
-                                .replaceAll("&", "§"));
-                        for(Player all : Bukkit.getOnlinePlayers()) {
-                            if(all.hasPermission("system.ban")) {
-                                all.sendMessage(messages.getString("Ban.Chat.autounmute")
-                                        .replaceAll("%P%", BanSystemSpigot.PREFIX)
-                                        .replaceAll("%player%", p.getDisplayName())
-                                        .replaceAll("&", "§"));
-                            }
-                        }
-                    }
-                }
-            }*/
         }
     }
 }

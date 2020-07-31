@@ -25,7 +25,7 @@ public interface BanManager {
     void unMute(UUID player, String unBanner, String reason) throws IOException, SQLException;
     void unMute(UUID player, UUID unBanner) throws IOException, SQLException;
     void unMute(UUID player, String unBanner) throws IOException, SQLException;
-    void deleteHistory(UUID player, String actor) throws SQLException;
+    void deleteHistory(UUID player) throws SQLException;
     void setIP(UUID player, InetAddress address) throws SQLException;
     String getBanReason(UUID player, Type type) throws SQLException;
     Long getEnd(UUID player, Type type) throws SQLException;
@@ -39,5 +39,5 @@ public interface BanManager {
     boolean hasHistory(UUID player) throws UnknownHostException, SQLException;
     boolean hasHistory(UUID player, String reason) throws UnknownHostException, SQLException;
     boolean isBanned(UUID player, Type type) throws SQLException;
-    boolean isSetIP(UUID player);
+    boolean isSetIP(UUID player) throws SQLException;
 }

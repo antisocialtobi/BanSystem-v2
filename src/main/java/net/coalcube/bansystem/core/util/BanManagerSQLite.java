@@ -5,17 +5,14 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 public class BanManagerSQLite implements BanManager {
 
     private final SQLite sqlite;
-    private SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     public BanManagerSQLite(SQLite sqlite) {
         this.sqlite = sqlite;
@@ -23,8 +20,7 @@ public class BanManagerSQLite implements BanManager {
 
     public void log(String action, String creator, String target, String note) throws SQLException {
         sqlite.update("INSERT INTO `logs` (`action`, `target`, `creator`, `note`, `creationdate`) " +
-                "VALUES ('" + action + "', '" + target + "','" + creator + "', '" + note + "', '"
-                + formatter.format(new Date(System.currentTimeMillis())) + "');");
+                "VALUES ('" + action + "', '" + target + "','" + creator + "', '" + note + "', CURRENT_TIMESTAMP);");
     }
 
     public void kick(UUID player, String creator) throws SQLException {
@@ -37,8 +33,7 @@ public class BanManagerSQLite implements BanManager {
 
     public void kick(UUID player, String creator, String reason) throws SQLException {
         sqlite.update("INSERT INTO `kicks` (`player`, `creator`, `reason`, `creationdate`) " +
-                "VALUES ('" + player + "', '" + creator + "', '" + reason + "', '"
-                + formatter.format(new Date(System.currentTimeMillis())) + "');");
+                "VALUES ('" + player + "', '" + creator + "', '" + reason + "', CURRENT_TIMESTAMP);");
     }
 
     public void kick(UUID player, UUID creator, String reason) throws SQLException {
@@ -59,21 +54,18 @@ public class BanManagerSQLite implements BanManager {
 
         sqlite.update("INSERT INTO `banhistories` (`player`, `duration`, `creator`, `reason`, `ip`, `type`, `creationdate`) " +
                 "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', " +
-                "'" + v4adress.getHostName() + "', '" + type + "', '"
-                + formatter.format(new Date(System.currentTimeMillis())) + "');");
+                "'" + v4adress.getHostName() + "', '" + type + "', CURRENT_TIMESTAMP);");
     }
 
     public void ban(UUID player, long time, String creator, Type type, String reason) throws IOException, SQLException {
         sqlite.update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
-                "VALUES ('" + player + "', '" + time + "', '"
-                + DateFormat.getTimeInstance().format(new Date(System.currentTimeMillis())) + "'," +
+                "VALUES ('" + player + "', '" + time + "', CURRENT_TIMESTAMP," +
                 " '" + creator + "', '" + reason + "', '','" + type + "');");
 
 
 
         sqlite.update("INSERT INTO `banhistories` (`player`, `duration`, `creator`, `reason`, `type`, `ip`,`creationdate`) " +
-                "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + type + "', '', '"
-                + formatter.format(new Date(System.currentTimeMillis())) + "');");
+                "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + type + "', '', CURRENT_TIMESTAMP);");
     }
 
     public void unBan(UUID player, UUID unBanner, String reason) throws IOException, SQLException {
@@ -83,7 +75,7 @@ public class BanManagerSQLite implements BanManager {
     public void unBan(UUID player, String unBanner, String reason) throws IOException, SQLException {
         sqlite.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.NETWORK + "'");
         sqlite.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `reason`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', '" + formatter.format(new Date(System.currentTimeMillis())) + "', '" + reason + "','" + Type.NETWORK +"');");
+                "VALUES ('" + player + "', '" + unBanner + "', CURRENT_TIMESTAMP, '" + reason + "','" + Type.NETWORK +"');");
     }
 
     public void unBan(UUID player, UUID unBanner) throws IOException, SQLException {
@@ -93,7 +85,7 @@ public class BanManagerSQLite implements BanManager {
     public void unBan(UUID player, String unBanner) throws IOException, SQLException {
         sqlite.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.NETWORK + "'");
         sqlite.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', '" + formatter.format(new Date(System.currentTimeMillis())) + "', '" + Type.NETWORK +"');");
+                "VALUES ('" + player + "', '" + unBanner + "', CURRENT_TIMESTAMP, '" + Type.NETWORK +"');");
 
     }
 
@@ -104,7 +96,7 @@ public class BanManagerSQLite implements BanManager {
     public void unMute(UUID player, String unBanner, String reason) throws IOException, SQLException {
         sqlite.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.CHAT + "'");
         sqlite.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `reason`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', '" + formatter.format(new Date(System.currentTimeMillis())) + "', '" + reason + "','" + Type.CHAT +"');");
+                "VALUES ('" + player + "', '" + unBanner + "', CURRENT_TIMESTAMP, '" + reason + "','" + Type.CHAT +"');");
     }
 
     public void unMute(UUID player, UUID unBanner) throws IOException, SQLException {
@@ -114,7 +106,7 @@ public class BanManagerSQLite implements BanManager {
     public void unMute(UUID player, String unBanner) throws IOException, SQLException {
         sqlite.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.CHAT + "'");
         sqlite.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', '" + formatter.format(new Date(System.currentTimeMillis())) + "','" + Type.CHAT +"');");
+                "VALUES ('" + player + "', '" + unBanner + "', CURRENT_TIMESTAMP,'" + Type.CHAT +"');");
 
     }
 

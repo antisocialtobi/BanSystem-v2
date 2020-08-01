@@ -5,6 +5,7 @@ import net.coalcube.bansystem.core.util.*;
 
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.UUID;
 
 public class CMDcheck implements Command {
@@ -105,7 +106,7 @@ public class CMDcheck implements Command {
                                     .replaceAll("%player%", UUIDFetcher.getName(uuid))
                                     .replaceAll("&", "§"));
                         }
-                    } catch (UnknownHostException | SQLException e) {
+                    } catch (UnknownHostException | SQLException | ParseException e) {
                         user.sendMessage(messages.getString("Check.faild")
                                 .replaceAll("%P%", messages.getString("prefix"))
                                 .replaceAll("&", "§"));

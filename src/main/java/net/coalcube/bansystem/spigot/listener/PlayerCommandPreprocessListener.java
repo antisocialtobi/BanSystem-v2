@@ -2,7 +2,6 @@ package net.coalcube.bansystem.spigot.listener;
 
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.util.BanManager;
-import net.coalcube.bansystem.core.util.BanManagerMySQL;
 import net.coalcube.bansystem.core.util.Config;
 import net.coalcube.bansystem.core.util.Type;
 import org.bukkit.Bukkit;
@@ -14,6 +13,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.List;
 
 public class PlayerCommandPreprocessListener implements Listener {
@@ -80,7 +80,7 @@ public class PlayerCommandPreprocessListener implements Listener {
                         }
                     }
                 }
-            } catch (SQLException | IOException throwables) {
+            } catch (SQLException | IOException | ParseException throwables) {
                 throwables.printStackTrace();
             }
         }

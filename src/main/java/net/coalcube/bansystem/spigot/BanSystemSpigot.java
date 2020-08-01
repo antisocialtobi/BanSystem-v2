@@ -8,7 +8,6 @@ import net.coalcube.bansystem.spigot.listener.PlayerCommandPreprocessListener;
 import net.coalcube.bansystem.spigot.listener.PlayerConnectionListener;
 import net.coalcube.bansystem.spigot.util.SpigotConfig;
 import net.coalcube.bansystem.spigot.util.SpigotUser;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;

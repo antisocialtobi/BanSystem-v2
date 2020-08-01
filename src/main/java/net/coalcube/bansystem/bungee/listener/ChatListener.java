@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.ParseException;
 
 public class ChatListener implements Listener {
 
@@ -80,7 +81,7 @@ public class ChatListener implements Listener {
                         }
                     }
                 }
-            } catch (SQLException | IOException throwables) {
+            } catch (SQLException | IOException | ParseException throwables) {
                 throwables.printStackTrace();
             }
         }

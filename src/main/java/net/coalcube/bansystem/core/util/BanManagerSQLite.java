@@ -1,10 +1,16 @@
 package net.coalcube.bansystem.core.util;
 
+import net.coalcube.bansystem.core.BanSystem;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -126,7 +132,7 @@ public class BanManagerSQLite implements BanManager {
         return null;
     }
 
-    public Long getEnd(UUID player, Type type) throws SQLException {
+    public Long getEnd(UUID player, Type type) throws SQLException, ParseException {
         ResultSet resultSet = sqlite.getResult("SELECT duration FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
         while (resultSet.next()) {
             Long duration = resultSet.getLong("duration");
@@ -144,7 +150,7 @@ public class BanManagerSQLite implements BanManager {
         return null;
     }
 
-    public Long getRemainingTime(UUID player, Type type) throws SQLException {
+    public Long getRemainingTime(UUID player, Type type) throws SQLException, ParseException {
         return (getEnd(player, type) == -1) ? -1 : getEnd(player, type) - System.currentTimeMillis();
     }
 
@@ -165,23 +171,25 @@ public class BanManagerSQLite implements BanManager {
         return lvl;
     }
 
-    public Long getCreationDate(UUID player, Type type) throws SQLException {
+    public Long getCreationDate(UUID player, Type type) throws SQLException, ParseException {
         ResultSet resultSet = sqlite.getResult("SELECT creationdate FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         while (resultSet.next()) {
-            return resultSet.getTimestamp("creationdate").getTime();
+            return df.parse(resultSet.getString("creationdate")).getTime();
         }
         return null;
     }
 
-    public List<History> getHistory(UUID player) throws UnknownHostException, SQLException {
+    public List<History> getHistory(UUID player) throws UnknownHostException, SQLException, ParseException {
         ResultSet resultSet = sqlite.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "';");
         List<History> list = new ArrayList<>();
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         while (resultSet.next()) {
             list.add(new History(UUID.fromString(
                     resultSet.getString("player")),
                     resultSet.getString("creator"),
                     resultSet.getString("reason"),
-                    resultSet.getTimestamp("creationdate").getTime(),
+                    df.parse(resultSet.getString("creationdate")).getTime(),
                     resultSet.getLong("duration"),
                     Type.valueOf(resultSet.getString("type")),
                     InetAddress.getByName(resultSet.getString("ip"))));

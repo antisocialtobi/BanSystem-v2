@@ -13,6 +13,7 @@ import net.coalcube.bansystem.spigot.BanSystemSpigot;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.ParseException;
 
 public class AsyncPlayerChatListener implements Listener {
 
@@ -67,7 +68,7 @@ public class AsyncPlayerChatListener implements Listener {
                         }
                     }
                 }
-            } catch (SQLException throwables) {
+            } catch (SQLException | ParseException throwables) {
                 throwables.printStackTrace();
             }
         }

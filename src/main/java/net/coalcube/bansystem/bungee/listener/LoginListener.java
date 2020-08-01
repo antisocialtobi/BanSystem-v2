@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -90,7 +91,7 @@ public class LoginListener implements Listener {
                                     }
                                 }
                             }
-                        } catch (SQLException throwables) {
+                        } catch (SQLException | ParseException throwables) {
                             throwables.printStackTrace();
                         }
                     }
@@ -218,7 +219,7 @@ public class LoginListener implements Listener {
                                                 .replaceAll("%ReamingTime%",
                                                         BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
                                                                 banManager.getRemainingTime(uuid, Type.NETWORK))));
-                                    } catch (SQLException throwables) {
+                                    } catch (SQLException | ParseException throwables) {
                                         throwables.printStackTrace();
                                     }
                                     e.setCancelReason(component);

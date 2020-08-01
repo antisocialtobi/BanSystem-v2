@@ -249,10 +249,8 @@ public class CMDban implements Command {
             try {
                 if (banmanager.hasHistory(uuid, reason)) {
                     if (!isMaxBanLvl(args[1], banmanager.getLevel(uuid, reason))) {
-                        System.out.println("lvl is not maxlvl");
                         lvl = (banmanager.getLevel(uuid, reason) + 1);
                     } else {
-                        System.out.println("lvl is maxlvl");
                         lvl = getMaxLvl(args[1]);
                     }
 
@@ -263,8 +261,6 @@ public class CMDban implements Command {
                 throwables.printStackTrace();
             }
 
-
-            System.out.println(lvl);
 
             //set duration
             for (String lvlkey : config.getSection("IDs." + id + ".lvl").getKeys()) {

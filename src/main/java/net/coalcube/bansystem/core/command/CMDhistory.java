@@ -4,6 +4,7 @@ import net.coalcube.bansystem.core.util.*;
 
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.UUID;
 
@@ -70,7 +71,7 @@ public class CMDhistory implements Command {
                             user.sendMessage(messages.getString("History.historynotfound")
                                     .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
                         }
-                    } catch (UnknownHostException | SQLException e) {
+                    } catch (UnknownHostException | SQLException | ParseException e) {
                         e.printStackTrace();
                     }
                 } else {

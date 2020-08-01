@@ -3,6 +3,7 @@ package net.coalcube.bansystem.spigot.listener;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -89,7 +90,7 @@ public class PlayerConnectionListener implements Listener {
                         }
                     }
                 }
-            } catch (SQLException throwables) {
+            } catch (SQLException | ParseException throwables) {
                 throwables.printStackTrace();
             }
             if (!isCancelled) {
@@ -210,7 +211,7 @@ public class PlayerConnectionListener implements Listener {
                                     String reamingTime = null;
                                     try {
                                         reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(banManager.getRemainingTime(e.getUniqueId(), Type.NETWORK));
-                                    } catch (SQLException throwables) {
+                                    } catch (SQLException | ParseException throwables) {
                                         throwables.printStackTrace();
                                     }
 
@@ -294,7 +295,7 @@ public class PlayerConnectionListener implements Listener {
                                     .replaceAll("%Reason%", banManager.getReason(p.getUniqueId(), Type.NETWORK))
                                     .replaceAll("%ReamingTime%", reamingTime).replaceAll("&", "§");
                             p.kickPlayer(banScreen);
-                        } catch (SQLException throwables) {
+                        } catch (SQLException | ParseException throwables) {
                             throwables.printStackTrace();
                         }
 

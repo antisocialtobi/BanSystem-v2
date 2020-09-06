@@ -6,6 +6,7 @@ import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
@@ -40,7 +41,7 @@ public class MySQL implements Database {
         preparedStatement.execute();
     }
 
-    public void importFromOldBanDatabase() throws SQLException {
+    public void importFromOldBanDatabase() throws SQLException, ParseException {
         int count = 0;
         HashMap<Integer, UUID> bannedPlayer = new HashMap<>();
         HashMap<Integer, String> reason = new HashMap<>();
@@ -64,13 +65,18 @@ public class MySQL implements Database {
         }
         update("DROP TABLE `ban`;");
 
-        for(int i = 0; i<count; i++) {
+        SimpleDateFormat parser = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
+        for(int i = 0; i<count; i++) {
             ResultSet resultSet1 = getResult("SELECT * FROM `banhistory` WHERE UUID='" + bannedPlayer.get(i) + "' AND Ende='" + end.get(i) + "'");
             while (resultSet1.next()) {
+
+                Long duration = resultSet1.getLong("duration");
+                duration = (duration != -1 ? duration*1000 : duration);
+
                 update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
-                        "VALUES ('" + bannedPlayer.get(i) + "', '" + resultSet1.getDouble("duration") + "', '"
-                        + resultSet1.getString("Erstelldatum") + "', '" + creator.get(i) + "', '"
+                        "VALUES ('" + bannedPlayer.get(i) + "', '" + duration + "', '"
+                        + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(parser.parse(resultSet1.getString("Erstelldatum"))) + "', '" + creator.get(i) + "', '"
                         + reason.get(i) + "', '" + ip.get(i) + "', '" + type.get(i) + "');");
             }
         }
@@ -105,7 +111,7 @@ public class MySQL implements Database {
         for(History history : histories) {
             update("INSERT INTO `banhistories` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
                     "VALUES ('" + history.getPlayer() + "', '" + history.getDuration() + "', '"
-                    + history.getCreateDate() + "', '" + history.getCreator() + "', '"
+                    + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(history.getCreateDate()) + "', '" + history.getCreator() + "', '"
                     + history.getReason() + "', '" + history.getIp() + "', '" + history.getType() + "');");
         }
     }
@@ -187,27 +193,32 @@ public class MySQL implements Database {
 
     public void syncIDs(Config config) throws SQLException {
         for(String id : config.getSection("IDs").getKeys()) {
-            boolean isIDexists = isIDexists(id);
-            if(!isIDexists) {
-                for(String lvl :  config.getSection("IDs." + id + ".lvl").getKeys()) {
+            if(!isIDexists(id)) {
+                for (String lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
                     update("INSERT INTO ids " +
                             "VALUES ('" + id + "', '" +
-                            config.getString("IDs."+ id + ".reason") + "', '" +
+                            config.getString("IDs." + id + ".reason") + "', '" +
                             lvl + "', '" +
                             config.getLong("IDs." + id + ".lvl." + lvl + ".duration") + "', " +
-                            config.getBoolean("IDs."+ id + ".onlyAdmins") + ", '" +
-                            config.getString("IDs."+ id + ".lvl." + lvl + ".type") + "', NOW(), 'configsync');");
+                            config.getBoolean("IDs." + id + ".onlyAdmins") + ", '" +
+                            config.getString("IDs." + id + ".lvl." + lvl + ".type") + "', NOW(), 'configsync');");
                 }
             }
-
             for(String lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
                 if(!isLvlSync(id, lvl, config)) {
-
+                    update("DELETE FROM ids WHERE id='" + id + "' AND lvl='" + lvl + "';");
+                    update("INSERT INTO ids " +
+                            "VALUES ('" + id + "', '" +
+                            config.getString("IDs." + id + ".reason") + "', '" +
+                            lvl + "', '" +
+                            config.getLong("IDs." + id + ".lvl." + lvl + ".duration") + "', " +
+                            config.getBoolean("IDs." + id + ".onlyAdmins") + ", '" +
+                            config.getString("IDs." + id + ".lvl." + lvl + ".type") + "', NOW(), 'configsync');");
                 }
             }
 
-            if(!isIDsync(id, config) || !isIDexists) {
-                if(isIDexists && isIDfromConfig(id)) {
+            if(!isIDsync(id, config) || !isIDexists(id)) {
+                if(isIDexists(id) && isIDfromConfig(id)) {
                     update("DELETE FROM ids WHERE id='" + id + "';");
                 }
                 for(String lvl :  config.getSection("IDs." + id + ".lvl").getKeys()) {

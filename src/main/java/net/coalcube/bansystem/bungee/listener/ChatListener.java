@@ -100,7 +100,7 @@ public class ChatListener implements Listener {
                     String reason = config.getString("IDs." + id + ".reason");
                     int lvl;
                     if (!isMaxBanLvl(id, banManager.getLevel(p.getUniqueId(), reason)))
-                        lvl = banManager.getLevel(p.getUniqueId(), reason);
+                        lvl = banManager.getLevel(p.getUniqueId(), reason) +1;
                     else
                         lvl = getMaxLvl(id);
                     Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
@@ -169,7 +169,11 @@ public class ChatListener implements Listener {
                 if(config.getBoolean("blacklist.ads.autoban.enable")) {
                     String id = config.getString("blacklist.ads.autoban.id");
                     String reason = config.getString("IDs." + id + ".reason");
-                    String lvl = String.valueOf(banManager.getLevel(p.getUniqueId(), reason));
+                    int lvl;
+                    if (!isMaxBanLvl(id, banManager.getLevel(p.getUniqueId(), reason)))
+                        lvl = banManager.getLevel(p.getUniqueId(), reason) +1;
+                    else
+                        lvl = getMaxLvl(id);
                     Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
                     Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
                     String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
@@ -185,7 +189,7 @@ public class ChatListener implements Listener {
                         banscreen = banscreen.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
                         banscreen = banscreen.replaceAll("%creator", BanSystem.getInstance().getConsole().getName());
                         banscreen = banscreen.replaceAll("%enddate%", enddate);
-                        banscreen = banscreen.replaceAll("%lvl%", lvl);
+                        banscreen = banscreen.replaceAll("%lvl%", String.valueOf(lvl));
                         banscreen = banscreen.replaceAll("&", "§");
 
                         p.disconnect(banscreen);
@@ -196,7 +200,7 @@ public class ChatListener implements Listener {
                             line = line.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
                             line = line.replaceAll("%creator", BanSystem.getInstance().getConsole().getName());
                             line = line.replaceAll("%enddate%", enddate);
-                            line = line.replaceAll("%lvl%", lvl);
+                            line = line.replaceAll("%lvl%", String.valueOf(lvl));
                             line = line.replaceAll("&", "§");
 
                             p.sendMessage(line);

@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.UUID;
 
 import net.coalcube.bansystem.core.BanSystem;
@@ -56,10 +58,16 @@ public class PlayerConnectionListener implements Listener {
 
                         String reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(banManager.getRemainingTime(e.getUniqueId(), Type.NETWORK));
 
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
+                        String enddate = simpleDateFormat.format(new Date(banManager.getEnd(e.getUniqueId(), Type.NETWORK)));
+
                         String banScreen = banScreenRow
-                                .replaceAll("%Reason%", banManager.getReason(e.getUniqueId(), Type.NETWORK))
-                                .replaceAll("%ReamingTime%", reamingTime)
-                                .replaceAll("&", "§");
+                                .replaceAll("%reason%", banManager.getReason(e.getUniqueId(), Type.NETWORK))
+                                .replaceAll("%creator", banManager.getBanner(e.getUniqueId(), Type.NETWORK))
+                                .replaceAll("%enddate%", enddate)
+                                .replaceAll("%reamingtime%", reamingTime)
+                                .replaceAll("&", "§")
+                                .replaceAll("%lvl%", String.valueOf(banManager.getLevel(e.getUniqueId(), banManager.getReason(e.getUniqueId(), Type.NETWORK))));
                         if (!config.getBoolean("Ban.KickDelay.enable")) e.disallow(Result.KICK_BANNED, banScreen);
                         isCancelled = true;
 
@@ -91,7 +99,7 @@ public class PlayerConnectionListener implements Listener {
                         }
                     }
                 }
-            } catch (SQLException | ParseException throwables) {
+            } catch (SQLException | ParseException | UnknownHostException throwables) {
                 throwables.printStackTrace();
             }
             if (!isCancelled) {
@@ -109,7 +117,7 @@ public class PlayerConnectionListener implements Listener {
                                     try {
                                         if (banManager.hasHistory(e.getUniqueId(), reason)) {
                                             if (!isMaxBanLvl(id, banManager.getLevel(e.getUniqueId(), reason))) {
-                                                lvl = (byte) (banManager.getLevel(e.getUniqueId(), reason));
+                                                lvl = (byte) (banManager.getLevel(e.getUniqueId(), reason))+1;
                                             } else {
                                                 lvl = getMaxLvl(id);
                                             }
@@ -173,7 +181,7 @@ public class PlayerConnectionListener implements Listener {
                                     String reason = config.getString("IDs." + id + ".reason");
                                     try {
                                         if (!isMaxBanLvl(id, banManager.getLevel(e.getUniqueId(), reason)))
-                                            lvl = banManager.getLevel(e.getUniqueId(), reason);
+                                            lvl = banManager.getLevel(e.getUniqueId(), reason)+1;
                                         else
                                             lvl = getMaxLvl(id);
                                     } catch (UnknownHostException | SQLException unknownHostException) {

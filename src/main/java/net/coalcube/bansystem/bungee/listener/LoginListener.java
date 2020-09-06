@@ -55,9 +55,8 @@ public class LoginListener implements Listener {
                                 String enddate = simpleDateFormat.format(new Date(banManager.getEnd(uuid, Type.NETWORK)));
                                 try {
                                     e.setCancelReason(banScreen
-                                            .replaceAll("%Reason%", banManager.getReason(uuid, Type.NETWORK))
-                                            .replaceAll("%Reason%", banManager.getReason(uuid, Type.NETWORK))
-                                            .replaceAll("%ReamingTime%", BanSystem.getInstance().getTimeFormatUtil()
+                                            .replaceAll("%reason%", banManager.getReason(uuid, Type.NETWORK))
+                                            .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                                     .getFormattedRemainingTime(banManager.getRemainingTime(uuid, Type.NETWORK)))
                                             .replaceAll("%creator", banManager.getBanner(uuid, Type.NETWORK))
                                             .replaceAll("%enddate%", enddate)
@@ -105,19 +104,22 @@ public class LoginListener implements Listener {
                         if (p instanceof ProxiedPlayer) {
 
                             if (config.getBoolean("VPN.enable")) {
-                                if (URLUtil
-                                        .isVPN(p.getAddress().getAddress().toString().replaceAll("/", ""))) {
+                                if (URLUtil.isVPN(p.getAddress().getAddress().toString().replaceAll("/", ""))) {
                                     if (config.getBoolean("VPN.autoban.enable")) {
                                         try {
-                                            banManager.ban(e.getConnection().getUniqueId(),
-                                                    config.getLong("IDs." + config.getInt("VPN.autoban.ID") + ".lvl."
-                                                            + banManager.getLevel(uuid, config.getString("IDs."
-                                                            + config.getInt("VPN.autoban.ID") + ".reason")) + ".duration"),
-                                                    BanSystem.getInstance().getConsole().getDisplayName(),
-                                                    Type.valueOf(config.getString("IDs." + config.getInt("VPN.autoban.ID") + ".lvl."
-                                                            + banManager.getLevel(uuid, config.getString("IDs."
-                                                            + config.getInt("VPN.autoban.ID") + ".reason")) + ".type")),
-                                                    config.getString("IDs." + config.getInt("VPN.autoban.ID") + ".reason"));
+                                            int id = config.getInt("VPN.autoban.ID");
+                                            String reason = config.getString("IDs." + id + ".reason");
+                                            int lvl = 0;
+                                            if(isMaxBanLvl(String.valueOf(id), banManager.getLevel(uuid, reason))) {
+                                                lvl = banManager.getLevel(uuid, reason)+1;
+                                            } else
+                                                lvl = getMaxLvl(String.valueOf(id));
+
+                                            Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
+                                            Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
+
+                                            banManager.ban(uuid, duration,
+                                                    BanSystem.getInstance().getConsole().getDisplayName(), type, reason);
                                             banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "VPN Autoban");
                                         } catch (IOException ioException) {
                                             ioException.printStackTrace();
@@ -159,84 +161,102 @@ public class LoginListener implements Listener {
 
                             }
 
-                            if (bannedAddresses.contains(p.getAddress().getAddress())) {
-                                String bannedPlayerName = "";
-                                boolean rightType = true;
-                                List<UUID> banned;
-                                String ipAutoBanID = config.getString("IPautoban.banid");
-                                String ipAutoBanReason = config.getString("IDs." + ipAutoBanID + ".reason");
-                                int ipAutoBanLvl = 0;
+                            try {
+                                if (!banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress()).isEmpty() &&
+                                        p.hasPermission("bansys.ban")) {
+                                    String bannedPlayerName = "";
+                                    boolean rightType = true;
+                                    List<UUID> banned;
+                                    int ipAutoBanID = config.getInt("IPautoban.banid");
+                                    String ipAutoBanReason = config.getString("IDs." + ipAutoBanID + ".reason");
+                                    int ipAutoBanLvl = 0;
 
-                                try {
-                                    ipAutoBanLvl = banManager.getLevel(uuid, ipAutoBanReason);
-                                    banned = banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress());
-                                    for (UUID id : banned) {
-                                        if (banManager.isBanned(p.getUniqueId(), Type.CHAT))
-                                            rightType = false;
-                                        if(banManager.getReason(id, Type.valueOf(config.getString("IDs." + ipAutoBanID + ".lvl"))).equals("")) {
-
-                                        }
-                                        if (bannedPlayerName.length() == 0) {
-                                            bannedPlayerName = UUIDFetcher.getName(id);
-                                        } else {
-                                            bannedPlayerName += ", " + UUIDFetcher.getName(id);
-                                        }
-                                    }
-                                } catch (SQLException | UnknownHostException throwables) {
-                                    throwables.printStackTrace();
-                                }
-
-                                long ipAutoBanDuration = config.getLong("IDs."+ ipAutoBanID + ".lvl." + ipAutoBanLvl + ".duration");
-                                Type ipAutoBanType = Type.valueOf(config.getString("IDs."+ ipAutoBanID + ".lvl." + ipAutoBanLvl + ".type"));
-
-                                if (!rightType && config.getBoolean("IPautoban.onlyNetworkBans")) {
-                                    return;
-                                }
-                                if (config.getBoolean("IPautoban.enable")) {
                                     try {
-                                        banManager.ban(uuid, ipAutoBanDuration, BanSystem.getInstance().getConsole().getName(), ipAutoBanType, ipAutoBanReason, con.getAddress().getAddress());
-                                        banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), uuid.toString(), "Same IP Autoban");
-                                    } catch (IOException | SQLException ioException) {
-                                        ioException.printStackTrace();
-                                    }
-                                    ProxyServer.getInstance().getConsole()
-                                            .sendMessage(messages.getString("autoban.ip.notify") + bannedPlayerName + " §cwurde automatisch gebannt für §e"
-                                                    + config.getString("IDs." + config.getInt("IPautoban.banid") + ".reason")
-                                                    + "§c.");
-                                    for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
-                                        if (all.hasPermission("bansys.notify")) {
-                                            all.sendMessage(messages.getString("prefix") + "§cDer 2. Account von §e"
-                                                    + bannedPlayerName + " §cwurde automatisch gebannt für §e"
-                                                    + config.getString("IDs."
-                                                    + config.getInt("IPautoban.banid")
-                                                    + ".reason")
-                                                    + "§c.");
+                                        if(!isMaxBanLvl(String.valueOf(ipAutoBanID), banManager.getLevel(uuid, ipAutoBanReason))) {
+                                            ipAutoBanLvl = banManager.getLevel(uuid, ipAutoBanReason)+1;
+                                        } else
+                                            ipAutoBanLvl = getMaxLvl(String.valueOf(ipAutoBanID));
+                                        System.out.println("ID: " + ipAutoBanID);
+                                        System.out.println("lvl: " + ipAutoBanLvl);
+
+                                        /**
+                                         * TODO: fixing that you get the notification message yourself
+                                         */
+
+
+                                        banned = banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress());
+                                        for (UUID id : banned) {
+                                            if (banManager.isBanned(p.getUniqueId(), Type.CHAT))
+                                                rightType = false;
+                                            if (bannedPlayerName.length() == 0) {
+                                                bannedPlayerName = UUIDFetcher.getName(id);
+                                            } else {
+                                                bannedPlayerName += ", " + UUIDFetcher.getName(id);
+                                            }
                                         }
-                                    }
-                                    BaseComponent component = null;
-                                    try {
-                                        component = new TextComponent(BanSystem.getInstance().getBanScreen()
-                                                .replaceAll("%Reason%", banManager.getReason(uuid, Type.NETWORK))
-                                                .replaceAll("%ReamingTime%",
-                                                        BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
-                                                                banManager.getRemainingTime(uuid, Type.NETWORK))));
-                                    } catch (SQLException | ParseException throwables) {
+                                    } catch (SQLException | UnknownHostException throwables) {
                                         throwables.printStackTrace();
                                     }
-                                    e.setCancelReason(component);
-                                    e.setCancelled(true);
-                                    p.disconnect(component);
-                                } else {
-                                    ProxyServer.getInstance().getConsole()
-                                            .sendMessage(messages.getString("prefix") + "§e" + p.getName()
-                                                    + " §cist womöglich ein 2. Account von §e" + bannedPlayerName);
-                                    for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
-                                        if (all.hasPermission("bansys.notify")) {
-                                            all.sendMessage(messages.getString("prefix") + "§e" + p.getName()
-                                                    + " §cist womöglich ein 2. Account von §e" + bannedPlayerName);
+
+                                    long ipAutoBanDuration = config.getLong("IDs."+ ipAutoBanID + ".lvl." + ipAutoBanLvl + ".duration");
+                                    Type ipAutoBanType = Type.valueOf(config.getString("IDs."+ ipAutoBanID + ".lvl." + ipAutoBanLvl + ".type"));
+
+                                    if (!rightType && config.getBoolean("IPautoban.onlyNetworkBans")) {
+                                        return;
+                                    }
+                                    if (config.getBoolean("IPautoban.enable")) {
+                                        try {
+                                            banManager.ban(uuid, ipAutoBanDuration, BanSystem.getInstance().getConsole().getName(), ipAutoBanType, ipAutoBanReason, con.getAddress().getAddress());
+                                            banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), uuid.toString(), "Same IP Autoban");
+                                        } catch (IOException | SQLException ioException) {
+                                            ioException.printStackTrace();
+                                        }
+                                        ProxyServer.getInstance().getConsole()
+                                                .sendMessage(messages.getString("autoban.ip.notify") + bannedPlayerName + " §cwurde automatisch gebannt für §e"
+                                                        + config.getString("IDs." + config.getInt("IPautoban.banid") + ".reason")
+                                                        + "§c.");
+                                        for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
+                                            if (all.hasPermission("bansys.notify")) {
+                                                all.sendMessage(messages.getString("prefix") + "§cDer 2. Account von §e"
+                                                        + bannedPlayerName + " §cwurde automatisch gebannt für §e"
+                                                        + config.getString("IDs."
+                                                        + config.getInt("IPautoban.banid")
+                                                        + ".reason")
+                                                        + "§c.");
+                                            }
+                                        }
+                                        BaseComponent component = null;
+                                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
+                                        String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + ipAutoBanDuration));
+                                        try {
+                                            component = new TextComponent(BanSystem.getInstance().getBanScreen()
+                                                    .replaceAll("%reason%", banManager.getReason(uuid, Type.NETWORK))
+                                                    .replaceAll("%reamingtime%",
+                                                            BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
+                                                                    banManager.getRemainingTime(uuid, Type.NETWORK)))
+                                                    .replaceAll("%creator", ProxyServer.getInstance().getConsole().getName())
+                                                    .replaceAll("%enddate%", enddate)
+                                                    .replaceAll("%lvl%", String.valueOf(ipAutoBanLvl)));
+                                        } catch (SQLException | ParseException throwables) {
+                                            throwables.printStackTrace();
+                                        }
+                                        e.setCancelReason(component);
+                                        e.setCancelled(true);
+                                        p.disconnect(component);
+                                    } else {
+                                        ProxyServer.getInstance().getConsole()
+                                                .sendMessage(messages.getString("prefix") + "§e" + p.getName()
+                                                        + " §cist womöglich ein 2. Account von §e" + bannedPlayerName);
+                                        for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
+                                            if (all.hasPermission("bansys.notify")) {
+                                                all.sendMessage(messages.getString("prefix") + "§e" + p.getName()
+                                                        + " §cist womöglich ein 2. Account von §e" + bannedPlayerName);
+                                            }
                                         }
                                     }
                                 }
+                            } catch (SQLException throwables) {
+                                throwables.printStackTrace();
                             }
                         }
                     }, 1, TimeUnit.SECONDS);
@@ -244,5 +264,12 @@ public class LoginListener implements Listener {
                 e.completeIntent(BanSystemBungee.getInstance());
             }).start();
         }
+    }
+    private boolean isMaxBanLvl(String id, int lvl) {
+        return lvl >= getMaxLvl(id);
+    }
+
+    private int getMaxLvl(String id) {
+        return config.getSection("IDs." + id + ".lvl").getKeys().size();
     }
 }

@@ -136,7 +136,7 @@ public class ConfigurationUtil {
                         "§8§m----------------------§r",
                         " ",
                         "§4Du wurdest §lGebannt!",
-                        "§7Grund §8» §c%Reason%",
+                        "§7Grund §8» §c%reason%",
                         "§7Verbleibende Zeit §8» §3%reamingtime%",
                         " ",
                         "§8§m----------------------"));
@@ -156,7 +156,7 @@ public class ConfigurationUtil {
                 Arrays.asList("%P%§8§m-------------------",
                         "%P%§e%player% §7wurde Gebannt.",
                         "%P%Grund §8» §c%reason%",
-                        "%P%Verbleibende Zeit §8» §c%reamingTime%",
+                        "%P%Verbleibende Zeit §8» §c%reamingtime%",
                         "%P%Von §8» §c%banner%",
                         "%P%Type §8» §c%type%",
                         "%P%§8§m-------------------"));
@@ -296,7 +296,7 @@ public class ConfigurationUtil {
                         "%P%§e%player% wurde §7für sein Chatverhalten",
                         "%P%§7automatisch §egebannt/gemuted§7.",
                         "%P%§7Grund §8» §e%reason%", "%P%§7Nachricht §8» §e%message%",
-                        "%P%§7Verbleibende Zeit §8» §e%reamingTime%",
+                        "%P%§7Verbleibende Zeit §8» §e%reamingtime%",
                         "%P%§8§m------------------------------"));
         messages.set("blacklist.notify.words.warning",
                 Arrays.asList("%P%§8§m------------------------------",

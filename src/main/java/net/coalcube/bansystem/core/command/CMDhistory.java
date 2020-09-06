@@ -57,7 +57,7 @@ public class CMDhistory implements Command {
                                             .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
                                             .replaceAll("%enddate%", simpleDateFormat.format(history.getEndDate()))
                                             .replaceAll("%creator%", history.getCreator())
-                                            .replaceAll("%ip%", history.getIp().getHostName())
+                                            .replaceAll("%ip%", (history.getIp() == null ? "§cNicht vorhanden" : history.getIp().getHostName()))
                                             .replaceAll("%type%", history.getType().toString())
                                             .replaceAll("%id%", id)
                                             .replaceAll("&", "§"));

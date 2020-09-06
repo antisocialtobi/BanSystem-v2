@@ -170,15 +170,10 @@ public class PlayerConnectionListener implements Listener {
                                     String id = config.getString("IPautoban.banid");
                                     String reason = config.getString("IDs." + id + ".reason");
                                     try {
-                                        if (banManager.hasHistory(e.getUniqueId(), reason)) {
-                                            if (!isMaxBanLvl(id, banManager.getLevel(e.getUniqueId(), reason))) {
-                                                lvl = (byte) (banManager.getLevel(e.getUniqueId(), reason) + 1);
-                                            } else {
-                                                lvl = (byte) banManager.getLevel(e.getUniqueId(), reason);
-                                            }
-                                        } else {
-                                            lvl = 1;
-                                        }
+                                        if (!isMaxBanLvl(id, banManager.getLevel(e.getUniqueId(), reason)))
+                                            lvl = banManager.getLevel(e.getUniqueId(), reason);
+                                        else
+                                            lvl = getMaxLvl(id);
                                     } catch (UnknownHostException | SQLException unknownHostException) {
                                         unknownHostException.printStackTrace();
                                     }
@@ -321,4 +316,12 @@ public class PlayerConnectionListener implements Listener {
         return false;
     }
 
+    private int getMaxLvl(String id) {
+        int maxLvl = 0;
+
+        for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
+            if (Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
+        }
+        return maxLvl;
+    }
 }

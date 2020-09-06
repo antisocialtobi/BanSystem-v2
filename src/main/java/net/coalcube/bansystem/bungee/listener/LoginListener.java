@@ -166,7 +166,7 @@ public class LoginListener implements Listener {
                                 int ipAutoBanLvl = 0;
 
                                 try {
-                                    ipAutoBanLvl = banManager.getLevel(uuid, ipAutoBanReason) + 1;
+                                    ipAutoBanLvl = banManager.getLevel(uuid, ipAutoBanReason);
                                     banned = banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress());
                                     for (UUID id : banned) {
                                         if (banManager.isBanned(p.getUniqueId(), Type.CHAT))
@@ -198,9 +198,7 @@ public class LoginListener implements Listener {
                                     }
                                     ProxyServer.getInstance().getConsole()
                                             .sendMessage(messages.getString("autoban.ip.notify") + bannedPlayerName + " §cwurde automatisch gebannt für §e"
-                                                    + config.getString("IDs."
-                                                    + config.getInt("IPautoban.banid")
-                                                    + ".reason")
+                                                    + config.getString("IDs." + config.getInt("IPautoban.banid") + ".reason")
                                                     + "§c.");
                                     for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
                                         if (all.hasPermission("bansys.notify")) {

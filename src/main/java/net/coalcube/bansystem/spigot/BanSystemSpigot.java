@@ -8,6 +8,7 @@ import net.coalcube.bansystem.spigot.listener.PlayerCommandPreprocessListener;
 import net.coalcube.bansystem.spigot.listener.PlayerConnectionListener;
 import net.coalcube.bansystem.spigot.util.SpigotConfig;
 import net.coalcube.bansystem.spigot.util.SpigotUser;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -23,6 +24,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -84,10 +86,15 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             }
             try {
                 if(mysql.isConnected()) {
+                    if(mysql.isOldDatabase()) {
+                        mysql.importFromOldBanDatabase();
+                        mysql.importFromOldBanHistoriesDatabase();
+                        console.sendMessage(prefix + "§7Die MySQL Daten vom dem alten BanSystem wurden §2importiert§7.");
+                    }
                     mysql.createTables(config);
                     console.sendMessage(prefix + "§7Die MySQL Tabellen wurden §2erstellt§7.");
                 }
-            } catch (SQLException e) {
+            } catch (SQLException | UnknownHostException | ParseException e) {
                 console.sendMessage(prefix + "§7Die MySQL Tabellen §ckonnten nicht §7erstellt werden.");
                 e.printStackTrace();
             }
@@ -325,7 +332,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         getCommand("bansystem").setExecutor(new CommandWrapper(new CMDbansystem(messages, config, sql, mysql), false));
         getCommand("bansys").setExecutor(new CommandWrapper(new CMDbansystem(messages, config, sql, mysql), false));
 
-        pluginManager.registerEvents(new AsyncPlayerChatListener(config, messages, banManager, mysql), this);
+        pluginManager.registerEvents(new AsyncPlayerChatListener(config, messages, banManager, mysql, blacklist), this);
         pluginManager.registerEvents(new PlayerCommandPreprocessListener(banManager, config, messages, blockedCommands), this);
         pluginManager.registerEvents(new PlayerConnectionListener(banManager, config, messages, Banscreen, instance), this);
     }

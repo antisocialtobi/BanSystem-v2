@@ -1,6 +1,14 @@
 package net.coalcube.bansystem.core.util;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class MySQL implements Database {
 
@@ -30,6 +38,76 @@ public class MySQL implements Database {
     public void update(String qry) throws SQLException {
         PreparedStatement preparedStatement = con.prepareStatement(qry);
         preparedStatement.execute();
+    }
+
+    public void importFromOldBanDatabase() throws SQLException {
+        int count = 0;
+        HashMap<Integer, UUID> bannedPlayer = new HashMap<>();
+        HashMap<Integer, String> reason = new HashMap<>();
+        HashMap<Integer, String> creator = new HashMap<>();
+        HashMap<Integer, Type> type = new HashMap<>();
+        HashMap<Integer, String> ip = new HashMap<>();
+        HashMap<Integer, Long> end = new HashMap<>();
+
+        ResultSet resultSet = getResult("SELECT * FROM ban");
+        while (resultSet.next()) {
+            UUID player = UUID.fromString(resultSet.getString("UUID"));
+
+            bannedPlayer.put(count, player);
+            reason.put(count, resultSet.getString("Grund"));
+            creator.put(count, resultSet.getString("Ersteller"));
+            type.put(count, Type.valueOf(resultSet.getString("Type")));
+            ip.put(count, resultSet.getString("IP"));
+            end.put(count, resultSet.getLong("Ende"));
+
+            count++;
+        }
+        update("DROP TABLE `ban`;");
+
+        for(int i = 0; i<count; i++) {
+
+            ResultSet resultSet1 = getResult("SELECT * FROM `banhistory` WHERE UUID='" + bannedPlayer.get(i) + "' AND Ende='" + end.get(i) + "'");
+            while (resultSet1.next()) {
+                update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
+                        "VALUES ('" + bannedPlayer.get(i) + "', '" + resultSet1.getDouble("duration") + "', '"
+                        + resultSet1.getString("Erstelldatum") + "', '" + creator.get(i) + "', '"
+                        + reason.get(i) + "', '" + ip.get(i) + "', '" + type.get(i) + "');");
+            }
+        }
+    }
+
+    public void importFromOldBanHistoriesDatabase() throws SQLException, UnknownHostException, ParseException {
+        DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+        ArrayList<History> histories = new ArrayList<>();
+        ResultSet resultSet = getResult("SELECT * FROM banhistory");
+
+        while (resultSet.next()) {
+            UUID player = UUID.fromString(resultSet.getString("UUID"));
+            Long duration = resultSet.getLong("duration");
+            InetAddress ip = null;
+            if(resultSet.getString("IP") != null) {
+                ip = InetAddress.getByName(resultSet.getString("IP"));
+            }
+
+            History history = new History(
+                    player,
+                    resultSet.getString("Ersteller"),
+                    resultSet.getString("Grund"),
+                    df.parse(resultSet.getString("Erstelldatum")).getTime(),
+                    (duration != -1 ? duration*1000 : duration),
+                    Type.valueOf(resultSet.getString("Type")),
+                    ip);
+
+            histories.add(history);
+        }
+        update("DROP TABLE `banhistory`;");
+
+        for(History history : histories) {
+            update("INSERT INTO `banhistories` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
+                    "VALUES ('" + history.getPlayer() + "', '" + history.getDuration() + "', '"
+                    + history.getCreateDate() + "', '" + history.getCreator() + "', '"
+                    + history.getReason() + "', '" + history.getIp() + "', '" + history.getType() + "');");
+        }
     }
 
     public void createTables(Config config) throws SQLException {
@@ -225,6 +303,18 @@ public class MySQL implements Database {
 
         while (rs.next()) {
             return true;
+        }
+        return false;
+    }
+
+    public boolean isOldDatabase() {
+        try {
+            ResultSet resultSet = getResult("SHOW COLUMNS FROM ban WHERE field='UUID';");
+            while (resultSet.next()) {
+                return true;
+            }
+        } catch (SQLException throwables) {
+            return false;
         }
         return false;
     }

@@ -137,7 +137,7 @@ public class ConfigurationUtil {
                         " ",
                         "§4Du wurdest §lGebannt!",
                         "§7Grund §8» §c%Reason%",
-                        "§7Verbleibende Zeit §8» §3%ReamingTime%",
+                        "§7Verbleibende Zeit §8» §3%reamingtime%",
                         " ",
                         "§8§m----------------------"));
         messages.set("Ban.Network.autounban", "%P%§e%player% §7wurde §eautomatisch §7entbannt.");
@@ -151,6 +151,7 @@ public class ConfigurationUtil {
         messages.set("Ban.Chat.autounmute.faild", "%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.");
         messages.set("Ban.success", "%P%§7Du hast §e%Player% §7erfolgreich §cgebannt/gemuted.");
         messages.set("Ban.faild", "%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.");
+        messages.set("Ban.bypass", "%P%§cDu kannst Spieler, die eine Bypass Permission haben, nicht bannen.");
         messages.set("Ban.notify",
                 Arrays.asList("%P%§8§m-------------------",
                         "%P%§e%player% §7wurde Gebannt.",
@@ -226,6 +227,7 @@ public class ConfigurationUtil {
         messages.set("Kick.usage", "%P%§cBenutze §8» §e/kick §8<§7Spieler§8> §8[§7Grund§8]");
         messages.set("Kick.cannotkickyouselfe", "%P%§cDu kannst dich nicht selbst Kicken!");
         messages.set("Kick.cannotkickteammembers", "%P%§cDu kannst keine Teammitglieder Kicken.");
+        messages.set("Kick.bypass", "%P%§cDu kannst Spieler, die eine Bypass Permission haben, nicht kicken.");
         messages.set("Kick.noreason.screen", "\n §cDu wurdest vom Netzwerk §4§lgekickt§c! \n \n");
         messages.set("Kick.noreason.notify",
                 Arrays.asList("%P%§8§m------------------------------",
@@ -289,19 +291,37 @@ public class ConfigurationUtil {
         messages.set("bansystem.ids.sync.faild", "%P%§cDie synchronisation ist fehlgeschlagen. Um mehr Informationen zu bekommen schau in die Konsole.");
         messages.set("bansystem.ids.sync.success", "%P%§7Die BanIDs wurden §2synchronisiert§7.");
 
-        messages.set("autoban.words.notify",
+        messages.set("blacklist.notify.words.autoban",
                 Arrays.asList("%P%§8§m------------------------------",
-                        "%P%§e%player% wurde §7für sein Chatverhalten", "%P%§7automatisch §egebannt/gemuted§7.",
+                        "%P%§e%player% wurde §7für sein Chatverhalten",
+                        "%P%§7automatisch §egebannt/gemuted§7.",
                         "%P%§7Grund §8» §e%reason%", "%P%§7Nachricht §8» §e%message%",
+                        "%P%§7Verbleibende Zeit §8» §e%reamingTime%",
                         "%P%§8§m------------------------------"));
-
-        messages.set("autoban.ads.notify",
+        messages.set("blacklist.notify.words.warning",
                 Arrays.asList("%P%§8§m------------------------------",
-                        "%P%§e%player% wurde §7für sein Chatverhalten", "%P%§7automatisch §egebannt/gemuted§7.",
-                        "%P%§7Grund §8» §e%reason%", "%P%§7Nachricht §8» §e%message%",
+                        "%P%§e§l§nWARNUNG",
+                        "%P%§e%player% hat eine eventuell unangemessene Nachricht in den Chat geschickt.",
+                        "%P%§7Nachricht §8» §e%message%",
                         "%P%§8§m------------------------------"));
-        messages.set("autoban.ip.notify", "%P%§cDer 2. Account von §e%bannedaccount% §cwurde automatisch gebannt für §e%reason%§c.");
-        messages.set("autoban.ip.warning", "%P%§e%player% §cist womöglich ein 2. Account von §e%bannedaccount%");
+        messages.set("blacklist.notify.ads.autoban",
+                Arrays.asList("%P%§8§m------------------------------",
+                        "%P%§e%player% wurde §7für sein Chatverhalten",
+                        "%P%§7automatisch §egebannt/gemuted§7.",
+                        "%P%§7Grund §8» §e%reason%",
+                        "%P%§7Nachricht §8» §e%message%",
+                        "%P%§8§m------------------------------"));
+        messages.set("blacklist.notify.ads.warning",
+                Arrays.asList("%P%§8§m------------------------------",
+                        "%P%§e§l§nWARNUNG",
+                        "%P%§e%player% hat eine eventuell im Chat Werbung gemacht.",
+                        "%P%§7Nachricht §8» §e%message%",
+                        "%P%§8§m------------------------------"));
+        messages.set("ip.autoban", "%P%§cDer 2. Account von §e%bannedaccount% §cwurde automatisch gebannt für §e%reason%§c.");
+        messages.set("ip.warning", Arrays.asList("%P%§8§m------------------------------",
+                "%P%§e§l§nWARNUNG",
+                "%P%§e%player% §7ist womöglich ein 2. Account von §e%bannedaccount%.",
+                "%P%§8§m------------------------------"));
 
     }
 

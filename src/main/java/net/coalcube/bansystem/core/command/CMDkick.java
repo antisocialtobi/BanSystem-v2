@@ -27,13 +27,15 @@ public class CMDkick implements Command {
             else
                 banManager.kick(target.getUniqueId(), p.getUniqueId());
         } else {
-            p.sendMessage(messages.getString("NoDBConnection").replaceAll("%P%", messages.getString("prefix")));
+            p.sendMessage(messages.getString("NoDBConnection")
+                    .replaceAll("%P%", messages.getString("prefix")));
         }
         for (User all : BanSystem.getInstance().getAllPlayers()) {
             if (all.hasPermission("bansys.notify") && all != p) {
                 for (String message : messages.getStringList("Kick.noreason.notify")) {
                     all.sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
-                            .replaceAll("%player%", target.getName()).replaceAll("%sender%", p.getName())
+                            .replaceAll("%player%", target.getName())
+                            .replaceAll("%sender%", p.getName())
                             .replaceAll("&", "§"));
                 }
             }
@@ -48,7 +50,8 @@ public class CMDkick implements Command {
             StringBuilder append = msg.append(args[i]).append(" ");
         }
         BanSystem.getInstance().disconnect(target, messages.getString("Kick.reason.screen")
-                .replaceAll("%P%", messages.getString("prefix")).replaceAll("%reason%", msg.toString()));
+                .replaceAll("%P%", messages.getString("prefix"))
+                .replaceAll("%reason%", msg.toString()));
 
         if (p.getUniqueId() == null)
             banManager.kick(target.getUniqueId(), p.getName(), msg.toString());
@@ -58,8 +61,10 @@ public class CMDkick implements Command {
             if (all.hasPermission("bansys.notify") && all != p) {
                 for (String message : messages.getStringList("Kick.reason.notify")) {
                     all.sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
-                            .replaceAll("%player%", target.getName()).replaceAll("%sender%", p.getName())
-                            .replaceAll("%reason%", msg.toString()).replaceAll("&", "§"));
+                            .replaceAll("%player%", target.getName())
+                            .replaceAll("%sender%", p.getName())
+                            .replaceAll("%reason%", msg.toString())
+                            .replaceAll("&", "§"));
                 }
             }
         }
@@ -67,52 +72,38 @@ public class CMDkick implements Command {
 
     @Override
     public void execute(User p, String[] args) {
-        /**
-         * TODO: Check if the user is online
-         */
         if (p.hasPermission("bansys.kick")) {
             if (args.length >= 1) {
                 if(BanSystem.getInstance().getUser(args[0]).getUniqueId() != null) {
                     User target = BanSystem.getInstance().getUser(args[0]);
                     if (target != p) {
+                        if(target.hasPermission("bansys.kick")) {
+                            if(!target.hasPermission("bansys.kick.admin")) {
+                                p.sendMessage(messages.getString("Kick.cannotkickteammembers")
+                                        .replaceAll("%P%", messages.getString("prefix"))
+                                        .replaceAll("&", "§"));
+                                return;
+                            }
+                        }
+                        if(target.hasPermission("bansys.kick.bypass")) {
+                            if(!target.hasPermission("bansys.kick.admin")) {
+                                p.sendMessage(messages.getString("Kick.bypass")
+                                        .replaceAll("%P%", messages.getString("prefix"))
+                                        .replaceAll("&", "§"));
+                                return;
+                            }
+                        }
                         if (args.length == 1) {
-                            if (!target.hasPermission("bansys.kick")) {
-                                try {
-                                    noReasonKick(p, target);
-                                } catch (SQLException throwables) {
-                                    throwables.printStackTrace();
-                                }
-
-                            } else {
-                                if (p.hasPermission("bansys.kick.admin")) {
-                                    try {
-                                        noReasonKick(p, target);
-                                    } catch (SQLException throwables) {
-                                        throwables.printStackTrace();
-                                    }
-                                } else {
-                                    p.sendMessage(messages.getString("Kick.cannotkickteammembers")
-                                            .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
-                                }
+                            try {
+                                noReasonKick(p, target);
+                            } catch (SQLException throwables) {
+                                throwables.printStackTrace();
                             }
                         } else {
-                            if (!target.hasPermission("bansys.kick")) {
-                                try {
-                                    reasonKick(p, target, args);
-                                } catch (SQLException throwables) {
-                                    throwables.printStackTrace();
-                                }
-                            } else {
-                                if (p.hasPermission("bansys.kick.admin")) {
-                                    try {
-                                        reasonKick(p, target, args);
-                                    } catch (SQLException throwables) {
-                                        throwables.printStackTrace();
-                                    }
-                                } else {
-                                    p.sendMessage(messages.getString("Kick.cannotkickteammembers")
-                                            .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
-                                }
+                            try {
+                                reasonKick(p, target, args);
+                            } catch (SQLException throwables) {
+                                throwables.printStackTrace();
                             }
                         }
                     } else {

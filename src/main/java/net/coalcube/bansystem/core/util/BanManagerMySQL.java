@@ -1,5 +1,7 @@
 package net.coalcube.bansystem.core.util;
 
+import net.coalcube.bansystem.core.BanSystem;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -150,10 +152,12 @@ public class BanManagerMySQL implements BanManager {
     }
 
     public int getLevel(UUID player, String reason) throws UnknownHostException, SQLException {
-        ResultSet resultSet = mysql.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "' AND reason = '" + reason + "';");
-        int lvl = 0;
-        while (resultSet.next()) {
-            lvl ++;
+        int lvl = 1;
+        if(hasHistory(player, reason)) {
+            ResultSet resultSet = mysql.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "' AND reason = '" + reason + "';");
+            while (resultSet.next()) {
+                lvl ++;
+            }
         }
         return lvl;
     }
@@ -177,7 +181,7 @@ public class BanManagerMySQL implements BanManager {
                     resultSet.getTimestamp("creationdate").getTime(),
                     resultSet.getLong("duration"),
                     Type.valueOf(resultSet.getString("type")),
-                    InetAddress.getByName(resultSet.getString("ip"))));
+                    (resultSet.getString("ip") != null ? null : InetAddress.getByName(resultSet.getString("ip")))));
         }
         return list;
     }

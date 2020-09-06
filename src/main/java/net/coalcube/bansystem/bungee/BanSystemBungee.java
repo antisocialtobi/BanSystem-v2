@@ -19,7 +19,9 @@ import net.md_5.bungee.config.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -82,11 +84,16 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             try {
                 if(mysql.isConnected()) {
                     mysql.createTables(config);
+                    if(mysql.isOldDatabase()) {
+                        mysql.importFromOldBanDatabase();
+                        mysql.importFromOldBanHistoriesDatabase();
+                        console.sendMessage(new TextComponent(prefix + "§7Die MySQL Daten vom dem alten BanSystem wurden §2importiert§7."));
+                    }
                     console.sendMessage(new TextComponent(prefix + "§7Die MySQL Tabellen wurden §2erstellt§7."));
                 }
-            } catch (SQLException e) {
+            } catch (SQLException | UnknownHostException | ParseException e) {
                 console.sendMessage(new TextComponent(prefix + "§7Die MySQL Tabellen §ckonnten nicht §7erstellt werden."));
-                console.sendMessage(new TextComponent(prefix + e.getMessage() + " " + e.getCause()));
+                e.printStackTrace();
             }
             try {
                 if(mysql.isConnected()) {
@@ -301,7 +308,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         pluginManager.registerCommand(this, new CommandWrapper("bansys", new CMDbansystem(messages, config, sql, mysql), false));
 
         pluginManager.registerListener(this, new LoginListener(banManager, config, messages, sql, bannedAddresses));
-        pluginManager.registerListener(this, new ChatListener(banManager, config, messages, sql));
+        pluginManager.registerListener(this, new ChatListener(banManager, config, messages, sql, blacklist));
     }
 
     public Database getSQL() {

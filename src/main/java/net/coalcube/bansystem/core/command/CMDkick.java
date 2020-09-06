@@ -22,10 +22,13 @@ public class CMDkick implements Command {
         p.sendMessage(messages.getString("Kick.success").replaceAll("%P%", messages.getString("prefix"))
                 .replaceAll("%player%", target.getName()).replaceAll("&", "§"));
         if (sql.isConnected()) {
-            if (p.getUniqueId() == null)
+            if (p.getUniqueId() == null) {
                 banManager.kick(target.getUniqueId(), p.getName());
-            else
+                banManager.log("Kicked Player", p.getName(), target.getUniqueId().toString(), "");
+            } else {
                 banManager.kick(target.getUniqueId(), p.getUniqueId());
+                banManager.log("Kicked Player", p.getUniqueId().toString(), target.getUniqueId().toString(), "");
+            }
         } else {
             p.sendMessage(messages.getString("NoDBConnection")
                     .replaceAll("%P%", messages.getString("prefix")));
@@ -53,10 +56,13 @@ public class CMDkick implements Command {
                 .replaceAll("%P%", messages.getString("prefix"))
                 .replaceAll("%reason%", msg.toString()));
 
-        if (p.getUniqueId() == null)
+        if (p.getUniqueId() == null) {
             banManager.kick(target.getUniqueId(), p.getName(), msg.toString());
-        else
+            banManager.log("Kicked Player", p.getName(), target.getUniqueId().toString(), "reason: "+ msg.toString());
+        } else {
             banManager.kick(target.getUniqueId(), p.getUniqueId(), msg.toString());
+            banManager.log("Kicked Player", p.getUniqueId().toString(), target.getUniqueId().toString(), "reason: "+ msg.toString());
+        }
         for (User all : BanSystem.getInstance().getAllPlayers()) {
             if (all.hasPermission("bansys.notify") && all != p) {
                 for (String message : messages.getStringList("Kick.reason.notify")) {

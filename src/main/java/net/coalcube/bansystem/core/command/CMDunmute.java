@@ -44,8 +44,10 @@ public class CMDunmute implements Command {
                                 try {
                                     if (user.getUniqueId() != null) {
                                         bm.unMute(uuid, user.getUniqueId(), reason);
+                                        bm.log("Unmuted Player", user.getUniqueId().toString(), uuid.toString(), "reason: " + reason);
                                     } else
                                         bm.unMute(uuid, user.getName(), reason);
+                                    bm.log("Unmuted Player", user.getName(), uuid.toString(), "reason: " + reason);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                     user.sendMessage(messages.getString("Unmute.faild")
@@ -73,8 +75,11 @@ public class CMDunmute implements Command {
                                 try {
                                     if (user.getUniqueId() != null) {
                                         bm.unMute(uuid, user.getUniqueId());
-                                    } else
+                                        bm.log("Unmuted Player", user.getUniqueId().toString(), uuid.toString(), "");
+                                    } else {
                                         bm.unMute(uuid, user.getName());
+                                        bm.log("Unmuted Player", user.getName(), uuid.toString(), "");
+                                    }
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                     user.sendMessage(messages.getString("Unmute.faild")

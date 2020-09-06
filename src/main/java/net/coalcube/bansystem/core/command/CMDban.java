@@ -107,7 +107,6 @@ public class CMDban implements Command {
                 if (user.hasPermission("bansys.ban." + args[1]) || user.hasPermission("bansys.ban.all")
                         || user.hasPermission("bansys.ban.admin")) {
 
-                    //Ban
                     try {
                         if (!(type == Type.CHAT && !banmanager.isBanned(uuid, Type.CHAT)
                                 || (type == Type.NETWORK && !banmanager.isBanned(uuid, Type.NETWORK)))) {
@@ -116,6 +115,9 @@ public class CMDban implements Command {
                             return;
                         }
                     } catch (SQLException throwables) {
+                        user.sendMessage(messages.getString("Ban.faild")
+                                .replaceAll("%P%", messages.getString("prefix"))
+                                .replaceAll("&", "§"));
                         throwables.printStackTrace();
                     }
 
@@ -167,14 +169,23 @@ public class CMDban implements Command {
                             }
                         }
                     }
+                    // Ban Player
                     try {
                         if (address != null)
                             banmanager.ban(uuid, duration, creator, type, reason, address);
                         else
                             banmanager.ban(uuid, duration, creator, type, reason);
+
+                        banmanager.log("Banned Player", creator, uuid.toString(), "reason: "+reason+", lvl: "+lvl);
                     } catch (IOException | SQLException e) {
+                        user.sendMessage(messages.getString("Ban.faild")
+                                .replaceAll("%P%", messages.getString("prefix"))
+                                .replaceAll("&", "§"));
                         e.printStackTrace();
                     }
+
+
+
                     user.sendMessage(messages.getString("Ban.success")
                             .replaceAll("%P%", messages.getString("prefix"))
                             .replaceAll("%Player%", UUIDFetcher.getName(uuid)).replaceAll("%reason%", reason)
@@ -250,6 +261,9 @@ public class CMDban implements Command {
                     lvl = getMaxLvl(args[1]);
                 }
             } catch (SQLException throwables) {
+                user.sendMessage(messages.getString("Ban.faild")
+                        .replaceAll("%P%", messages.getString("prefix"))
+                        .replaceAll("&", "§"));
                 throwables.printStackTrace();
             }
 

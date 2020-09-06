@@ -71,6 +71,8 @@ public class ChatListener implements Listener {
                             banManager.unMute(p.getUniqueId(), ProxyServer.getInstance().getConsole().getName());
                         }
 
+                        banManager.log("Unmuted Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "Autounmute");
+
                         ProxyServer.getInstance().getConsole().sendMessage(messages.getString("Ban.Chat.autounmute")
                                 .replaceAll("%P%", messages.getString("%prefix%"))
                                 .replaceAll("%player%", p.getDisplayName())
@@ -106,6 +108,8 @@ public class ChatListener implements Listener {
                     String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
 
                     banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(), type, reason);
+
+                    banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "Autoban, Type: " + type + ", Chatmessage: " + messages);
 
                     if(type.equals(Type.NETWORK)) {
                         String banscreen = BanSystem.getInstance().getBanScreen();
@@ -171,6 +175,8 @@ public class ChatListener implements Listener {
                     String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
 
                     banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(), type, reason);
+
+                    banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "Autoban, Type: " + type + ", Chatmessage: " + messages);
 
                     if(type.equals(Type.NETWORK)) {
                         String banscreen = BanSystem.getInstance().getBanScreen();

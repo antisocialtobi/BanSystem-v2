@@ -44,8 +44,10 @@ public class CMDunban implements Command {
                                 try {
                                     if (user.getUniqueId() != null) {
                                         banManager.unBan(uuid, user.getUniqueId(), reason);
+                                        banManager.log("Unbanned Player", user.getUniqueId().toString(), uuid.toString(), "reason: " + reason);
                                     } else {
                                         banManager.unBan(uuid, user.getName(), reason);
+                                        banManager.log("Unbanned Player", user.getName(), uuid.toString(), "reason: " + reason);
                                     }
                                 } catch (IOException | SQLException e) {
                                     e.printStackTrace();
@@ -76,8 +78,10 @@ public class CMDunban implements Command {
                                 try {
                                     if (user.getUniqueId() != null) {
                                         banManager.unBan(uuid, user.getUniqueId());
+                                        banManager.log("Unbanned Player", user.getUniqueId().toString(), uuid.toString(), "");
                                     } else {
                                         banManager.unBan(uuid, user.getName());
+                                        banManager.log("Unbanned Player", user.getName(), uuid.toString(), "");
                                     }
                                 } catch (IOException e) {
                                     e.printStackTrace();

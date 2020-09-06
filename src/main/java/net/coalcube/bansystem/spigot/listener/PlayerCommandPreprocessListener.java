@@ -4,6 +4,7 @@ import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.util.BanManager;
 import net.coalcube.bansystem.core.util.Config;
 import net.coalcube.bansystem.core.util.Type;
+import net.md_5.bungee.api.ProxyServer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -65,6 +66,7 @@ public class PlayerCommandPreprocessListener implements Listener {
                         } else {
                             banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName());
                         }
+                        banManager.log("Unmuted Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "Autounmute");
                         Bukkit.getConsoleSender().sendMessage(messages.getString("Ban.Chat.autounmute")
                                 .replaceAll("%P%", messages.getString("prefix"))
                                 .replaceAll("%player%", p.getDisplayName())

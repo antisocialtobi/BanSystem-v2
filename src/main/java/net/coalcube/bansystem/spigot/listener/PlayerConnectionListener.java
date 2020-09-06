@@ -74,6 +74,7 @@ public class PlayerConnectionListener implements Listener {
                             } else {
                                 banManager.unBan(e.getUniqueId(), Bukkit.getConsoleSender().getName());
                             }
+                            banManager.log("Unbanned Player", Bukkit.getConsoleSender().getName(), e.getUniqueId().toString(), "Autounban");
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
@@ -108,9 +109,9 @@ public class PlayerConnectionListener implements Listener {
                                     try {
                                         if (banManager.hasHistory(e.getUniqueId(), reason)) {
                                             if (!isMaxBanLvl(id, banManager.getLevel(e.getUniqueId(), reason))) {
-                                                lvl = (byte) (banManager.getLevel(e.getUniqueId(), reason) + 1);
+                                                lvl = (byte) (banManager.getLevel(e.getUniqueId(), reason));
                                             } else {
-                                                lvl = (byte) banManager.getLevel(e.getUniqueId(), reason);
+                                                lvl = getMaxLvl(id);
                                             }
                                         } else {
                                             lvl = 1;
@@ -125,6 +126,7 @@ public class PlayerConnectionListener implements Listener {
                                     try {
                                         banManager.ban(e.getUniqueId(), time, Bukkit.getConsoleSender().getName(),
                                                 type, reason, e.getAddress());
+                                        banManager.log("Banned Player", Bukkit.getConsoleSender().getName(), e.getUniqueId().toString(), "VPN Autoban");
                                     } catch (IOException | SQLException ioException) {
                                         ioException.printStackTrace();
                                     }
@@ -184,6 +186,7 @@ public class PlayerConnectionListener implements Listener {
                                     try {
                                         banManager.ban(e.getUniqueId(), time, Bukkit.getConsoleSender().getName(),
                                                 type, reason, e.getAddress());
+                                        banManager.log("Banned Player", Bukkit.getConsoleSender().getName(), e.getUniqueId().toString(), "Same IP Autoban");
                                     } catch (IOException | SQLException ioException) {
                                         ioException.printStackTrace();
                                     }

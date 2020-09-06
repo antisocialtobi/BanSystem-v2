@@ -78,6 +78,7 @@ public class LoginListener implements Listener {
                                     } else {
                                         banManager.unBan(uuid, ProxyServer.getInstance().getConsole().getName());
                                     }
+                                    banManager.log("Unbanned Player", ProxyServer.getInstance().getConsole().getName(), con.getUniqueId().toString(), "Autounban");
                                 } catch (IOException ioException) {
                                     ioException.printStackTrace();
                                 }
@@ -117,6 +118,7 @@ public class LoginListener implements Listener {
                                                             + banManager.getLevel(uuid, config.getString("IDs."
                                                             + config.getInt("VPN.autoban.ID") + ".reason")) + ".type")),
                                                     config.getString("IDs." + config.getInt("VPN.autoban.ID") + ".reason"));
+                                            banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "VPN Autoban");
                                         } catch (IOException ioException) {
                                             ioException.printStackTrace();
                                         } catch (SQLException throwables) {
@@ -193,6 +195,7 @@ public class LoginListener implements Listener {
                                 if (config.getBoolean("IPautoban.enable")) {
                                     try {
                                         banManager.ban(uuid, ipAutoBanDuration, BanSystem.getInstance().getConsole().getName(), ipAutoBanType, ipAutoBanReason, con.getAddress().getAddress());
+                                        banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), uuid.toString(), "Same IP Autoban");
                                     } catch (IOException | SQLException ioException) {
                                         ioException.printStackTrace();
                                     }

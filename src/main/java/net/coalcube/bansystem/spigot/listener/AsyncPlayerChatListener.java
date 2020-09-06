@@ -59,6 +59,7 @@ public class AsyncPlayerChatListener implements Listener {
                             } else {
                                 banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName());
                             }
+                            banManager.log("Unmuted Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "Autounmute");
                         } catch (IOException | SQLException ioException) {
                             ioException.printStackTrace();
                         }
@@ -95,7 +96,7 @@ public class AsyncPlayerChatListener implements Listener {
                         String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
 
                         banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(), type, reason);
-
+                        banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "Autoban, Type: " + type + ", Chatmessage: " + messages);
                         if(type.equals(Type.NETWORK)) {
                             String banscreen = BanSystem.getInstance().getBanScreen();
                             banscreen = banscreen.replaceAll("%P%", messages.getString("prefix"));
@@ -160,7 +161,7 @@ public class AsyncPlayerChatListener implements Listener {
                         String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
 
                         banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(), type, reason);
-
+                        banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "Autoban, Type: " + type + ", Chatmessage: " + messages);
                         if(type.equals(Type.NETWORK)) {
                             String banscreen = BanSystem.getInstance().getBanScreen();
                             banscreen = banscreen.replaceAll("%P%", messages.getString("prefix"));

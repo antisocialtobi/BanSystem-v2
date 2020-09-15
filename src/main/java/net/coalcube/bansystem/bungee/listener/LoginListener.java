@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class LoginListener implements Listener {
@@ -26,14 +27,12 @@ public class LoginListener implements Listener {
     private final Config config;
     private final Config messages;
     private final Database sql;
-    private final List<InetAddress> bannedAddresses;
 
     public LoginListener(BanManager banManager, Config config, Config messages, Database sql, List<InetAddress> bannedAddresses) {
         this.banManager = banManager;
         this.config = config;
         this.messages = messages;
         this.sql = sql;
-        this.bannedAddresses = bannedAddresses;
     }
 
     @SuppressWarnings("deprecation")
@@ -93,10 +92,18 @@ public class LoginListener implements Listener {
                             }
                         } catch (SQLException | ParseException throwables) {
                             throwables.printStackTrace();
+                        } catch (InterruptedException interruptedException) {
+                            interruptedException.printStackTrace();
+                        } catch (ExecutionException executionException) {
+                            executionException.printStackTrace();
                         }
                     }
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                } catch (ExecutionException executionException) {
+                    executionException.printStackTrace();
                 }
                 if (!e.isCancelled()) {
                     ProxyServer.getInstance().getScheduler().schedule(BanSystemBungee.getInstance(), () -> {
@@ -125,6 +132,10 @@ public class LoginListener implements Listener {
                                             ioException.printStackTrace();
                                         } catch (SQLException throwables) {
                                             throwables.printStackTrace();
+                                        } catch (InterruptedException interruptedException) {
+                                            interruptedException.printStackTrace();
+                                        } catch (ExecutionException executionException) {
+                                            executionException.printStackTrace();
                                         }
                                     } else {
                                         for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
@@ -163,7 +174,7 @@ public class LoginListener implements Listener {
 
                             try {
                                 if (!banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress()).isEmpty() &&
-                                        p.hasPermission("bansys.ban")) {
+                                        !p.hasPermission("bansys.ban")) {
                                     String bannedPlayerName = "";
                                     boolean rightType = true;
                                     List<UUID> banned;
@@ -176,8 +187,6 @@ public class LoginListener implements Listener {
                                             ipAutoBanLvl = banManager.getLevel(uuid, ipAutoBanReason)+1;
                                         } else
                                             ipAutoBanLvl = getMaxLvl(String.valueOf(ipAutoBanID));
-                                        System.out.println("ID: " + ipAutoBanID);
-                                        System.out.println("lvl: " + ipAutoBanLvl);
 
                                         /**
                                          * TODO: fixing that you get the notification message yourself
@@ -211,18 +220,18 @@ public class LoginListener implements Listener {
                                         } catch (IOException | SQLException ioException) {
                                             ioException.printStackTrace();
                                         }
-                                        ProxyServer.getInstance().getConsole()
-                                                .sendMessage(messages.getString("autoban.ip.notify") + bannedPlayerName + " §cwurde automatisch gebannt für §e"
-                                                        + config.getString("IDs." + config.getInt("IPautoban.banid") + ".reason")
-                                                        + "§c.");
+                                        ProxyServer.getInstance().getConsole().sendMessage(messages.getString("ip.autoban")
+                                                .replaceAll("%P%", messages.getString("prefix"))
+                                                .replaceAll("%bannedaccount%", bannedPlayerName)
+                                                .replaceAll("&", "§")
+                                                .replaceAll("%reason%", ipAutoBanReason));
                                         for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
                                             if (all.hasPermission("bansys.notify")) {
-                                                all.sendMessage(messages.getString("prefix") + "§cDer 2. Account von §e"
-                                                        + bannedPlayerName + " §cwurde automatisch gebannt für §e"
-                                                        + config.getString("IDs."
-                                                        + config.getInt("IPautoban.banid")
-                                                        + ".reason")
-                                                        + "§c.");
+                                                all.sendMessage(messages.getString("ip.autoban")
+                                                        .replaceAll("%P%", messages.getString("prefix"))
+                                                        .replaceAll("%bannedaccount%", bannedPlayerName)
+                                                        .replaceAll("&", "§")
+                                                        .replaceAll("%reason%", ipAutoBanReason));
                                             }
                                         }
                                         BaseComponent component = null;
@@ -245,7 +254,7 @@ public class LoginListener implements Listener {
                                         p.disconnect(component);
                                     } else {
                                         ProxyServer.getInstance().getConsole()
-                                                .sendMessage(messages.getString("prefix") + "§e" + p.getName()
+                                                .sendMessage(messages.getString("ip.warning") + "§e" + p.getName()
                                                         + " §cist womöglich ein 2. Account von §e" + bannedPlayerName);
                                         for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
                                             if (all.hasPermission("bansys.notify")) {
@@ -255,7 +264,7 @@ public class LoginListener implements Listener {
                                         }
                                     }
                                 }
-                            } catch (SQLException throwables) {
+                            } catch (SQLException | ExecutionException | InterruptedException throwables) {
                                 throwables.printStackTrace();
                             }
                         }

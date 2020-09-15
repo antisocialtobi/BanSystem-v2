@@ -6,10 +6,12 @@ import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 public class MySQL implements Database {
 
@@ -30,18 +32,43 @@ public class MySQL implements Database {
         con = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?autoReconnect=true", username, password);
     }
 
-    public ResultSet getResult(String s) throws SQLException {
-        Statement stmt = con.createStatement();
+    public ResultSet getResult(String s) throws SQLException, ExecutionException, InterruptedException {
+        if(!isConnected()) {
+            connect();
+        }
+        final FutureTask<ResultSet> task = new FutureTask<ResultSet>(new Callable<ResultSet>() {
+            @Override
+            public ResultSet call() throws Exception {
+                PreparedStatement stmt = con.prepareStatement(s);
+                return stmt.executeQuery();
+            }
+        });
+        task.run();
 
-        return stmt.executeQuery(s);
+        return task.get();
+
     }
 
     public void update(String qry) throws SQLException {
-        PreparedStatement preparedStatement = con.prepareStatement(qry);
-        preparedStatement.execute();
+        if(!isConnected()) {
+            connect();
+        }
+        new FutureTask<>(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    PreparedStatement preparedStatement = con.prepareStatement(qry);
+                    preparedStatement.execute();
+                    preparedStatement.close();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+        }, 1).run();
     }
 
-    public void importFromOldBanDatabase() throws SQLException, ParseException {
+    public void importFromOldBanDatabase() throws SQLException, ParseException, ExecutionException, InterruptedException {
         int count = 0;
         HashMap<Integer, UUID> bannedPlayer = new HashMap<>();
         HashMap<Integer, String> reason = new HashMap<>();
@@ -82,7 +109,7 @@ public class MySQL implements Database {
         }
     }
 
-    public void importFromOldBanHistoriesDatabase() throws SQLException, UnknownHostException, ParseException {
+    public void importFromOldBanHistoriesDatabase() throws SQLException, UnknownHostException, ParseException, ExecutionException, InterruptedException {
         DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         ArrayList<History> histories = new ArrayList<>();
         ResultSet resultSet = getResult("SELECT * FROM banhistory");
@@ -116,7 +143,7 @@ public class MySQL implements Database {
         }
     }
 
-    public void createTables(Config config) throws SQLException {
+    public void createTables(Config config) throws SQLException, ExecutionException, InterruptedException {
         update("CREATE TABLE IF NOT EXISTS `bans` " +
                 "( `player` VARCHAR(36) NOT NULL ," +
                 " `duration` DOUBLE NOT NULL ," +
@@ -191,7 +218,7 @@ public class MySQL implements Database {
         }
     }
 
-    public void syncIDs(Config config) throws SQLException {
+    public void syncIDs(Config config) throws SQLException, ExecutionException, InterruptedException {
         for(String id : config.getSection("IDs").getKeys()) {
             if(!isIDexists(id)) {
                 for (String lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
@@ -251,7 +278,7 @@ public class MySQL implements Database {
         }
     }
 
-    private boolean isIDsync(String id, Config config) throws SQLException {
+    private boolean isIDsync(String id, Config config) throws SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = getResult("SELECT * FROM `ids` WHERE id='" + id + "'");
 
         while (resultSet.next()) {
@@ -274,7 +301,7 @@ public class MySQL implements Database {
         return true;
     }
 
-    private boolean isLvlSync(String id, String lvl, Config config) throws SQLException {
+    private boolean isLvlSync(String id, String lvl, Config config) throws SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = getResult("SELECT * FROM `ids` WHERE id='" + id + "' AND lvl='" + lvl + "'");
 
         while (resultSet.next()) {
@@ -291,7 +318,7 @@ public class MySQL implements Database {
     }
 
 
-    private boolean isIDexists(String id) throws SQLException {
+    private boolean isIDexists(String id) throws SQLException, ExecutionException, InterruptedException {
         ResultSet rs = getResult("SELECT * FROM `ids` WHERE id='" + id + "';");
         while (rs.next()) {
             return true;
@@ -299,7 +326,7 @@ public class MySQL implements Database {
         return false;
     }
 
-    private boolean isIDfromConfig(String id) throws SQLException {
+    private boolean isIDfromConfig(String id) throws SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = getResult("SELECT `creator` FROM `ids` WHERE id='" + id + "' AND NOT creator='configsync';");
 
         while (resultSet.next()) {
@@ -308,7 +335,7 @@ public class MySQL implements Database {
         return true;
     }
 
-    private boolean hasUnbanreason() throws SQLException {
+    private boolean hasUnbanreason() throws SQLException, ExecutionException, InterruptedException {
 
         ResultSet rs = getResult("SHOW COLUMNS FROM `unbans` WHERE Field='reason';");
 
@@ -324,7 +351,7 @@ public class MySQL implements Database {
             while (resultSet.next()) {
                 return true;
             }
-        } catch (SQLException throwables) {
+        } catch (SQLException | ExecutionException | InterruptedException throwables) {
             return false;
         }
         return false;

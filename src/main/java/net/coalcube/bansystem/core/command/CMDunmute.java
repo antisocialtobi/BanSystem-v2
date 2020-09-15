@@ -6,6 +6,7 @@ import net.coalcube.bansystem.core.util.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class CMDunmute implements Command {
 
@@ -123,6 +124,10 @@ public class CMDunmute implements Command {
                         }
                     } catch (SQLException throwables) {
                         throwables.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
                     }
                 } else {
                     user.sendMessage(messages.getString("Unmute.usage")

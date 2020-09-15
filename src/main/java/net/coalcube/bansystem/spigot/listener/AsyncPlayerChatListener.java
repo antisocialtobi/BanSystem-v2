@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 
 public class AsyncPlayerChatListener implements Listener {
 
@@ -35,7 +36,7 @@ public class AsyncPlayerChatListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onChat(AsyncPlayerChatEvent e) throws IOException, SQLException {
+    public void onChat(AsyncPlayerChatEvent e) throws IOException, SQLException, ExecutionException, InterruptedException {
         if (!(config.getBoolean("mysql.enable") && !mysql.isConnected())) {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
             Player p = e.getPlayer();
@@ -79,6 +80,10 @@ public class AsyncPlayerChatListener implements Listener {
                 }
             } catch (SQLException | ParseException throwables) {
                 throwables.printStackTrace();
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            } catch (ExecutionException executionException) {
+                executionException.printStackTrace();
             }
             if(config.getBoolean("blacklist.words.enable")) {
                 if(hasBlockedWordsContains(msg)) {

@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class PlayerCommandPreprocessListener implements Listener {
 
@@ -84,6 +85,10 @@ public class PlayerCommandPreprocessListener implements Listener {
                 }
             } catch (SQLException | IOException | ParseException throwables) {
                 throwables.printStackTrace();
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            } catch (ExecutionException executionException) {
+                executionException.printStackTrace();
             }
         }
     }

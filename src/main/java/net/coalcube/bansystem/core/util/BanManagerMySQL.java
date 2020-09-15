@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class BanManagerMySQL implements BanManager {
 
@@ -113,7 +114,7 @@ public class BanManagerMySQL implements BanManager {
         mysql.update("UPDATE `bans` SET ip='" + address.getHostName() + "' WHERE ip IS NULL;");
     }
 
-    public String getBanReason(UUID player, Type type) throws SQLException {
+    public String getBanReason(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = mysql.getResult("SELECT reason FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
         while (resultSet.next()) {
             return resultSet.getString("reason");
@@ -121,7 +122,7 @@ public class BanManagerMySQL implements BanManager {
         return null;
     }
 
-    public Long getEnd(UUID player, Type type) throws SQLException {
+    public Long getEnd(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = mysql.getResult("SELECT duration FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
         while (resultSet.next()) {
             Long duration = resultSet.getLong("duration");
@@ -131,7 +132,7 @@ public class BanManagerMySQL implements BanManager {
         return null;
     }
 
-    public String getBanner(UUID player, Type type) throws SQLException {
+    public String getBanner(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = mysql.getResult("SELECT creator FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
         while (resultSet.next()) {
             try{
@@ -145,11 +146,11 @@ public class BanManagerMySQL implements BanManager {
         return null;
     }
 
-    public Long getRemainingTime(UUID player, Type type) throws SQLException {
+    public Long getRemainingTime(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException {
         return (getEnd(player, type) == -1) ? -1 : getEnd(player, type) - System.currentTimeMillis();
     }
 
-    public String getReason(UUID player, Type type) throws SQLException {
+    public String getReason(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = mysql.getResult("SELECT reason FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
         while (resultSet.next()) {
             return resultSet.getString("reason");
@@ -157,7 +158,7 @@ public class BanManagerMySQL implements BanManager {
         return null;
     }
 
-    public int getLevel(UUID player, String reason) throws UnknownHostException, SQLException {
+    public int getLevel(UUID player, String reason) throws UnknownHostException, SQLException, ExecutionException, InterruptedException {
         int lvl = 0;
         if(hasHistory(player, reason)) {
             ResultSet resultSet = mysql.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "' AND reason = '" + reason + "';");
@@ -168,7 +169,7 @@ public class BanManagerMySQL implements BanManager {
         return lvl;
     }
 
-    public Long getCreationDate(UUID player, Type type) throws SQLException {
+    public Long getCreationDate(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = mysql.getResult("SELECT creationdate FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
         while (resultSet.next()) {
             return resultSet.getTimestamp("creationdate").getTime();
@@ -176,7 +177,7 @@ public class BanManagerMySQL implements BanManager {
         return null;
     }
 
-    public List<History> getHistory(UUID player) throws UnknownHostException, SQLException {
+    public List<History> getHistory(UUID player) throws UnknownHostException, SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = mysql.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "';");
         List<History> list = new ArrayList<>();
         while (resultSet.next()) {
@@ -192,7 +193,7 @@ public class BanManagerMySQL implements BanManager {
         return list;
     }
 
-    public List<UUID> getBannedPlayersWithSameIP(InetAddress address) throws SQLException {
+    public List<UUID> getBannedPlayersWithSameIP(InetAddress address) throws SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = mysql.getResult("SELECT * FROM `bans` WHERE ip = '" + address.getHostName() + "';");
         List<UUID> list = new ArrayList<>();
         while (resultSet.next()) {
@@ -201,7 +202,7 @@ public class BanManagerMySQL implements BanManager {
         return list;
     }
 
-    public boolean hasHistory(UUID player) throws UnknownHostException, SQLException {
+    public boolean hasHistory(UUID player) throws UnknownHostException, SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = mysql.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "';");
         while (resultSet.next()) {
             return true;
@@ -209,7 +210,7 @@ public class BanManagerMySQL implements BanManager {
         return false;
     }
 
-    public boolean hasHistory(UUID player, String reason) throws UnknownHostException, SQLException {
+    public boolean hasHistory(UUID player, String reason) throws UnknownHostException, SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = mysql.getResult("SELECT * FROM `banhistories` WHERE player='" + player + "' AND reason='" + reason + "';");
         while (resultSet.next()) {
             return true;
@@ -217,7 +218,7 @@ public class BanManagerMySQL implements BanManager {
         return false;
     }
 
-    public boolean isBanned(UUID player, Type type) throws SQLException {
+    public boolean isBanned(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = mysql.getResult("SELECT * FROM `bans` WHERE player = '" + player + "' and type = '" + type.toString() + "';");
         while (resultSet.next()) {
             return true;
@@ -225,7 +226,7 @@ public class BanManagerMySQL implements BanManager {
         return false;
     }
 
-    public boolean isSetIP(UUID player) throws SQLException {
+    public boolean isSetIP(UUID player) throws SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = mysql.getResult("SELECT ip FROM `bans` WHERE player = '" + player + "';");
         while (resultSet.next()) {
             if(!resultSet.getString("ip").isEmpty())

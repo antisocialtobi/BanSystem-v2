@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 
 public class ChatListener implements Listener {
 
@@ -32,7 +33,7 @@ public class ChatListener implements Listener {
 
     @SuppressWarnings("deprecation")
     @EventHandler
-    public void onChat(ChatEvent e) throws SQLException, IOException {
+    public void onChat(ChatEvent e) throws SQLException, IOException, ExecutionException, InterruptedException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
         ProxiedPlayer p = (ProxiedPlayer) e.getSender();
         String msg = e.getMessage();
@@ -89,6 +90,10 @@ public class ChatListener implements Listener {
                 }
             } catch (SQLException | IOException | ParseException throwables) {
                 throwables.printStackTrace();
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            } catch (ExecutionException executionException) {
+                executionException.printStackTrace();
             }
         }
 

@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class CMDcheck implements Command {
 
@@ -42,8 +43,8 @@ public class CMDcheck implements Command {
                             String reasonnetwork = bm.getReason(uuid, Type.NETWORK);
                             String reamingtimechat = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(bm.getRemainingTime(uuid, Type.CHAT));
                             String reamingtimenetwork = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(bm.getRemainingTime(uuid, Type.NETWORK));
-                            String lvlchat = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.CHAT))-1);
-                            String lvlnetwork = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.NETWORK))-1);
+                            String lvlchat = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.CHAT)));
+                            String lvlnetwork = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.NETWORK)));
 
                             for(String m : messages.getStringList("Check.networkandchat")) {
                                 user.sendMessage(m
@@ -66,7 +67,7 @@ public class CMDcheck implements Command {
                             String banner = bm.getBanner(uuid, Type.CHAT);
                             String reason = bm.getReason(uuid, Type.CHAT);
                             String reamingtime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(bm.getRemainingTime(uuid, Type.CHAT));
-                            String lvl = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.CHAT))-1);
+                            String lvl = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.CHAT)));
 
                             for(String m : messages.getStringList("Check.chat")) {
                                 user.sendMessage(m
@@ -86,7 +87,7 @@ public class CMDcheck implements Command {
                             String banner = bm.getBanner(uuid, Type.NETWORK);
                             String reason = bm.getReason(uuid, Type.NETWORK);
                             String reamingtime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(bm.getRemainingTime(uuid, Type.NETWORK));
-                            int lvl = bm.getLevel(uuid, bm.getReason(uuid, Type.NETWORK))-1;
+                            int lvl = bm.getLevel(uuid, bm.getReason(uuid, Type.NETWORK));
 
                             for(String m : messages.getStringList("Check.network")) {
                                 user.sendMessage(m
@@ -110,6 +111,10 @@ public class CMDcheck implements Command {
                         user.sendMessage(messages.getString("Check.faild")
                                 .replaceAll("%P%", messages.getString("prefix"))
                                 .replaceAll("&", "§"));
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
                         e.printStackTrace();
                     }
                 } else {

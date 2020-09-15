@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class CMDhistory implements Command {
 
@@ -72,6 +73,10 @@ public class CMDhistory implements Command {
                                     .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
                         }
                     } catch (UnknownHostException | SQLException | ParseException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
                         e.printStackTrace();
                     }
                 } else {

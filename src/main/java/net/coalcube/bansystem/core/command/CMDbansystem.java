@@ -8,6 +8,7 @@ import net.coalcube.bansystem.core.util.User;
 
 import java.sql.SQLException;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class CMDbansystem implements Command {
 
@@ -68,6 +69,10 @@ public class CMDbansystem implements Command {
                                 user.sendMessage(messages.getString("bansystem.ids.sync.faild")
                                         .replaceAll("%P%", messages.getString("prefix"))
                                         .replaceAll("&", "§"));
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            } catch (ExecutionException e) {
+                                e.printStackTrace();
                             }
                         } else {
                             user.sendMessage(messages.getString("NoMySQLconnection")

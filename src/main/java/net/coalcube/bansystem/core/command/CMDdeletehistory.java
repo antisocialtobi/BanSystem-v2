@@ -6,6 +6,7 @@ import net.coalcube.bansystem.core.util.*;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class CMDdeletehistory implements Command {
 
@@ -34,12 +35,16 @@ public class CMDdeletehistory implements Command {
                     try {
                         if (banmanager.hasHistory(uuid)) {
                             banmanager.deleteHistory(uuid);
-                            banmanager.log("Deleted History", user.getUniqueId().toString(), uuid.toString(), "");
+                            if(user.getUniqueId() != null) {
+                                banmanager.log("Deleted History", user.getUniqueId().toString(), uuid.toString(), "");
+                            } else
+                                banmanager.log("Deleted History", user.getName(), uuid.toString(), "");
+
                             user.sendMessage(messages.getString("Deletehistory.success")
                                     .replaceAll("%P%", messages.getString("prefix"))
                                     .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("&", "§"));
                             for (User all : BanSystem.getInstance().getAllPlayers()) {
-                                if (all.hasPermission("bansys.notify") && all != user) {
+                                if (all.hasPermission("bansys.notify") && all.getRawUser() != user.getRawUser()) {
                                     all.sendMessage(messages.getString("Deletehistory.notify")
                                             .replaceAll("%P%", messages.getString("prefix"))
                                             .replaceAll("%player%", UUIDFetcher.getName(uuid))
@@ -59,6 +64,10 @@ public class CMDdeletehistory implements Command {
                         user.sendMessage(messages.getString("Deletehistroy.faild")
                                 .replaceAll("%prefix%", messages.getString("prefix"))
                                 .replaceAll("&", "§"));
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
                         e.printStackTrace();
                     }
                 } else {

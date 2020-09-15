@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class BanSystemBungee extends Plugin implements BanSystem {
@@ -33,7 +34,6 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
     private Database sql;
     private MySQL mysql;
-    private SQLite sqlite;
     private ServerSocket serversocket;
     private TimeFormatUtil timeFormatUtil;
     private Config config, messages, blacklist;
@@ -91,7 +91,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
                     }
                     console.sendMessage(new TextComponent(prefix + "§7Die MySQL Tabellen wurden §2erstellt§7."));
                 }
-            } catch (SQLException | UnknownHostException | ParseException e) {
+            } catch (SQLException | UnknownHostException | ParseException | ExecutionException | InterruptedException e) {
                 console.sendMessage(new TextComponent(prefix + "§7Die MySQL Tabellen §ckonnten nicht §7erstellt werden."));
                 e.printStackTrace();
             }
@@ -101,7 +101,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
                     console.sendMessage(new TextComponent(prefix + "§7Die Ban IDs wurden §2synchronisiert§7."));
                 }
 
-            } catch (SQLException e) {
+            } catch (SQLException | ExecutionException | InterruptedException e) {
                 console.sendMessage(new TextComponent(prefix + "§7Die IDs konnten nicht mit MySQL synchronisiert werden."));
                 console.sendMessage(new TextComponent(prefix + e.getMessage() + " " + e.getCause()));
                 e.printStackTrace();
@@ -110,7 +110,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         } else {
             fileDatabaseFolder = new File(this.getDataFolder().getPath() + "/database");
             createFileDatabase();
-            sqlite = new SQLite(sqlitedatabase);
+            SQLite sqlite = new SQLite(sqlitedatabase);
             banManager = new BanManagerSQLite(sqlite);
             sql = sqlite;
             try {

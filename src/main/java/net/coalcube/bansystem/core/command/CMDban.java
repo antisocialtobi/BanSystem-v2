@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class CMDban implements Command {
 
@@ -120,6 +121,10 @@ public class CMDban implements Command {
                                 .replaceAll("%P%", messages.getString("prefix"))
                                 .replaceAll("&", "§"));
                         throwables.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
                     }
 
                     // if target is online
@@ -267,7 +272,7 @@ public class CMDban implements Command {
                 } else {
                     lvl = getMaxLvl(args[1]);
                 }
-            } catch (SQLException throwables) {
+            } catch (SQLException | ExecutionException | InterruptedException throwables) {
                 user.sendMessage(messages.getString("Ban.faild")
                         .replaceAll("%P%", messages.getString("prefix"))
                         .replaceAll("&", "§"));

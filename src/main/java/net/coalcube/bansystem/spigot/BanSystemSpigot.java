@@ -8,7 +8,6 @@ import net.coalcube.bansystem.spigot.listener.PlayerCommandPreprocessListener;
 import net.coalcube.bansystem.spigot.listener.PlayerConnectionListener;
 import net.coalcube.bansystem.spigot.util.SpigotConfig;
 import net.coalcube.bansystem.spigot.util.SpigotUser;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -29,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
@@ -36,7 +36,6 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     private static BanManager banManager;
 
     private Database sql;
-    private SQLite sqlite;
     private MySQL mysql;
     private ServerSocket serversocket;
     private TimeFormatUtil timeFormatUtil;
@@ -60,6 +59,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         PluginManager pluginmanager = Bukkit.getPluginManager();
         console = Bukkit.getConsoleSender();
         UpdateChecker updatechecker = new UpdateChecker(65863);
+        List<InetAddress> bannedAddresses = new ArrayList<>();
         timeFormatUtil = new TimeFormatUtil();
 
         console.sendMessage("§c  ____                    ____                  _                      ");
@@ -75,6 +75,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         // Set mysql instance
         if (config.getBoolean("mysql.enable")) {
             mysql = new MySQL(hostname, port, database, user, pw);
+            sql = mysql;
             banManager = new BanManagerMySQL(mysql);
             try {
                 mysql.connect();
@@ -94,7 +95,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
                     mysql.createTables(config);
                     console.sendMessage(prefix + "§7Die MySQL Tabellen wurden §2erstellt§7.");
                 }
-            } catch (SQLException | UnknownHostException | ParseException e) {
+            } catch (SQLException | UnknownHostException | ParseException | ExecutionException | InterruptedException e) {
                 console.sendMessage(prefix + "§7Die MySQL Tabellen §ckonnten nicht §7erstellt werden.");
                 e.printStackTrace();
             }
@@ -107,6 +108,10 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             } catch (SQLException e) {
                 console.sendMessage(prefix + "§7Die IDs konnten nicht mit MySQL synchronisiert werden.");
                 e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
             }
 
             try {
@@ -117,7 +122,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
                             UUID.fromString(resultSet.getString("player")));
                 }
                 console.sendMessage(prefix + "§7Die Gebannten Spieler wurden initialisiert§7.");
-            } catch (SQLException | UnknownHostException e) {
+            } catch (SQLException | UnknownHostException | ExecutionException | InterruptedException e) {
                 console.sendMessage(prefix + "§7Die Gebannten Spieler konnten nicht initialisiert werden.");
                 e.printStackTrace();
             }
@@ -125,7 +130,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         } else {
             fileDatabaseFolder = new File(this.getDataFolder().getPath() + "/database");
             createFileDatabase();
-            sqlite = new SQLite(sqlitedatabase);
+            SQLite sqlite = new SQLite(sqlitedatabase);
             banManager = new BanManagerSQLite(sqlite);
             sql = sqlite;
             try {
@@ -295,7 +300,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
     @Override
     public Database getSQL() {
-        return null;
+        return sql;
     }
 
     @Override
@@ -322,13 +327,13 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     }
 
     private void init(PluginManager pluginManager) {
-        getCommand("ban").setExecutor(new CommandWrapper(new CMDban(banManager, config, messages, mysql),true));
-        getCommand("check").setExecutor(new CommandWrapper(new CMDcheck(banManager, mysql, messages), true));
-        getCommand("deletehistory").setExecutor(new CommandWrapper(new CMDdeletehistory(banManager, messages, mysql), true));
-        getCommand("history").setExecutor(new CommandWrapper(new CMDhistory(banManager, messages, config, mysql), true));
-        getCommand("kick").setExecutor(new CommandWrapper(new CMDkick(messages, mysql, banManager), true));
-        getCommand("unban").setExecutor(new CommandWrapper(new CMDunban(banManager, mysql, messages, config), true));
-        getCommand("unmute").setExecutor(new CommandWrapper(new CMDunmute(banManager, messages, config, mysql), true));
+        getCommand("ban").setExecutor(new CommandWrapper(new CMDban(banManager, config, messages, sql),true));
+        getCommand("check").setExecutor(new CommandWrapper(new CMDcheck(banManager, sql, messages), true));
+        getCommand("deletehistory").setExecutor(new CommandWrapper(new CMDdeletehistory(banManager, messages, sql), true));
+        getCommand("history").setExecutor(new CommandWrapper(new CMDhistory(banManager, messages, config, sql), true));
+        getCommand("kick").setExecutor(new CommandWrapper(new CMDkick(messages, sql, banManager), true));
+        getCommand("unban").setExecutor(new CommandWrapper(new CMDunban(banManager, sql, messages, config), true));
+        getCommand("unmute").setExecutor(new CommandWrapper(new CMDunmute(banManager, messages, config, sql), true));
         getCommand("bansystem").setExecutor(new CommandWrapper(new CMDbansystem(messages, config, sql, mysql), false));
         getCommand("bansys").setExecutor(new CommandWrapper(new CMDbansystem(messages, config, sql, mysql), false));
 

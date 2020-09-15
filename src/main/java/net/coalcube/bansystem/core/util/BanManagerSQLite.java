@@ -163,7 +163,7 @@ public class BanManagerSQLite implements BanManager {
     }
 
     public int getLevel(UUID player, String reason) throws UnknownHostException, SQLException {
-        int lvl = 1;
+        int lvl = 0;
         if(hasHistory(player, reason)) {
             ResultSet resultSet = sqlite.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "' AND reason = '" + reason + "';");
             while (resultSet.next()) {

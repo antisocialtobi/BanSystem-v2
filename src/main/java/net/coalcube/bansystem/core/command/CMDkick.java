@@ -34,7 +34,7 @@ public class CMDkick implements Command {
                     .replaceAll("%P%", messages.getString("prefix")));
         }
         for (User all : BanSystem.getInstance().getAllPlayers()) {
-            if (all.hasPermission("bansys.notify") && all != p) {
+            if (all.hasPermission("bansys.notify") && all.getUniqueId() != p.getUniqueId()) {
                 for (String message : messages.getStringList("Kick.noreason.notify")) {
                     all.sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
                             .replaceAll("%player%", target.getName())
@@ -64,7 +64,7 @@ public class CMDkick implements Command {
             banManager.log("Kicked Player", p.getUniqueId().toString(), target.getUniqueId().toString(), "reason: "+ msg.toString());
         }
         for (User all : BanSystem.getInstance().getAllPlayers()) {
-            if (all.hasPermission("bansys.notify") && all != p) {
+            if (all.hasPermission("bansys.notify") && all.getUniqueId() != p.getUniqueId()) {
                 for (String message : messages.getStringList("Kick.reason.notify")) {
                     all.sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
                             .replaceAll("%player%", target.getName())
@@ -82,7 +82,7 @@ public class CMDkick implements Command {
             if (args.length >= 1) {
                 if(BanSystem.getInstance().getUser(args[0]).getUniqueId() != null) {
                     User target = BanSystem.getInstance().getUser(args[0]);
-                    if (target != p) {
+                    if (!target.getUniqueId().equals(p.getUniqueId())) {
                         if(target.hasPermission("bansys.kick")) {
                             if(!target.hasPermission("bansys.kick.admin")) {
                                 p.sendMessage(messages.getString("Kick.cannotkickteammembers")

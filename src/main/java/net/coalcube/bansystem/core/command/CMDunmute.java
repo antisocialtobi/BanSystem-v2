@@ -61,18 +61,20 @@ public class CMDunmute implements Command {
                                             .replaceAll("%P%", messages.getString("prefix"))
                                             .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("%reason%", reason));
                                     for (User all : BanSystem.getInstance().getAllPlayers()) {
-                                        if (all.hasPermission("bansys.notify") && all != user) {
+                                        if (all.hasPermission("bansys.notify") && all.getUniqueId() != user.getUniqueId()) {
                                             all.sendMessage(messages.getString("Unmute.needreason.notify")
                                                     .replaceAll("%P%", messages.getString("prefix"))
                                                     .replaceAll("%player%", UUIDFetcher.getName(uuid))
                                                     .replaceAll("%sender%", user.getName()).replaceAll("%reason%", reason));
                                         }
                                     }
-                                    BanSystem.getInstance().getConsole()
-                                            .sendMessage(messages.getString("Unmute.needreason.notify")
-                                                    .replaceAll("%P%", messages.getString("prefix"))
-                                                    .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                                    .replaceAll("%sender%", user.getName()).replaceAll("%reason%", reason));
+                                    if(user.getUniqueId() != null) {
+                                        BanSystem.getInstance().getConsole()
+                                                .sendMessage(messages.getString("Unmute.needreason.notify")
+                                                        .replaceAll("%P%", messages.getString("prefix"))
+                                                        .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                        .replaceAll("%sender%", user.getName()).replaceAll("%reason%", reason));
+                                    }
                                 } else {
                                     user.sendMessage(messages.getString("unmute.needreason.usage")
                                             .replaceAll("%P%", messages.getString("prefix"))
@@ -99,18 +101,20 @@ public class CMDunmute implements Command {
                                             messages.getString("Unmute.success").replaceAll("%P%", messages.getString("prefix"))
                                                     .replaceAll("%player%", UUIDFetcher.getName(uuid)));
                                     for (User all : BanSystem.getInstance().getAllPlayers()) {
-                                        if (all.hasPermission("bansys.notify") && all != user) {
+                                        if (all.hasPermission("bansys.notify") && all.getUniqueId() != user.getUniqueId()) {
                                             all.sendMessage(messages.getString("Unmute.notify")
                                                     .replaceAll("%P%", messages.getString("prefix"))
                                                     .replaceAll("%player%", UUIDFetcher.getName(uuid))
                                                     .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
                                         }
                                     }
-                                    BanSystem.getInstance().getConsole()
-                                            .sendMessage(messages.getString("Unmute.notify")
-                                                    .replaceAll("%P%", messages.getString("prefix"))
-                                                    .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                                    .replaceAll("%sender%", user.getName()));
+                                    if(user.getUniqueId() != null) {
+                                        BanSystem.getInstance().getConsole()
+                                                .sendMessage(messages.getString("Unmute.notify")
+                                                        .replaceAll("%P%", messages.getString("prefix"))
+                                                        .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                        .replaceAll("%sender%", user.getName()));
+                                    }
                                 } else {
                                     user.sendMessage(messages.getString("unmute.usage")
                                             .replaceAll("%P%", messages.getString("prefix"))

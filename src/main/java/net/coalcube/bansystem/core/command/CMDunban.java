@@ -70,12 +70,14 @@ public class CMDunban implements Command {
                                                     .replaceAll("%reason%", reason));
                                         }
                                     }
-                                    BanSystem.getInstance().getConsole()
-                                            .sendMessage(messages.getString("Unban.needreason.notify")
-                                                    .replaceAll("%P%", messages.getString("prefix"))
-                                                    .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                                    .replaceAll("%sender%", user.getName())
-                                                    .replaceAll("%reason%", reason));
+                                    if(user.getUniqueId() != null) {
+                                        BanSystem.getInstance().getConsole()
+                                                .sendMessage(messages.getString("Unban.needreason.notify")
+                                                        .replaceAll("%P%", messages.getString("prefix"))
+                                                        .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                        .replaceAll("%sender%", user.getName())
+                                                        .replaceAll("%reason%", reason));
+                                    }
                                 } else {
                                     user.sendMessage(messages.getString("unban.needreason.usage").replaceAll("%P%", messages.getString("prefix"))
                                             .replaceAll("&", "§"));
@@ -107,11 +109,13 @@ public class CMDunban implements Command {
                                                     .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
                                         }
                                     }
-                                    BanSystem.getInstance().getConsole()
-                                            .sendMessage(messages.getString("Unban.notify")
-                                                    .replaceAll("%P%", messages.getString("prefix"))
-                                                    .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                                    .replaceAll("%sender%", user.getName()));
+                                    if(user.getUniqueId() != null) {
+                                        BanSystem.getInstance().getConsole()
+                                                .sendMessage(messages.getString("Unban.notify")
+                                                        .replaceAll("%P%", messages.getString("prefix"))
+                                                        .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                        .replaceAll("%sender%", user.getName()));
+                                    }
 
                                 } else {
                                     user.sendMessage(messages.getString("Unban.usage").replaceAll("%P%", messages.getString("prefix"))

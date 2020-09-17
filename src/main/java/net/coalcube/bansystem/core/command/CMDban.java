@@ -95,6 +95,15 @@ public class CMDban implements Command {
                 return;
             }
 
+            // cannot ban yourself
+            if(user.getUniqueId() != null && user.getUniqueId().equals(uuid)) {
+                user.sendMessage(messages.getString("Ban.cannotban.yourself")
+                        .replaceAll("%P%", messages.getString("prefix"))
+                        .replaceAll("&", "§"));
+                return;
+            }
+
+
             // Set Parameters
             try {
                 setParameters(user, args);
@@ -197,19 +206,21 @@ public class CMDban implements Command {
                             .replaceAll("%P%", messages.getString("prefix"))
                             .replaceAll("%Player%", UUIDFetcher.getName(uuid)).replaceAll("%reason%", reason)
                             .replaceAll("&", "§"));
-                    for (String message : messages.getStringList("Ban.notify")) {
-                        BanSystem.getInstance().getConsole()
-                                .sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
-                                        .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                        .replaceAll("%reason%", reason)
-                                        .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                                .getFormattedRemainingTime(duration))
-                                        .replaceAll("%banner%", creatorName)
-                                        .replaceAll("%type%", type.toString())
-                                        .replaceAll("&", "§"));
+                    if(user.getUniqueId() != null) {
+                        for (String message : messages.getStringList("Ban.notify")) {
+                            BanSystem.getInstance().getConsole()
+                                    .sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
+                                            .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                            .replaceAll("%reason%", reason)
+                                            .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
+                                                    .getFormattedRemainingTime(duration))
+                                            .replaceAll("%banner%", creatorName)
+                                            .replaceAll("%type%", type.toString())
+                                            .replaceAll("&", "§"));
+                        }
                     }
                     for (User all : BanSystem.getInstance().getAllPlayers()) {
-                        if (all.hasPermission("bansys.notify") && (all != user)) {
+                        if (all.hasPermission("bansys.notify") && (all.getUniqueId() != user.getUniqueId())) {
                             for (String message : messages.getStringList("Ban.notify")) {
                                 all.sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
                                         .replaceAll("%player%", UUIDFetcher.getName(uuid))
@@ -253,10 +264,11 @@ public class CMDban implements Command {
         // set creator
         if (user.getUniqueId() != null) {
             creator = user.getUniqueId().toString();
+            creatorName = user.getDisplayName();
         } else {
+            creatorName = user.getName();
             creator = user.getName();
         }
-        creatorName = user.getDisplayName();
 
         // set ID
         if (config.getSection("IDs").getKeys().contains(args[1])) {

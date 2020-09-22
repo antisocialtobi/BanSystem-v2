@@ -66,7 +66,7 @@ public class CMDunban implements Command {
                                             all.sendMessage(messages.getString("Unban.needreason.notify")
                                                     .replaceAll("%P%", messages.getString("prefix"))
                                                     .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                                    .replaceAll("%sender%", user.getName())
+                                                    .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName()))
                                                     .replaceAll("%reason%", reason));
                                         }
                                     }
@@ -75,7 +75,7 @@ public class CMDunban implements Command {
                                                 .sendMessage(messages.getString("Unban.needreason.notify")
                                                         .replaceAll("%P%", messages.getString("prefix"))
                                                         .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                                        .replaceAll("%sender%", user.getName())
+                                                        .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName()))
                                                         .replaceAll("%reason%", reason));
                                     }
                                 } else {
@@ -106,7 +106,7 @@ public class CMDunban implements Command {
                                             all.sendMessage(messages.getString("Unban.notify")
                                                     .replaceAll("%P%", messages.getString("prefix"))
                                                     .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                                    .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
+                                                    .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName())).replaceAll("&", "§"));
                                         }
                                     }
                                     if(user.getUniqueId() != null) {
@@ -114,7 +114,7 @@ public class CMDunban implements Command {
                                                 .sendMessage(messages.getString("Unban.notify")
                                                         .replaceAll("%P%", messages.getString("prefix"))
                                                         .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                                        .replaceAll("%sender%", user.getName()));
+                                                        .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName())));
                                     }
 
                                 } else {

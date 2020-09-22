@@ -96,145 +96,149 @@ public class ChatListener implements Listener {
                 executionException.printStackTrace();
             }
         }
+        if(!p.hasPermission("bansys.bypasschatfilter") && !banManager.isBanned(p.getUniqueId(), Type.CHAT)) {
+            if (config.getBoolean("blacklist.words.enable")) {
+                if (hasBlockedWordsContains(msg)) {
 
-        if(config.getBoolean("blacklist.words.enable")) {
-            if(hasBlockedWordsContains(msg)) {
-                e.setCancelled(true);
-                if(config.getBoolean("blacklist.words.autoban.enable")) {
-                    String id = String.valueOf(config.getInt("blacklist.words.autoban.id"));
-                    String reason = config.getString("IDs." + id + ".reason");
-                    int lvl;
-                    if (!isMaxBanLvl(id, banManager.getLevel(p.getUniqueId(), reason)))
-                        lvl = banManager.getLevel(p.getUniqueId(), reason) +1;
-                    else
-                        lvl = getMaxLvl(id);
-                    Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
-                    Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
-                    String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
+                    e.setCancelled(true);
+                    if (config.getBoolean("blacklist.words.autoban.enable")) {
+                        String id = String.valueOf(config.getInt("blacklist.words.autoban.id"));
+                        String reason = config.getString("IDs." + id + ".reason");
+                        int lvl;
+                        if (!isMaxBanLvl(id, banManager.getLevel(p.getUniqueId(), reason)))
+                            lvl = banManager.getLevel(p.getUniqueId(), reason) + 1;
+                        else
+                            lvl = getMaxLvl(id);
+                        Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
+                        if(duration != -1) duration = duration * 1000;
+                        Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
+                        String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
 
-                    banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(), type, reason);
+                        banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(), type, reason);
 
-                    banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "Autoban, Type: " + type + ", Chatmessage: " + messages);
+                        banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "Autoban, Type: " + type + ", Chatmessage: " + messages);
 
-                    if(type.equals(Type.NETWORK)) {
-                        String banscreen = BanSystem.getInstance().getBanScreen();
-                        banscreen = banscreen.replaceAll("%P%", messages.getString("prefix"));
-                        banscreen = banscreen.replaceAll("%Reason%", reason);
-                        banscreen = banscreen.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
-                        banscreen = banscreen.replaceAll("%creator", BanSystem.getInstance().getConsole().getName());
-                        banscreen = banscreen.replaceAll("%enddate%", enddate);
-                        banscreen = banscreen.replaceAll("%lvl%", String.valueOf(lvl));
-                        banscreen = banscreen.replaceAll("&", "§");
+                        if (type.equals(Type.NETWORK)) {
+                            String banscreen = BanSystem.getInstance().getBanScreen();
+                            banscreen = banscreen.replaceAll("%P%", messages.getString("prefix"));
+                            banscreen = banscreen.replaceAll("%reason%", reason);
+                            banscreen = banscreen.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
+                            banscreen = banscreen.replaceAll("%creator%", BanSystem.getInstance().getConsole().getName());
+                            banscreen = banscreen.replaceAll("%enddate%", enddate);
+                            banscreen = banscreen.replaceAll("%lvl%", String.valueOf(lvl));
+                            banscreen = banscreen.replaceAll("&", "§");
 
-                        p.disconnect(banscreen);
-                    } else {
-                        for(String line : messages.getStringList("Ban.Chat.Screen")) {
-                            p.sendMessage(line
-                                    .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("%reason%", reason)
-                                    .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration))
-                                    .replaceAll("%creator", BanSystem.getInstance().getConsole().getName())
-                                    .replaceAll("%enddate%", enddate)
-                                    .replaceAll("%lvl%", String.valueOf(lvl))
-                                    .replaceAll("&", "§"));
+                            p.disconnect(banscreen);
+                        } else {
+                            for (String line : messages.getStringList("Ban.Chat.Screen")) {
+                                p.sendMessage(line
+                                        .replaceAll("%P%", messages.getString("prefix"))
+                                        .replaceAll("%reason%", reason)
+                                        .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration))
+                                        .replaceAll("%creator%", BanSystem.getInstance().getConsole().getName())
+                                        .replaceAll("%enddate%", enddate)
+                                        .replaceAll("%lvl%", String.valueOf(lvl))
+                                        .replaceAll("&", "§"));
+                            }
                         }
-                    }
 
-                    for(String notify : messages.getStringList("blacklist.notify.words.autoban")) {
-                        notify = notify.replaceAll("%P%", messages.getString("prefix"));
-                        notify = notify.replaceAll("%player%", p.getDisplayName());
-                        notify = notify.replaceAll("%message%", msg);
-                        notify = notify.replaceAll("%reason%", reason);
-                        notify = notify.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
-                        notify = notify.replaceAll("&", "§");
-                        BanSystem.getInstance().getConsole().sendMessage(notify);
-                        for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
-                            if (all.hasPermission("bansys.notify") && (all != p)) {
-                                all.sendMessage(notify);
+                        for (String notify : messages.getStringList("blacklist.notify.words.autoban")) {
+                            notify = notify.replaceAll("%P%", messages.getString("prefix"));
+                            notify = notify.replaceAll("%player%", p.getDisplayName());
+                            notify = notify.replaceAll("%message%", msg);
+                            notify = notify.replaceAll("%reason%", reason);
+                            notify = notify.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
+                            notify = notify.replaceAll("&", "§");
+                            BanSystem.getInstance().getConsole().sendMessage(notify);
+                            for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
+                                if (all.hasPermission("bansys.notify") && (all != p)) {
+                                    all.sendMessage(notify);
+                                }
                             }
                         }
                     }
-                }
-                for(String warning : messages.getStringList("blacklist.notify.words.warning")) {
-                    warning = warning.replaceAll("%P%", messages.getString("prefix"));
-                    warning = warning.replaceAll("%player%", p.getDisplayName());
-                    warning = warning.replaceAll("%message%", msg);
-                    warning = warning.replaceAll("&", "§");
-                    for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
-                        if (all.hasPermission("bansys.notify") && (all != p)) {
-                            all.sendMessage(warning);
+                    for (String warning : messages.getStringList("blacklist.notify.words.warning")) {
+                        warning = warning.replaceAll("%P%", messages.getString("prefix"));
+                        warning = warning.replaceAll("%player%", p.getDisplayName());
+                        warning = warning.replaceAll("%message%", msg);
+                        warning = warning.replaceAll("&", "§");
+                        for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
+                            if (all.hasPermission("bansys.notify") && (all != p)) {
+                                all.sendMessage(warning);
+                            }
                         }
                     }
                 }
             }
-        }
-        if(config.getBoolean("blacklist.ads.enable")) {
-            if(hasAdContains(msg)) {
-                e.setCancelled(true);
-                if(config.getBoolean("blacklist.ads.autoban.enable")) {
-                    String id = config.getString("blacklist.ads.autoban.id");
-                    String reason = config.getString("IDs." + id + ".reason");
-                    int lvl;
-                    if (!isMaxBanLvl(id, banManager.getLevel(p.getUniqueId(), reason)))
-                        lvl = banManager.getLevel(p.getUniqueId(), reason) +1;
-                    else
-                        lvl = getMaxLvl(id);
-                    Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
-                    Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
-                    String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
+            if (config.getBoolean("blacklist.ads.enable")) {
+                if (hasAdContains(msg)) {
+                    e.setCancelled(true);
+                    if (config.getBoolean("blacklist.ads.autoban.enable")) {
+                        String id = String.valueOf(config.getInt("blacklist.ads.autoban.id"));
+                        String reason = config.getString("IDs." + id + ".reason");
+                        int lvl;
+                        if (!isMaxBanLvl(id, banManager.getLevel(p.getUniqueId(), reason)))
+                            lvl = banManager.getLevel(p.getUniqueId(), reason) + 1;
+                        else
+                            lvl = getMaxLvl(id);
+                        Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
+                        if(duration != -1) duration = duration * 1000;
+                        Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
+                        String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
 
-                    banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(), type, reason);
+                        banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(), type, reason);
 
-                    banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "Autoban, Type: " + type + ", Chatmessage: " + messages);
+                        banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "Autoban, Type: " + type + ", Chatmessage: " + messages);
 
-                    if(type.equals(Type.NETWORK)) {
-                        String banscreen = BanSystem.getInstance().getBanScreen();
-                        banscreen = banscreen.replaceAll("%P%", messages.getString("prefix"));
-                        banscreen = banscreen.replaceAll("%Reason%", reason);
-                        banscreen = banscreen.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
-                        banscreen = banscreen.replaceAll("%creator", BanSystem.getInstance().getConsole().getName());
-                        banscreen = banscreen.replaceAll("%enddate%", enddate);
-                        banscreen = banscreen.replaceAll("%lvl%", String.valueOf(lvl));
-                        banscreen = banscreen.replaceAll("&", "§");
+                        if (type.equals(Type.NETWORK)) {
+                            String banscreen = BanSystem.getInstance().getBanScreen();
+                            banscreen = banscreen.replaceAll("%P%", messages.getString("prefix"));
+                            banscreen = banscreen.replaceAll("%reason%", reason);
+                            banscreen = banscreen.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
+                            banscreen = banscreen.replaceAll("%creator%", BanSystem.getInstance().getConsole().getName());
+                            banscreen = banscreen.replaceAll("%enddate%", enddate);
+                            banscreen = banscreen.replaceAll("%lvl%", String.valueOf(lvl));
+                            banscreen = banscreen.replaceAll("&", "§");
 
-                        p.disconnect(banscreen);
-                    } else {
-                        for(String line : messages.getStringList("Ban.Chat.Screen")) {
-                            line = line.replaceAll("%P%", messages.getString("prefix"));
-                            line = line.replaceAll("%Reason%", reason);
-                            line = line.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
-                            line = line.replaceAll("%creator", BanSystem.getInstance().getConsole().getName());
-                            line = line.replaceAll("%enddate%", enddate);
-                            line = line.replaceAll("%lvl%", String.valueOf(lvl));
-                            line = line.replaceAll("&", "§");
+                            p.disconnect(banscreen);
+                        } else {
+                            for (String line : messages.getStringList("Ban.Chat.Screen")) {
+                                line = line.replaceAll("%P%", messages.getString("prefix"));
+                                line = line.replaceAll("%reason%", reason);
+                                line = line.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
+                                line = line.replaceAll("%creator%", BanSystem.getInstance().getConsole().getName());
+                                line = line.replaceAll("%enddate%", enddate);
+                                line = line.replaceAll("%lvl%", String.valueOf(lvl));
+                                line = line.replaceAll("&", "§");
 
-                            p.sendMessage(line);
+                                p.sendMessage(line);
+                            }
                         }
-                    }
 
-                    for(String notify : messages.getStringList("blacklist.notify.ads.autoban")) {
-                        notify = notify.replaceAll("%P%", messages.getString("prefix"));
-                        notify = notify.replaceAll("%player%", p.getDisplayName());
-                        notify = notify.replaceAll("%message%", msg);
-                        notify = notify.replaceAll("%reason%", reason);
-                        notify = notify.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
-                        notify = notify.replaceAll("&", "§");
-                        BanSystem.getInstance().getConsole().sendMessage(notify);
-                        for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
-                            if (all.hasPermission("bansys.notify") && (all != p)) {
-                                all.sendMessage(notify);
+                        for (String notify : messages.getStringList("blacklist.notify.ads.autoban")) {
+                            notify = notify.replaceAll("%P%", messages.getString("prefix"));
+                            notify = notify.replaceAll("%player%", p.getDisplayName());
+                            notify = notify.replaceAll("%message%", msg);
+                            notify = notify.replaceAll("%reason%", reason);
+                            notify = notify.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
+                            notify = notify.replaceAll("&", "§");
+                            BanSystem.getInstance().getConsole().sendMessage(notify);
+                            for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
+                                if (all.hasPermission("bansys.notify") && (all != p)) {
+                                    all.sendMessage(notify);
+                                }
                             }
                         }
                     }
-                }
-                for(String warning : messages.getStringList("blacklist.notify.ads.warning")) {
-                    warning = warning.replaceAll("%P%", messages.getString("prefix"));
-                    warning = warning.replaceAll("%player%", p.getDisplayName());
-                    warning = warning.replaceAll("%message%", msg);
-                    warning = warning.replaceAll("&", "§");
-                    for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
-                        if (all.hasPermission("bansys.notify") && (all != p)) {
-                            all.sendMessage(warning);
+                    for (String warning : messages.getStringList("blacklist.notify.ads.warning")) {
+                        warning = warning.replaceAll("%P%", messages.getString("prefix"));
+                        warning = warning.replaceAll("%player%", p.getDisplayName());
+                        warning = warning.replaceAll("%message%", msg);
+                        warning = warning.replaceAll("&", "§");
+                        for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
+                            if (all.hasPermission("bansys.notify") && (all != p)) {
+                                all.sendMessage(warning);
+                            }
                         }
                     }
                 }

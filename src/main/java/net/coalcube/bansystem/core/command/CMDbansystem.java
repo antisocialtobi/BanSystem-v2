@@ -95,7 +95,7 @@ public class CMDbansystem implements Command {
             }
         } else {
             user.sendMessage(messages.getString("prefix") + "§7BanSystem by §eTobi§7.");
-            if(user.getUniqueId().equals(UUID.fromString("617f0c2b601447f2bf89fade1bc9bb59"))) {
+            if(user.getUniqueId().equals(UUID.fromString("617f0c2b-6014-47f2-bf89-fade1bc9bb59"))) {
                 user.sendMessage("HU du bist ja Tobi :)");
             }
 

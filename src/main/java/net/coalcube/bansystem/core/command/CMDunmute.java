@@ -65,7 +65,7 @@ public class CMDunmute implements Command {
                                             all.sendMessage(messages.getString("Unmute.needreason.notify")
                                                     .replaceAll("%P%", messages.getString("prefix"))
                                                     .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                                    .replaceAll("%sender%", user.getName()).replaceAll("%reason%", reason));
+                                                    .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName())).replaceAll("%reason%", reason));
                                         }
                                     }
                                     if(user.getUniqueId() != null) {
@@ -73,7 +73,7 @@ public class CMDunmute implements Command {
                                                 .sendMessage(messages.getString("Unmute.needreason.notify")
                                                         .replaceAll("%P%", messages.getString("prefix"))
                                                         .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                                        .replaceAll("%sender%", user.getName()).replaceAll("%reason%", reason));
+                                                        .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName())).replaceAll("%reason%", reason));
                                     }
                                 } else {
                                     user.sendMessage(messages.getString("unmute.needreason.usage")
@@ -105,7 +105,7 @@ public class CMDunmute implements Command {
                                             all.sendMessage(messages.getString("Unmute.notify")
                                                     .replaceAll("%P%", messages.getString("prefix"))
                                                     .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                                    .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
+                                                    .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName())).replaceAll("&", "§"));
                                         }
                                     }
                                     if(user.getUniqueId() != null) {
@@ -113,7 +113,7 @@ public class CMDunmute implements Command {
                                                 .sendMessage(messages.getString("Unmute.notify")
                                                         .replaceAll("%P%", messages.getString("prefix"))
                                                         .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                                        .replaceAll("%sender%", user.getName()));
+                                                        .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName())));
                                     }
                                 } else {
                                     user.sendMessage(messages.getString("unmute.usage")

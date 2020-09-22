@@ -28,7 +28,7 @@ public class LoginListener implements Listener {
     private final Config messages;
     private final Database sql;
 
-    public LoginListener(BanManager banManager, Config config, Config messages, Database sql, List<InetAddress> bannedAddresses) {
+    public LoginListener(BanManager banManager, Config config, Config messages, Database sql) {
         this.banManager = banManager;
         this.config = config;
         this.messages = messages;
@@ -254,11 +254,11 @@ public class LoginListener implements Listener {
                                         p.disconnect(component);
                                     } else {
                                         ProxyServer.getInstance().getConsole()
-                                                .sendMessage(messages.getString("ip.warning") + "§e" + p.getName()
+                                                .sendMessage(messages.getString("ip.warning") + "§e" + p.getDisplayName()
                                                         + " §cist womöglich ein 2. Account von §e" + bannedPlayerName);
                                         for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
                                             if (all.hasPermission("bansys.notify")) {
-                                                all.sendMessage(messages.getString("prefix") + "§e" + p.getName()
+                                                all.sendMessage(messages.getString("prefix") + "§e" + p.getDisplayName()
                                                         + " §cist womöglich ein 2. Account von §e" + bannedPlayerName);
                                             }
                                         }

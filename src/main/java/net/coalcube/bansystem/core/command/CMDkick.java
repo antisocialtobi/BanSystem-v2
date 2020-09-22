@@ -20,7 +20,7 @@ public class CMDkick implements Command {
     public void noReasonKick(User p, User target) throws SQLException {
         BanSystem.getInstance().disconnect(target, messages.getString("Kick.noreason.screen").replaceAll("&", "§"));
         p.sendMessage(messages.getString("Kick.success").replaceAll("%P%", messages.getString("prefix"))
-                .replaceAll("%player%", target.getName()).replaceAll("&", "§"));
+                .replaceAll("%player%", target.getDisplayName()).replaceAll("&", "§"));
         if (sql.isConnected()) {
             if (p.getUniqueId() == null) {
                 banManager.kick(target.getUniqueId(), p.getName());
@@ -37,8 +37,8 @@ public class CMDkick implements Command {
             if (all.hasPermission("bansys.notify") && all.getUniqueId() != p.getUniqueId()) {
                 for (String message : messages.getStringList("Kick.noreason.notify")) {
                     all.sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
-                            .replaceAll("%player%", target.getName())
-                            .replaceAll("%sender%", p.getName())
+                            .replaceAll("%player%", target.getDisplayName())
+                            .replaceAll("%sender%", (p.getUniqueId() != null ? p.getDisplayName() : p.getName()))
                             .replaceAll("&", "§"));
                 }
             }
@@ -47,7 +47,7 @@ public class CMDkick implements Command {
 
     public void reasonKick(User p, User target, String[] args) throws SQLException {
         p.sendMessage(messages.getString("Kick.success").replaceAll("%P%", messages.getString("prefix"))
-                .replaceAll("%player%", target.getName()).replaceAll("&", "§"));
+                .replaceAll("%player%", target.getDisplayName()).replaceAll("&", "§"));
         StringBuilder msg = new StringBuilder();
         for (int i = 1; i < args.length; i++) {
             StringBuilder append = msg.append(args[i]).append(" ");
@@ -67,8 +67,8 @@ public class CMDkick implements Command {
             if (all.hasPermission("bansys.notify") && all.getUniqueId() != p.getUniqueId()) {
                 for (String message : messages.getStringList("Kick.reason.notify")) {
                     all.sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
-                            .replaceAll("%player%", target.getName())
-                            .replaceAll("%sender%", p.getName())
+                            .replaceAll("%player%", target.getDisplayName())
+                            .replaceAll("%sender%", (p.getUniqueId() != null ? p.getDisplayName() : p.getName()))
                             .replaceAll("%reason%", msg.toString())
                             .replaceAll("&", "§"));
                 }

@@ -39,8 +39,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     private Config config, messages, blacklist;
     private String banScreen;
     private List<String> blockedCommands, ads, blockedWords;
-    private List<InetAddress> bannedAddresses;
-    private File fileDatabaseFolder, sqlitedatabase;
+    private File sqlitedatabase;
     private String hostname, database, user, pw;
     private int port;
     private CommandSender console;
@@ -56,7 +55,6 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         PluginManager pluginmanager = ProxyServer.getInstance().getPluginManager();
         console = ProxyServer.getInstance().getConsole();
         UpdateChecker updatechecker = new UpdateChecker(65863);
-        bannedAddresses = new ArrayList<>();
         timeFormatUtil = new TimeFormatUtil();
 
         console.sendMessage(new TextComponent("§c  ____                    ____                  _                      "));
@@ -103,12 +101,10 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
             } catch (SQLException | ExecutionException | InterruptedException e) {
                 console.sendMessage(new TextComponent(prefix + "§7Die IDs konnten nicht mit MySQL synchronisiert werden."));
-                console.sendMessage(new TextComponent(prefix + e.getMessage() + " " + e.getCause()));
                 e.printStackTrace();
             }
 
         } else {
-            fileDatabaseFolder = new File(this.getDataFolder().getPath() + "/database");
             createFileDatabase();
             SQLite sqlite = new SQLite(sqlitedatabase);
             banManager = new BanManagerSQLite(sqlite);
@@ -167,10 +163,8 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         super.onDisable();
 
         try {
-            if (config.getBoolean("mysql.enable")) {
-                if (sql.isConnected())
-                    sql.disconnect();
-            }
+            if (sql.isConnected())
+                sql.disconnect();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -197,9 +191,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
                 config = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(configfile));
                 ConfigurationUtil.initConfig(config);
                 config.save(configfile);
-            } //else if(config.getSection("mysql").getKeys().contains("enable")) {
-
-            //}
+            }
             File messagesfile = new File(this.getDataFolder(), "messages.yml");
             if (!messagesfile.exists()) {
                 messagesfile.createNewFile();
@@ -224,10 +216,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
     private void createFileDatabase() {
         try {
-            if (!fileDatabaseFolder.exists()) {
-                fileDatabaseFolder.mkdir();
-            }
-            sqlitedatabase = new File(fileDatabaseFolder.getPath(), "database.db");
+            sqlitedatabase = new File(this.getDataFolder(), "database.db");
 
             if (!sqlitedatabase.exists()) {
                 sqlitedatabase.createNewFile();
@@ -267,8 +256,8 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             blockedWords.addAll(blacklist.getStringList("Words"));
 
         } catch (NullPointerException e) {
-            System.err.println("[Bansystem] Es ist ein Fehler beim laden der Config/messages Datei aufgetreten. "
-                    + e.getMessage());
+            System.err.println("[Bansystem] Es ist ein Fehler beim laden der Config/messages Datei aufgetreten.");
+            e.printStackTrace();
         }
     }
 
@@ -307,7 +296,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         pluginManager.registerCommand(this, new CommandWrapper("bansystem", new CMDbansystem(messages, config, sql, mysql), false));
         pluginManager.registerCommand(this, new CommandWrapper("bansys", new CMDbansystem(messages, config, sql, mysql), false));
 
-        pluginManager.registerListener(this, new LoginListener(banManager, config, messages, sql, bannedAddresses));
+        pluginManager.registerListener(this, new LoginListener(banManager, config, messages, sql));
         pluginManager.registerListener(this, new ChatListener(banManager, config, messages, sql, blacklist));
     }
 

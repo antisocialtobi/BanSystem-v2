@@ -7,6 +7,7 @@ commands:
   unban:
   unmute:
   bansystem:
+  bansys:
   kick:
   history:
   check:

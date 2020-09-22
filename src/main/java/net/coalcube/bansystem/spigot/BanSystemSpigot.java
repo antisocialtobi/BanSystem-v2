@@ -21,13 +21,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class BanSystemSpigot extends JavaPlugin implements BanSystem {
@@ -42,8 +39,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     private Config config, messages, blacklist;
     private static String Banscreen;
     private static List<String> blockedCommands, ads, blockedWords;
-    private static Map<InetAddress, UUID> bannedIPs;
-    private File fileDatabaseFolder, sqlitedatabase;
+    private File sqlitedatabase;
     private String hostname, database, user, pw;
     private int port;
     private CommandSender console;
@@ -59,7 +55,6 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         PluginManager pluginmanager = Bukkit.getPluginManager();
         console = Bukkit.getConsoleSender();
         UpdateChecker updatechecker = new UpdateChecker(65863);
-        List<InetAddress> bannedAddresses = new ArrayList<>();
         timeFormatUtil = new TimeFormatUtil();
 
         console.sendMessage("§c  ____                    ____                  _                      ");
@@ -83,7 +78,6 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             } catch (SQLException e) {
                 console.sendMessage(prefix + "§7Datenbankverbindung konnte §4nicht §7hergestellt werden.");
                 console.sendMessage(prefix + "§cBitte überprüfe die eingetragenen MySQL daten in der Config.yml.");
-                e.printStackTrace();
             }
             try {
                 if(mysql.isConnected()) {
@@ -114,21 +108,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
                 e.printStackTrace();
             }
 
-            try {
-                ResultSet resultSet = mysql.getResult("SELECT * FROM `bans`");
-
-                while (resultSet.next()) {
-                    bannedIPs.put(InetAddress.getByName(resultSet.getString("ip")),
-                            UUID.fromString(resultSet.getString("player")));
-                }
-                console.sendMessage(prefix + "§7Die Gebannten Spieler wurden initialisiert§7.");
-            } catch (SQLException | UnknownHostException | ExecutionException | InterruptedException e) {
-                console.sendMessage(prefix + "§7Die Gebannten Spieler konnten nicht initialisiert werden.");
-                e.printStackTrace();
-            }
-
         } else {
-            fileDatabaseFolder = new File(this.getDataFolder().getPath() + "/database");
             createFileDatabase();
             SQLite sqlite = new SQLite(sqlitedatabase);
             banManager = new BanManagerSQLite(sqlite);
@@ -190,12 +170,9 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     @Override
     public void onDisable() {
         super.onDisable();
-
         try {
-            if (config.getBoolean("mysql.enable")) {
-                if (mysql.isConnected())
-                    mysql.disconnect();
-            }
+            if (sql.isConnected())
+                sql.disconnect();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -237,12 +214,13 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             File blacklistfile = new File(this.getDataFolder(), "blacklist.yml");
             if(!blacklistfile.exists()) {
                 blacklistfile.createNewFile();
-                blacklist = new SpigotConfig(YamlConfiguration.loadConfiguration(messagesfile));
+                blacklist = new SpigotConfig(YamlConfiguration.loadConfiguration(blacklistfile));
                 ConfigurationUtil.initBlacklist(blacklist);
-                blacklist.save(messagesfile);
+                blacklist.save(blacklistfile);
             }
             messages = new SpigotConfig(YamlConfiguration.loadConfiguration(messagesfile));
             config = new SpigotConfig(YamlConfiguration.loadConfiguration(configfile));
+            blacklist = new SpigotConfig(YamlConfiguration.loadConfiguration(blacklistfile));
         } catch (IOException e) {
             System.err.println("[Bansystem] Dateien konnten nicht erstellt werden.");
         }
@@ -250,10 +228,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
     private void createFileDatabase() {
         try {
-            if (!fileDatabaseFolder.exists()) {
-                fileDatabaseFolder.mkdir();
-            }
-            sqlitedatabase = new File(fileDatabaseFolder.getPath(), "database.db");
+            sqlitedatabase = new File(this.getDataFolder(), "database.db");
 
             if (!sqlitedatabase.exists()) {
                 sqlitedatabase.createNewFile();
@@ -286,15 +261,15 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             blockedCommands = new ArrayList<>();
             blockedWords = new ArrayList<>();
 
-            ads.addAll(blacklist.getSection("Ads").getKeys());
+            ads.addAll(blacklist.getStringList("Ads"));
 
-            blockedCommands.addAll(config.getSection("mute.blockedCommands").getKeys());
+            blockedCommands.addAll(config.getStringList("mute.blockedCommands"));
 
-            blockedWords.addAll(blacklist.getSection("Words").getKeys());
+            blockedWords.addAll(blacklist.getStringList("Words"));
 
         } catch (NullPointerException e) {
-            System.err.println("[Bansystem] Es ist ein Fehler beim laden der Config/messages Datei aufgetreten. "
-                    + e.getMessage());
+            System.err.println("[Bansystem] Es ist ein Fehler beim laden der Config/messages Datei aufgetreten.");
+            e.printStackTrace();
         }
     }
 
@@ -349,17 +324,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
     @Override
     public String getBanScreen() {
-
-        String banScreen = "";
-
-        for(String line : messages.getStringList("Ban.Network.Screen")) {
-            banScreen += line;
-        }
-
-        banScreen.replaceAll("&", "§");
-        banScreen.replaceAll("%P%", prefix);
-
-        return banScreen;
+        return Banscreen;
     }
 
     @Override
@@ -387,10 +352,6 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
     public static Plugin getPlugin() {
         return instance;
-    }
-
-    public static Map<InetAddress, UUID> getBannedIPs() {
-        return bannedIPs;
     }
 
     public static List<String> getBlockedWords() {

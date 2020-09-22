@@ -37,9 +37,14 @@ public class CMDdeletehistory implements Command {
                             banmanager.deleteHistory(uuid);
                             if(user.getUniqueId() != null) {
                                 banmanager.log("Deleted History", user.getUniqueId().toString(), uuid.toString(), "");
-                            } else
+                            } else {
                                 banmanager.log("Deleted History", user.getName(), uuid.toString(), "");
-
+                                BanSystem.getInstance().getConsole()
+                                        .sendMessage(messages.getString("Deletehistory.notify")
+                                                .replaceAll("%P%", messages.getString("prefix"))
+                                                .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName())).replaceAll("&", "§"));
+                            }
                             user.sendMessage(messages.getString("Deletehistory.success")
                                     .replaceAll("%P%", messages.getString("prefix"))
                                     .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("&", "§"));
@@ -48,14 +53,10 @@ public class CMDdeletehistory implements Command {
                                     all.sendMessage(messages.getString("Deletehistory.notify")
                                             .replaceAll("%P%", messages.getString("prefix"))
                                             .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                            .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
+                                            .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName())).replaceAll("&", "§"));
                                 }
                             }
-                            BanSystem.getInstance().getConsole()
-                                    .sendMessage(messages.getString("Deletehistory.notify")
-                                            .replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                            .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
+
                         } else {
                             user.sendMessage(messages.getString("History.historynotfound")
                                     .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));

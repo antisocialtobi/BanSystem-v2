@@ -1,7 +1,5 @@
 package net.coalcube.bansystem.core.util;
 
-import net.coalcube.bansystem.core.BanSystem;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -10,7 +8,6 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +22,7 @@ public class BanManagerSQLite implements BanManager {
 
     public void log(String action, String creator, String target, String note) throws SQLException {
         sqlite.update("INSERT INTO `logs` (`action`, `target`, `creator`, `note`, `creationdate`) " +
-                "VALUES ('" + action + "', '" + target + "','" + creator + "', '" + note + "', CURRENT_TIMESTAMP);");
+                "VALUES ('" + action + "', '" + target + "','" + creator + "', '" + note + "', datetime('now', 'localtime'));");
     }
 
     public void kick(UUID player, String creator) throws SQLException {
@@ -38,7 +35,7 @@ public class BanManagerSQLite implements BanManager {
 
     public void kick(UUID player, String creator, String reason) throws SQLException {
         sqlite.update("INSERT INTO `kicks` (`player`, `creator`, `reason`, `creationdate`) " +
-                "VALUES ('" + player + "', '" + creator + "', '" + reason + "', CURRENT_TIMESTAMP);");
+                "VALUES ('" + player + "', '" + creator + "', '" + reason + "', datetime('now', 'localtime'));");
     }
 
     public void kick(UUID player, UUID creator, String reason) throws SQLException {
@@ -55,22 +52,22 @@ public class BanManagerSQLite implements BanManager {
 
     public void ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException {
         sqlite.update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
-                "VALUES ('" + player + "', '" + time + "', CURRENT_TIMESTAMP, '" + creator + "', '" + reason + "', '" + v4adress.getHostName() + "', '" + type + "');");
+                "VALUES ('" + player + "', '" + time + "', datetime('now', 'localtime'), '" + creator + "', '" + reason + "', '" + v4adress.getHostName() + "', '" + type + "');");
 
         sqlite.update("INSERT INTO `banhistories` (`player`, `duration`, `creator`, `reason`, `ip`, `type`, `creationdate`) " +
                 "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', " +
-                "'" + v4adress.getHostName() + "', '" + type + "', CURRENT_TIMESTAMP);");
+                "'" + v4adress.getHostName() + "', '" + type + "', datetime('now', 'localtime'));");
     }
 
     public void ban(UUID player, long time, String creator, Type type, String reason) throws IOException, SQLException {
         sqlite.update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
-                "VALUES ('" + player + "', '" + time + "', CURRENT_TIMESTAMP," +
+                "VALUES ('" + player + "', '" + time + "', datetime('now', 'localtime')," +
                 " '" + creator + "', '" + reason + "', '','" + type + "');");
 
 
 
         sqlite.update("INSERT INTO `banhistories` (`player`, `duration`, `creator`, `reason`, `type`, `ip`,`creationdate`) " +
-                "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + type + "', '', CURRENT_TIMESTAMP);");
+                "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + type + "', '', datetime('now', 'localtime'));");
     }
 
     public void unBan(UUID player, UUID unBanner, String reason) throws IOException, SQLException {
@@ -80,7 +77,7 @@ public class BanManagerSQLite implements BanManager {
     public void unBan(UUID player, String unBanner, String reason) throws IOException, SQLException {
         sqlite.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.NETWORK + "'");
         sqlite.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `reason`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', CURRENT_TIMESTAMP, '" + reason + "','" + Type.NETWORK +"');");
+                "VALUES ('" + player + "', '" + unBanner + "', datetime('now', 'localtime'), '" + reason + "','" + Type.NETWORK +"');");
     }
 
     public void unBan(UUID player, UUID unBanner) throws IOException, SQLException {
@@ -90,7 +87,7 @@ public class BanManagerSQLite implements BanManager {
     public void unBan(UUID player, String unBanner) throws IOException, SQLException {
         sqlite.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.NETWORK + "'");
         sqlite.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', CURRENT_TIMESTAMP, '" + Type.NETWORK +"');");
+                "VALUES ('" + player + "', '" + unBanner + "', datetime('now', 'localtime'), '" + Type.NETWORK +"');");
 
     }
 
@@ -101,7 +98,7 @@ public class BanManagerSQLite implements BanManager {
     public void unMute(UUID player, String unBanner, String reason) throws IOException, SQLException {
         sqlite.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.CHAT + "'");
         sqlite.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `reason`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', CURRENT_TIMESTAMP, '" + reason + "','" + Type.CHAT +"');");
+                "VALUES ('" + player + "', '" + unBanner + "', datetime('now', 'localtime'), '" + reason + "','" + Type.CHAT +"');");
     }
 
     public void unMute(UUID player, UUID unBanner) throws IOException, SQLException {
@@ -111,7 +108,7 @@ public class BanManagerSQLite implements BanManager {
     public void unMute(UUID player, String unBanner) throws IOException, SQLException {
         sqlite.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.CHAT + "'");
         sqlite.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', CURRENT_TIMESTAMP,'" + Type.CHAT +"');");
+                "VALUES ('" + player + "', '" + unBanner + "', datetime('now', 'localtime'),'" + Type.CHAT +"');");
 
     }
 
@@ -175,7 +172,7 @@ public class BanManagerSQLite implements BanManager {
 
     public Long getCreationDate(UUID player, Type type) throws SQLException, ParseException {
         ResultSet resultSet = sqlite.getResult("SELECT creationdate FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         while (resultSet.next()) {
             return df.parse(resultSet.getString("creationdate")).getTime();
         }
@@ -185,7 +182,7 @@ public class BanManagerSQLite implements BanManager {
     public List<History> getHistory(UUID player) throws UnknownHostException, SQLException, ParseException {
         ResultSet resultSet = sqlite.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "';");
         List<History> list = new ArrayList<>();
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         while (resultSet.next()) {
             list.add(new History(UUID.fromString(
                     resultSet.getString("player")),
@@ -200,7 +197,7 @@ public class BanManagerSQLite implements BanManager {
     }
 
     public List<UUID> getBannedPlayersWithSameIP(InetAddress address) throws SQLException {
-        ResultSet resultSet = sqlite.getResult("SELECT * FROM `banhistories` WHERE ip = '" + address.getHostName() + "';");
+        ResultSet resultSet = sqlite.getResult("SELECT * FROM `bans` WHERE ip = '" + address.getHostName() + "';");
         List<UUID> list = new ArrayList<>();
         while (resultSet.next()) {
             list.add(UUID.fromString(resultSet.getString("player")));

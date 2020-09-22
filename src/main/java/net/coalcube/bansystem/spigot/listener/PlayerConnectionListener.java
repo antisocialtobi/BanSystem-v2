@@ -5,7 +5,6 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -13,9 +12,10 @@ import java.util.concurrent.ExecutionException;
 
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.util.*;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.*;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -249,12 +249,6 @@ public class PlayerConnectionListener implements Listener {
                         ipAutoBanLvl = banManager.getLevel(uuid, ipAutoBanReason)+1;
                     } else
                         ipAutoBanLvl = getMaxLvl(String.valueOf(ipAutoBanID));
-                    System.out.println("ID: " + ipAutoBanID);
-                    System.out.println("lvl: " + ipAutoBanLvl);
-
-                    /**
-                     * TODO: fixing that you get the notification message yourself
-                     */
 
 
                     banned = banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress());
@@ -280,15 +274,15 @@ public class PlayerConnectionListener implements Listener {
                 if (config.getBoolean("IPautoban.enable")) {
                     try {
                         banManager.ban(uuid, ipAutoBanDuration, BanSystem.getInstance().getConsole().getName(), ipAutoBanType, ipAutoBanReason, p.getAddress().getAddress());
-                        banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), uuid.toString(), "Same IP Autoban");
+                        banManager.log("Banned Player", Bukkit.getConsoleSender().getName(), uuid.toString(), "Same IP Autoban");
                     } catch (IOException | SQLException ioException) {
                         ioException.printStackTrace();
                     }
-                    ProxyServer.getInstance().getConsole()
+                    Bukkit.getConsoleSender()
                             .sendMessage(messages.getString("autoban.ip.notify") + bannedPlayerName + " §cwurde automatisch gebannt für §e"
                                     + config.getString("IDs." + config.getInt("IPautoban.banid") + ".reason")
                                     + "§c.");
-                    for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
+                    for (Player all : Bukkit.getOnlinePlayers()) {
                         if (all.hasPermission("bansys.notify")) {
                             all.sendMessage(messages.getString("prefix") + "§cDer 2. Account von §e"
                                     + bannedPlayerName + " §cwurde automatisch gebannt für §e"
@@ -306,7 +300,7 @@ public class PlayerConnectionListener implements Listener {
                         banScreen = banScreen.replaceAll("%reamingtime%",
                                         BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
                                                 banManager.getRemainingTime(uuid, Type.NETWORK)));
-                        banScreen = banScreen.replaceAll("%creator", ProxyServer.getInstance().getConsole().getName());
+                        banScreen = banScreen.replaceAll("%creator", Bukkit.getConsoleSender().getName());
                         banScreen = banScreen.replaceAll("%enddate%", enddate);
                         banScreen = banScreen.replaceAll("%lvl%", String.valueOf(ipAutoBanLvl));
                     } catch (SQLException | ParseException throwables) {
@@ -314,12 +308,12 @@ public class PlayerConnectionListener implements Listener {
                     }
                     p.kickPlayer(banScreen);
                 } else {
-                    ProxyServer.getInstance().getConsole()
-                            .sendMessage(messages.getString("prefix") + "§e" + p.getName()
+                    Bukkit.getConsoleSender()
+                            .sendMessage(messages.getString("prefix") + "§e" + p.getDisplayName()
                                     + " §cist womöglich ein 2. Account von §e" + bannedPlayerName);
-                    for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
+                    for (Player all : Bukkit.getOnlinePlayers()) {
                         if (all.hasPermission("bansys.notify")) {
-                            all.sendMessage(messages.getString("prefix") + "§e" + p.getName()
+                            all.sendMessage(messages.getString("prefix") + "§e" + p.getDisplayName()
                                     + " §cist womöglich ein 2. Account von §e" + bannedPlayerName);
                         }
                     }

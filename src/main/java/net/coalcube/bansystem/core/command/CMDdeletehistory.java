@@ -45,11 +45,12 @@ public class CMDdeletehistory implements Command {
                                             .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
                                 }
                             }
-                            BanSystem.getInstance().getConsole()
-                                    .sendMessage(messages.getString("Deletehistory.notify")
-                                            .replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                            .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
+                            if(user.getUniqueId() != null)
+                                BanSystem.getInstance().getConsole()
+                                        .sendMessage(messages.getString("Deletehistory.notify")
+                                                .replaceAll("%P%", messages.getString("prefix"))
+                                                .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
                         } else {
                             user.sendMessage(messages.getString("History.historynotfound")
                                     .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
@@ -65,10 +66,12 @@ public class CMDdeletehistory implements Command {
                             .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
                 }
             } else {
-                user.sendMessage(messages.getString("NoDBConnection"));
+                user.sendMessage(messages.getString("NoDBConnection")
+                        .replaceAll("&", "§")
+                        .replaceAll("%P%", messages.getString("prefix")));
             }
         } else {
-            user.sendMessage(messages.getString("NoPermission"));
+            user.sendMessage(messages.getString("NoPermissionMessage").replaceAll("%P%", messages.getString("prefix")));
         }
     }
 }

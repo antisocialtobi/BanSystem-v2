@@ -44,6 +44,12 @@ public class CMDunban implements Command {
                                 try {
                                     if (user.getUniqueId() != null) {
                                         banManager.unBan(uuid, user.getUniqueId(), reason);
+                                        BanSystem.getInstance().getConsole()
+                                                .sendMessage(messages.getString("Unban.needreason.notify")
+                                                        .replaceAll("%P%", messages.getString("prefix"))
+                                                        .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                        .replaceAll("%sender%", user.getName())
+                                                        .replaceAll("%reason%", reason));
                                     } else {
                                         banManager.unBan(uuid, user.getName(), reason);
                                     }
@@ -66,16 +72,20 @@ public class CMDunban implements Command {
                                                 .replaceAll("%reason%", reason));
                                     }
                                 }
-                                BanSystem.getInstance().getConsole()
-                                        .sendMessage(messages.getString("Unban.needreason.notify")
-                                                .replaceAll("%P%", messages.getString("prefix"))
-                                                .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                                .replaceAll("%sender%", user.getName())
-                                                .replaceAll("%reason%", reason));
+
                             } else {
+                                if(config.getBoolean("needReason.Unban")) {
+                                    user.sendMessage(messages.getString("Unban.needreason.usage")
+                                            .replaceAll("%prefix%", messages.getString("prefix")));
+                                }
                                 try {
                                     if (user.getUniqueId() != null) {
                                         banManager.unBan(uuid, user.getUniqueId());
+                                        BanSystem.getInstance().getConsole()
+                                                .sendMessage(messages.getString("Unban.notify")
+                                                        .replaceAll("%P%", messages.getString("prefix"))
+                                                        .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                        .replaceAll("%sender%", user.getName()));
                                     } else {
                                         banManager.unBan(uuid, user.getName());
                                     }
@@ -96,11 +106,7 @@ public class CMDunban implements Command {
                                                 .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
                                     }
                                 }
-                                BanSystem.getInstance().getConsole()
-                                        .sendMessage(messages.getString("Unban.notify")
-                                                .replaceAll("%P%", messages.getString("prefix"))
-                                                .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                                .replaceAll("%sender%", user.getName()));
+
 
                             }
                         } else {
@@ -116,10 +122,12 @@ public class CMDunban implements Command {
                             .replaceAll("&", "§"));
                 }
             } else {
-                user.sendMessage(messages.getString("NoDBConnection"));
+                user.sendMessage(messages.getString("NoDBConnection")
+                        .replaceAll("&", "§")
+                        .replaceAll("%P%", messages.getString("prefix")));
             }
         } else {
-            user.sendMessage(messages.getString("NoPermission"));
+            user.sendMessage(messages.getString("NoPermissionMessage").replaceAll("%P%", messages.getString("prefix")));
         }
     }
 }

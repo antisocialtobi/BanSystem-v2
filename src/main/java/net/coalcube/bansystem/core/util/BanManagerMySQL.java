@@ -5,9 +5,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class BanManagerMySQL implements BanManager {
 
@@ -74,7 +72,7 @@ public class BanManagerMySQL implements BanManager {
     }
 
     public void unBan(UUID player, UUID unBanner) throws IOException, SQLException {
-        unBan(player, unBanner);
+        unBan(player, unBanner.toString());
     }
 
     public void unBan(UUID player, String unBanner) throws IOException, SQLException {
@@ -123,7 +121,6 @@ public class BanManagerMySQL implements BanManager {
         ResultSet resultSet = mysql.getResult("SELECT duration FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
         while (resultSet.next()) {
             Long duration = resultSet.getLong("duration");
-
             return (duration == -1) ? duration : getCreationDate(player, type) + duration ;
         }
         return null;

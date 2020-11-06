@@ -7,7 +7,6 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
-import org.bukkit.Bukkit;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -62,9 +61,9 @@ public class ChatListener implements Listener {
                         }
                     } else {
                         if (config.getBoolean("needReason.Unmute")) {
-                            banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
+                            banManager.unMute(p.getUniqueId(), ProxyServer.getInstance().getConsole().getName(), "Strafe abgelaufen");
                         } else {
-                            banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName());
+                            banManager.unMute(p.getUniqueId(), ProxyServer.getInstance().getConsole().getName());
                         }
 
                         ProxyServer.getInstance().getConsole().sendMessage(messages.getString("Ban.Chat.autounmute")

@@ -1,6 +1,7 @@
 package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.util.*;
+import net.md_5.bungee.api.ChatColor;
 
 import java.net.UnknownHostException;
 import java.sql.SQLException;
@@ -79,10 +80,13 @@ public class CMDhistory implements Command {
                             .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
                 }
             } else {
-                user.sendMessage(messages.getString("NoDBConnection"));
+                user.sendMessage(messages.getString("NoDBConnection")
+                        .replaceAll("&", "§")
+                        .replaceAll("%P%", messages.getString("prefix")));
             }
         } else {
-            user.sendMessage(messages.getString("NoPermission"));
+            user.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                    messages.getString("NoPermissionMessage").replaceAll("%P%", messages.getString("prefix"))));
         }
     }
 }

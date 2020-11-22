@@ -46,10 +46,14 @@ public class CMDunban implements Command {
                                     try {
                                         if (user.getUniqueId() != null) {
                                             banManager.unBan(uuid, user.getUniqueId(), reason);
-                                            banManager.log("Unbanned Player", user.getUniqueId().toString(), uuid.toString(), "reason: " + reason);
+                                            BanSystem.getInstance().getConsole()
+                                                    .sendMessage(messages.getString("Unban.needreason.notify")
+                                                            .replaceAll("%P%", messages.getString("prefix"))
+                                                            .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                            .replaceAll("%sender%", user.getName())
+                                                            .replaceAll("%reason%", reason));
                                         } else {
                                             banManager.unBan(uuid, user.getName(), reason);
-                                            banManager.log("Unbanned Player", user.getName(), uuid.toString(), "reason: " + reason);
                                         }
                                     } catch (IOException | SQLException e) {
                                         e.printStackTrace();

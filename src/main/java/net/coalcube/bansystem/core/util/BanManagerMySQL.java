@@ -1,7 +1,5 @@
 package net.coalcube.bansystem.core.util;
 
-import net.coalcube.bansystem.core.BanSystem;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -73,7 +71,7 @@ public class BanManagerMySQL implements BanManager {
     public void unBan(UUID player, String unBanner, String reason) throws IOException, SQLException {
         mysql.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.NETWORK + "';");
         mysql.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `reason`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', NOW(), '" + reason + "','" + Type.NETWORK +"');");
+                "VALUES ('" + player + "', '" + unBanner + "', NOW(), '" + reason + "','" + Type.NETWORK + "');");
     }
 
     public void unBan(UUID player, UUID unBanner) throws IOException, SQLException {
@@ -83,7 +81,7 @@ public class BanManagerMySQL implements BanManager {
     public void unBan(UUID player, String unBanner) throws IOException, SQLException {
         mysql.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.NETWORK + "';");
         mysql.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', NOW(), '" + Type.NETWORK +"');");
+                "VALUES ('" + player + "', '" + unBanner + "', NOW(), '" + Type.NETWORK + "');");
     }
 
     public void unMute(UUID player, UUID unBanner, String reason) throws IOException, SQLException {
@@ -93,7 +91,7 @@ public class BanManagerMySQL implements BanManager {
     public void unMute(UUID player, String unBanner, String reason) throws IOException, SQLException {
         mysql.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.CHAT + "'");
         mysql.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `reason`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', NOW(), '" + reason + "','" + Type.CHAT +"');");
+                "VALUES ('" + player + "', '" + unBanner + "', NOW(), '" + reason + "','" + Type.CHAT + "');");
     }
 
     public void unMute(UUID player, UUID unBanner) throws IOException, SQLException {
@@ -103,7 +101,7 @@ public class BanManagerMySQL implements BanManager {
     public void unMute(UUID player, String unBanner) throws IOException, SQLException {
         mysql.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.CHAT + "'");
         mysql.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', NOW(),'" + Type.CHAT +"');");
+                "VALUES ('" + player + "', '" + unBanner + "', NOW(),'" + Type.CHAT + "');");
     }
 
     public void deleteHistory(UUID player) throws SQLException {
@@ -127,7 +125,7 @@ public class BanManagerMySQL implements BanManager {
         while (resultSet.next()) {
             Long duration = resultSet.getLong("duration");
 
-            return (duration == -1) ? duration : getCreationDate(player, type) + duration ;
+            return (duration == -1) ? duration : getCreationDate(player, type) + duration;
         }
         return null;
     }
@@ -135,10 +133,10 @@ public class BanManagerMySQL implements BanManager {
     public String getBanner(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = mysql.getResult("SELECT creator FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
         while (resultSet.next()) {
-            try{
+            try {
                 UUID uuid = UUID.fromString(resultSet.getString("creator"));
                 return UUIDFetcher.getName(uuid);
-            } catch (IllegalArgumentException exception){
+            } catch (IllegalArgumentException exception) {
                 return resultSet.getString("creator");
             }
 
@@ -160,10 +158,10 @@ public class BanManagerMySQL implements BanManager {
 
     public int getLevel(UUID player, String reason) throws UnknownHostException, SQLException, ExecutionException, InterruptedException {
         int lvl = 0;
-        if(hasHistory(player, reason)) {
+        if (hasHistory(player, reason)) {
             ResultSet resultSet = mysql.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "' AND reason = '" + reason + "';");
             while (resultSet.next()) {
-                lvl ++;
+                lvl++;
             }
         }
         return lvl;
@@ -229,7 +227,7 @@ public class BanManagerMySQL implements BanManager {
     public boolean isSetIP(UUID player) throws SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = mysql.getResult("SELECT ip FROM `bans` WHERE player = '" + player + "';");
         while (resultSet.next()) {
-            if(!resultSet.getString("ip").isEmpty())
+            if (!resultSet.getString("ip").isEmpty())
                 return true;
         }
         return false;

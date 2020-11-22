@@ -5,14 +5,15 @@ import net.coalcube.bansystem.core.util.*;
 
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class CMDdeletehistory implements Command {
 
-    private BanManager banmanager;
-    private Config messages;
-    private Database sql;
+    private final BanManager banmanager;
+    private final Config messages;
+    private final Database sql;
 
     public CMDdeletehistory(BanManager banmanager, Config messages, Database sql) {
         this.banmanager = banmanager;
@@ -56,6 +57,13 @@ public class CMDdeletehistory implements Command {
                                             .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName())).replaceAll("&", "§"));
                                 }
                             }
+
+                            if (user.getUniqueId() != null)
+                                BanSystem.getInstance().getConsole()
+                                        .sendMessage(messages.getString("Deletehistory.notify")
+                                                .replaceAll("%P%", messages.getString("prefix"))
+                                                .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
+                                                .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
 
                         } else {
                             user.sendMessage(messages.getString("History.historynotfound")

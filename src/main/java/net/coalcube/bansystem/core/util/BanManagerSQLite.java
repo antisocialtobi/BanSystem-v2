@@ -81,7 +81,7 @@ public class BanManagerSQLite implements BanManager {
     }
 
     public void unBan(UUID player, UUID unBanner) throws IOException, SQLException {
-        unBan(player, unBanner);
+        unBan(player, unBanner.toString());
     }
 
     public void unBan(UUID player, String unBanner) throws IOException, SQLException {
@@ -118,7 +118,7 @@ public class BanManagerSQLite implements BanManager {
     }
 
     public void setIP(UUID player, InetAddress address) throws SQLException {
-        sqlite.update("UPDATE `bans` SET ip='" + address.getHostName() + "' WHERE ip IS NULL;");
+        sqlite.update("UPDATE `bans` SET ip='" + address.getHostName() + "' WHERE (ip IS NULL or ip = '') AND player = '" + player + "';");
     }
 
     public String getBanReason(UUID player, Type type) throws SQLException {
@@ -230,11 +230,10 @@ public class BanManagerSQLite implements BanManager {
     }
 
     public boolean isSetIP(UUID player) throws SQLException {
-        ResultSet resultSet = sqlite.getResult("SELECT ip FROM `bans` WHERE player = '" + player + "';");
+        ResultSet resultSet = sqlite.getResult("SELECT * FROM `bans` WHERE player = '" + player + "' AND (ip is null or ip = '');");
         while (resultSet.next()) {
-            if(!resultSet.getString("ip").isEmpty())
-                return true;
+            return false;
         }
-        return false;
+        return true;
     }
 }

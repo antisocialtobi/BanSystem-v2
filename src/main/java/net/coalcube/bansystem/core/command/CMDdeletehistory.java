@@ -5,7 +5,6 @@ import net.coalcube.bansystem.core.util.*;
 
 import java.net.UnknownHostException;
 import java.sql.SQLException;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -40,11 +39,7 @@ public class CMDdeletehistory implements Command {
                                 banmanager.log("Deleted History", user.getUniqueId().toString(), uuid.toString(), "");
                             } else {
                                 banmanager.log("Deleted History", user.getName(), uuid.toString(), "");
-                                BanSystem.getInstance().getConsole()
-                                        .sendMessage(messages.getString("Deletehistory.notify")
-                                                .replaceAll("%P%", messages.getString("prefix"))
-                                                .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                                .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName())).replaceAll("&", "§"));
+
                             }
                             user.sendMessage(messages.getString("Deletehistory.success")
                                     .replaceAll("%P%", messages.getString("prefix"))
@@ -54,7 +49,9 @@ public class CMDdeletehistory implements Command {
                                     all.sendMessage(messages.getString("Deletehistory.notify")
                                             .replaceAll("%P%", messages.getString("prefix"))
                                             .replaceAll("%player%", UUIDFetcher.getName(uuid))
-                                            .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName())).replaceAll("&", "§"));
+                                            .replaceAll("%sender%",
+                                                    (user.getUniqueId() != null ? user.getDisplayName() : user.getName()))
+                                            .replaceAll("&", "§"));
                                 }
                             }
 
@@ -62,8 +59,10 @@ public class CMDdeletehistory implements Command {
                                 BanSystem.getInstance().getConsole()
                                         .sendMessage(messages.getString("Deletehistory.notify")
                                                 .replaceAll("%P%", messages.getString("prefix"))
-                                                .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
-                                                .replaceAll("%sender%", user.getName()).replaceAll("&", "§"));
+                                                .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                .replaceAll("%sender%",
+                                                        (user.getUniqueId() != null ? user.getDisplayName() : user.getName()))
+                                                .replaceAll("&", "§"));
 
                         } else {
                             user.sendMessage(messages.getString("History.historynotfound")

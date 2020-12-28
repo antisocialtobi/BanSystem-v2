@@ -1,18 +1,10 @@
 package net.coalcube.bansystem.spigot.listener;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.util.*;
+import net.coalcube.bansystem.spigot.BanSystemSpigot;
 import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ClickEvent.Action;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -28,15 +20,23 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import net.coalcube.bansystem.spigot.BanSystemSpigot;
-import net.md_5.bungee.api.chat.ClickEvent.Action;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class PlayerConnectionListener implements Listener {
 
-    private BanManager banManager;
-    private Config config, messages;
-    private String banScreenRow;
-    private Plugin instance;
+    private final BanManager banManager;
+    private final Config config;
+    private final Config messages;
+    private final String banScreenRow;
+    private final Plugin instance;
 
     public PlayerConnectionListener(BanManager banManager, Config config, Config messages, String banScreen, Plugin instance) {
         this.banManager = banManager;
@@ -73,7 +73,7 @@ public class PlayerConnectionListener implements Listener {
                         if (!config.getBoolean("Ban.KickDelay.enable")) e.disallow(Result.KICK_BANNED, banScreen);
                         isCancelled = true;
 
-                       if (banManager.isSetIP(e.getUniqueId())) {
+                        if (!banManager.isSetIP(e.getUniqueId())) {
                             banManager.setIP(e.getUniqueId(), e.getAddress());
                         }
                     } else {
@@ -204,7 +204,7 @@ public class PlayerConnectionListener implements Listener {
             }
         }
         try {
-            if (config.getBoolean("Ban.KickDelay.enable") && banManager.isBanned(p.getUniqueId(), Type.NETWORK)) {
+            if (banManager.isBanned(p.getUniqueId(), Type.NETWORK)) {
                 e.setJoinMessage(null);
                 new BukkitRunnable() {
 
@@ -236,7 +236,7 @@ public class PlayerConnectionListener implements Listener {
 
         try {
             if (!banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress()).isEmpty() &&
-                    !p.hasPermission("bansys.ban")) {
+                    !p.hasPermission("bansys.ban") && !banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress()).contains(p.getUniqueId())) {
                 String bannedPlayerName = "";
                 boolean rightType = true;
                 List<UUID> banned;
@@ -245,8 +245,8 @@ public class PlayerConnectionListener implements Listener {
                 int ipAutoBanLvl = 0;
 
                 try {
-                    if(!isMaxBanLvl(String.valueOf(ipAutoBanID), banManager.getLevel(uuid, ipAutoBanReason))) {
-                        ipAutoBanLvl = banManager.getLevel(uuid, ipAutoBanReason)+1;
+                    if (!isMaxBanLvl(String.valueOf(ipAutoBanID), banManager.getLevel(uuid, ipAutoBanReason))) {
+                        ipAutoBanLvl = banManager.getLevel(uuid, ipAutoBanReason) + 1;
                     } else
                         ipAutoBanLvl = getMaxLvl(String.valueOf(ipAutoBanID));
 
@@ -284,12 +284,11 @@ public class PlayerConnectionListener implements Listener {
                                     + "§c.");
                     for (Player all : Bukkit.getOnlinePlayers()) {
                         if (all.hasPermission("bansys.notify")) {
-                            all.sendMessage(messages.getString("prefix") + "§cDer 2. Account von §e"
-                                    + bannedPlayerName + " §cwurde automatisch gebannt für §e"
-                                    + config.getString("IDs."
-                                    + config.getInt("IPautoban.banid")
-                                    + ".reason")
-                                    + "§c.");
+                            all.sendMessage(messages.getString("ip.autoban")
+                                    .replaceAll("%P%", messages.getString("prefix"))
+                                    .replaceAll("%bannedaccount%", bannedPlayerName)
+                                    .replaceAll("&", "§")
+                                    .replaceAll("%reason%", ipAutoBanReason));
                         }
                     }
                     String banScreen = BanSystem.getInstance().getBanScreen();
@@ -333,10 +332,7 @@ public class PlayerConnectionListener implements Listener {
                 maxLvl = Integer.valueOf(key);
             }
         }
-        if (lvl >= maxLvl) {
-            return true;
-        }
-        return false;
+        return lvl >= maxLvl;
     }
 
     private int getMaxLvl(String id) {

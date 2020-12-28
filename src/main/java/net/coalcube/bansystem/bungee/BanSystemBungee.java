@@ -18,7 +18,6 @@ import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -62,7 +61,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         console.sendMessage(new TextComponent("§c |  _ \\   / _` | | '_ \\  \\___ \\  | | | | / __| | __|  / _ \\ | '_ ` _ \\ "));
         console.sendMessage(new TextComponent("§c | |_) | | (_| | | | | |  ___) | | |_| | \\__ \\ | |_  |  __/ | | | | | |"));
         console.sendMessage(new TextComponent("§c |____/   \\__,_| |_| |_| |____/   \\__, | |___/  \\__|  \\___| |_| |_| |_|"));
-        console.sendMessage(new TextComponent("§c                                  |___/                           §7v2.0"));
+        console.sendMessage(new TextComponent("§c                                  |___/                           §7v" + this.getVersion()));
 
         createConfig();
         loadConfig();
@@ -130,7 +129,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
         ProxyServer.getInstance().getScheduler().schedule(this, UUIDFetcher::clearCache, 1, 1, TimeUnit.HOURS);
 
-        if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.autoban.enable"))
+        if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.enable"))
             ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(
                     BanSystemBungee.prefix + "§cBitte trage die IP des Servers in der config.yml ein."));
 
@@ -209,6 +208,19 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             config = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(configfile));
             messages = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(messagesfile));
             blacklist = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(blacklistfile));
+
+
+            if (messages.getString("bansystem.help.header") == null) {
+                messages.set("bansystem.help", "");
+                messages.set("bansystem.help", null);
+
+                messages.set("bansystem.help.header", "§8§m--------§8[ §cBanSystem §8]§m--------");
+                messages.set("bansystem.help.entry", "§e/%command% §8» §7%description%");
+                messages.set("bansystem.help.footer", "§8§m-----------------------------");
+
+                messages.save(messagesfile);
+            }
+
         } catch (IOException e) {
             console.sendMessage(new TextComponent(prefix + "Dateien konnten nicht erstellt werden."));
         }
@@ -289,6 +301,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         pluginManager.registerCommand(this, new CommandWrapper("ban", new CMDban(banManager, config, messages, sql), true));
         pluginManager.registerCommand(this, new CommandWrapper("check", new CMDcheck(banManager, sql, messages), true));
         pluginManager.registerCommand(this, new CommandWrapper("deletehistory", new CMDdeletehistory(banManager, messages, sql), true));
+        pluginManager.registerCommand(this, new CommandWrapper("delhistory", new CMDdeletehistory(banManager, messages, sql), true));
         pluginManager.registerCommand(this, new CommandWrapper("history", new CMDhistory(banManager, messages, config, sql), true));
         pluginManager.registerCommand(this, new CommandWrapper("kick", new CMDkick(messages, sql, banManager), true));
         pluginManager.registerCommand(this, new CommandWrapper("unban", new CMDunban(banManager, sql, messages, config), true));

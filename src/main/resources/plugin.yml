@@ -1,5 +1,5 @@
 name: BanSystem
-version: 2.0
+version: 2.2
 author: Tobi
 main: net.coalcube.bansystem.spigot.BanSystemSpigot
 commands:
@@ -12,3 +12,4 @@ commands:
   history:
   check:
   deletehistory:
+  delhistory:

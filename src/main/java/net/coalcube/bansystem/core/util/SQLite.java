@@ -63,15 +63,15 @@ public class SQLite implements Database {
                 " `type` VARCHAR(20) NOT NULL ," +
                 " `creationdate` DATETIME NOT NULL );");
 
-        update("CREATE TABLE IF NOT EXISTS `ids` " +
-                "( `id` INT NOT NULL ," +
-                " `reason` VARCHAR(100) NOT NULL ," +
-                " `lvl` INT NOT NULL ," +
-                " `duration` DOUBLE NOT NULL ," +
-                " `onlyadmin` BOOLEAN NOT NULL ," +
-                " `type` VARCHAR(100) NOT NULL ," +
-                " `creationdate` DATETIME NOT NULL ," +
-                " `creator` VARCHAR(100) NOT NULL );");
+//        update("CREATE TABLE IF NOT EXISTS `ids` " +
+//                "( `id` INT NOT NULL ," +
+//                " `reason` VARCHAR(100) NOT NULL ," +
+//                " `lvl` INT NOT NULL ," +
+//                " `duration` DOUBLE NOT NULL ," +
+//                " `onlyadmin` BOOLEAN NOT NULL ," +
+//                " `type` VARCHAR(100) NOT NULL ," +
+//                " `creationdate` DATETIME NOT NULL ," +
+//                " `creator` VARCHAR(100) NOT NULL );");
 
         update("CREATE TABLE IF NOT EXISTS `web_accounts` " +
                 "( `user` VARCHAR(100) NOT NULL ," +

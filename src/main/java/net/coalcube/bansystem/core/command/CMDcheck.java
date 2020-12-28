@@ -11,9 +11,9 @@ import java.util.concurrent.ExecutionException;
 
 public class CMDcheck implements Command {
 
-    private BanManager bm;
-    private Database sql;
-    private Config messages;
+    private final BanManager bm;
+    private final Database sql;
+    private final Config messages;
 
     public CMDcheck(BanManager banmanager, Database sql, Config messages) {
         this.bm = banmanager;
@@ -46,7 +46,19 @@ public class CMDcheck implements Command {
                             String lvlchat = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.CHAT)));
                             String lvlnetwork = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.NETWORK)));
 
-                            for(String m : messages.getStringList("Check.networkandchat")) {
+                            try {
+                                bannerchat = UUIDFetcher.getName(UUID.fromString(bannerchat));
+                            } catch (IllegalArgumentException e) {
+                                bannerchat = bannerchat;
+                            }
+
+                            try {
+                                bannernetwork = UUIDFetcher.getName(UUID.fromString(bannernetwork));
+                            } catch (IllegalArgumentException e) {
+                                bannernetwork = bannernetwork;
+                            }
+
+                            for (String m : messages.getStringList("Check.networkandchat")) {
                                 user.sendMessage(m
                                         .replaceAll("%P%", messages.getString("prefix"))
                                         .replaceAll("%player%", player)
@@ -69,7 +81,13 @@ public class CMDcheck implements Command {
                             String reamingtime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(bm.getRemainingTime(uuid, Type.CHAT));
                             String lvl = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.CHAT)));
 
-                            for(String m : messages.getStringList("Check.chat")) {
+                            try {
+                                banner = UUIDFetcher.getName(UUID.fromString(banner));
+                            } catch (IllegalArgumentException e) {
+                                banner = banner;
+                            }
+
+                            for (String m : messages.getStringList("Check.chat")) {
                                 user.sendMessage(m
                                         .replaceAll("%P%", messages.getString("prefix"))
                                         .replaceAll("%player%", player)
@@ -89,7 +107,14 @@ public class CMDcheck implements Command {
                             String reamingtime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(bm.getRemainingTime(uuid, Type.NETWORK));
                             int lvl = bm.getLevel(uuid, bm.getReason(uuid, Type.NETWORK));
 
-                            for(String m : messages.getStringList("Check.network")) {
+                            try {
+                                banner = UUIDFetcher.getName(UUID.fromString(banner));
+                            } catch (IllegalArgumentException e) {
+                                banner = banner;
+                            }
+
+
+                            for (String m : messages.getStringList("Check.network")) {
                                 user.sendMessage(m
                                         .replaceAll("%P%", messages.getString("prefix"))
                                         .replaceAll("%player%", player)

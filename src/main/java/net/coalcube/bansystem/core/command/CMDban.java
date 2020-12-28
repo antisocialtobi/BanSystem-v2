@@ -151,7 +151,7 @@ public class CMDban implements Command {
                                     .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
                             return;
                         }
-                        if (target.hasPermission("bansys.ban.bypass")) {
+                        if (target.hasPermission("bansys.ban.bypass") && !user.hasPermission("bansys.ban.admin")) {
                             user.sendMessage(messages.getString("Ban.cannotban.bypassedplayers")
                                     .replaceAll("%P%", messages.getString("prefix"))
                                     .replaceAll("&", "§"));

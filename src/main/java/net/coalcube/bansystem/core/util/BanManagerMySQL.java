@@ -109,7 +109,7 @@ public class BanManagerMySQL implements BanManager {
     }
 
     public void setIP(UUID player, InetAddress address) throws SQLException {
-        mysql.update("UPDATE `bans` SET ip='" + address.getHostName() + "' WHERE ip IS NULL;");
+        mysql.update("UPDATE `bans` SET ip='" + address.getHostName() + "' WHERE (ip IS NULL or ip = '') AND player = '" + player + "';");
     }
 
     public String getBanReason(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException {
@@ -225,11 +225,10 @@ public class BanManagerMySQL implements BanManager {
     }
 
     public boolean isSetIP(UUID player) throws SQLException, ExecutionException, InterruptedException {
-        ResultSet resultSet = mysql.getResult("SELECT ip FROM `bans` WHERE player = '" + player + "';");
+        ResultSet resultSet = mysql.getResult("SELECT * FROM `bans` WHERE player = '" + player + "' AND (ip is null or ip = '');");
         while (resultSet.next()) {
-            if (!resultSet.getString("ip").isEmpty())
-                return true;
+            return false;
         }
-        return false;
+        return true;
     }
 }

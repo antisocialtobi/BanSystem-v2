@@ -5,7 +5,7 @@ import java.util.Arrays;
 public class ConfigurationUtil {
 
     public static void initConfig(Config config) {
-        config.set("mysql.enable", true);
+        config.set("mysql.enable", false);
         config.set("mysql.user", "root");
         config.set("mysql.password", "sicherespasswort");
         config.set("mysql.database", "Bansystem");
@@ -16,7 +16,7 @@ public class ConfigurationUtil {
         config.set("IPautoban.banid", 9);
         config.set("IPautoban.onlyNetworkBans", false);
 
-        config.set("VPN.enable", true);
+        config.set("VPN.enable", false);
         config.set("VPN.autoban.enable", true);
         config.set("VPN.autoban.ID", 11);
         config.set("VPN.serverIP", "00.00.00.00");
@@ -270,20 +270,23 @@ public class ConfigurationUtil {
 
         messages.set("VPN.warning", "%P%§e%player% §chat sich mit einer VPN verbunden!");
         messages.set("bansystem.usage", "%P%§7Benutze §e/bansystem help");
-        messages.set("bansystem.help",
-                Arrays.asList("§8§m--------§8[ §cBanSystem §8]§m--------",
-                        "§e/bansystem help §8» §7Zeigt dir alle Befehle des BanSystems",
-                        "§e/bansystem reload §8» §7Lädt das Plugin neu",
-                        "§e/bansystem version §8» §7Zeigt dir die Version des Plugins",
-                        "§e/bansystem syncids §8» §7Synchronisiere die BanIDs",
-                        "§e/ban §8<§7Spieler§8> §8<§7ID§8> §8» §7Bannt/Muted Spieler",
-                        "§e/kick §8<§7Spieler§8> §8[§7Grund§8] §8» §7Kickt einen Spieler",
-                        "§e/unban §8<§7Spieler§8> §8» §7Entbannt einen Spieler",
-                        "§e/unmute §8<§7Spieler§8> §8» §7Entmuted einen Spieler",
-                        "§e/check §8<§7Spieler§8> §8» §7Prüft ob ein Spieler bestraft ist",
-                        "§e/history §8<§7Spieler§8> §8» §7Zeigt die History von einem Spieler",
-                        "§e/deletehistory §8<§7Spieler§8> §8» §7Löscht die History von einem Spieler",
-                        "§8§m-----------------------------"));
+//        messages.set("bansystem.help",
+//                Arrays.asList("§8§m--------§8[ §cBanSystem §8]§m--------",
+//                        "§e/bansystem help §8» §7Zeigt dir alle Befehle des BanSystems",
+//                        "§e/bansystem reload §8» §7Lädt das Plugin neu",
+//                        "§e/bansystem version §8» §7Zeigt dir die Version des Plugins",
+//                        "§e/bansystem syncids §8» §7Synchronisiere die BanIDs",
+//                        "§e/ban §8<§7Spieler§8> §8<§7ID§8> §8» §7Bannt/Muted Spieler",
+//                        "§e/kick §8<§7Spieler§8> §8[§7Grund§8] §8» §7Kickt einen Spieler",
+//                        "§e/unban §8<§7Spieler§8> §8» §7Entbannt einen Spieler",
+//                        "§e/unmute §8<§7Spieler§8> §8» §7Entmuted einen Spieler",
+//                        "§e/check §8<§7Spieler§8> §8» §7Prüft ob ein Spieler bestraft ist",
+//                        "§e/history §8<§7Spieler§8> §8» §7Zeigt die History von einem Spieler",
+//                        "§e/deletehistory §8<§7Spieler§8> §8» §7Löscht die History von einem Spieler",
+//                        "§8§m-----------------------------"));
+        messages.set("bansystem.help.header", "§8§m--------§8[ §cBanSystem §8]§m--------");
+        messages.set("bansystem.help.entry", "§e/%command% §8» §7%description%");
+        messages.set("bansystem.help.footer", "§8§m-----------------------------");
         messages.set("bansystem.reload.process", "%P%§7Plugin wird §eneu geladen§7.");
         messages.set("bansystem.reload.finished", "%P%§7Plugin §eneu geladen§7.");
         messages.set("bansystem.version", "%P%§7Version §8» §e%ver%");

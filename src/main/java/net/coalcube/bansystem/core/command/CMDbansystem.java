@@ -7,15 +7,17 @@ import net.coalcube.bansystem.core.util.MySQL;
 import net.coalcube.bansystem.core.util.User;
 
 import java.sql.SQLException;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class CMDbansystem implements Command {
 
-    private Database sql;
-    private MySQL mySQL;
-    private Config config;
-    private Config messages;
+    private final Database sql;
+    private final MySQL mySQL;
+    private final Config config;
+    private final Config messages;
 
     public CMDbansystem(Config messages, Config config, Database sql, MySQL mysql) {
         this.config = config;
@@ -33,10 +35,47 @@ public class CMDbansystem implements Command {
                         .replaceAll("&", "§"));
             } else if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("help")) {
-                    for (String s : messages.getStringList("bansystem.help")) {
-                        user.sendMessage(s.replaceAll("%P%", messages.getString("prefix"))
-                                        .replaceAll("&", "§"));
+
+                    Map<String, String> helpCommands = new TreeMap<>();
+
+                    helpCommands.put("bansystem help", "Zeigt dir alle Befehle des BanSystems");
+                    helpCommands.put("bansystem reload", "Lädt das Plugin neu");
+                    helpCommands.put("bansystem version", "Zeigt dir die Version des Plugins");
+                    helpCommands.put("bansystem syncids", "Synchronisiere die BanIDs");
+                    helpCommands.put("ban §8<§7Spieler§8> §8<§7ID§8>", "Bannt/Muted Spieler");
+                    helpCommands.put("kick §8<§7Spieler§8> §8[§7Grund§8]", "Kickt einen Spieler");
+                    helpCommands.put("unban §8<§7Spieler§8>", "Entbannt einen Spieler");
+                    helpCommands.put("unmute §8<§7Spieler§8>", "Entmuted einen Spieler");
+                    helpCommands.put("check §8<§7Spieler§8>", "Prüft ob ein Spieler bestraft ist");
+                    helpCommands.put("history §8<§7Spieler§8>", "Zeigt die History von einem Spieler");
+                    helpCommands.put("deletehistory §8<§7Spieler§8>", "Löscht die History von einem Spieler");
+
+                    user.sendMessage(messages.getString("bansystem.help.header")
+                            .replaceAll("&", "§")
+                            .replaceAll("%P%", messages.getString("prefix")));
+
+                    for (int i = 0; i < helpCommands.size(); i++) {
+
                     }
+                    for (Map.Entry<String, String> entry : helpCommands.entrySet()) {
+                        String command = entry.getKey();
+                        String description = entry.getValue();
+
+                        user.sendMessage(messages.getString("bansystem.help.entry")
+                                .replaceAll("&", "§")
+                                .replaceAll("%P%", messages.getString("prefix"))
+                                .replaceAll("%command%", command)
+                                .replaceAll("%description%", description));
+                    }
+
+                    user.sendMessage(messages.getString("bansystem.help.footer")
+                            .replaceAll("&", "§")
+                            .replaceAll("%P%", messages.getString("prefix")));
+
+//                    for (String s : messages.getStringList("bansystem.help")) {
+//                        user.sendMessage(s.replaceAll("%P%", messages.getString("prefix"))
+//                                        .replaceAll("&", "§"));
+//                    }
 
                 } else if (args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("rl")) {
                     user.sendMessage(messages.getString("bansystem.reload.process")

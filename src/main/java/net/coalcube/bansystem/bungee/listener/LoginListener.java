@@ -12,12 +12,13 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -174,7 +175,7 @@ public class LoginListener implements Listener {
 
                             try {
                                 if (!banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress()).isEmpty() &&
-                                        !p.hasPermission("bansys.ban")) {
+                                        !p.hasPermission("bansys.ban") && !banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress()).contains(p.getUniqueId())) {
                                     String bannedPlayerName = "";
                                     boolean rightType = true;
                                     List<UUID> banned;
@@ -183,8 +184,8 @@ public class LoginListener implements Listener {
                                     int ipAutoBanLvl = 0;
 
                                     try {
-                                        if(!isMaxBanLvl(String.valueOf(ipAutoBanID), banManager.getLevel(uuid, ipAutoBanReason))) {
-                                            ipAutoBanLvl = banManager.getLevel(uuid, ipAutoBanReason)+1;
+                                        if (!isMaxBanLvl(String.valueOf(ipAutoBanID), banManager.getLevel(uuid, ipAutoBanReason))) {
+                                            ipAutoBanLvl = banManager.getLevel(uuid, ipAutoBanReason) + 1;
                                         } else
                                             ipAutoBanLvl = getMaxLvl(String.valueOf(ipAutoBanID));
 

@@ -19,7 +19,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -62,7 +61,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         console.sendMessage("§c |  _ \\   / _` | | '_ \\  \\___ \\  | | | | / __| | __|  / _ \\ | '_ ` _ \\ ");
         console.sendMessage("§c | |_) | | (_| | | | | |  ___) | | |_| | \\__ \\ | |_  |  __/ | | | | | |");
         console.sendMessage("§c |____/   \\__,_| |_| |_| |____/   \\__, | |___/  \\__|  \\___| |_| |_| |_|");
-        console.sendMessage("§c                                  |___/                           §7v2.0");
+        console.sendMessage("§c                                  |___/                           §7v" + this.getVersion());
 
         createConfig();
         loadConfig();
@@ -136,7 +135,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
         Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, () -> UUIDFetcher.clearCache(), 72000, 72000);
 
-        if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.autoban.enable"))
+        if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.enable"))
             console.sendMessage(
                     prefix + "§cBitte trage die IP des Servers in der config.yml ein.");
 
@@ -212,7 +211,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
                 messages.save(messagesfile);
             }
             File blacklistfile = new File(this.getDataFolder(), "blacklist.yml");
-            if(!blacklistfile.exists()) {
+            if (!blacklistfile.exists()) {
                 blacklistfile.createNewFile();
                 blacklist = new SpigotConfig(YamlConfiguration.loadConfiguration(blacklistfile));
                 ConfigurationUtil.initBlacklist(blacklist);
@@ -221,6 +220,17 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             messages = new SpigotConfig(YamlConfiguration.loadConfiguration(messagesfile));
             config = new SpigotConfig(YamlConfiguration.loadConfiguration(configfile));
             blacklist = new SpigotConfig(YamlConfiguration.loadConfiguration(blacklistfile));
+
+            if (messages.getString("bansystem.help.header") == null) {
+                messages.set("bansystem.help", "");
+                messages.set("bansystem.help", null);
+
+                messages.set("bansystem.help.header", "§8§m--------§8[ §cBanSystem §8]§m--------");
+                messages.set("bansystem.help.entry", "§e/%command% §8» §7%description%");
+                messages.set("bansystem.help.footer", "§8§m-----------------------------");
+
+                messages.save(messagesfile);
+            }
         } catch (IOException e) {
             System.err.println("[Bansystem] Dateien konnten nicht erstellt werden.");
         }
@@ -305,6 +315,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         getCommand("ban").setExecutor(new CommandWrapper(new CMDban(banManager, config, messages, sql),true));
         getCommand("check").setExecutor(new CommandWrapper(new CMDcheck(banManager, sql, messages), true));
         getCommand("deletehistory").setExecutor(new CommandWrapper(new CMDdeletehistory(banManager, messages, sql), true));
+        getCommand("delhistory").setExecutor(new CommandWrapper(new CMDdeletehistory(banManager, messages, sql), true));
         getCommand("history").setExecutor(new CommandWrapper(new CMDhistory(banManager, messages, config, sql), true));
         getCommand("kick").setExecutor(new CommandWrapper(new CMDkick(messages, sql, banManager), true));
         getCommand("unban").setExecutor(new CommandWrapper(new CMDunban(banManager, sql, messages, config), true));

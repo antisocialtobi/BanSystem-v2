@@ -41,7 +41,13 @@ public class History {
     }
 
     public String getCreator() {
-        return creator;
+        String creatorTmp;
+        try {
+            creatorTmp = UUIDFetcher.getName(UUID.fromString(creator));
+        } catch (IllegalArgumentException e) {
+            creatorTmp = creator;
+        }
+        return creatorTmp;
     }
 
     public String getReason() {

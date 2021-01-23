@@ -77,6 +77,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             } catch (SQLException e) {
                 console.sendMessage(prefix + "§7Datenbankverbindung konnte §4nicht §7hergestellt werden.");
                 console.sendMessage(prefix + "§cBitte überprüfe die eingetragenen MySQL daten in der Config.yml.");
+                console.sendMessage(prefix + "§cDebug Message: §e" + e.getMessage());
             }
             try {
                 if(mysql.isConnected()) {

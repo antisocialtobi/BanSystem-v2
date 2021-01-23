@@ -77,6 +77,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             } catch (SQLException e) {
                 console.sendMessage(new TextComponent(prefix + "§7Datenbankverbindung konnte §4nicht §7hergestellt werden."));
                 console.sendMessage(new TextComponent(prefix + "§cBitte überprüfe die eingetragenen MySQL daten in der Config.yml."));
+                console.sendMessage(new TextComponent(prefix + "§cDebug Message: §e" + e.getMessage()));
             }
             try {
                 if(mysql.isConnected()) {

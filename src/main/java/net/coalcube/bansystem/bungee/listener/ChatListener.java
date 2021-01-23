@@ -1,12 +1,16 @@
 package net.coalcube.bansystem.bungee.listener;
 
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.util.*;
+import net.coalcube.bansystem.core.util.BanManager;
+import net.coalcube.bansystem.core.util.Config;
+import net.coalcube.bansystem.core.util.Database;
+import net.coalcube.bansystem.core.util.Type;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -32,7 +36,7 @@ public class ChatListener implements Listener {
     }
 
     @SuppressWarnings("deprecation")
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onChat(ChatEvent e) throws SQLException, IOException, ExecutionException, InterruptedException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
         ProxiedPlayer p = (ProxiedPlayer) e.getSender();
@@ -248,6 +252,14 @@ public class ChatListener implements Listener {
 
     private boolean hasBlockedWordsContains(String message) {
         message = message.trim();
+        message = message.replaceAll("AE", "Ä");
+        message = message.replaceAll("OE", "Ö");
+        message = message.replaceAll("UE", "Ü");
+        message = message.replaceAll("Ä", "AE");
+        message = message.replaceAll("Ö", "OE");
+        message = message.replaceAll("Ü", "UE");
+        message = message.replaceAll("Punkt", ".");
+        message = message.replaceAll("Point", ".");
         message = message.replaceAll("0", "O");
         message = message.replaceAll("1", "I");
         message = message.replaceAll("3", "E");
@@ -256,8 +268,8 @@ public class ChatListener implements Listener {
         message = message.replaceAll("8", "B");
         String[] trimmed = message.split(" ");
 
-        for(String word : blacklist.getStringList("Words")) {
-            if(message.contains(word) || message.equalsIgnoreCase(word) || message.toUpperCase() == word || message.toLowerCase() == word)
+        for (String word : blacklist.getStringList("Words")) {
+            if (message.contains(word) || message.equalsIgnoreCase(word) || message.toUpperCase() == word || message.toLowerCase() == word)
                 return true;
 
             for(String pice : trimmed) {

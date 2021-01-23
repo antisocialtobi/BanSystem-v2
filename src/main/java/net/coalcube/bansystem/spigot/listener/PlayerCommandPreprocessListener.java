@@ -24,13 +24,13 @@ public class PlayerCommandPreprocessListener implements Listener {
     private static List<String> blockedCommands;
 
     public PlayerCommandPreprocessListener(BanManager banManager, Config config, Config messages, List<String> blockedCommands) {
-        this.banManager = banManager;
-        this.config = config;
-        this.messages = messages;
-        this.blockedCommands = blockedCommands;
+        PlayerCommandPreprocessListener.banManager = banManager;
+        PlayerCommandPreprocessListener.config = config;
+        PlayerCommandPreprocessListener.messages = messages;
+        PlayerCommandPreprocessListener.blockedCommands = blockedCommands;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onCommandPreprocess(PlayerCommandPreprocessEvent e) {
         if(BanSystem.getInstance().getSQL().isConnected()) {
             Player p = e.getPlayer();

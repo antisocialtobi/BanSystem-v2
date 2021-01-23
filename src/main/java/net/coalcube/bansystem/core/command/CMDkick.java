@@ -1,7 +1,10 @@
 package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.util.*;
+import net.coalcube.bansystem.core.util.BanManager;
+import net.coalcube.bansystem.core.util.Config;
+import net.coalcube.bansystem.core.util.Database;
+import net.coalcube.bansystem.core.util.User;
 
 import java.sql.SQLException;
 
@@ -83,21 +86,19 @@ public class CMDkick implements Command {
                 if(BanSystem.getInstance().getUser(args[0]).getUniqueId() != null) {
                     User target = BanSystem.getInstance().getUser(args[0]);
                     if (!target.getUniqueId().equals(p.getUniqueId())) {
-                        if(target.hasPermission("bansys.kick")) {
-                            if(!target.hasPermission("bansys.kick.admin")) {
+                        if (target.hasPermission("bansys.kick")) {
+                            if (!target.hasPermission("bansys.kick.admin")) {
                                 p.sendMessage(messages.getString("Kick.cannotkickteammembers")
                                         .replaceAll("%P%", messages.getString("prefix"))
                                         .replaceAll("&", "§"));
                                 return;
                             }
                         }
-                        if(target.hasPermission("bansys.kick.bypass")) {
-                            if(!target.hasPermission("bansys.kick.admin")) {
-                                p.sendMessage(messages.getString("Kick.bypass")
-                                        .replaceAll("%P%", messages.getString("prefix"))
-                                        .replaceAll("&", "§"));
-                                return;
-                            }
+                        if (target.hasPermission("bansys.kick.bypass") && !p.hasPermission("bansys.kick.admin")) {
+                            p.sendMessage(messages.getString("Kick.bypass")
+                                    .replaceAll("%P%", messages.getString("prefix"))
+                                    .replaceAll("&", "§"));
+                            return;
                         }
                         if (args.length == 1) {
                             try {

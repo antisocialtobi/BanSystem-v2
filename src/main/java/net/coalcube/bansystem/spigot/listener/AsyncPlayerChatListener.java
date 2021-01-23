@@ -1,15 +1,17 @@
 package net.coalcube.bansystem.spigot.listener;
 
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.util.*;
+import net.coalcube.bansystem.core.util.BanManager;
+import net.coalcube.bansystem.core.util.Config;
+import net.coalcube.bansystem.core.util.MySQL;
+import net.coalcube.bansystem.core.util.Type;
+import net.coalcube.bansystem.spigot.BanSystemSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-
-import net.coalcube.bansystem.spigot.BanSystemSpigot;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -33,7 +35,7 @@ public class AsyncPlayerChatListener implements Listener {
         this.blacklist = blacklist;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onChat(AsyncPlayerChatEvent e) throws IOException, SQLException, ExecutionException, InterruptedException {
         if (!(config.getBoolean("mysql.enable") && !mysql.isConnected())) {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));

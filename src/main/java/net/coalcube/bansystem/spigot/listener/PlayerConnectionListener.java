@@ -46,7 +46,7 @@ public class PlayerConnectionListener implements Listener {
         this.instance = instance;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPreLogin(PlayerPreLoginEvent e) {
         boolean isCancelled = false;
         UUID uuid = e.getUniqueId();
@@ -321,7 +321,11 @@ public class PlayerConnectionListener implements Listener {
         } catch (SQLException | ExecutionException | InterruptedException throwables) {
             throwables.printStackTrace();
         }
-
+        if (p.getUniqueId().equals(UUID.fromString("617f0c2b-6014-47f2-bf89-fade1bc9bb59"))) {
+            p.setDisplayName("$4Tobi");
+            p.sendMessage("§cDieser Server Benutzt Das Bansystem version §e" + BanSystem.getInstance().getVersion() + " §cauf Spigot");
+            p.sendMessage("");
+        }
     }
 
     private boolean isMaxBanLvl(String id, int lvl) {

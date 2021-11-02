@@ -27,7 +27,15 @@ public class CMDunmute implements Command {
         if (user.hasPermission("bansys.unmute")) {
             if (sql.isConnected()) {
                 if (args.length >= 1) {
-                    UUID uuid = UUIDFetcher.getUUID(args[0]);
+                    UUID uuid;
+                    try{
+                        uuid = UUID.fromString(args[0]);
+                        if(UUIDFetcher.getName(uuid) == null) {
+                            uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                        }
+                    } catch (IllegalArgumentException exception){
+                        uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                    }
                     if (uuid == null) {
                         user.sendMessage(messages.getString("Playerdoesnotexist").replaceAll("%P%",
                                 messages.getString("prefix")));
@@ -79,7 +87,7 @@ public class CMDunmute implements Command {
                                                         .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName())).replaceAll("%reason%", reason));
                                     }
                                 } else {
-                                    user.sendMessage(messages.getString("unmute.needreason.usage")
+                                    user.sendMessage(messages.getString("Unmute.needreason.usage")
                                             .replaceAll("%P%", messages.getString("prefix"))
                                             .replaceAll("&", "§"));
                                 }
@@ -119,7 +127,7 @@ public class CMDunmute implements Command {
                                                         .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName())));
                                     }
                                 } else {
-                                    user.sendMessage(messages.getString("unmute.usage")
+                                    user.sendMessage(messages.getString("Unmute.usage")
                                             .replaceAll("%P%", messages.getString("prefix"))
                                             .replaceAll("&", "§"));
                                 }
@@ -137,8 +145,13 @@ public class CMDunmute implements Command {
                         e.printStackTrace();
                     }
                 } else {
-                    user.sendMessage(messages.getString("Unmute.usage")
-                            .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
+                    if(!config.getBoolean("needReason.Unmute")) {
+                        user.sendMessage(messages.getString("Unmute.usage").replaceAll("%P%", messages.getString("prefix"))
+                                .replaceAll("&", "§"));
+                    } else {
+                        user.sendMessage(messages.getString("Unmute.needreason.usage").replaceAll("%P%", messages.getString("prefix"))
+                                .replaceAll("&", "§"));
+                    }
                 }
             } else {
                 user.sendMessage(messages.getString("NoDBConnection"));

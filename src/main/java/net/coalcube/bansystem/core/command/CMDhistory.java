@@ -29,7 +29,15 @@ public class CMDhistory implements Command {
         if (user.hasPermission("bansys.history.show")) {
             if (sql.isConnected()) {
                 if (args.length == 1) {
-                    UUID uuid = UUIDFetcher.getUUID(args[0]);
+                    UUID uuid;
+                    try{
+                        uuid = UUID.fromString(args[0]);
+                        if(UUIDFetcher.getName(uuid) == null) {
+                            uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                        }
+                    } catch (IllegalArgumentException exception){
+                        uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                    }
                     if (uuid == null) {
                         user.sendMessage(messages.getString("Playerdoesnotexist")
                                 .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
@@ -60,7 +68,7 @@ public class CMDhistory implements Command {
                                             .replaceAll("%creator%", history.getCreator())
                                             .replaceAll("%ip%", (history.getIp() == null ? "§cNicht vorhanden" : history.getIp().getHostName()))
                                             .replaceAll("%type%", history.getType().toString())
-                                            .replaceAll("%id%", id)
+                                            .replaceAll("%ID%", id)
                                             .replaceAll("&", "§"));
                                 }
                             }

@@ -110,7 +110,7 @@ public class AsyncPlayerChatListener implements Listener {
                                 banscreen = banscreen.replaceAll("%P%", messages.getString("prefix"));
                                 banscreen = banscreen.replaceAll("%reason%", reason);
                                 banscreen = banscreen.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
-                                banscreen = banscreen.replaceAll("%creator", BanSystem.getInstance().getConsole().getName());
+                                banscreen = banscreen.replaceAll("%creator%", BanSystem.getInstance().getConsole().getName());
                                 banscreen = banscreen.replaceAll("%enddate%", enddate);
                                 banscreen = banscreen.replaceAll("%lvl%", String.valueOf(lvl));
                                 banscreen = banscreen.replaceAll("&", "§");
@@ -122,7 +122,7 @@ public class AsyncPlayerChatListener implements Listener {
                                             .replaceAll("%P%", messages.getString("prefix"))
                                             .replaceAll("%reason%", reason)
                                             .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration))
-                                            .replaceAll("%creator", BanSystem.getInstance().getConsole().getName())
+                                            .replaceAll("%creator%", BanSystem.getInstance().getConsole().getName())
                                             .replaceAll("%enddate%", enddate)
                                             .replaceAll("%lvl%", String.valueOf(lvl))
                                             .replaceAll("&", "§"));
@@ -180,7 +180,7 @@ public class AsyncPlayerChatListener implements Listener {
                                 banscreen = banscreen.replaceAll("%P%", messages.getString("prefix"));
                                 banscreen = banscreen.replaceAll("%reason%", reason);
                                 banscreen = banscreen.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
-                                banscreen = banscreen.replaceAll("%creator", BanSystem.getInstance().getConsole().getName());
+                                banscreen = banscreen.replaceAll("%creator%", BanSystem.getInstance().getConsole().getName());
                                 banscreen = banscreen.replaceAll("%enddate%", enddate);
                                 banscreen = banscreen.replaceAll("%lvl%", String.valueOf(lvl));
                                 banscreen = banscreen.replaceAll("&", "§");
@@ -191,7 +191,7 @@ public class AsyncPlayerChatListener implements Listener {
                                     line = line.replaceAll("%P%", messages.getString("prefix"));
                                     line = line.replaceAll("%reason%", reason);
                                     line = line.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
-                                    line = line.replaceAll("%creator", BanSystem.getInstance().getConsole().getName());
+                                    line = line.replaceAll("%creator%", BanSystem.getInstance().getConsole().getName());
                                     line = line.replaceAll("%enddate%", enddate);
                                     line = line.replaceAll("%lvl%", String.valueOf(lvl));
                                     line = line.replaceAll("&", "§");

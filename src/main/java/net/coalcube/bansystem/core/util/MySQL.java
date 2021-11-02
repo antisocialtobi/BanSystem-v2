@@ -173,10 +173,10 @@ public class MySQL implements Database {
                 " `creationdate` DATETIME NOT NULL ," +
                 " `creator` VARCHAR(100) NOT NULL ) ENGINE = InnoDB;");
 
-        update("CREATE TABLE IF NOT EXISTS `web_accounts` " +
-                "( `user` VARCHAR(100) NOT NULL ," +
-                " `password` VARCHAR(200) NOT NULL ," +
-                " `creationdate` DATETIME NOT NULL ) ENGINE = InnoDB;");
+//        update("CREATE TABLE IF NOT EXISTS `web_accounts` " +
+//                "( `user` VARCHAR(100) NOT NULL ," +
+//                " `password` VARCHAR(200) NOT NULL ," +
+//                " `creationdate` DATETIME NOT NULL ) ENGINE = InnoDB;");
 
         update("CREATE TABLE IF NOT EXISTS `kicks` " +
                 "( `player` VARCHAR(100) NOT NULL ," +

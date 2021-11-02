@@ -73,10 +73,10 @@ public class SQLite implements Database {
 //                " `creationdate` DATETIME NOT NULL ," +
 //                " `creator` VARCHAR(100) NOT NULL );");
 
-        update("CREATE TABLE IF NOT EXISTS `web_accounts` " +
-                "( `user` VARCHAR(100) NOT NULL ," +
-                " `password` VARCHAR(200) NOT NULL ," +
-                " `creationdate` DATETIME NOT NULL );");
+//        update("CREATE TABLE IF NOT EXISTS `web_accounts` " +
+//                "( `user` VARCHAR(100) NOT NULL ," +
+//                " `password` VARCHAR(200) NOT NULL ," +
+//                " `creationdate` DATETIME NOT NULL );");
 
         update("CREATE TABLE IF NOT EXISTS `kicks` " +
                 "( `player` VARCHAR(100) NOT NULL ," +
@@ -116,8 +116,7 @@ public class SQLite implements Database {
     }
 
     private boolean hasUnbanreason() throws SQLException {
-
-        ResultSet rs = getResult("SHOW COLUMNS FROM `unbans` WHERE Field='reason';");
+        ResultSet rs = getResult("SELECT name FROM PRAGMA_TABLE_INFO('unbans') WHERE name='reason';");
 
         while (rs.next()) {
             return true;

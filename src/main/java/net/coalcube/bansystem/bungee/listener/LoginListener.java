@@ -59,7 +59,7 @@ public class LoginListener implements Listener {
                                             .replaceAll("%reason%", banManager.getReason(uuid, Type.NETWORK))
                                             .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                                     .getFormattedRemainingTime(banManager.getRemainingTime(uuid, Type.NETWORK)))
-                                            .replaceAll("%creator", banManager.getBanner(uuid, Type.NETWORK))
+                                            .replaceAll("%creator%", banManager.getBanner(uuid, Type.NETWORK))
                                             .replaceAll("%enddate%", enddate)
                                             .replaceAll("&", "§")
                                             .replaceAll("%lvl%", String.valueOf(banManager.getLevel(uuid, banManager.getReason(uuid, Type.NETWORK)))));
@@ -111,9 +111,8 @@ public class LoginListener implements Listener {
                     ProxyServer.getInstance().getScheduler().schedule(BanSystemBungee.getInstance(), () -> {
                         ProxiedPlayer p = ProxyServer.getInstance().getPlayer(e.getConnection().getName());
                         if (p instanceof ProxiedPlayer) {
-
                             if (config.getBoolean("VPN.enable")) {
-                                if (URLUtil.isVPN(p.getAddress().getAddress().toString().replaceAll("/", ""))) {
+                                if (URLUtil.isVPN(p.getAddress().getAddress().getHostAddress())) {
                                     if (config.getBoolean("VPN.autoban.enable")) {
                                         try {
                                             int id = config.getInt("VPN.autoban.ID");
@@ -191,7 +190,7 @@ public class LoginListener implements Listener {
                                             ipAutoBanLvl = getMaxLvl(String.valueOf(ipAutoBanID));
 
                                         /**
-                                         * TODO: fixing that you get the notification message yourself
+                                         * TODO: fixing that you get the notification message to yourself
                                          */
 
 
@@ -245,7 +244,7 @@ public class LoginListener implements Listener {
                                                     .replaceAll("%reamingtime%",
                                                             BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
                                                                     banManager.getRemainingTime(uuid, Type.NETWORK)))
-                                                    .replaceAll("%creator", ProxyServer.getInstance().getConsole().getName())
+                                                    .replaceAll("%creator%", ProxyServer.getInstance().getConsole().getName())
                                                     .replaceAll("%enddate%", enddate)
                                                     .replaceAll("%lvl%", String.valueOf(ipAutoBanLvl)));
                                         } catch (SQLException | ParseException throwables) {

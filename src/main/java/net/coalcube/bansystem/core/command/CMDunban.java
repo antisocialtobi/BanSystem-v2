@@ -27,7 +27,15 @@ public class CMDunban implements Command {
         if (user.hasPermission("bansys.unban")) {
             if (sql.isConnected()) {
                 if (args.length >= 1) {
-                    UUID uuid = UUIDFetcher.getUUID(args[0]);
+                    UUID uuid;
+                    try{
+                        uuid = UUID.fromString(args[0]);
+                        if(UUIDFetcher.getName(uuid) == null) {
+                            uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                        }
+                    } catch (IllegalArgumentException exception){
+                        uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                    }
                     if (uuid == null) {
                         user.sendMessage(messages.getString("Playerdoesnotexist")
                                 .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
@@ -83,7 +91,7 @@ public class CMDunban implements Command {
                                                         .replaceAll("%reason%", reason));
                                     }
                                 } else {
-                                    user.sendMessage(messages.getString("unban.needreason.usage").replaceAll("%P%", messages.getString("prefix"))
+                                    user.sendMessage(messages.getString("Unban.needreason.usage").replaceAll("%P%", messages.getString("prefix"))
                                             .replaceAll("&", "§"));
                                 }
                             } else {
@@ -139,8 +147,13 @@ public class CMDunban implements Command {
                         e.printStackTrace();
                     }
                 } else {
-                    user.sendMessage(messages.getString("Unban.usage").replaceAll("%P%", messages.getString("prefix"))
-                            .replaceAll("&", "§"));
+                    if(!config.getBoolean("needReason.Unban")) {
+                        user.sendMessage(messages.getString("Unban.usage").replaceAll("%P%", messages.getString("prefix"))
+                                .replaceAll("&", "§"));
+                    } else {
+                        user.sendMessage(messages.getString("Unban.needreason.usage").replaceAll("%P%", messages.getString("prefix"))
+                                .replaceAll("&", "§"));
+                    }
                 }
             } else {
                 user.sendMessage(messages.getString("NoDBConnection"));

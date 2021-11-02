@@ -1,12 +1,10 @@
 package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.util.BanManager;
-import net.coalcube.bansystem.core.util.Config;
-import net.coalcube.bansystem.core.util.Database;
-import net.coalcube.bansystem.core.util.User;
+import net.coalcube.bansystem.core.util.*;
 
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class CMDkick implements Command {
 
@@ -83,11 +81,21 @@ public class CMDkick implements Command {
     public void execute(User p, String[] args) {
         if (p.hasPermission("bansys.kick")) {
             if (args.length >= 1) {
-                if(BanSystem.getInstance().getUser(args[0]).getUniqueId() != null) {
-                    User target = BanSystem.getInstance().getUser(args[0]);
+                if(BanSystem.getInstance().getUser(args[0].replaceAll("&", "§")).getUniqueId() != null) {
+                    UUID uuid;
+                    try{
+                        uuid = UUID.fromString(args[0]);
+                        if(UUIDFetcher.getName(uuid) == null) {
+                            uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                        }
+                    } catch (IllegalArgumentException exception){
+                        uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                    }
+                    User target = BanSystem.getInstance().getUser(UUIDFetcher.getName(uuid));
                     if (!target.getUniqueId().equals(p.getUniqueId())) {
                         if (target.hasPermission("bansys.kick")) {
-                            if (!target.hasPermission("bansys.kick.admin")) {
+                            if ((p.hasPermission("bansys.kick.admin") && !target.hasPermission("bansys.kick.admin"))
+                                    || p.getUniqueId() == null) {
                                 p.sendMessage(messages.getString("Kick.cannotkickteammembers")
                                         .replaceAll("%P%", messages.getString("prefix"))
                                         .replaceAll("&", "§"));

@@ -6,7 +6,7 @@
 
     <groupId>net.coalcube.bansystem</groupId>
     <artifactId>bansystem</artifactId>
-    <version>2.2-SNAPSHOT</version>
+    <version>2.3-SNAPSHOT</version>
 
     <repositories>
         <repository>

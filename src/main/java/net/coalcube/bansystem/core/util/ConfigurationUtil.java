@@ -130,6 +130,8 @@ public class ConfigurationUtil {
                 "%P%§cDie Datenbankverbindung besteht nicht. Wende dich bitte an einen Administrator.");
         messages.set("Playernotbanned", "%P%§cDieser Spieler ist nicht gebannt/gemuted!");
         messages.set("DateTimePattern", "dd.MM.yyyy HH:mm:ss");
+        messages.set("true", "§2Aktiviert");
+        messages.set("false", "§cDeaktiviert");
 
         messages.set("Ban.Network.Screen",
                 Arrays.asList(
@@ -220,7 +222,7 @@ public class ConfigurationUtil {
                 "%P%§7Ersteller §8» §c%creator%",
                 "%P%§7IP §8» §c%ip%",
                 "%P%§7Type §8» §c%type%",
-                "%P%§7ID §8» §c%id%",
+                "%P%§7ID §8» §c%ID%",
                 "%P%"));
         messages.set("History.footer", "%P%§8§m------------------------");
 
@@ -263,13 +265,25 @@ public class ConfigurationUtil {
         messages.set("Unmute.needreason.usage", "%P%§cBenutze §8» §e/unmute §8<§7Spieler§8> §8<§7Grund§8>");
         messages.set("Unmute.needreason.success",
                 "%P%§7Die Schweigepflicht von §e%player% §7wurde §2aufgehoben!");
-        messages.set("unmute.needreason.notify",
+        messages.set("Unmute.needreason.notify",
                 Arrays.asList("%P%§8§m------------------------------",
                         "%P%§e%player% §7wurde von §e%sender% §7entmuted.", "%P%§7Grund §8» §e%reason%",
                         "%P%§8§m------------------------------"));
 
         messages.set("VPN.warning", "%P%§e%player% §chat sich mit einer VPN verbunden!");
-        messages.set("bansystem.usage", "%P%§7Benutze §e/bansystem help");
+        messages.set("bansystem.usage.help", "%P%§7Benutze §e/bansystem help");
+        messages.set("bansystem.usage.reload", "%P%§7Benutze §e/bansystem reload");
+        messages.set("bansystem.usage.version", "%P%§7Benutze §e/bansystem version");
+        messages.set("bansystem.usage.syncids", "%P%§7Benutze §e/bansystem syncids");
+        messages.set("bansystem.usage.createid", "%P%§7Benutze §e/bansystem ids create §8<§7id§8> §8<§7Grund§8> §8<§7onlyadmins§8> §8<§7Dauer§8>  §8<§7Type§8>");
+        messages.set("bansystem.usage.removeid", "%P%§7Benutze §e/bansystem ids delete §8<§7ID§8>");
+        messages.set("bansystem.usage.addlvl", "%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eset lvlduration §8<§7lvl§8> §8<§7duration§8>");
+        messages.set("bansystem.usage.removelvl", "%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eremove lvl §8<§7lvl§8>");
+        messages.set("bansystem.usage.setlvlduration", "%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eset lvlduration §8<§7lvl§8> §8<§7duration§8>");
+        messages.set("bansystem.usage.setlvltype", "%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eset lvltype §8<§7lvl§8> §8<§7type§8>");
+        messages.set("bansystem.usage.setreason", "%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eset reason §8<§7reason§8>");
+        messages.set("bansystem.usage.setonlyadmins", "%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eset onlyadmins §8<§7True§8/§7False§8>");
+        messages.set("bansystem.usage.showid", "%P%§7Benutze §e/bansystem ids show §8<§7id§8>");
 //        messages.set("bansystem.help",
 //                Arrays.asList("§8§m--------§8[ §cBanSystem §8]§m--------",
 //                        "§e/bansystem help §8» §7Zeigt dir alle Befehle des BanSystems",
@@ -293,6 +307,33 @@ public class ConfigurationUtil {
         messages.set("bansystem.ids.sync.MySQLdisabled", "%P%§cDu kannst diese Funktion nicht verwenden wenn du keine MySQL Datenbank verwendest.");
         messages.set("bansystem.ids.sync.faild", "%P%§cDie synchronisation ist fehlgeschlagen. Um mehr Informationen zu bekommen schau in die Konsole.");
         messages.set("bansystem.ids.sync.success", "%P%§7Die BanIDs wurden §2synchronisiert§7.");
+        messages.set("bansystem.ids.alreadyexists", "%P%§cDie BanID ist bereits vorhanden.");
+        messages.set("bansystem.ids.doesnotexists", "%P%§cDie BanID §e%ID% §ckonnte nicht gefunden werden.");
+        messages.set("bansystem.ids.lvldoesnotexists", "%P%§cDas BanLvl §e%lvl% §ckonnte nicht gefunden werden.");
+        messages.set("bansystem.ids.create.failure", "%P%§cDie BanID konnte nicht erstellt werden da ein Fehler aufgetreten ist. Siehe die Konsole ein um Mehr informationen zu erfahren.");
+        messages.set("bansystem.ids.create.success", "%P%§7Die BanID §e%ID% §7wurde erfolgreich §2erstellt§7.");
+        messages.set("bansystem.ids.delete.failure", "%P%§cDie BanID konnte nicht gelöscht werden da ein Fehler aufgetreten ist. Siehe die Konsole ein um Mehr informationen zu erfahren.");
+        messages.set("bansystem.ids.delete.success", "%P%§7Die BanID §e%ID% §7wurde erfolgreich §cgelöscht§7.");
+        messages.set("bansystem.ids.edit.addlvl.success", "");
+        messages.set("bansystem.ids.edit.addlvl.failure", "");
+        messages.set("bansystem.ids.edit.removelvl.success", "");
+        messages.set("bansystem.ids.edit.removelvl.failure", "");
+        messages.set("bansystem.ids.edit.setlvlduration.success", "");
+        messages.set("bansystem.ids.edit.setlvlduration.failure", "");
+        messages.set("bansystem.ids.edit.setlvltype.success", "");
+        messages.set("bansystem.ids.edit.setlvltype.failure", "");
+        messages.set("bansystem.ids.edit.setlvltype.success", "");
+        messages.set("bansystem.ids.edit.setlvltype.failure", "");
+        messages.set("bansystem.ids.edit.setonlyadmins.success", "");
+        messages.set("bansystem.ids.edit.setonlyadmins.failure", "");
+        messages.set("bansystem.ids.edit.show.header",
+                Arrays.asList("%P%§8§m------§8» §7ID: §e%ID% §8«§m------",
+                        "%P%Grund §8» §e%reason%",
+                        "%P%onlyAdmins §8» §e%onlyAdmins%"));
+        messages.set("bansystem.ids.edit.show.lvls",
+                Arrays.asList("%P%Lvl §e%lvl%§7:",
+                        "%P%  Dauer §8» §e%duration%",
+                        "%P%  Type §8» §e%type%"));
 
         messages.set("blacklist.notify.words.autoban",
                 Arrays.asList("%P%§8§m------------------------------",
@@ -335,7 +376,7 @@ public class ConfigurationUtil {
          */
 
         blacklist.set("Words", Arrays.asList("Arsch", "Nutte", "Hure", "Tits", "Pussy", "ez", "Fick",
-                "Basdard", "Muschi", "beschissen"));
+                "Basdard", "Muschi", "beschissen", "Huso", "Huan", "Fresse", "Schlampe"));
 
         /**
          * TODO add more blacklisted ads
@@ -343,6 +384,6 @@ public class ConfigurationUtil {
 
         blacklist.set("Ads",
                 Arrays.asList(".de", ". de", ".  de", "PUNKT de", ".net", ". net", ".  net", "PUNKT net", ".at", ".com",
-                        ".be", ".eu", ".shop", ".it", "www.", "de.", "shop.", ".dev", ".xyz", ".wtf"));
+                        ".be", ".eu", ".shop", ".it", "www.", "de.", "shop.", ".dev", ".xyz", ".wtf", "http://", "https://"));
     }
 }

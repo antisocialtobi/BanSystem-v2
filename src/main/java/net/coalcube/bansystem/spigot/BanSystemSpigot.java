@@ -30,6 +30,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
     private static Plugin instance;
     private static BanManager banManager;
+    private static IDManager idManager;
 
     private Database sql;
     private MySQL mysql;
@@ -161,7 +162,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 //        }).start();
 
 
-
+        idManager = new IDManager(config, sql, new File(this.getDataFolder(), "config.yml"));
 
         init(pluginmanager);
 
@@ -321,8 +322,8 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         getCommand("kick").setExecutor(new CommandWrapper(new CMDkick(messages, sql, banManager), true));
         getCommand("unban").setExecutor(new CommandWrapper(new CMDunban(banManager, sql, messages, config), true));
         getCommand("unmute").setExecutor(new CommandWrapper(new CMDunmute(banManager, messages, config, sql), true));
-        getCommand("bansystem").setExecutor(new CommandWrapper(new CMDbansystem(messages, config, sql, mysql), false));
-        getCommand("bansys").setExecutor(new CommandWrapper(new CMDbansystem(messages, config, sql, mysql), false));
+        getCommand("bansystem").setExecutor(new CommandWrapper(new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager), false));
+        getCommand("bansys").setExecutor(new CommandWrapper(new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager), false));
 
         pluginManager.registerEvents(new AsyncPlayerChatListener(config, messages, banManager, mysql, blacklist), this);
         pluginManager.registerEvents(new PlayerCommandPreprocessListener(banManager, config, messages, blockedCommands), this);

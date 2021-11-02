@@ -30,6 +30,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
     private static Plugin instance;
     private BanManager banManager;
+    private IDManager idManager;
 
     private Database sql;
     private MySQL mysql;
@@ -125,6 +126,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             } catch (SQLException e) {
                 console.sendMessage(new TextComponent(prefix + "§7Die SQLite Tabellen §ckonnten nicht §7erstellt werden."));
                 console.sendMessage(new TextComponent(prefix + e.getMessage() + " " + e.getCause()));
+                e.printStackTrace();
             }
         }
 
@@ -153,6 +155,8 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 //                e.printStackTrace();
 //            }
 //        }).start();
+
+        idManager = new IDManager(config, sql, new File(this.getDataFolder(), "config.yml"));
 
         init(pluginmanager);
 
@@ -307,8 +311,8 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         pluginManager.registerCommand(this, new CommandWrapper("kick", new CMDkick(messages, sql, banManager), true));
         pluginManager.registerCommand(this, new CommandWrapper("unban", new CMDunban(banManager, sql, messages, config), true));
         pluginManager.registerCommand(this, new CommandWrapper("unmute", new CMDunmute(banManager, messages, config, sql), true));
-        pluginManager.registerCommand(this, new CommandWrapper("bansystem", new CMDbansystem(messages, config, sql, mysql), false));
-        pluginManager.registerCommand(this, new CommandWrapper("bansys", new CMDbansystem(messages, config, sql, mysql), false));
+        pluginManager.registerCommand(this, new CommandWrapper("bansystem", new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager), false));
+        pluginManager.registerCommand(this, new CommandWrapper("bansys", new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager), false));
 
         pluginManager.registerListener(this, new LoginListener(banManager, config, messages, sql));
         pluginManager.registerListener(this, new ChatListener(banManager, config, messages, sql, blacklist));

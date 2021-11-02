@@ -8,7 +8,12 @@ public class TimeFormatUtil {
     public String getFormattedRemainingTime(Long remainingTime) {
         long millis = remainingTime;
 
-        List<Long> array = new ArrayList<>();
+        if(millis == 0)
+            return "§e0 §cSekunde(n)";
+        if(millis == -1)
+            return "§4§lPERMANENT";
+
+        List<String> array = new ArrayList<>();
 
         long seconds = 0;
         long minutes = 0;
@@ -31,30 +36,38 @@ public class TimeFormatUtil {
             days++;
         }
 
-        array.add(seconds);
-        array.add(minutes);
-        array.add(hours);
-        array.add(days);
+        if(seconds > 0) array.add("§e" + seconds + " §cSekunde(n)");
+        if(minutes > 0) array.add("§e" + minutes + " §cMinute(n)");
+        if(hours > 0) array.add("§e" + hours + " §cStunde(n)");
+        if(days > 0) array.add("§e" + days + " §cTag(e)");
 
-        String formattedRemainingTime;
+        String formattedRemainingTime = null;
 
+        if (array.size() >= 1) {
+            int size = array.size();
 
+            if(size == 1)
+                formattedRemainingTime = array.get(0);
+            if(size == 2)
+                formattedRemainingTime = array.get(1) + " und " + array.get(0);
+            if(size == 3)
+                formattedRemainingTime = array.get(2) + ", " + array.get(1) + " und " + array.get(0);
+            if(size == 4)
+                formattedRemainingTime = array.get(3) + ", " + array.get(2) + ", " + array.get(1) + " und " + array.get(0);
 
-        if (remainingTime != -1) {
-            if (days > 0) {
-                formattedRemainingTime = "§e" + days + " §cTag(e), §e" + hours + " §cStunde(n), §e" + minutes
-                        + " §cMinute(n) und §e" + seconds + " §cSekunde(n)";
-            } else if (hours > 0) {
-                formattedRemainingTime = "§e" + hours + " §cStunde(n), §e" + minutes + " §cMinute(n) und §e" + seconds
-                        + " §cSekunde(n)";
-            } else if (minutes > 0) {
-                formattedRemainingTime = "§e" + minutes + " §cMinute(n) und §e" + seconds + " §cSekunde(n)";
-            } else {
-                formattedRemainingTime = "§e" + seconds + " §cSekunde(n)";
-            }
-        } else {
-            formattedRemainingTime = "§4§lPERMANENT";
         }
+
+//        if (days > 0) {
+//            formattedRemainingTime = "§e" + days + " §cTag(e), §e" + hours + " §cStunde(n), §e" + minutes
+//                    + " §cMinute(n) und §e" + seconds + " §cSekunde(n)";
+//        } else if (hours > 0) {
+//            formattedRemainingTime = "§e" + hours + " §cStunde(n), §e" + minutes + " §cMinute(n) und §e" + seconds
+//                    + " §cSekunde(n)";
+//        } else if (minutes > 0) {
+//            formattedRemainingTime = "§e" + minutes + " §cMinute(n) und §e" + seconds + " §cSekunde(n)";
+//        } else {
+//            formattedRemainingTime = "§e" + seconds + " §cSekunde(n)";
+//        }
         return formattedRemainingTime;
     }
 }

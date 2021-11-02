@@ -26,7 +26,15 @@ public class CMDcheck implements Command {
         if (user.hasPermission("bansys.check")) {
             if (sql.isConnected()) {
                 if (args.length == 1) {
-                    UUID uuid = UUIDFetcher.getUUID(args[0]);
+                    UUID uuid;
+                    try{
+                        uuid = UUID.fromString(args[0]);
+                        if(UUIDFetcher.getName(uuid) == null) {
+                            uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                        }
+                    } catch (IllegalArgumentException exception){
+                        uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                    }
                     if (uuid == null) {
                         user.sendMessage(
                                 messages.getString("Playerdoesnotexist").replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));

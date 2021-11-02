@@ -65,7 +65,7 @@ public class PlayerConnectionListener implements Listener {
 
                         String banScreen = banScreenRow
                                 .replaceAll("%reason%", banManager.getReason(e.getUniqueId(), Type.NETWORK))
-                                .replaceAll("%creator", banManager.getBanner(e.getUniqueId(), Type.NETWORK))
+                                .replaceAll("%creator%", banManager.getBanner(e.getUniqueId(), Type.NETWORK))
                                 .replaceAll("%enddate%", enddate)
                                 .replaceAll("%reamingtime%", reamingTime)
                                 .replaceAll("&", "§")
@@ -114,7 +114,7 @@ public class PlayerConnectionListener implements Listener {
                     @Override
                     public void run() {
                         if (config.getBoolean("VPN.enable")) {
-                            if (URLUtil.isVPN(e.getAddress().getAddress().toString().replaceAll("/", ""))) {
+                            if (URLUtil.isVPN(e.getAddress().getHostAddress())) {
                                 if (config.getBoolean("VPN.autoban.enable")) {
 
                                     int lvl = 0;
@@ -299,7 +299,7 @@ public class PlayerConnectionListener implements Listener {
                         banScreen = banScreen.replaceAll("%reamingtime%",
                                         BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
                                                 banManager.getRemainingTime(uuid, Type.NETWORK)));
-                        banScreen = banScreen.replaceAll("%creator", Bukkit.getConsoleSender().getName());
+                        banScreen = banScreen.replaceAll("%creator%", Bukkit.getConsoleSender().getName());
                         banScreen = banScreen.replaceAll("%enddate%", enddate);
                         banScreen = banScreen.replaceAll("%lvl%", String.valueOf(ipAutoBanLvl));
                     } catch (SQLException | ParseException throwables) {

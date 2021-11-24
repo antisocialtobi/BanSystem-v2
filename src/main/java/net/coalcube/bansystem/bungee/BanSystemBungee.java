@@ -31,6 +31,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     private static Plugin instance;
     private BanManager banManager;
     private IDManager idManager;
+    private URLUtil urlUtil;
 
     private Database sql;
     private MySQL mysql;
@@ -56,6 +57,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         console = ProxyServer.getInstance().getConsole();
         UpdateChecker updatechecker = new UpdateChecker(65863);
         timeFormatUtil = new TimeFormatUtil();
+
 
         console.sendMessage(new TextComponent("§c  ____                    ____                  _                      "));
         console.sendMessage(new TextComponent("§c | __ )    __ _   _ __   / ___|   _   _   ___  | |_    ___   _ __ ___  "));
@@ -157,6 +159,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 //        }).start();
 
         idManager = new IDManager(config, sql, new File(this.getDataFolder(), "config.yml"));
+        urlUtil = new URLUtil(messages, config);
 
         init(pluginmanager);
 
@@ -280,8 +283,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
     @Override
     public User getUser(String name) {
-        BungeeUser bu = new BungeeUser(ProxyServer.getInstance().getPlayer(name));
-        return bu;
+        return new BungeeUser(ProxyServer.getInstance().getPlayer(name));
     }
 
     @SuppressWarnings("deprecation")
@@ -314,7 +316,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         pluginManager.registerCommand(this, new CommandWrapper("bansystem", new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager), false));
         pluginManager.registerCommand(this, new CommandWrapper("bansys", new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager), false));
 
-        pluginManager.registerListener(this, new LoginListener(banManager, config, messages, sql));
+        pluginManager.registerListener(this, new LoginListener(banManager, config, messages, sql, urlUtil));
         pluginManager.registerListener(this, new ChatListener(banManager, config, messages, sql, blacklist));
     }
 

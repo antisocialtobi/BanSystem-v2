@@ -82,12 +82,8 @@ public class PlayerCommandPreprocessListener implements Listener {
                         }
                     }
                 }
-            } catch (SQLException | IOException | ParseException throwables) {
+            } catch (SQLException | IOException | ParseException | InterruptedException | ExecutionException throwables) {
                 throwables.printStackTrace();
-            } catch (InterruptedException interruptedException) {
-                interruptedException.printStackTrace();
-            } catch (ExecutionException executionException) {
-                executionException.printStackTrace();
             }
         }
     }

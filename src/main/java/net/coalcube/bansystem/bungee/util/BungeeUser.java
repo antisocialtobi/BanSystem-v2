@@ -9,7 +9,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class BungeeUser implements User {
 
-    private CommandSender sender;
+    private final CommandSender sender;
 
     public BungeeUser(CommandSender sender) {
         this.sender = sender;

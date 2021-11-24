@@ -9,14 +9,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
 public class MySQL implements Database {
 
-    private String host, database, username, password;
-    private int port;
+    private final String host;
+    private final String database;
+    private final String username;
+    private final String password;
+    private final int port;
 
     private Connection con;
 
@@ -36,12 +38,9 @@ public class MySQL implements Database {
         if(!isConnected()) {
             connect();
         }
-        final FutureTask<ResultSet> task = new FutureTask<ResultSet>(new Callable<ResultSet>() {
-            @Override
-            public ResultSet call() throws Exception {
-                PreparedStatement stmt = con.prepareStatement(s);
-                return stmt.executeQuery();
-            }
+        final FutureTask<ResultSet> task = new FutureTask<>(() -> {
+            PreparedStatement stmt = con.prepareStatement(s);
+            return stmt.executeQuery();
         });
         task.run();
 
@@ -53,17 +52,13 @@ public class MySQL implements Database {
         if(!isConnected()) {
             connect();
         }
-        new FutureTask<>(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    PreparedStatement preparedStatement = con.prepareStatement(qry);
-                    preparedStatement.execute();
-                    preparedStatement.close();
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                }
+        new FutureTask<>(() -> {
+            try {
+                PreparedStatement preparedStatement = con.prepareStatement(qry);
+                preparedStatement.execute();
+                preparedStatement.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
             }
         }, 1).run();
     }
@@ -98,7 +93,7 @@ public class MySQL implements Database {
             ResultSet resultSet1 = getResult("SELECT * FROM `banhistory` WHERE UUID='" + bannedPlayer.get(i) + "' AND Ende='" + end.get(i) + "'");
             while (resultSet1.next()) {
 
-                Long duration = resultSet1.getLong("duration");
+                long duration = resultSet1.getLong("duration");
                 duration = (duration != -1 ? duration*1000 : duration);
 
                 update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
@@ -116,7 +111,7 @@ public class MySQL implements Database {
 
         while (resultSet.next()) {
             UUID player = UUID.fromString(resultSet.getString("UUID"));
-            Long duration = resultSet.getLong("duration");
+            long duration = resultSet.getLong("duration");
             InetAddress ip = null;
             if(resultSet.getString("IP") != null) {
                 ip = InetAddress.getByName(resultSet.getString("IP"));

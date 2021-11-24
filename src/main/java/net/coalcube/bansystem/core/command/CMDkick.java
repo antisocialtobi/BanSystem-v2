@@ -51,7 +51,7 @@ public class CMDkick implements Command {
                 .replaceAll("%player%", target.getDisplayName()).replaceAll("&", "§"));
         StringBuilder msg = new StringBuilder();
         for (int i = 1; i < args.length; i++) {
-            StringBuilder append = msg.append(args[i]).append(" ");
+            msg.append(args[i]).append(" ");
         }
         BanSystem.getInstance().disconnect(target, messages.getString("Kick.reason.screen")
                 .replaceAll("%P%", messages.getString("prefix"))
@@ -59,10 +59,10 @@ public class CMDkick implements Command {
 
         if (p.getUniqueId() == null) {
             banManager.kick(target.getUniqueId(), p.getName(), msg.toString());
-            banManager.log("Kicked Player", p.getName(), target.getUniqueId().toString(), "reason: "+ msg.toString());
+            banManager.log("Kicked Player", p.getName(), target.getUniqueId().toString(), "reason: "+ msg);
         } else {
             banManager.kick(target.getUniqueId(), p.getUniqueId(), msg.toString());
-            banManager.log("Kicked Player", p.getUniqueId().toString(), target.getUniqueId().toString(), "reason: "+ msg.toString());
+            banManager.log("Kicked Player", p.getUniqueId().toString(), target.getUniqueId().toString(), "reason: "+ msg);
         }
         for (User all : BanSystem.getInstance().getAllPlayers()) {
             if (all.hasPermission("bansys.notify") && all.getUniqueId() != p.getUniqueId()) {

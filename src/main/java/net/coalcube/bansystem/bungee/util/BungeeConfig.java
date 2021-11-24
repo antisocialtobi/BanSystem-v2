@@ -13,7 +13,7 @@ import net.md_5.bungee.config.YamlConfiguration;
 
 public class BungeeConfig implements Config {
 
-    private Configuration config;
+    private final Configuration config;
 
     public BungeeConfig(Configuration config) {
         this.config = config;
@@ -36,9 +36,7 @@ public class BungeeConfig implements Config {
 
     @Override
     public List<String> getKeys() {
-        List<String> res = new ArrayList<>();
-        res.addAll(config.getKeys());
-        return res;
+        return new ArrayList<>(config.getKeys());
     }
 
     @Override

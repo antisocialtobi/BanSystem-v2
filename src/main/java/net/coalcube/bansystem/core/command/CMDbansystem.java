@@ -109,9 +109,9 @@ public class CMDbansystem implements Command {
                     if (args.length == 7) {
 
                         String id = args[2];
-                        String reason = args[3];
-                        boolean onlyAdmins = Boolean.valueOf(args[4]);
-                        long duration = Long.valueOf(args[5]);
+                        String reason = args[3].replaceAll("&", "§");
+                        boolean onlyAdmins = Boolean.parseBoolean(args[4]);
+                        long duration = Long.parseLong(args[5]);
                         Type type = Type.valueOf(args[6]);
                         String creator = user.getUniqueId() != null ? user.getUniqueId().toString() : user.getName();
 
@@ -188,7 +188,7 @@ public class CMDbansystem implements Command {
                                 if (args.length == 7) {
 
                                     String id = args[2];
-                                    long duration = Long.valueOf(args[5]);
+                                    long duration = Long.parseLong(args[5]);
                                     Type type = Type.valueOf(args[6]);
                                     String creator = user.getUniqueId() != null ? user.getUniqueId().toString() : user.getName();
 
@@ -266,7 +266,7 @@ public class CMDbansystem implements Command {
                                                 .replaceAll("&", "§"));
                                     }
                                 } else {
-                                    user.sendMessage(messages.getString("bansystem.usage.addlvl")
+                                    user.sendMessage(messages.getString("bansystem.usage.removelvl")
                                             .replaceAll("%P%", messages.getString("prefix"))
                                             .replaceAll("&", "§"));
                                 }
@@ -280,7 +280,7 @@ public class CMDbansystem implements Command {
 
                                         String id = args[2];
                                         String lvl = args[5];
-                                        long duration = Long.valueOf(args[6]);
+                                        long duration = Long.parseLong(args[6]);
                                         String creator = user.getUniqueId() != null ? user.getUniqueId().toString() : user.getName();
 
                                         if (idManager.existsID(id)) {
@@ -367,21 +367,21 @@ public class CMDbansystem implements Command {
                                     if (args.length == 6) {
 
                                         String id = args[2];
-                                        boolean onlyadmins = Boolean.valueOf(args[5]);
+                                        boolean onlyadmins = Boolean.parseBoolean(args[5]);
                                         String creator = user.getUniqueId() != null ? user.getUniqueId().toString() : user.getName();
 
                                         if (idManager.existsID(id)) {
                                             try {
                                                 idManager.setOnlyAdmins(id, onlyadmins);
                                                 banManager.log("set banonlyadmins", creator, "",
-                                                        "id: "+ id
+                                                        "id: " + id
                                                                 + ", onlyAdmins: " + onlyadmins);
-                                                user.sendMessage(messages.getString("bansystem.ids.edit.setlvltype.success")
+                                                user.sendMessage(messages.getString("bansystem.ids.edit.setonlyadmins.success")
                                                         .replaceAll("%ID%", id)
                                                         .replaceAll("%P%", messages.getString("prefix"))
                                                         .replaceAll("&", "§"));
                                             } catch (SQLException | IOException e) {
-                                                user.sendMessage(messages.getString("bansystem.ids.edit.setlvltype.failure")
+                                                user.sendMessage(messages.getString("bansystem.ids.edit.setonlyadmins.failure")
                                                         .replaceAll("%ID%", id)
                                                         .replaceAll("%P%", messages.getString("prefix"))
                                                         .replaceAll("&", "§"));
@@ -395,6 +395,42 @@ public class CMDbansystem implements Command {
                                         }
                                     } else {
                                         user.sendMessage(messages.getString("bansystem.usage.setonlyadmins")
+                                                .replaceAll("%P%", messages.getString("prefix"))
+                                                .replaceAll("&", "§"));
+                                    }
+                                } else if(args[4].equalsIgnoreCase("reason")) {
+                                    if (args.length == 6) {
+
+                                        String id = args[2];
+                                        String reason = args[5].replaceAll("&", "§");
+                                        String creator = user.getUniqueId() != null ? user.getUniqueId().toString() : user.getName();
+
+                                        if (idManager.existsID(id)) {
+                                            try {
+                                                idManager.setReason(id, reason);
+                                                banManager.log("set banreason", creator, "",
+                                                        "id: " + id
+                                                                + ", reason: " + reason);
+                                                user.sendMessage(messages.getString("bansystem.ids.edit.setreason.success")
+                                                        .replaceAll("%ID%", id)
+                                                        .replaceAll("%P%", messages.getString("prefix"))
+                                                        .replaceAll("%reason%", reason)
+                                                        .replaceAll("&", "§"));
+                                            } catch (SQLException | IOException e) {
+                                                user.sendMessage(messages.getString("bansystem.ids.edit.setreason.failure")
+                                                        .replaceAll("%ID%", id)
+                                                        .replaceAll("%P%", messages.getString("prefix"))
+                                                        .replaceAll("&", "§"));
+                                                e.printStackTrace();
+                                            }
+                                        } else {
+                                            user.sendMessage(messages.getString("bansystem.ids.doesnotexists")
+                                                    .replaceAll("%P%", messages.getString("prefix"))
+                                                    .replaceAll("%ID%", id)
+                                                    .replaceAll("&", "§"));
+                                        }
+                                    } else {
+                                        user.sendMessage(messages.getString("bansystem.usage.setreason")
                                                 .replaceAll("%P%", messages.getString("prefix"))
                                                 .replaceAll("&", "§"));
                                     }
@@ -432,11 +468,12 @@ public class CMDbansystem implements Command {
                                         .replaceAll("&", "§")
                                         .replaceAll("%ID%", id)
                                         .replaceAll("%reason%", reason)
-                                        .replaceAll("%onlyAdmins%", onlyAdmins));
+                                        .replaceAll("%onlyAdmins%", onlyAdmins)
+                                        .replaceAll("%creator%", creator));
                             }
 
                             for(String lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
-                                Long rawduration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
+                                long rawduration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
 
                                 if(rawduration != -1)
                                     rawduration = rawduration * 1000;
@@ -449,7 +486,8 @@ public class CMDbansystem implements Command {
                                             .replaceAll("%lvl%", lvl)
                                             .replaceAll("%duration%", duration)
                                             .replaceAll("%type%",
-                                                    config.getString("IDs." + id + ".lvl." + lvl + ".type")));
+                                                    config.getString("IDs." + id + ".lvl." + lvl + ".type"))
+                                            .replaceAll("%creator%", creator));
                                 }
                             }
 

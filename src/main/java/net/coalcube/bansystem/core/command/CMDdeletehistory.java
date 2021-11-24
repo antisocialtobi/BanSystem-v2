@@ -5,6 +5,7 @@ import net.coalcube.bansystem.core.util.*;
 
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -51,12 +52,12 @@ public class CMDdeletehistory implements Command {
                             }
                             user.sendMessage(messages.getString("Deletehistory.success")
                                     .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("&", "§"));
+                                    .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid))).replaceAll("&", "§"));
                             for (User all : BanSystem.getInstance().getAllPlayers()) {
                                 if (all.hasPermission("bansys.notify") && all.getRawUser() != user.getRawUser()) {
                                     all.sendMessage(messages.getString("Deletehistory.notify")
                                             .replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                            .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
                                             .replaceAll("%sender%",
                                                     (user.getUniqueId() != null ? user.getDisplayName() : user.getName()))
                                             .replaceAll("&", "§"));
@@ -67,7 +68,7 @@ public class CMDdeletehistory implements Command {
                                 BanSystem.getInstance().getConsole()
                                         .sendMessage(messages.getString("Deletehistory.notify")
                                                 .replaceAll("%P%", messages.getString("prefix"))
-                                                .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
                                                 .replaceAll("%sender%",
                                                         (user.getUniqueId() != null ? user.getDisplayName() : user.getName()))
                                                 .replaceAll("&", "§"));
@@ -81,9 +82,7 @@ public class CMDdeletehistory implements Command {
                                 .replaceAll("%prefix%", messages.getString("prefix"))
                                 .replaceAll("&", "§"));
                         e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
+                    } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
                 } else {

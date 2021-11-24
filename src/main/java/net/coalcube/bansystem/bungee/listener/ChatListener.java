@@ -92,12 +92,8 @@ public class ChatListener implements Listener {
                         }
                     }
                 }
-            } catch (SQLException | IOException | ParseException throwables) {
+            } catch (SQLException | IOException | ParseException | InterruptedException | ExecutionException throwables) {
                 throwables.printStackTrace();
-            } catch (InterruptedException interruptedException) {
-                interruptedException.printStackTrace();
-            } catch (ExecutionException executionException) {
-                executionException.printStackTrace();
             }
         }
         if(!p.hasPermission("bansys.bypasschatfilter") && !banManager.isBanned(p.getUniqueId(), Type.CHAT)) {
@@ -269,7 +265,7 @@ public class ChatListener implements Listener {
         String[] trimmed = message.split(" ");
 
         for (String word : blacklist.getStringList("Words")) {
-            if (message.contains(word) || message.equalsIgnoreCase(word) || message.toUpperCase() == word || message.toLowerCase() == word)
+            if (message.contains(word) || message.equalsIgnoreCase(word) || message.toUpperCase().equals(word) || message.toLowerCase().equals(word))
                 return true;
 
             for(String pice : trimmed) {
@@ -300,7 +296,7 @@ public class ChatListener implements Listener {
         String[] trimmed = message.split(" ");
 
         for(String ad : blacklist.getStringList("Ads")) {
-            if(message.contains(ad) || message.equalsIgnoreCase(ad) || message.toUpperCase() == ad || message.toLowerCase() == ad)
+            if(message.contains(ad) || message.equalsIgnoreCase(ad) || message.toUpperCase().equals(ad) || message.toLowerCase().equals(ad))
                 return true;
 
             for(String pice : trimmed) {

@@ -13,8 +13,8 @@ import net.coalcube.bansystem.spigot.util.TabCompleteUtil;
 
 public class CommandWrapper implements CommandExecutor, TabExecutor {
 
-    private Command cmd;
-    private boolean tab;
+    private final Command cmd;
+    private final boolean tab;
 
     public CommandWrapper(Command cmd, boolean tab) {
         this.cmd = cmd;

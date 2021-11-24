@@ -57,17 +57,6 @@ public class TimeFormatUtil {
 
         }
 
-//        if (days > 0) {
-//            formattedRemainingTime = "§e" + days + " §cTag(e), §e" + hours + " §cStunde(n), §e" + minutes
-//                    + " §cMinute(n) und §e" + seconds + " §cSekunde(n)";
-//        } else if (hours > 0) {
-//            formattedRemainingTime = "§e" + hours + " §cStunde(n), §e" + minutes + " §cMinute(n) und §e" + seconds
-//                    + " §cSekunde(n)";
-//        } else if (minutes > 0) {
-//            formattedRemainingTime = "§e" + minutes + " §cMinute(n) und §e" + seconds + " §cSekunde(n)";
-//        } else {
-//            formattedRemainingTime = "§e" + seconds + " §cSekunde(n)";
-//        }
         return formattedRemainingTime;
     }
 }

@@ -1,39 +1,56 @@
 package net.coalcube.bansystem.core.util;
 
 import net.coalcube.bansystem.core.BanSystem;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.MalformedURLException;
+import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class URLUtil {
 
-    public static String ReadURL(String URL) {
-        String re = "";
-        try {
-            java.net.URL url = new URL(URL);
-            Reader is = new InputStreamReader(url.openStream());
-            BufferedReader in = new BufferedReader(is);
-            String s;
-            while ((s = in.readLine()) != null) {
-                re = re + " " + s;
-            }
-            in.close();
-        } catch (MalformedURLException e) {
-            System.out.println("MalformedURLException: " + e);
-        } catch (IOException e) {
-            System.out.println("IOException: " + e);
-        }
-        return re;
+    private final  Config messages;
+    private final Config config;
+
+    public URLUtil(Config messages, Config config) {
+        this.messages = messages;
+        this.config = config;
     }
 
-    public static boolean isVPN(String IP) {
-        if (!IP.equals("127.0.0.1") || !IP.equals(BanSystem.getInstance().getConfiguration().getString("VPN.serverIP"))) {
-            if (ReadURL("http://tutorialwork.epizy.com/api/checkvpn.php?ip=" + IP).equals("yes")) {
-                return true;
+    private static String readAll(Reader rd) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        int cp;
+        while ((cp = rd.read()) != -1) {
+            sb.append((char) cp);
+        }
+        return sb.toString();
+    }
+
+    private JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
+        try (InputStream is = new URL(url).openStream()) {
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            String jsonText = readAll(rd);
+            return new JSONObject(jsonText);
+        }
+    }
+
+    public boolean isVPN(String ip) throws IOException {
+        if (!ip.equals("127.0.0.1") || !ip.equals(BanSystem.getInstance().getConfiguration().getString("VPN.serverIP"))) {
+            JSONObject jsonObject;
+            if(config.getString("VPNCheck.key").isEmpty()) {
+                jsonObject = readJsonFromUrl("https://vpnapi.io/api/" + ip);
+            } else {
+                jsonObject = readJsonFromUrl("https://vpnapi.io/api/" + ip + "?key=" + config.getString("VPNCheck.key"));
+            }
+
+            if(jsonObject.has("security")) {
+                JSONObject structure = (JSONObject) jsonObject.get("security");
+                return Boolean.getBoolean(structure.get("vpn").toString());
+            } else {
+                BanSystem.getInstance().getConsole().sendMessage(messages.getString("prefix")
+                                + "§cBei der VPN Abfrage ist ein Fehler aufgetreten: "
+                                + jsonObject.getString("message"));
             }
             return false;
         }

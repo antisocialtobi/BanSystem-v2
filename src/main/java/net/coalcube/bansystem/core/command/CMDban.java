@@ -9,10 +9,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class CMDban implements Command {
@@ -140,12 +137,13 @@ public class CMDban implements Command {
             if (type != null) {
                 if (user.hasPermission("bansys.ban." + args[1]) || user.hasPermission("bansys.ban.all")
                         || user.hasPermission("bansys.ban.admin")) {
-
                     try {
                         if (!(type == Type.CHAT && !banmanager.isBanned(uuid, Type.CHAT)
                                 || (type == Type.NETWORK && !banmanager.isBanned(uuid, Type.NETWORK)))) {
-                            user.sendMessage(messages.getString("Ban.alreadybanned").replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("&", "§"));
+                            user.sendMessage(messages.getString("Ban.alreadybanned")
+                                    .replaceAll("%P%", messages.getString("prefix"))
+                                    .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
+                                    .replaceAll("&", "§"));
                             return;
                         }
                     } catch (SQLException throwables) {
@@ -153,15 +151,13 @@ public class CMDban implements Command {
                                 .replaceAll("%P%", messages.getString("prefix"))
                                 .replaceAll("&", "§"));
                         throwables.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
+                    } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
 
                     // if target is online
                     if (BanSystem.getInstance().getUser(UUIDFetcher.getName(uuid)).getUniqueId() != null) {
-                        User target = BanSystem.getInstance().getUser(UUIDFetcher.getName(uuid).replaceAll("&", "§"));
+                        User target = BanSystem.getInstance().getUser(Objects.requireNonNull(UUIDFetcher.getName(uuid)).replaceAll("&", "§"));
                         address = target.getAddress();
                         if (target == user) {
                             user.sendMessage(messages.getString("Ban.cannotban.yourself")
@@ -224,22 +220,21 @@ public class CMDban implements Command {
                         e.printStackTrace();
                     }
 
-
-
                     user.sendMessage(messages.getString("Ban.success")
                             .replaceAll("%P%", messages.getString("prefix"))
-                            .replaceAll("%Player%", UUIDFetcher.getName(uuid))
+                            .replaceAll("%Player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
                             .replaceAll("%reason%", reason)
                             .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                     .getFormattedRemainingTime(duration))
                             .replaceAll("%banner%", creatorName)
-                            .replaceAll("%type%", type.toString()).replaceAll("%enddate%", simpleDateFormat.format(endDate))
+                            .replaceAll("%type%", type.toString())
+                            .replaceAll("%enddate%", simpleDateFormat.format(endDate))
                             .replaceAll("&", "§"));
                     if(user.getUniqueId() != null) {
                         for (String message : messages.getStringList("Ban.notify")) {
                             BanSystem.getInstance().getConsole()
                                     .sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                            .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
                                             .replaceAll("%reason%", reason)
                                             .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                                     .getFormattedRemainingTime(duration))
@@ -252,7 +247,7 @@ public class CMDban implements Command {
                         if (all.hasPermission("bansys.notify") && (all.getUniqueId() != user.getUniqueId())) {
                             for (String message : messages.getStringList("Ban.notify")) {
                                 all.sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
-                                        .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                        .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                                 .getFormattedRemainingTime(duration))
@@ -276,7 +271,6 @@ public class CMDban implements Command {
             user.sendMessage(messages.getString("Ban.usage")
                     .replaceAll("%P%", messages.getString("prefix"))
                     .replaceAll("&", "§"));
-            return;
         }
     }
 
@@ -322,7 +316,7 @@ public class CMDban implements Command {
 
             //set duration
             for (String lvlkey : config.getSection("IDs." + id + ".lvl").getKeys()) {
-                if (Integer.valueOf(lvlkey) == lvl) {
+                if (Integer.parseInt(lvlkey) == lvl) {
                     duration = config.getLong("IDs." + id + ".lvl." + lvlkey + ".duration");
                     duration = (duration == -1) ? duration : duration * 1000;
                     type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvlkey + ".type"));

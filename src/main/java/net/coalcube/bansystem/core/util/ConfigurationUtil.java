@@ -12,6 +12,8 @@ public class ConfigurationUtil {
         config.set("mysql.host", "localhost");
         config.set("mysql.port", 3306);
 
+        config.set("VPNCheck.key", "");
+
         config.set("IPautoban.enable", false);
         config.set("IPautoban.banid", 9);
         config.set("IPautoban.onlyNetworkBans", false);
@@ -126,8 +128,7 @@ public class ConfigurationUtil {
         messages.set("NoPlayerMessage", "%P%§cDu bist kein Spieler!");
         messages.set("Playerdoesnotexist", "%P%§cDieser Spieler existiert nicht!");
         messages.set("PlayerNotFound", "%P%§cDer Spieler wurde nicht gefunden.");
-        messages.set("NoDBConnection",
-                "%P%§cDie Datenbankverbindung besteht nicht. Wende dich bitte an einen Administrator.");
+        messages.set("NoDBConnection", "%P%§cDie Datenbankverbindung besteht nicht. Wende dich bitte an einen Administrator.");
         messages.set("Playernotbanned", "%P%§cDieser Spieler ist nicht gebannt/gemuted!");
         messages.set("DateTimePattern", "dd.MM.yyyy HH:mm:ss");
         messages.set("true", "§2Aktiviert");
@@ -171,13 +172,13 @@ public class ConfigurationUtil {
         messages.set("Ban.usage", "%P%§cBenutze §8» §e/ban §8<§7Spieler§8> §8<§7ID§8>");
         messages.set("Ban.ID.Listlayout.heading", "§8§m------------§8» §4Bann IDs §8«§m------------");
         messages.set("Ban.ID.Listlayout.IDs.general", " §e%ID% §8» §c%reason%");
-        messages.set("Ban.ID.Listlayout.IDs.onlyadmins",
-                " §e%ID% §8» §c%reason% §8» §4nur für Admins und Owner");
+        messages.set("Ban.ID.Listlayout.IDs.onlyadmins", " §e%ID% §8» §c%reason% §8» §4nur für Admins und Owner");
         messages.set("Ban.ID.NoPermission", "%P%§cFür diese ID hast du keine Berechtigung!");
 
         messages.set("Check.usage", "%P%§cBenutze §8» §e/check §8<§7Spieler§8>");
         messages.set("Check.faild", "%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.");
-        messages.set("Check.chat", Arrays.asList("%P%§8§m------§8» §e%player% §8«§m------",
+        messages.set("Check.chat", Arrays.asList(
+                "%P%§8§m------§8» §e%player% §8«§m------",
                 "%P%§7Von §8» §c%banner%",
                 "%P%§7Grund §8» §c%reason%",
                 "%P%§7Verbleibende Zeit §8» §c%reamingtime%",
@@ -205,9 +206,8 @@ public class ConfigurationUtil {
                 "%P%§7Level §8» §c%levelchat%",
                 "%P%§8§m-----------------"));
 
-        messages.set("Deletehistory.notify",
-                "%P%Die History von §e%player% §7wurde von §e%sender% §7gelöscht.");
-        messages.set("Deletehistory.success", "%P%Die History von §e%player% §7wurde gelöscht.");
+        messages.set("Deletehistory.notify", "%P%§7Die History von §e%player% §7wurde von §e%sender% §7gelöscht.");
+        messages.set("Deletehistory.success", "%P%§7Die History von §e%player% §7wurde gelöscht.");
         messages.set("Deletehistory.usage", "%P%§cBenutze §8» §e/deletehistory §8<§7Spieler§8>");
         messages.set("Deletehistroy.faild", "%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.");
 

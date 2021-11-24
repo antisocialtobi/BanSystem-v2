@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -48,7 +49,7 @@ public class CMDhistory implements Command {
 
                             user.sendMessage(messages.getString("History.header")
                                     .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                    .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
                                     .replaceAll("&", "§"));
 
                             user.sendMessage(messages.getString("prefix"));
@@ -80,11 +81,7 @@ public class CMDhistory implements Command {
                             user.sendMessage(messages.getString("History.historynotfound")
                                     .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
                         }
-                    } catch (UnknownHostException | SQLException | ParseException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
+                    } catch (UnknownHostException | SQLException | ParseException | InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
                 } else {

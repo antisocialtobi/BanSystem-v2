@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class BanManagerSQLite implements BanManager {
 
@@ -221,7 +222,7 @@ public class BanManagerSQLite implements BanManager {
         return false;
     }
 
-    public boolean isBanned(UUID player, Type type) throws SQLException {
+    public boolean isBanned(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = sqlite.getResult("SELECT * FROM `bans` WHERE player = '" + player + "' and type = '" + type.toString() + "';");
         while (resultSet.next()) {
             return true;

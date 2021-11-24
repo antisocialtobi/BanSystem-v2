@@ -11,7 +11,7 @@ import net.coalcube.bansystem.core.util.Config;
 
 public class SpigotConfig implements Config {
 
-    private FileConfiguration config;
+    private final FileConfiguration config;
 
     public SpigotConfig(FileConfiguration config) {
         this.config = config;
@@ -34,8 +34,7 @@ public class SpigotConfig implements Config {
 
     @Override
     public List<String> getKeys() {
-        List<String> res = new ArrayList<>();
-        res.addAll(config.getKeys(false));
+        List<String> res = new ArrayList<>(config.getKeys(false));
         return res;
     }
 

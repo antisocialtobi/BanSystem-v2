@@ -75,6 +75,13 @@ public class IDManager {
             database.update("UPDATE `ids` SET onlyadmin='" + onlyAdmins + "' WHERE id='" + id + "'");
     }
 
+    public void setReason(String id, String reason) throws IOException, SQLException {
+        config.set("IDs." + id + ".reason", reason);
+        config.save(configFile);
+        if(isMySQLused())
+            database.update("UPDATE `ids` SET reason='" + reason + "' WHERE id='" + id + "'");
+    }
+
     public String getReason(String id) {
         return config.getString("IDs." + id + ".reason");
     }

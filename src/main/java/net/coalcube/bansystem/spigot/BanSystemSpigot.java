@@ -31,6 +31,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     private static Plugin instance;
     private static BanManager banManager;
     private static IDManager idManager;
+    private static URLUtil urlUtil;
 
     private Database sql;
     private MySQL mysql;
@@ -103,9 +104,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             } catch (SQLException e) {
                 console.sendMessage(prefix + "§7Die IDs konnten nicht mit MySQL synchronisiert werden.");
                 e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
 
@@ -135,7 +134,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
 
 
-        Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, () -> UUIDFetcher.clearCache(), 72000, 72000);
+        Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, UUIDFetcher::clearCache, 72000, 72000);
 
         if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.enable"))
             console.sendMessage(
@@ -163,6 +162,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
 
         idManager = new IDManager(config, sql, new File(this.getDataFolder(), "config.yml"));
+        urlUtil = new URLUtil(messages, config);
 
         init(pluginmanager);
 
@@ -177,9 +177,6 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        PluginManager pm = Bukkit.getPluginManager();
-
 
         AsyncPlayerChatEvent.getHandlerList().unregister(instance);
         PlayerCommandPreprocessEvent.getHandlerList().unregister(instance);
@@ -292,8 +289,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
     @Override
     public User getUser(String name) {
-        SpigotUser su = new SpigotUser(Bukkit.getPlayer(name));
-        return su;
+        return new SpigotUser(Bukkit.getPlayer(name));
     }
 
     @Override
@@ -327,7 +323,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
         pluginManager.registerEvents(new AsyncPlayerChatListener(config, messages, banManager, mysql, blacklist), this);
         pluginManager.registerEvents(new PlayerCommandPreprocessListener(banManager, config, messages, blockedCommands), this);
-        pluginManager.registerEvents(new PlayerConnectionListener(banManager, config, messages, Banscreen, instance), this);
+        pluginManager.registerEvents(new PlayerConnectionListener(banManager, config, messages, Banscreen, instance, urlUtil), this);
     }
 
     @Override

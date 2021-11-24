@@ -10,7 +10,7 @@ import net.coalcube.bansystem.core.util.Config;
 
 public class SpigotConfigurationSection implements Config {
 
-    private ConfigurationSection config;
+    private final ConfigurationSection config;
 
     public SpigotConfigurationSection(ConfigurationSection config) {
         this.config = config;
@@ -33,8 +33,7 @@ public class SpigotConfigurationSection implements Config {
 
     @Override
     public List<String> getKeys() {
-        List<String> res = new ArrayList<>();
-        res.addAll(config.getKeys(false));
+        List<String> res = new ArrayList<>(config.getKeys(false));
         return res;
     }
 

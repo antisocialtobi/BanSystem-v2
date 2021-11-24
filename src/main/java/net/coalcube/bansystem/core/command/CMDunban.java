@@ -5,6 +5,7 @@ import net.coalcube.bansystem.core.util.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -46,22 +47,22 @@ public class CMDunban implements Command {
                             if (config.getBoolean("needReason.Unban")) {
                                 if (args.length > 1) {
 
-                                    String reason = "";
+                                    StringBuilder reason = new StringBuilder();
                                     for (int i = 1; i < args.length; i++) {
-                                        reason += args[i] + " ";
+                                        reason.append(args[i]).append(" ");
                                     }
 
                                     try {
                                         if (user.getUniqueId() != null) {
-                                            banManager.unBan(uuid, user.getUniqueId(), reason);
+                                            banManager.unBan(uuid, user.getUniqueId(), reason.toString());
                                             BanSystem.getInstance().getConsole()
                                                     .sendMessage(messages.getString("Unban.needreason.notify")
                                                             .replaceAll("%P%", messages.getString("prefix"))
-                                                            .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                            .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
                                                             .replaceAll("%sender%", user.getName())
-                                                            .replaceAll("%reason%", reason));
+                                                            .replaceAll("%reason%", reason.toString()));
                                         } else {
-                                            banManager.unBan(uuid, user.getName(), reason);
+                                            banManager.unBan(uuid, user.getName(), reason.toString());
                                         }
                                     } catch (IOException | SQLException e) {
                                         e.printStackTrace();
@@ -72,23 +73,23 @@ public class CMDunban implements Command {
 
                                     user.sendMessage(messages.getString("Unban.needreason.success")
                                             .replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("%reason%", reason));
+                                            .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid))).replaceAll("%reason%", reason.toString()));
                                     for (User all : BanSystem.getInstance().getAllPlayers()) {
                                         if (all.hasPermission("bansys.notify") && all.getRawUser() != user) {
                                             all.sendMessage(messages.getString("Unban.needreason.notify")
                                                     .replaceAll("%P%", messages.getString("prefix"))
-                                                    .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                    .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
                                                     .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName()))
-                                                    .replaceAll("%reason%", reason));
+                                                    .replaceAll("%reason%", reason.toString()));
                                         }
                                     }
                                     if(user.getUniqueId() != null) {
                                         BanSystem.getInstance().getConsole()
                                                 .sendMessage(messages.getString("Unban.needreason.notify")
                                                         .replaceAll("%P%", messages.getString("prefix"))
-                                                        .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                        .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
                                                         .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName()))
-                                                        .replaceAll("%reason%", reason));
+                                                        .replaceAll("%reason%", reason.toString()));
                                     }
                                 } else {
                                     user.sendMessage(messages.getString("Unban.needreason.usage").replaceAll("%P%", messages.getString("prefix"))
@@ -112,12 +113,12 @@ public class CMDunban implements Command {
                                     }
                                     user.sendMessage(
                                             messages.getString("Unban.success").replaceAll("%P%", messages.getString("prefix"))
-                                                    .replaceAll("%player%", UUIDFetcher.getName(uuid)));
+                                                    .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid))));
                                     for (User all : BanSystem.getInstance().getAllPlayers()) {
                                         if (all.hasPermission("bansys.notify") && all.getRawUser() != user.getRawUser()) {
                                             all.sendMessage(messages.getString("Unban.notify")
                                                     .replaceAll("%P%", messages.getString("prefix"))
-                                                    .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                    .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
                                                     .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName())).replaceAll("&", "§"));
                                         }
                                     }
@@ -125,7 +126,7 @@ public class CMDunban implements Command {
                                         BanSystem.getInstance().getConsole()
                                                 .sendMessage(messages.getString("Unban.notify")
                                                         .replaceAll("%P%", messages.getString("prefix"))
-                                                        .replaceAll("%player%", UUIDFetcher.getName(uuid))
+                                                        .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
                                                         .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName())));
                                     }
 
@@ -137,14 +138,10 @@ public class CMDunban implements Command {
                         } else {
                             user.sendMessage(
                                     messages.getString("Unban.notbanned").replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%player%", UUIDFetcher.getName(uuid)).replaceAll("&", "§"));
+                                            .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid))).replaceAll("&", "§"));
                         }
-                    } catch (SQLException throwables) {
+                    } catch (SQLException | InterruptedException | ExecutionException throwables) {
                         throwables.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
                     }
                 } else {
                     if(!config.getBoolean("needReason.Unban")) {

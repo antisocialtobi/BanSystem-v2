@@ -10,7 +10,7 @@ import net.coalcube.bansystem.core.util.User;
 
 public class SpigotUser implements User {
 
-    private CommandSender sender;
+    private final CommandSender sender;
 
     public SpigotUser(CommandSender sender) {
         this.sender = sender;

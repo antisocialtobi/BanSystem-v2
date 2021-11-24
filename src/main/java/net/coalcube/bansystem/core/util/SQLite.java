@@ -108,18 +108,20 @@ public class SQLite implements Database {
 
             if(!hasUnbanreason()) {
                 update("ALTER TABLE `unbans` \n" +
-                        "ADD reason varchar(100) NOT NULL \n" +
-                        "AFTER unbanner;");
+                        "ADD reason varchar(100);");
             }
 
         }
     }
 
     private boolean hasUnbanreason() throws SQLException {
-        ResultSet rs = getResult("SELECT name FROM PRAGMA_TABLE_INFO('unbans') WHERE name='reason';");
+        ResultSet rs = getResult("PRAGMA table_info('unbans');");
 
         while (rs.next()) {
-            return true;
+            String name = rs.getString("name");
+            if(name.equals("reason")) {
+                return true;
+            }
         }
         return false;
     }

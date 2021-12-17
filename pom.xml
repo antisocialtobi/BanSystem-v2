@@ -17,7 +17,12 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+        <repository>
+            <id>opencollab-snapshot</id>
+            <url>https://repo.opencollab.dev/maven-snapshots/</url>
+        </repository>
     </repositories>
+
     <build>
         <plugins>
             <plugin>
@@ -63,6 +68,7 @@
             </plugin>
         </plugins>
     </build>
+
     <dependencies>
         <dependency>
             <groupId>net.md-5</groupId>
@@ -105,5 +111,12 @@
             <artifactId>json</artifactId>
             <version>20190722</version>
         </dependency>
+        <dependency>
+            <groupId>org.geysermc.floodgate</groupId>
+            <artifactId>api</artifactId>
+            <version>2.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 </project>

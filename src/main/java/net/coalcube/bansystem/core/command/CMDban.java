@@ -28,6 +28,7 @@ public class CMDban implements Command {
     private int lvl;
     private long duration;
     private UUID uuid;
+    private String name;
     private InetAddress address;
     private ArrayList<Integer> ids;
 
@@ -68,8 +69,8 @@ public class CMDban implements Command {
         }
 
         if (args.length <= 1) {
-            user.sendMessage(messages.getString("Ban.ID.Listlayout.heading").replaceAll("%P%",
-                    messages.getString("prefix")));
+            user.sendMessage(messages.getString("Ban.ID.Listlayout.heading")
+                    .replaceAll("%P%", messages.getString("prefix")));
             for (Integer key : ids) {
                 if (config.getBoolean("IDs." + key + ".onlyAdmins")) {
                     user.sendMessage(
@@ -91,14 +92,23 @@ public class CMDban implements Command {
         }
 
         if (args.length == 2) {
-            try{
-                uuid = UUID.fromString(args[0]);
-                if(UUIDFetcher.getName(uuid) == null) {
+
+            if(BanSystem.getInstance().getUser(args[0]).getUniqueId() != null) {
+                uuid = BanSystem.getInstance().getUser(args[0]).getUniqueId();
+                name = BanSystem.getInstance().getUser(args[0]).getName();
+            } else {
+                try{
+                    uuid = UUID.fromString(args[0]);
+                    if(UUIDFetcher.getName(uuid) == null) {
+                        uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                    }
+                } catch (IllegalArgumentException exception){
                     uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
                 }
-            } catch (IllegalArgumentException exception){
-                uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+
+                name = UUIDFetcher.getName(uuid);
             }
+
 
             if (uuid == null) {
                 user.sendMessage(messages.getString("Playerdoesnotexist")
@@ -142,7 +152,7 @@ public class CMDban implements Command {
                                 || (type == Type.NETWORK && !banmanager.isBanned(uuid, Type.NETWORK)))) {
                             user.sendMessage(messages.getString("Ban.alreadybanned")
                                     .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
+                                    .replaceAll("%player%", Objects.requireNonNull(name))
                                     .replaceAll("&", "§"));
                             return;
                         }
@@ -156,8 +166,8 @@ public class CMDban implements Command {
                     }
 
                     // if target is online
-                    if (BanSystem.getInstance().getUser(UUIDFetcher.getName(uuid)).getUniqueId() != null) {
-                        User target = BanSystem.getInstance().getUser(Objects.requireNonNull(UUIDFetcher.getName(uuid)).replaceAll("&", "§"));
+                    if (BanSystem.getInstance().getUser(name).getUniqueId() != null) {
+                        User target = BanSystem.getInstance().getUser(name.replaceAll("&", "§"));
                         address = target.getAddress();
                         if (target == user) {
                             user.sendMessage(messages.getString("Ban.cannotban.yourself")
@@ -222,7 +232,7 @@ public class CMDban implements Command {
 
                     user.sendMessage(messages.getString("Ban.success")
                             .replaceAll("%P%", messages.getString("prefix"))
-                            .replaceAll("%Player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
+                            .replaceAll("%Player%", Objects.requireNonNull(name))
                             .replaceAll("%reason%", reason)
                             .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                     .getFormattedRemainingTime(duration))
@@ -234,7 +244,7 @@ public class CMDban implements Command {
                         for (String message : messages.getStringList("Ban.notify")) {
                             BanSystem.getInstance().getConsole()
                                     .sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
+                                            .replaceAll("%player%", Objects.requireNonNull(name))
                                             .replaceAll("%reason%", reason)
                                             .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                                     .getFormattedRemainingTime(duration))
@@ -247,7 +257,7 @@ public class CMDban implements Command {
                         if (all.hasPermission("bansys.notify") && (all.getUniqueId() != user.getUniqueId())) {
                             for (String message : messages.getStringList("Ban.notify")) {
                                 all.sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
-                                        .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
+                                        .replaceAll("%player%", Objects.requireNonNull(name))
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                                 .getFormattedRemainingTime(duration))
@@ -258,8 +268,9 @@ public class CMDban implements Command {
                         }
                     }
                 } else
-                    user.sendMessage(messages.getString("Ban.ID.NoPermission").replaceAll("%P%",
-                            messages.getString("prefix")));
+                    user.sendMessage(messages.getString("Ban.ID.NoPermission")
+                            .replaceAll("%P%", messages.getString("prefix"))
+                            .replaceAll("&", "§"));
 
             } else {
                 System.out.println("Type is null");

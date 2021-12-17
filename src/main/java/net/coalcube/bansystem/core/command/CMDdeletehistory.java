@@ -87,13 +87,18 @@ public class CMDdeletehistory implements Command {
                     }
                 } else {
                     user.sendMessage(messages.getString("Deletehistory.usage")
-                            .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
+                            .replaceAll("%P%", messages.getString("prefix"))
+                            .replaceAll("&", "§"));
                 }
             } else {
-                user.sendMessage(messages.getString("NoDBConnection"));
+                user.sendMessage(messages.getString("NoDBConnection")
+                        .replaceAll("%P%", messages.getString("prefix"))
+                        .replaceAll("&", "§"));
             }
         } else {
-            user.sendMessage(messages.getString("NoPermission"));
+            user.sendMessage(messages.getString("NoPermission")
+                    .replaceAll("%P%", messages.getString("prefix"))
+                    .replaceAll("&", "§"));
         }
     }
 }

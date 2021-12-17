@@ -93,17 +93,15 @@ public class CMDkick implements Command {
                     }
                     User target = BanSystem.getInstance().getUser(UUIDFetcher.getName(uuid));
                     if (!target.getUniqueId().equals(p.getUniqueId())) {
-                        if (target.hasPermission("bansys.kick")) {
-                            if ((p.hasPermission("bansys.kick.admin") && !target.hasPermission("bansys.kick.admin"))
-                                    || p.getUniqueId() == null) {
-                                p.sendMessage(messages.getString("Kick.cannotkickteammembers")
-                                        .replaceAll("%P%", messages.getString("prefix"))
-                                        .replaceAll("&", "§"));
-                                return;
-                            }
+                        if ((target.hasPermission("bansys.kick") && !p.hasPermission("bansys.kick.admin"))
+                                || (target.hasPermission("bansys.kick.admin") && p.hasPermission("bansys.kick.admin"))) {
+                            p.sendMessage(messages.getString("Kick.cannotkick.teammembers")
+                                    .replaceAll("%P%", messages.getString("prefix"))
+                                    .replaceAll("&", "§"));
+                            return;
                         }
                         if (target.hasPermission("bansys.kick.bypass") && !p.hasPermission("bansys.kick.admin")) {
-                            p.sendMessage(messages.getString("Kick.bypass")
+                            p.sendMessage(messages.getString("Kick.cannotkick.bypass")
                                     .replaceAll("%P%", messages.getString("prefix"))
                                     .replaceAll("&", "§"));
                             return;
@@ -123,18 +121,23 @@ public class CMDkick implements Command {
                         }
                     } else {
                         p.sendMessage(messages.getString("Kick.cannotkickyouselfe")
-                                .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
+                                .replaceAll("%P%", messages.getString("prefix"))
+                                .replaceAll("&", "§"));
                     }
                 } else {
                     p.sendMessage(messages.getString("PlayerNotFound")
-                            .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
+                            .replaceAll("%P%", messages.getString("prefix"))
+                            .replaceAll("&", "§"));
                 }
             } else {
-                p.sendMessage(messages.getString("Kick.usage").replaceAll("%P%", messages.getString("prefix"))
+                p.sendMessage(messages.getString("Kick.usage")
+                        .replaceAll("%P%", messages.getString("prefix"))
                         .replaceAll("&", "§"));
             }
         } else {
-            p.sendMessage(messages.getString("NoPermissionMessage").replaceAll("%P%", messages.getString("prefix")));
+            p.sendMessage(messages.getString("NoPermissionMessage")
+                    .replaceAll("%P%", messages.getString("prefix"))
+                    .replaceAll("&", "§"));
         }
     }
 }

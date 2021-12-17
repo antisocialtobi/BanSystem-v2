@@ -1,10 +1,7 @@
 package net.coalcube.bansystem.spigot.listener;
 
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.util.BanManager;
-import net.coalcube.bansystem.core.util.Config;
-import net.coalcube.bansystem.core.util.MySQL;
-import net.coalcube.bansystem.core.util.Type;
+import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.spigot.BanSystemSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -12,15 +9,21 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class AsyncPlayerChatListener implements Listener {
+
+    private HashMap<UUID, BukkitTask> cooldownTask = new HashMap<UUID, BukkitTask>();
+    private HashMap<UUID, Long> reamingTime = new HashMap<>();
 
     private final BanManager banManager;
     private final Config config, messages;
@@ -41,13 +44,15 @@ public class AsyncPlayerChatListener implements Listener {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
             Player p = e.getPlayer();
             String msg = e.getMessage();
+            UUID uuid = p.getUniqueId();
             try {
                 if (banManager.isBanned(p.getUniqueId(), Type.CHAT)) {
                     if (banManager.getEnd(p.getUniqueId(), Type.CHAT) > System.currentTimeMillis()
                             || banManager.getEnd(p.getUniqueId(), Type.CHAT) == -1) {
                         e.setCancelled(true);
                         for (String message : messages.getStringList("Ban.Chat.Screen")) {
-                            p.sendMessage(message.replaceAll("%P%", BanSystemSpigot.prefix)
+                            p.sendMessage(message
+                                    .replaceAll("%P%", BanSystemSpigot.prefix)
                                     .replaceAll("%reason%", banManager.getReason(p.getUniqueId(), Type.CHAT))
                                     .replaceAll("%reamingtime%",
                                             BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(banManager.getRemainingTime(p.getUniqueId(), Type.CHAT)))
@@ -65,10 +70,10 @@ public class AsyncPlayerChatListener implements Listener {
                             ioException.printStackTrace();
                         }
 
-                        Bukkit.getConsoleSender()
-                                .sendMessage(messages.getString("Ban.Chat.autounmute")
-                                        .replaceAll("%P%", BanSystemSpigot.prefix).replaceAll("%player%", p.getDisplayName())
-                                        .replaceAll("&", "§"));
+                        Bukkit.getConsoleSender().sendMessage(messages.getString("Ban.Chat.autounmute")
+                                .replaceAll("%P%", BanSystemSpigot.prefix)
+                                .replaceAll("%player%", p.getDisplayName())
+                                .replaceAll("&", "§"));
                         for (Player all : Bukkit.getOnlinePlayers()) {
                             if (all.hasPermission("system.ban")) {
                                 all.sendMessage(messages.getString("Ban.Chat.autounmute")
@@ -223,6 +228,30 @@ public class AsyncPlayerChatListener implements Listener {
                             }
                         }
                     }
+                }
+            }
+            if(!e.isCancelled() && config.getBoolean("chatdelay.enable")
+                    && !p.hasPermission("bansys.bypasschatdelay")
+                    && !msg.startsWith("/")) {
+                if(cooldownTask.containsKey(uuid)) {
+                    long tmpReamingTime = reamingTime.get(uuid);
+                    tmpReamingTime = tmpReamingTime - System.currentTimeMillis();
+                    if(tmpReamingTime < 0) {
+                        tmpReamingTime = 0;
+                    }
+                    String humanReadableReamingTime = new TimeFormatUtil().getFormattedRemainingTime(tmpReamingTime);
+
+                    e.setCancelled(true);
+                    p.sendMessage(messages.getString("chatdelay")
+                            .replaceAll("%reamingtime%", humanReadableReamingTime)
+                            .replaceAll("%P%", messages.getString("prefix"))
+                            .replaceAll("&", "§"));
+                } else {
+                    reamingTime.put(uuid, System.currentTimeMillis() + config.getInt("chatdelay.delay") * 1000);
+                    cooldownTask.put(uuid, Bukkit.getScheduler().runTaskLaterAsynchronously(BanSystemSpigot.getPlugin(), () -> {
+                        cooldownTask.remove(uuid);
+                        reamingTime.remove(uuid);
+                    }, config.getInt("chatdelay.delay") * 20L));
                 }
             }
         }

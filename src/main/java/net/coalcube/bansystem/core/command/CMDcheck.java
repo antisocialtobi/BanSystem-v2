@@ -6,7 +6,6 @@ import net.coalcube.bansystem.core.util.*;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -28,24 +27,33 @@ public class CMDcheck implements Command {
             if (sql.isConnected()) {
                 if (args.length == 1) {
                     UUID uuid;
-                    try{
-                        uuid = UUID.fromString(args[0]);
-                        if(UUIDFetcher.getName(uuid) == null) {
+                    String name = null;
+                    if(BanSystem.getInstance().getUser(args[0]).getUniqueId() != null) {
+                        uuid = BanSystem.getInstance().getUser(args[0]).getUniqueId();
+                        name = BanSystem.getInstance().getUser(args[0]).getName();
+                    } else {
+                        try{
+                            uuid = UUID.fromString(args[0]);
+                            if(UUIDFetcher.getName(uuid) == null) {
+                                uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                            }
+                        } catch (IllegalArgumentException exception){
                             uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
                         }
-                    } catch (IllegalArgumentException exception){
-                        uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
                     }
+
                     if (uuid == null) {
                         user.sendMessage(
-                                messages.getString("Playerdoesnotexist").replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
+                                messages.getString("Playerdoesnotexist")
+                                        .replaceAll("%P%", messages.getString("prefix"))
+                                        .replaceAll("&", "§"));
                         return;
                     }
 
                     try {
                         if (bm.isBanned(uuid, Type.CHAT) && bm.isBanned(uuid, Type.NETWORK)) {
 
-                            String player = UUIDFetcher.getName(uuid);
+                            String player = name;
                             String bannerchat = bm.getBanner(uuid, Type.CHAT);
                             String bannernetwork = bm.getBanner(uuid, Type.NETWORK);
                             String reasonchat = bm.getReason(uuid, Type.CHAT);
@@ -85,7 +93,7 @@ public class CMDcheck implements Command {
 
                         } else if (bm.isBanned(uuid, Type.CHAT)) {
 
-                            String player = UUIDFetcher.getName(uuid);
+                            String player = name;
                             String banner = bm.getBanner(uuid, Type.CHAT);
                             String reason = bm.getReason(uuid, Type.CHAT);
                             String reamingtime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(bm.getRemainingTime(uuid, Type.CHAT));
@@ -112,7 +120,7 @@ public class CMDcheck implements Command {
 
                         } else if (bm.isBanned(uuid, Type.NETWORK)) {
 
-                            String player = UUIDFetcher.getName(uuid);
+                            String player = name;
                             String banner = bm.getBanner(uuid, Type.NETWORK);
                             String reason = bm.getReason(uuid, Type.NETWORK);
                             String reamingtime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(bm.getRemainingTime(uuid, Type.NETWORK));
@@ -141,7 +149,7 @@ public class CMDcheck implements Command {
                         } else {
                             user.sendMessage(messages.getString("Playernotbanned")
                                     .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
+                                    .replaceAll("%player%", name)
                                     .replaceAll("&", "§"));
                         }
                     } catch (UnknownHostException | SQLException | ParseException e) {
@@ -158,10 +166,14 @@ public class CMDcheck implements Command {
                             .replaceAll("&", "§"));
                 }
             } else {
-                user.sendMessage(messages.getString("NoDBConnection"));
+                user.sendMessage(messages.getString("NoDBConnection")
+                        .replaceAll("%P%", messages.getString("prefix"))
+                        .replaceAll("&", "§"));
             }
         } else {
-            user.sendMessage(messages.getString("NoPermission"));
+            user.sendMessage(messages.getString("NoPermission")
+                    .replaceAll("%P%", messages.getString("prefix"))
+                    .replaceAll("&", "§"));
         }
     }
 }

@@ -122,6 +122,8 @@ public class UUIDFetcher {
             connection.setReadTimeout(5000);
             final UUIDFetcher[] nameHistory = UUIDFetcher.gson.fromJson(
                     new BufferedReader(new InputStreamReader(connection.getInputStream())), UUIDFetcher[].class);
+            if(nameHistory == null)
+                return null;
             final UUIDFetcher currentNameData = nameHistory[nameHistory.length - 1];
 
             UUIDFetcher.uuidCache.put(currentNameData.name.toLowerCase(), uuid);

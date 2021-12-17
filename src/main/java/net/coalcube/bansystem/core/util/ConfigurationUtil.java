@@ -36,6 +36,9 @@ public class ConfigurationUtil {
         config.set("blacklist.ads.autoban.enable", true);
         config.set("blacklist.ads.autoban.id", 7);
 
+        config.set("chatdelay.enable", true);
+        config.set("chatdelay.delay", 3);
+
         config.set("IDs.1.reason", "Unerlaubte Clientmodification/Hackclient");
         config.set("IDs.1.onlyAdmins", false);
         config.set("IDs.1.lvl.1.type", Type.NETWORK.toString());
@@ -131,6 +134,7 @@ public class ConfigurationUtil {
         messages.set("NoDBConnection", "%P%§cDie Datenbankverbindung besteht nicht. Wende dich bitte an einen Administrator.");
         messages.set("Playernotbanned", "%P%§cDieser Spieler ist nicht gebannt/gemuted!");
         messages.set("DateTimePattern", "dd.MM.yyyy HH:mm:ss");
+        messages.set("chatdelay", "%P%§cDu kannst erst in §e%reamingtime% §cwieder etwas schreiben.");
         messages.set("true", "§2Aktiviert");
         messages.set("false", "§cDeaktiviert");
 
@@ -227,16 +231,15 @@ public class ConfigurationUtil {
         messages.set("History.footer", "%P%§8§m------------------------");
 
         messages.set("Kick.usage", "%P%§cBenutze §8» §e/kick §8<§7Spieler§8> §8[§7Grund§8]");
-        messages.set("Kick.cannotkickyouselfe", "%P%§cDu kannst dich nicht selbst Kicken!");
-        messages.set("Kick.cannotkickteammembers", "%P%§cDu kannst keine Teammitglieder Kicken.");
-        messages.set("Kick.bypass", "%P%§cDu kannst Spieler, die eine Bypass Permission haben, nicht kicken.");
+        messages.set("Kick.cannotkick.youselfe", "%P%§cDu kannst dich nicht selbst Kicken!");
+        messages.set("Kick.cannotkick.teammembers", "%P%§cDu kannst keine Teammitglieder Kicken.");
+        messages.set("Kick.cannotkick.bypass", "%P%§cDu kannst Spieler, die eine Bypass Permission haben, nicht kicken.");
         messages.set("Kick.noreason.screen", "\n §cDu wurdest vom Netzwerk §4§lgekickt§c! \n \n");
         messages.set("Kick.noreason.notify",
                 Arrays.asList("%P%§8§m------------------------------",
                         "%P%§7Der Spieler §e%player%", "%P%§7wurde von §e%sender% §cgekickt.",
                         "%P%§8§m------------------------------"));
-        messages.set("Kick.reason.screen",
-                "\n §cDu wurdest vom Netzwerk §4§lgekickt§c!\n \n§7Grund §8» §c%reason%\n\n");
+        messages.set("Kick.reason.screen", "\n §cDu wurdest vom Netzwerk §4§lgekickt§c!\n \n§7Grund §8» §c%reason%\n\n");
         messages.set("Kick.reason.notify",
                 Arrays.asList("%P%§8§m------------------------------",
                         "%P%§7Der Spieler §e%player%", "%P%§7wurde von §e%sender% §cgekickt.",
@@ -263,8 +266,7 @@ public class ConfigurationUtil {
         messages.set("Unmute.notify", "%P%§e%player% §7wurde von §e%sender% §7entmuted.");
 
         messages.set("Unmute.needreason.usage", "%P%§cBenutze §8» §e/unmute §8<§7Spieler§8> §8<§7Grund§8>");
-        messages.set("Unmute.needreason.success",
-                "%P%§7Die Schweigepflicht von §e%player% §7wurde §2aufgehoben!");
+        messages.set("Unmute.needreason.success", "%P%§7Die Schweigepflicht von §e%player% §7wurde §2aufgehoben!");
         messages.set("Unmute.needreason.notify",
                 Arrays.asList("%P%§8§m------------------------------",
                         "%P%§e%player% §7wurde von §e%sender% §7entmuted.", "%P%§7Grund §8» §e%reason%",
@@ -298,34 +300,86 @@ public class ConfigurationUtil {
 //                        "§e/history §8<§7Spieler§8> §8» §7Zeigt die History von einem Spieler",
 //                        "§e/deletehistory §8<§7Spieler§8> §8» §7Löscht die History von einem Spieler",
 //                        "§8§m-----------------------------"));
+
         messages.set("bansystem.help.header", "§8§m--------§8[ §cBanSystem §8]§m--------");
         messages.set("bansystem.help.entry", "§e/%command% §8» §7%description%");
         messages.set("bansystem.help.footer", "§8§m-----------------------------");
+
         messages.set("bansystem.reload.process", "%P%§7Plugin wird §eneu geladen§7.");
         messages.set("bansystem.reload.finished", "%P%§7Plugin §eneu geladen§7.");
+
         messages.set("bansystem.version", "%P%§7Version §8» §e%ver%");
-        messages.set("bansystem.ids.sync.MySQLdisabled", "%P%§cDu kannst diese Funktion nicht verwenden wenn du keine MySQL Datenbank verwendest.");
+
+        messages.set("bansystem.ids.sync.MySQLdisabled", "%P%§cDu kannst diese Funktion nicht verwenden, wenn du keine MySQL Datenbank verwendest.");
         messages.set("bansystem.ids.sync.faild", "%P%§cDie synchronisation ist fehlgeschlagen. Um mehr Informationen zu bekommen schau in die Konsole.");
         messages.set("bansystem.ids.sync.success", "%P%§7Die BanIDs wurden §2synchronisiert§7.");
+
         messages.set("bansystem.ids.alreadyexists", "%P%§cDie BanID ist bereits vorhanden.");
         messages.set("bansystem.ids.doesnotexists", "%P%§cDie BanID §e%ID% §ckonnte nicht gefunden werden.");
         messages.set("bansystem.ids.lvldoesnotexists", "%P%§cDas BanLvl §e%lvl% §ckonnte nicht gefunden werden.");
-        messages.set("bansystem.ids.create.failure", "%P%§cDie BanID konnte nicht erstellt werden da ein Fehler aufgetreten ist. Siehe die Konsole ein um Mehr informationen zu erfahren.");
-        messages.set("bansystem.ids.create.success", "%P%§7Die BanID §e%ID% §7wurde erfolgreich §2erstellt§7.");
-        messages.set("bansystem.ids.delete.failure", "%P%§cDie BanID konnte nicht gelöscht werden da ein Fehler aufgetreten ist. Siehe die Konsole ein um Mehr informationen zu erfahren.");
+
+        messages.set("bansystem.ids.create.success", "%P%§7Die BanID §e%ID% §7wurde erfolgreich §2erstellt§7.\n" +
+                "%P% §7Grund §8» §e%reason% \n" +
+                "%P% §7Nur Admins §8» §e%onlyadmins% \n" +
+                "%P% §7Banndauer §8» §e%duration% \n" +
+                "%P% §7Type §8» §c%type%");
+        messages.set("bansystem.ids.create.failure", "%P%§cDie BanID konnte nicht erstellt werden, da ein Fehler aufgetreten ist. " +
+                "Siehe die Konsole ein um Mehr informationen zu erfahren.");
+        messages.set("bansystem.ids.create.invalidDuration", "%P%§cDie BanID konnte nicht erstellt werden, " +
+                "da die §lBanndauer §cungültig ist.");
+        messages.set("bansystem.ids.create.invalidType", "%P%§cDie BanID konnte nicht erstellt werden, da der §lType §cungültig ist.");
+
+        messages.set("bansystem.ids.delete.failure", "%P%§cDie BanID konnte nicht gelöscht werden, da ein Fehler aufgetreten ist. " +
+                "Siehe die Konsole ein um Mehr informationen zu erfahren.");
         messages.set("bansystem.ids.delete.success", "%P%§7Die BanID §e%ID% §7wurde erfolgreich §cgelöscht§7.");
-        messages.set("bansystem.ids.edit.addlvl.success", "");
-        messages.set("bansystem.ids.edit.addlvl.failure", "");
-        messages.set("bansystem.ids.edit.removelvl.success", "");
-        messages.set("bansystem.ids.edit.removelvl.failure", "");
-        messages.set("bansystem.ids.edit.setlvlduration.success", "");
-        messages.set("bansystem.ids.edit.setlvlduration.failure", "");
-        messages.set("bansystem.ids.edit.setlvltype.success", "");
-        messages.set("bansystem.ids.edit.setlvltype.failure", "");
-        messages.set("bansystem.ids.edit.setlvltype.success", "");
-        messages.set("bansystem.ids.edit.setlvltype.failure", "");
-        messages.set("bansystem.ids.edit.setonlyadmins.success", "");
-        messages.set("bansystem.ids.edit.setonlyadmins.failure", "");
+
+        messages.set("bansystem.ids.edit.addlvl.success", "%P%§7Das lvl §e%lvl% §7wurde erfolgreich zur ID §e%ID% §2hinzugefügt§7. \n" +
+                "%P% §7Banndauer §8» §e%duration% \n" +
+                "%P% §7Type §8» §c%type%");
+        messages.set("bansystem.ids.edit.addlvl.invalidType", "%P%§cDie BanID konnte nicht bearbeitet werden, " +
+                "da der §lType §cungültig ist.");
+        messages.set("bansystem.ids.edit.addlvl.invalidDuration", "%P%§cDie BanID konnte nicht bearbeitet werden, " +
+                "da die §lBanndauer §cungültig ist.");
+        messages.set("bansystem.ids.edit.addlvl.failure", "%P%§cDas Banlvl konnte nicht hinzugefügt werden, " +
+                "da ein Fehler aufgetreten ist. " +
+                "Siehe die Konsole ein um Mehr informationen zu erfahren.");
+
+        messages.set("bansystem.ids.edit.removelvl.success", "%P%§7Das Banlvl §e%lvl% §7von der BanID §e%ID% §7wurde erfolgreich §cgelöscht§7.");
+        messages.set("bansystem.ids.edit.removelvl.cannotremovelastlvl", "%P%§cDu kannst Lvl §c1 §cnicht löschen.");
+        messages.set("bansystem.ids.edit.removelvl.failure", "%P%§cDas Banlvl §e%lvl% §7konnte nicht gelöscht werden, " +
+                "da ein Fehler aufgetreten ist. " +
+                "Siehe die Konsole ein um Mehr informationen zu erfahren.");
+
+        messages.set("bansystem.ids.edit.setlvlduration.success", "%P%§7Die Bandauer wurde bearbeitet. \n" +
+                "%P% §7BanID §8» §e%ID% \n" +
+                "%P% §7BanLvl §8» §e%lvl% \n" +
+                "%P% §7Bandauer §8» §e%duration%");
+        messages.set("bansystem.ids.edit.setlvlduration.invalidDuration", "%P%§cDie BanID konnte nicht bearbeitet werden, " +
+                "da die §lBanndauer §cungültig ist.");
+        messages.set("bansystem.ids.edit.setlvlduration.failure", "%P%§cDas Banlvl konnte nicht bearbeitet werden, " +
+                "da ein Fehler aufgetreten ist. Siehe die Konsole ein um Mehr informationen zu erfahren.");
+
+        messages.set("bansystem.ids.edit.setlvltype.success", "%P%§7Der Bantype wurde bearbeitet. \n" +
+                "%P% §7BanID §8» §e%ID% \n" +
+                "%P% §7BanLvl §8» §e%lvl% \n" +
+                "%P% §7Bantype §8» §e%type%");
+        messages.set("bansystem.ids.edit.setlvltype.invalidType", "%P%§cDie BanID konnte nicht bearbeitet werden, " +
+                "da der §lType §cungültig ist.");
+        messages.set("bansystem.ids.edit.setlvltype.failure", "%P%§cDas Banlvl konnte nicht bearbeitet werden, " +
+                "da ein Fehler aufgetreten ist. Siehe die Konsole ein um Mehr informationen zu erfahren.");
+
+        messages.set("bansystem.ids.edit.setonlyadmins.success", "%P%§7Die Bandauer wurde bearbeitet. \n" +
+                "%P% §7BanID §8» §e%ID% \n" +
+                "%P% §7OnlyAdmins §8» §e%onlyadmins%");
+        messages.set("bansystem.ids.edit.setonlyadmins.failure", "%P%§cDie BanID konnte nicht bearbeitet werden, " +
+                "da ein Fehler aufgetreten ist. Siehe die Konsole ein um Mehr informationen zu erfahren.");
+
+        messages.set("bansystem.ids.edit.setreason.success", "%P%§7Der Bangrund wurde bearbeitet. \n" +
+                "%P% §7BanID §8» §e%ID% \n" +
+                "%P% §7Grund §8» §e%reason%");
+        messages.set("bansystem.ids.edit.setreason.failure", "%P%§cDie BanID konnte nicht bearbeitet werden, " +
+                "da ein Fehler aufgetreten ist. Siehe die Konsole ein um Mehr informationen zu erfahren.");
+
         messages.set("bansystem.ids.edit.show.header",
                 Arrays.asList("%P%§8§m------§8» §7ID: §e%ID% §8«§m------",
                         "%P%Grund §8» §e%reason%",
@@ -363,10 +417,11 @@ public class ConfigurationUtil {
                         "%P%§7Nachricht §8» §e%message%",
                         "%P%§8§m------------------------------"));
         messages.set("ip.autoban", "%P%§cDer 2. Account von §e%bannedaccount% §cwurde automatisch gebannt für §e%reason%§c.");
-        messages.set("ip.warning", Arrays.asList("%P%§8§m------------------------------",
-                "%P%§e§l§nWARNUNG",
-                "%P%§e%player% §7ist womöglich ein 2. Account von §e%bannedaccount%.",
-                "%P%§8§m------------------------------"));
+        messages.set("ip.warning",
+                Arrays.asList("%P%§8§m------------------------------",
+                        "%P%§e§l§nWARNUNG",
+                        "%P%§e%player% §7ist womöglich ein 2. Account von §e%bannedaccount%.",
+                        "%P%§8§m------------------------------"));
 
     }
 

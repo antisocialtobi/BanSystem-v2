@@ -55,6 +55,8 @@ public class TimeFormatUtil {
             if(size == 4)
                 formattedRemainingTime = array.get(3) + ", " + array.get(2) + ", " + array.get(1) + " und " + array.get(0);
 
+        } else {
+            return "§e0 §cSekunde(n)";
         }
 
         return formattedRemainingTime;

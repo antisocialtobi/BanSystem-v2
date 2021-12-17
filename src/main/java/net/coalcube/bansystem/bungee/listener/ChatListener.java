@@ -1,14 +1,13 @@
 package net.coalcube.bansystem.bungee.listener;
 
+import net.coalcube.bansystem.bungee.BanSystemBungee;
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.util.BanManager;
-import net.coalcube.bansystem.core.util.Config;
-import net.coalcube.bansystem.core.util.Database;
-import net.coalcube.bansystem.core.util.Type;
+import net.coalcube.bansystem.core.util.*;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
@@ -17,9 +16,15 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class ChatListener implements Listener {
+
+    private HashMap<UUID, ScheduledTask> cooldownTask = new HashMap<UUID, ScheduledTask>();
+    private HashMap<UUID, Long> reamingTime = new HashMap<>();
 
     private final BanManager banManager;
     private final Config config;
@@ -40,6 +45,7 @@ public class ChatListener implements Listener {
     public void onChat(ChatEvent e) throws SQLException, IOException, ExecutionException, InterruptedException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
         ProxiedPlayer p = (ProxiedPlayer) e.getSender();
+        UUID uuid = p.getUniqueId();
         String msg = e.getMessage();
         boolean startsWithBlockedCommnad = false;
 
@@ -57,26 +63,26 @@ public class ChatListener implements Listener {
         }
         if (startsWithBlockedCommnad || !msg.startsWith("/")) {
             try {
-                if (banManager.isBanned(p.getUniqueId(), Type.CHAT)) {
-                    if (banManager.getEnd(p.getUniqueId(), Type.CHAT) > System.currentTimeMillis()
-                            || banManager.getEnd(p.getUniqueId(), Type.CHAT) == -1) {
+                if (banManager.isBanned(uuid, Type.CHAT)) {
+                    if (banManager.getEnd(uuid, Type.CHAT) > System.currentTimeMillis()
+                            || banManager.getEnd(uuid, Type.CHAT) == -1) {
                         e.setCancelled(true);
                         for (String message : messages.getStringList("Ban.Chat.Screen")) {
                             p.sendMessage(message
                                     .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("%reason%", banManager.getReason(p.getUniqueId(), Type.CHAT))
+                                    .replaceAll("%reason%", banManager.getReason(uuid, Type.CHAT))
                                     .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                            .getFormattedRemainingTime(banManager.getRemainingTime(p.getUniqueId(), Type.CHAT))
-                                            .replaceAll("&", "§")));
+                                            .getFormattedRemainingTime(banManager.getRemainingTime(uuid, Type.CHAT)))
+                                    .replaceAll("&", "§"));
                         }
                     } else {
                         if (config.getBoolean("needReason.Unmute")) {
-                            banManager.unMute(p.getUniqueId(), ProxyServer.getInstance().getConsole().getName(), "Strafe abgelaufen");
+                            banManager.unMute(uuid, ProxyServer.getInstance().getConsole().getName(), "Strafe abgelaufen");
                         } else {
-                            banManager.unMute(p.getUniqueId(), ProxyServer.getInstance().getConsole().getName());
+                            banManager.unMute(uuid, ProxyServer.getInstance().getConsole().getName());
                         }
 
-                        banManager.log("Unmuted Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "Autounmute");
+                        banManager.log("Unmuted Player", ProxyServer.getInstance().getConsole().getName(), uuid.toString(), "Autounmute");
 
                         ProxyServer.getInstance().getConsole().sendMessage(messages.getString("Ban.Chat.autounmute")
                                 .replaceAll("%P%", messages.getString("%prefix%"))
@@ -96,7 +102,7 @@ public class ChatListener implements Listener {
                 throwables.printStackTrace();
             }
         }
-        if(!p.hasPermission("bansys.bypasschatfilter") && !banManager.isBanned(p.getUniqueId(), Type.CHAT)) {
+        if(!p.hasPermission("bansys.bypasschatfilter") && !e.isCancelled()) {
             if (config.getBoolean("blacklist.words.enable")) {
                 if (hasBlockedWordsContains(msg)) {
 
@@ -105,8 +111,8 @@ public class ChatListener implements Listener {
                         String id = String.valueOf(config.getInt("blacklist.words.autoban.id"));
                         String reason = config.getString("IDs." + id + ".reason");
                         int lvl;
-                        if (!isMaxBanLvl(id, banManager.getLevel(p.getUniqueId(), reason)))
-                            lvl = banManager.getLevel(p.getUniqueId(), reason) + 1;
+                        if (!isMaxBanLvl(id, banManager.getLevel(uuid, reason)))
+                            lvl = banManager.getLevel(uuid, reason) + 1;
                         else
                             lvl = getMaxLvl(id);
                         Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
@@ -114,9 +120,9 @@ public class ChatListener implements Listener {
                         Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
                         String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
 
-                        banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(), type, reason);
+                        banManager.ban(uuid, duration, BanSystem.getInstance().getConsole().getName(), type, reason);
 
-                        banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "Autoban, Type: " + type + ", Chatmessage: " + messages);
+                        banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), uuid.toString(), "Autoban, Type: " + type + ", Chatmessage: " + messages);
 
                         if (type.equals(Type.NETWORK)) {
                             String banscreen = BanSystem.getInstance().getBanScreen();
@@ -177,8 +183,8 @@ public class ChatListener implements Listener {
                         String id = String.valueOf(config.getInt("blacklist.ads.autoban.id"));
                         String reason = config.getString("IDs." + id + ".reason");
                         int lvl;
-                        if (!isMaxBanLvl(id, banManager.getLevel(p.getUniqueId(), reason)))
-                            lvl = banManager.getLevel(p.getUniqueId(), reason) + 1;
+                        if (!isMaxBanLvl(id, banManager.getLevel(uuid, reason)))
+                            lvl = banManager.getLevel(uuid, reason) + 1;
                         else
                             lvl = getMaxLvl(id);
                         Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
@@ -186,9 +192,9 @@ public class ChatListener implements Listener {
                         Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
                         String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
 
-                        banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(), type, reason);
+                        banManager.ban(uuid, duration, BanSystem.getInstance().getConsole().getName(), type, reason);
 
-                        banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), p.getUniqueId().toString(), "Autoban, Type: " + type + ", Chatmessage: " + messages);
+                        banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), uuid.toString(), "Autoban, Type: " + type + ", Chatmessage: " + messages);
 
                         if (type.equals(Type.NETWORK)) {
                             String banscreen = BanSystem.getInstance().getBanScreen();
@@ -242,6 +248,30 @@ public class ChatListener implements Listener {
                         }
                     }
                 }
+            }
+        }
+        if(!e.isCancelled() && config.getBoolean("chatdelay.enable")
+                && !p.hasPermission("bansys.bypasschatdelay")
+                && !msg.startsWith("/")) {
+            if(cooldownTask.containsKey(uuid)) {
+                long tmpReamingTime = reamingTime.get(uuid);
+                tmpReamingTime = tmpReamingTime - System.currentTimeMillis();
+                if(tmpReamingTime < 0) {
+                    tmpReamingTime = 0;
+                }
+                String humanReadableReamingTime = new TimeFormatUtil().getFormattedRemainingTime(tmpReamingTime);
+
+                e.setCancelled(true);
+                p.sendMessage(messages.getString("chatdelay")
+                        .replaceAll("%reamingtime%", humanReadableReamingTime)
+                        .replaceAll("%P%", messages.getString("prefix"))
+                        .replaceAll("&", "§"));
+            } else {
+                reamingTime.put(uuid, System.currentTimeMillis() + config.getInt("chatdelay.delay") * 1000);
+                cooldownTask.put(uuid, ProxyServer.getInstance().getScheduler().schedule(BanSystemBungee.getInstance(), () -> {
+                    cooldownTask.remove(uuid);
+                    reamingTime.remove(uuid);
+                }, config.getInt("chatdelay.delay"), TimeUnit.SECONDS));
             }
         }
     }

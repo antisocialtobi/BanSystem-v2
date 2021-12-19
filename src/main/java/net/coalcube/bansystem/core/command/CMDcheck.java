@@ -15,6 +15,9 @@ public class CMDcheck implements Command {
     private final Database sql;
     private final Config messages;
 
+    private UUID uuid;
+    private String name;
+
     public CMDcheck(BanManager banmanager, Database sql, Config messages) {
         this.bm = banmanager;
         this.sql = sql;
@@ -25,20 +28,40 @@ public class CMDcheck implements Command {
     public void execute(User user, String[] args) {
         if (user.hasPermission("bansys.check")) {
             if (sql.isConnected()) {
-                if (args.length == 1) {
-                    UUID uuid;
-                    String name = null;
+                if (args.length == 1) {;
+
+                    // Set name and uuid
                     if(BanSystem.getInstance().getUser(args[0]).getUniqueId() != null) {
                         uuid = BanSystem.getInstance().getUser(args[0]).getUniqueId();
                         name = BanSystem.getInstance().getUser(args[0]).getName();
                     } else {
-                        try{
+                        try {
                             uuid = UUID.fromString(args[0]);
                             if(UUIDFetcher.getName(uuid) == null) {
-                                uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                                if(bm.isSavedBedrockPlayer(uuid)) {
+                                    name = bm.getSavedBedrockUsername(uuid);
+                                    uuid = bm.getSavedBedrockUUID(name);
+                                }
+                            } else {
+                                name = UUIDFetcher.getName(uuid);
                             }
-                        } catch (IllegalArgumentException exception){
-                            uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                        } catch (IllegalArgumentException exception) {
+                            if(UUIDFetcher.getUUID(args[0].replaceAll("&", "§")) == null) {
+                                try {
+                                    if(bm.isSavedBedrockPlayer(args[0].replaceAll("&", "§"))) {
+                                        uuid = bm.getSavedBedrockUUID(args[0].replaceAll("&", "§"));
+                                        name = bm.getSavedBedrockUsername(uuid);
+                                    } else
+                                        uuid = null;
+                                } catch (SQLException | ExecutionException | InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                                name = UUIDFetcher.getName(uuid);
+                            }
+                        } catch (SQLException | ExecutionException | InterruptedException throwables) {
+                            throwables.printStackTrace();
                         }
                     }
 
@@ -64,12 +87,20 @@ public class CMDcheck implements Command {
                             String lvlnetwork = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.NETWORK)));
 
                             try {
-                                bannerchat = UUIDFetcher.getName(UUID.fromString(bannerchat));
+                                if(UUIDFetcher.getName(UUID.fromString(bannerchat)) != null) {
+                                    bannerchat = UUIDFetcher.getName(UUID.fromString(bannerchat));
+                                } else if(bm.isSavedBedrockPlayer(UUID.fromString(bannerchat))) {
+                                    bannerchat = bm.getSavedBedrockUsername(UUID.fromString(bannerchat));
+                                }
                             } catch (IllegalArgumentException ignored) {
                             }
 
                             try {
-                                bannernetwork = UUIDFetcher.getName(UUID.fromString(bannernetwork));
+                                if(UUIDFetcher.getName(UUID.fromString(bannernetwork)) != null) {
+                                    bannernetwork = UUIDFetcher.getName(UUID.fromString(bannernetwork));
+                                } else if(bm.isSavedBedrockPlayer(UUID.fromString(bannernetwork))) {
+                                    bannernetwork = bm.getSavedBedrockUsername(UUID.fromString(bannernetwork));
+                                }
                             } catch (IllegalArgumentException ignored) {
                             }
 
@@ -100,7 +131,11 @@ public class CMDcheck implements Command {
                             String lvl = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.CHAT)));
 
                             try {
-                                banner = UUIDFetcher.getName(UUID.fromString(banner));
+                                if(UUIDFetcher.getName(UUID.fromString(banner)) != null) {
+                                    banner = UUIDFetcher.getName(UUID.fromString(banner));
+                                } else if(bm.isSavedBedrockPlayer(UUID.fromString(banner))) {
+                                    banner = bm.getSavedBedrockUsername(UUID.fromString(banner));
+                                }
                             } catch (IllegalArgumentException ignored) {
                             }
 

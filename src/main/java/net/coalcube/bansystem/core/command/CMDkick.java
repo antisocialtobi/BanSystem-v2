@@ -12,6 +12,10 @@ public class CMDkick implements Command {
     private final Database sql;
     private final BanManager banManager;
 
+    private UUID uuid;
+    private String name;
+    private User target;
+
     public CMDkick(Config messages, Database sql, BanManager banManager) {
         this.messages = messages;
         this.sql = sql;
@@ -82,50 +86,47 @@ public class CMDkick implements Command {
         if (p.hasPermission("bansys.kick")) {
             if (args.length >= 1) {
                 if(BanSystem.getInstance().getUser(args[0].replaceAll("&", "§")).getUniqueId() != null) {
-                    UUID uuid;
-                    try{
-                        uuid = UUID.fromString(args[0]);
-                        if(UUIDFetcher.getName(uuid) == null) {
-                            uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
-                        }
-                    } catch (IllegalArgumentException exception){
-                        uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
-                    }
-                    User target = BanSystem.getInstance().getUser(UUIDFetcher.getName(uuid));
-                    if (!target.getUniqueId().equals(p.getUniqueId())) {
-                        if ((target.hasPermission("bansys.kick") && !p.hasPermission("bansys.kick.admin"))
-                                || (target.hasPermission("bansys.kick.admin") && p.hasPermission("bansys.kick.admin"))) {
-                            p.sendMessage(messages.getString("Kick.cannotkick.teammembers")
-                                    .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("&", "§"));
-                            return;
-                        }
-                        if (target.hasPermission("bansys.kick.bypass") && !p.hasPermission("bansys.kick.admin")) {
-                            p.sendMessage(messages.getString("Kick.cannotkick.bypass")
-                                    .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("&", "§"));
-                            return;
-                        }
-                        if (args.length == 1) {
-                            try {
-                                noReasonKick(p, target);
-                            } catch (SQLException throwables) {
-                                throwables.printStackTrace();
-                            }
-                        } else {
-                            try {
-                                reasonKick(p, target, args);
-                            } catch (SQLException throwables) {
-                                throwables.printStackTrace();
-                            }
-                        }
-                    } else {
-                        p.sendMessage(messages.getString("Kick.cannotkickyouselfe")
-                                .replaceAll("%P%", messages.getString("prefix"))
-                                .replaceAll("&", "§"));
-                    }
+                    target = BanSystem.getInstance().getUser(args[0].replaceAll("&", "§"));
+                } else if(BanSystem.getInstance().getUser(UUID.fromString(args[0])) != null) {
+                    target = BanSystem.getInstance().getUser(UUID.fromString(args[0]));
                 } else {
                     p.sendMessage(messages.getString("PlayerNotFound")
+                            .replaceAll("%P%", messages.getString("prefix"))
+                            .replaceAll("&", "§"));
+                    return;
+                }
+
+                uuid = target.getUniqueId();
+                name = target.getDisplayName();
+                if (!target.getUniqueId().equals(p.getUniqueId())) {
+                    if ((target.hasPermission("bansys.kick") && !p.hasPermission("bansys.kick.admin"))
+                            || (target.hasPermission("bansys.kick.admin") && p.hasPermission("bansys.kick.admin"))) {
+                        p.sendMessage(messages.getString("Kick.cannotkick.teammembers")
+                                .replaceAll("%P%", messages.getString("prefix"))
+                                .replaceAll("&", "§"));
+                        return;
+                    }
+                    if (target.hasPermission("bansys.kick.bypass") && !p.hasPermission("bansys.kick.admin")) {
+                        p.sendMessage(messages.getString("Kick.cannotkick.bypass")
+                                .replaceAll("%P%", messages.getString("prefix"))
+                                .replaceAll("&", "§"));
+                        return;
+                    }
+                    if (args.length == 1) {
+                        try {
+                            noReasonKick(p, target);
+                        } catch (SQLException throwables) {
+                            throwables.printStackTrace();
+                        }
+                    } else {
+                        try {
+                            reasonKick(p, target, args);
+                        } catch (SQLException throwables) {
+                            throwables.printStackTrace();
+                        }
+                    }
+                } else {
+                    p.sendMessage(messages.getString("Kick.cannotkickyouselfe")
                             .replaceAll("%P%", messages.getString("prefix"))
                             .replaceAll("&", "§"));
                 }

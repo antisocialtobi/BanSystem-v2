@@ -1,6 +1,7 @@
 package net.coalcube.bansystem.core;
 
 import java.util.List;
+import java.util.UUID;
 
 import net.coalcube.bansystem.core.util.*;
 
@@ -27,6 +28,8 @@ public interface BanSystem {
     void onDisable();
 
     User getUser(String name);
+
+    User getUser(UUID uniqueId);
 
     void disconnect(User u, String msg);
 

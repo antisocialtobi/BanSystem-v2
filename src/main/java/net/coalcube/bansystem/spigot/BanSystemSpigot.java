@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class BanSystemSpigot extends JavaPlugin implements BanSystem {
@@ -290,6 +291,11 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     @Override
     public User getUser(String name) {
         return new SpigotUser(Bukkit.getPlayer(name));
+    }
+
+    @Override
+    public User getUser(UUID uniqueId) {
+        return new SpigotUser(Bukkit.getPlayer(uniqueId));
     }
 
     @Override

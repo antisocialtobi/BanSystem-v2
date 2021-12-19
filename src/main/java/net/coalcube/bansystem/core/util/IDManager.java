@@ -1,8 +1,5 @@
 package net.coalcube.bansystem.core.util;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import org.checkerframework.checker.units.qual.A;
-
 import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;

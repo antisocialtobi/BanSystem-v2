@@ -93,22 +93,41 @@ public class CMDban implements Command {
 
         if (args.length == 2) {
 
+
+            // Set name and uuid
             if(BanSystem.getInstance().getUser(args[0]).getUniqueId() != null) {
                 uuid = BanSystem.getInstance().getUser(args[0]).getUniqueId();
                 name = BanSystem.getInstance().getUser(args[0]).getName();
             } else {
-                try{
+                try {
                     uuid = UUID.fromString(args[0]);
                     if(UUIDFetcher.getName(uuid) == null) {
-                        uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                        if(banmanager.isSavedBedrockPlayer(uuid)) {
+                            name = banmanager.getSavedBedrockUsername(uuid);
+                            uuid = banmanager.getSavedBedrockUUID(name);
+                        }
+                    } else {
+                        name = UUIDFetcher.getName(uuid);
                     }
-                } catch (IllegalArgumentException exception){
-                    uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                } catch (IllegalArgumentException exception) {
+                    if(UUIDFetcher.getUUID(args[0].replaceAll("&", "§")) == null) {
+                        try {
+                            if(banmanager.isSavedBedrockPlayer(args[0].replaceAll("&", "§"))) {
+                                uuid = banmanager.getSavedBedrockUUID(args[0].replaceAll("&", "§"));
+                                name = banmanager.getSavedBedrockUsername(uuid);
+                            } else
+                                uuid = null;
+                        } catch (SQLException | ExecutionException | InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                        name = UUIDFetcher.getName(uuid);
+                    }
+                } catch (SQLException | ExecutionException | InterruptedException throwables) {
+                    throwables.printStackTrace();
                 }
-
-                name = UUIDFetcher.getName(uuid);
             }
-
 
             if (uuid == null) {
                 user.sendMessage(messages.getString("Playerdoesnotexist")

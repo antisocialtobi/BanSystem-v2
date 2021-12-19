@@ -92,6 +92,10 @@ public class SQLite implements Database {
                 " `note` VARCHAR(500) NOT NULL ," +
                 " `creationdate` DATETIME NOT NULL);");
 
+        update("CREATE TABLE IF NOT EXISTS `bedrockplayer` " +
+                "( `username` VARCHAR(64) NOT NULL ," +
+                " `uuid` VARCHAR(64) NOT NULL );");
+
         if(!config.getBoolean("needReason.Unban") && !config.getBoolean("needReason.Unmute")) {
             update("CREATE TABLE IF NOT EXISTS `unbans` " +
                     "( `player` VARCHAR(36) NOT NULL ," +

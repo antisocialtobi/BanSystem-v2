@@ -1,5 +1,6 @@
 package net.coalcube.bansystem.core.command;
 
+import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.util.*;
 
 import java.net.UnknownHostException;
@@ -12,13 +13,16 @@ import java.util.concurrent.ExecutionException;
 
 public class CMDhistory implements Command {
 
-    private final BanManager banManager;
+    private final BanManager banmanager;
     private final Config messages;
     private final Config config;
     private final Database sql;
 
+    private UUID uuid;
+    private String name;
+
     public CMDhistory(BanManager banmanager, Config messages, Config config, Database sql) {
-        this.banManager = banmanager;
+        this.banmanager = banmanager;
         this.messages = messages;
         this.config = config;
         this.sql = sql;
@@ -30,32 +34,58 @@ public class CMDhistory implements Command {
         if (user.hasPermission("bansys.history.show")) {
             if (sql.isConnected()) {
                 if (args.length == 1) {
-                    UUID uuid;
-                    try{
-                        uuid = UUID.fromString(args[0]);
-                        if(UUIDFetcher.getName(uuid) == null) {
-                            uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+
+                    if(BanSystem.getInstance().getUser(args[0]).getUniqueId() != null) {
+                        uuid = BanSystem.getInstance().getUser(args[0]).getUniqueId();
+                        name = BanSystem.getInstance().getUser(args[0]).getName();
+                    } else {
+                        try {
+                            uuid = UUID.fromString(args[0]);
+                            if(UUIDFetcher.getName(uuid) == null) {
+                                if(banmanager.isSavedBedrockPlayer(uuid)) {
+                                    name = banmanager.getSavedBedrockUsername(uuid);
+                                    uuid = banmanager.getSavedBedrockUUID(name);
+                                }
+                            } else {
+                                name = UUIDFetcher.getName(uuid);
+                            }
+                        } catch (IllegalArgumentException exception) {
+                            if(UUIDFetcher.getUUID(args[0].replaceAll("&", "§")) == null) {
+                                try {
+                                    if(banmanager.isSavedBedrockPlayer(args[0].replaceAll("&", "§"))) {
+                                        uuid = banmanager.getSavedBedrockUUID(args[0].replaceAll("&", "§"));
+                                        name = banmanager.getSavedBedrockUsername(uuid);
+                                    } else
+                                        uuid = null;
+                                } catch (SQLException | ExecutionException | InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                                name = UUIDFetcher.getName(uuid);
+                            }
+                        } catch (SQLException | ExecutionException | InterruptedException throwables) {
+                            throwables.printStackTrace();
                         }
-                    } catch (IllegalArgumentException exception){
-                        uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
                     }
+
                     if (uuid == null) {
                         user.sendMessage(messages.getString("Playerdoesnotexist")
                                 .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
                         return;
                     }
                     try {
-                        if (banManager.hasHistory(uuid)) {
+                        if (banmanager.hasHistory(uuid)) {
 
                             user.sendMessage(messages.getString("History.header")
                                     .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
+                                    .replaceAll("%player%", Objects.requireNonNull(name))
                                     .replaceAll("&", "§"));
 
                             user.sendMessage(messages.getString("prefix"));
 
                             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
-                            for(History history : banManager.getHistory(uuid)) {
+                            for(History history : banmanager.getHistory(uuid)) {
                                 String id = "Not Found";
                                 for(String ids : config.getSection("IDs").getKeys()) {
                                     if(config.getString("IDs." + ids + ".reason").equals(history.getReason()))

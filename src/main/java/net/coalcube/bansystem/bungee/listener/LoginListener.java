@@ -50,6 +50,15 @@ public class LoginListener implements Listener {
             e.registerIntent(BanSystemBungee.getInstance());
             new Thread(() -> {
                 try {
+                    if(UUIDFetcher.getName(uuid) == null && !banManager.isSavedBedrockPlayer(uuid)) {
+                        if(org.geysermc.floodgate.api.FloodgateApi.getInstance().getPlayer(uuid) != null) {
+                            banManager.saveBedrockUser(uuid, con.getName());
+                        }
+                    }
+                } catch (SQLException | ExecutionException | InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+                try {
                     if (banManager.isBanned(uuid, Type.NETWORK)) {
                         try {
                             if (banManager.getEnd(uuid, Type.NETWORK) > System.currentTimeMillis()
@@ -266,7 +275,7 @@ public class LoginListener implements Listener {
                                         String msg = "";
                                         for(String line : messages.getStringList("ip.warning")) {
                                             line = line.replaceAll("%P%", messages.getString("prefix"));
-                                            line = line.replaceAll("%player", p.getDisplayName());
+                                            line = line.replaceAll("%player%", p.getDisplayName());
                                             line = line.replaceAll("%bannedaccount%", bannedPlayerName.toString());
                                             line = line.replaceAll("&", "§");
                                             msg = msg + line + "\n";

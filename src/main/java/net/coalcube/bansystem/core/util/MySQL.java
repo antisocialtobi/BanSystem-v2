@@ -188,6 +188,10 @@ public class MySQL implements Database {
                 " `creationdate` DATETIME NOT NULL ," +
                 " PRIMARY KEY (`ID`)) ENGINE = InnoDB;");
 
+        update("CREATE TABLE IF NOT EXISTS `bedrockplayer` " +
+                "( `username` VARCHAR(64) NOT NULL ," +
+                " `uuid` VARCHAR(64) NOT NULL ) ENGINE = InnoDB;");
+
         if(!config.getBoolean("needReason.Unban") && !config.getBoolean("needReason.Unmute")) {
             update("CREATE TABLE IF NOT EXISTS `unbans` " +
                     "( `player` VARCHAR(36) NOT NULL ," +

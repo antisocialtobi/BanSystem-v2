@@ -29,6 +29,7 @@ public interface BanManager {
     void unMute(UUID player, String unBanner) throws IOException, SQLException;
     void deleteHistory(UUID player) throws SQLException;
     void setIP(UUID player, InetAddress address) throws SQLException;
+    void saveBedrockUser(UUID uuid, String username) throws SQLException;
     String getBanReason(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException;
     Long getEnd(UUID player, Type type) throws SQLException, ParseException, ExecutionException, InterruptedException;
     String getBanner(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException;
@@ -38,8 +39,12 @@ public interface BanManager {
     Long getCreationDate(UUID player, Type type) throws SQLException, ParseException, ExecutionException, InterruptedException;
     List<History> getHistory(UUID player) throws UnknownHostException, SQLException, ParseException, ExecutionException, InterruptedException;
     List<UUID> getBannedPlayersWithSameIP(InetAddress address) throws SQLException, ExecutionException, InterruptedException;
+    String getSavedBedrockUsername(UUID player) throws SQLException, ExecutionException, InterruptedException;
+    UUID getSavedBedrockUUID(String username) throws SQLException, ExecutionException, InterruptedException;
     boolean hasHistory(UUID player) throws UnknownHostException, SQLException, ExecutionException, InterruptedException;
     boolean hasHistory(UUID player, String reason) throws UnknownHostException, SQLException, ExecutionException, InterruptedException;
+    boolean isSavedBedrockPlayer(UUID player) throws SQLException, ExecutionException, InterruptedException;
+    boolean isSavedBedrockPlayer(String username) throws SQLException, ExecutionException, InterruptedException;
     boolean isBanned(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException;
     boolean isSetIP(UUID player) throws SQLException, ExecutionException, InterruptedException;
 }

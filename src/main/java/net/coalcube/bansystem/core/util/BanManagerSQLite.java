@@ -122,6 +122,11 @@ public class BanManagerSQLite implements BanManager {
         sqlite.update("UPDATE `bans` SET ip='" + address.getHostName() + "' WHERE (ip IS NULL or ip = '') AND player = '" + player + "';");
     }
 
+    @Override
+    public void saveBedrockUser(UUID uuid, String username) throws SQLException {
+        sqlite.update("INSERT INTO `bedrockplayer` (`username`, `uuid`) VALUES ('" + username + "', '" + uuid + "')");
+    }
+
     public String getBanReason(UUID player, Type type) throws SQLException {
         ResultSet resultSet = sqlite.getResult("SELECT reason FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
         while (resultSet.next()) {
@@ -206,6 +211,24 @@ public class BanManagerSQLite implements BanManager {
         return list;
     }
 
+    @Override
+    public String getSavedBedrockUsername(UUID player) throws SQLException {
+        ResultSet resultSet = sqlite.getResult("SELECT * FROM `bedrockplayer` WHERE uuid = '" + player + "';");
+        while (resultSet.next()) {
+            return resultSet.getString("username");
+        }
+        return null;
+    }
+
+    @Override
+    public UUID getSavedBedrockUUID(String username) throws SQLException, ExecutionException, InterruptedException {
+        ResultSet resultSet = sqlite.getResult("SELECT * FROM `bedrockplayer` WHERE username = '" + username + "';");
+        while (resultSet.next()) {
+            return UUID.fromString(resultSet.getString("uuid"));
+        }
+        return null;
+    }
+
     public boolean hasHistory(UUID player) throws UnknownHostException, SQLException {
         ResultSet resultSet = sqlite.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "';");
         while (resultSet.next()) {
@@ -216,6 +239,24 @@ public class BanManagerSQLite implements BanManager {
 
     public boolean hasHistory(UUID player, String reason) throws UnknownHostException, SQLException {
         ResultSet resultSet = sqlite.getResult("SELECT * FROM `banhistories` WHERE player='" + player + "' AND reason='" + reason + "';");
+        while (resultSet.next()) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isSavedBedrockPlayer(UUID player) throws SQLException {
+        ResultSet resultSet = sqlite.getResult("SELECT * FROM `bedrockplayer` WHERE uuid = '" + player + "';");
+        while (resultSet.next()) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isSavedBedrockPlayer(String username) throws SQLException {
+        ResultSet resultSet = sqlite.getResult("SELECT * FROM `bedrockplayer` WHERE username = '" + username + "';");
         while (resultSet.next()) {
             return true;
         }

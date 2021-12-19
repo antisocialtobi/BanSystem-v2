@@ -15,6 +15,9 @@ public class CMDdeletehistory implements Command {
     private final Config messages;
     private final Database sql;
 
+    private UUID uuid;
+    private String name;
+
     public CMDdeletehistory(BanManager banmanager, Config messages, Database sql) {
         this.banmanager = banmanager;
         this.messages = messages;
@@ -27,15 +30,41 @@ public class CMDdeletehistory implements Command {
         if (user.hasPermission("bansys.history.delete")) {
             if (sql.isConnected()) {
                 if (args.length == 1) {
-                    UUID uuid;
-                    try{
-                        uuid = UUID.fromString(args[0]);
-                        if(UUIDFetcher.getName(uuid) == null) {
-                            uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+
+                    if(BanSystem.getInstance().getUser(args[0]).getUniqueId() != null) {
+                        uuid = BanSystem.getInstance().getUser(args[0]).getUniqueId();
+                        name = BanSystem.getInstance().getUser(args[0]).getName();
+                    } else {
+                        try {
+                            uuid = UUID.fromString(args[0]);
+                            if(UUIDFetcher.getName(uuid) == null) {
+                                if(banmanager.isSavedBedrockPlayer(uuid)) {
+                                    name = banmanager.getSavedBedrockUsername(uuid);
+                                    uuid = banmanager.getSavedBedrockUUID(name);
+                                }
+                            } else {
+                                name = UUIDFetcher.getName(uuid);
+                            }
+                        } catch (IllegalArgumentException exception) {
+                            if(UUIDFetcher.getUUID(args[0].replaceAll("&", "§")) == null) {
+                                try {
+                                    if(banmanager.isSavedBedrockPlayer(args[0].replaceAll("&", "§"))) {
+                                        uuid = banmanager.getSavedBedrockUUID(args[0].replaceAll("&", "§"));
+                                        name = banmanager.getSavedBedrockUsername(uuid);
+                                    } else
+                                        uuid = null;
+                                } catch (SQLException | ExecutionException | InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
+                                name = UUIDFetcher.getName(uuid);
+                            }
+                        } catch (SQLException | ExecutionException | InterruptedException throwables) {
+                            throwables.printStackTrace();
                         }
-                    } catch (IllegalArgumentException exception){
-                        uuid = UUIDFetcher.getUUID(args[0].replaceAll("&", "§"));
                     }
+
                     if (uuid == null) {
                         user.sendMessage(messages.getString("Playerdoesnotexist")
                                 .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
@@ -52,12 +81,12 @@ public class CMDdeletehistory implements Command {
                             }
                             user.sendMessage(messages.getString("Deletehistory.success")
                                     .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid))).replaceAll("&", "§"));
+                                    .replaceAll("%player%", Objects.requireNonNull(name)).replaceAll("&", "§"));
                             for (User all : BanSystem.getInstance().getAllPlayers()) {
                                 if (all.hasPermission("bansys.notify") && all.getRawUser() != user.getRawUser()) {
                                     all.sendMessage(messages.getString("Deletehistory.notify")
                                             .replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
+                                            .replaceAll("%player%", Objects.requireNonNull(name))
                                             .replaceAll("%sender%",
                                                     (user.getUniqueId() != null ? user.getDisplayName() : user.getName()))
                                             .replaceAll("&", "§"));
@@ -68,7 +97,7 @@ public class CMDdeletehistory implements Command {
                                 BanSystem.getInstance().getConsole()
                                         .sendMessage(messages.getString("Deletehistory.notify")
                                                 .replaceAll("%P%", messages.getString("prefix"))
-                                                .replaceAll("%player%", Objects.requireNonNull(UUIDFetcher.getName(uuid)))
+                                                .replaceAll("%player%", Objects.requireNonNull(name))
                                                 .replaceAll("%sender%",
                                                         (user.getUniqueId() != null ? user.getDisplayName() : user.getName()))
                                                 .replaceAll("&", "§"));

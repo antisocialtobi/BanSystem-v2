@@ -420,7 +420,7 @@ public class ConfigurationUtil {
         messages.set("ip.warning",
                 Arrays.asList("%P%§8§m------------------------------",
                         "%P%§e§l§nWARNUNG",
-                        "%P%§e%player% §7ist womöglich ein 2. Account von §e%bannedaccount%.",
+                        "%P%§e%player% §7ist womöglich ein 2. Account von §e%bannedaccount%§7.",
                         "%P%§8§m------------------------------"));
 
     }

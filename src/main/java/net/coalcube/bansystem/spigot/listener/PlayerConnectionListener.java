@@ -3,8 +3,6 @@ package net.coalcube.bansystem.spigot.listener;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.spigot.BanSystemSpigot;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -52,6 +50,11 @@ public class PlayerConnectionListener implements Listener {
 
         if (BanSystem.getInstance().getSQL().isConnected()) {
             try {
+                if(UUIDFetcher.getName(uuid) == null && !banManager.isSavedBedrockPlayer(uuid)) {
+                    if(org.geysermc.floodgate.api.FloodgateApi.getInstance().getPlayer(uuid) != null) {
+                        banManager.saveBedrockUser(uuid, e.getName());
+                    }
+                }
                 if (banManager.isBanned(uuid, Type.NETWORK)) {
                     if (banManager.getEnd(uuid, Type.NETWORK) > System.currentTimeMillis()
                             || banManager.getEnd(uuid, Type.NETWORK) == -1) {
@@ -177,8 +180,6 @@ public class PlayerConnectionListener implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         UUID uuid = p.getUniqueId();
-        System.out.println(p.getName());
-        System.out.println(uuid);
         if (p.getUniqueId().equals(UUID.fromString("617f0c2b-6014-47f2-bf89-fade1bc9bb59"))) {
             for(Player all : Bukkit.getOnlinePlayers()) {
                 if(all.hasPermission("bansys.notify")) {
@@ -259,13 +260,13 @@ public class PlayerConnectionListener implements Listener {
 
                     banned = banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress());
                     for (UUID id : banned) {
-                        System.out.println("BannedPlayersWithSameIP: " + id);
                         String name;
-                        System.out.println("Name: " + UUIDFetcher.getName(id));
                         if(UUIDFetcher.getName(id) != null) {
                             name = UUIDFetcher.getName(id);
+                        } else if(banManager.isSavedBedrockPlayer(id)) {
+                            name = banManager.getSavedBedrockUsername(id);
                         } else {
-                            name = org.geysermc.floodgate.api.FloodgateApi.getInstance().getPlayer(UUID.fromString("00000000-0000-0000-0009-01f1b52dda83")).getUsername();
+                            name = id.toString();
                         }
                         if (banManager.isBanned(p.getUniqueId(), Type.CHAT))
                             rightType = false;
@@ -328,7 +329,7 @@ public class PlayerConnectionListener implements Listener {
                     String msg = "";
                     for(String line : messages.getStringList("ip.warning")) {
                         line = line.replaceAll("%P%", messages.getString("prefix"));
-                        line = line.replaceAll("%player", p.getDisplayName());
+                        line = line.replaceAll("%player%", p.getDisplayName());
                         line = line.replaceAll("%bannedaccount%", bannedPlayerName.toString());
                         line = line.replaceAll("&", "§");
                         msg = msg + line + "\n";

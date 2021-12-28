@@ -70,14 +70,15 @@ public class AsyncPlayerChatListener implements Listener {
                             ioException.printStackTrace();
                         }
 
-                        Bukkit.getConsoleSender().sendMessage(messages.getString("Ban.Chat.autounmute")
+                        Bukkit.getConsoleSender().sendMessage(messages.getString("Ban.Chat.autounmute.success")
                                 .replaceAll("%P%", BanSystemSpigot.prefix)
                                 .replaceAll("%player%", p.getDisplayName())
                                 .replaceAll("&", "§"));
                         for (Player all : Bukkit.getOnlinePlayers()) {
                             if (all.hasPermission("system.ban")) {
-                                all.sendMessage(messages.getString("Ban.Chat.autounmute")
-                                        .replaceAll("%P%", BanSystemSpigot.prefix).replaceAll("%player%", p.getDisplayName())
+                                all.sendMessage(messages.getString("Ban.Chat.autounmute.success")
+                                        .replaceAll("%P%", BanSystemSpigot.prefix)
+                                        .replaceAll("%player%", p.getDisplayName())
                                         .replaceAll("&", "§"));
                             }
                         }

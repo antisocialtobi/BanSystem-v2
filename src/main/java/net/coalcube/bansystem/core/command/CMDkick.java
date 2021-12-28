@@ -87,13 +87,22 @@ public class CMDkick implements Command {
             if (args.length >= 1) {
                 if(BanSystem.getInstance().getUser(args[0].replaceAll("&", "§")).getUniqueId() != null) {
                     target = BanSystem.getInstance().getUser(args[0].replaceAll("&", "§"));
-                } else if(BanSystem.getInstance().getUser(UUID.fromString(args[0])) != null) {
-                    target = BanSystem.getInstance().getUser(UUID.fromString(args[0]));
                 } else {
-                    p.sendMessage(messages.getString("PlayerNotFound")
-                            .replaceAll("%P%", messages.getString("prefix"))
-                            .replaceAll("&", "§"));
-                    return;
+                    try {
+                        if(BanSystem.getInstance().getUser(UUID.fromString(args[0])) != null) {
+                            target = BanSystem.getInstance().getUser(UUID.fromString(args[0]));
+                        } else {
+                            p.sendMessage(messages.getString("PlayerNotFound")
+                                    .replaceAll("%P%", messages.getString("prefix"))
+                                    .replaceAll("&", "§"));
+                            return;
+                        }
+                    } catch (IllegalArgumentException e) {
+                        p.sendMessage(messages.getString("PlayerNotFound")
+                                .replaceAll("%P%", messages.getString("prefix"))
+                                .replaceAll("&", "§"));
+                        return;
+                    }
                 }
 
                 uuid = target.getUniqueId();
@@ -126,7 +135,7 @@ public class CMDkick implements Command {
                         }
                     }
                 } else {
-                    p.sendMessage(messages.getString("Kick.cannotkickyouselfe")
+                    p.sendMessage(messages.getString("Kick.cannotkick.youselfe")
                             .replaceAll("%P%", messages.getString("prefix"))
                             .replaceAll("&", "§"));
                 }

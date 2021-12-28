@@ -171,8 +171,20 @@ public class CMDbansystem implements Command {
                                         + ", duration: " + duration
                                         + ", type: " + type
                                         + ", onlyAdmins: " + onlyAdmins);
+
+                                String formattedDuration;
+                                if(duration == -1)
+                                    formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration);
+                                else
+                                    formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration * 1000);
+
                                 user.sendMessage(messages.getString("bansystem.ids.create.success")
                                         .replaceAll("%ID%", id)
+                                        .replaceAll("%reason%", reason)
+                                        .replaceAll("%onlyadmins%", onlyAdmins ? messages.getString("true")
+                                                : messages.getString("false"))
+                                        .replaceAll("%duration%", formattedDuration)
+                                        .replaceAll("%type%", type.toString())
                                         .replaceAll("%P%", messages.getString("prefix"))
                                         .replaceAll("&", "§"));
                             } catch (SQLException | IOException e) {
@@ -189,7 +201,7 @@ public class CMDbansystem implements Command {
                                     .replaceAll("&", "§"));
                         }
                     } else {
-                        user.sendMessage(messages.getString("bansystem.usage.addid")
+                        user.sendMessage(messages.getString("bansystem.usage.createid")
                                 .replaceAll("%P%", messages.getString("prefix"))
                                 .replaceAll("&", "§"));
                     }
@@ -238,8 +250,8 @@ public class CMDbansystem implements Command {
                     }
                 } else if (args[1].equalsIgnoreCase("edit")) {
                     if (args.length >= 3) {
-                        if (args[3].equalsIgnoreCase("add")) {
-                            if (args[4].equalsIgnoreCase("lvl")) {
+                        if (args.length >= 4 && args[3].equalsIgnoreCase("add")) {
+                            if (args.length >= 5 && args[4].equalsIgnoreCase("lvl")) {
                                 if (!user.hasPermission("bansys.bansys.ids.addlvl")
                                         || !user.hasPermission("bansys.bansys.ids.*")
                                         || !user.hasPermission("bansys.bansys.*")) {
@@ -277,6 +289,12 @@ public class CMDbansystem implements Command {
 
                                     if (idManager.existsID(id)) {
                                         try {
+                                            String formattedDuration;
+                                            if(duration != -1)
+                                                formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration * 1000);
+                                            else
+                                                formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration);
+
                                             idManager.addLvl(id, duration, type, user.getUniqueId().toString());
                                             banManager.log("added BanID-Lvl", creator, "",
                                                     "id: "+ id
@@ -284,7 +302,7 @@ public class CMDbansystem implements Command {
                                                             + ", type: " + type);
                                             user.sendMessage(messages.getString("bansystem.ids.edit.addlvl.success")
                                                     .replaceAll("%lvl%", String.valueOf(idManager.getLastLvl(id)))
-                                                    .replaceAll("%duration%", timeFormatUtil.getFormattedRemainingTime(duration))
+                                                    .replaceAll("%duration%", formattedDuration)
                                                     .replaceAll("%type%", type.toString())
                                                     .replaceAll("%ID%", id)
                                                     .replaceAll("%P%", messages.getString("prefix"))
@@ -311,8 +329,8 @@ public class CMDbansystem implements Command {
                             } else {
                                 sendHelp(user);
                             }
-                        } else if (args[3].equalsIgnoreCase("remove")) {
-                            if (args[4].equalsIgnoreCase("lvl")) {
+                        } else if (args.length >= 4 && args[3].equalsIgnoreCase("remove")) {
+                            if (args.length >= 5 && args[4].equalsIgnoreCase("lvl")) {
                                 if (!user.hasPermission("bansys.bansys.ids.removelvl")
                                         || !user.hasPermission("bansys.bansys.ids.*")
                                         || !user.hasPermission("bansys.bansys.*")) {
@@ -377,7 +395,7 @@ public class CMDbansystem implements Command {
                             } else {
                                 sendHelp(user);
                             }
-                        } else if (args[3].equalsIgnoreCase("set")) {
+                        } else if (args.length >= 4 && args[3].equalsIgnoreCase("set")) {
                             if (args.length >= 5) {
                                 if (args[4].equalsIgnoreCase("lvlduration")) {
                                     if (!user.hasPermission("bansys.bansys.ids.setduration")
@@ -413,10 +431,16 @@ public class CMDbansystem implements Command {
                                                             "id: "+ id
                                                                     + ", duration: " + duration
                                                                     + ", lvl: " + lvl);
+
+                                                    if(duration != -1)
+                                                        duration = duration * 1000;
+
+                                                    String formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration);
+
                                                     user.sendMessage(messages.getString("bansystem.ids.edit.setlvlduration.success")
                                                             .replaceAll("%ID%", id)
                                                             .replaceAll("%P%", messages.getString("prefix"))
-                                                            .replaceAll("%duration%", timeFormatUtil.getFormattedRemainingTime(duration))
+                                                            .replaceAll("%duration%", formattedDuration)
                                                             .replaceAll("%lvl%", lvl)
                                                             .replaceAll("&", "§"));
                                                 } catch (SQLException | IOException e) {

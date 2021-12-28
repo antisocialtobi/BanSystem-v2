@@ -84,13 +84,13 @@ public class ChatListener implements Listener {
 
                         banManager.log("Unmuted Player", ProxyServer.getInstance().getConsole().getName(), uuid.toString(), "Autounmute");
 
-                        ProxyServer.getInstance().getConsole().sendMessage(messages.getString("Ban.Chat.autounmute")
-                                .replaceAll("%P%", messages.getString("%prefix%"))
+                        ProxyServer.getInstance().getConsole().sendMessage(messages.getString("Ban.Chat.autounmute.success")
+                                .replaceAll("%P%", messages.getString("prefix"))
                                 .replaceAll("%player%", p.getDisplayName())
                                 .replaceAll("&", "§"));
                         for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
                             if (all.hasPermission("system.ban")) {
-                                all.sendMessage(messages.getString("Ban.Chat.autounmute")
+                                all.sendMessage(messages.getString("Ban.Chat.autounmute.success")
                                         .replaceAll("%P%", messages.getString("prefix"))
                                         .replaceAll("%player%", p.getDisplayName())
                                         .replaceAll("&", "§"));

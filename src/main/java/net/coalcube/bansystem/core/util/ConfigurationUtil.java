@@ -279,7 +279,7 @@ public class ConfigurationUtil {
         messages.set("bansystem.usage.syncids", "%P%§7Benutze §e/bansystem syncids");
         messages.set("bansystem.usage.createid", "%P%§7Benutze §e/bansystem ids create §8<§7id§8> §8<§7Grund§8> §8<§7onlyadmins§8> §8<§7Dauer§8>  §8<§7Type§8>");
         messages.set("bansystem.usage.removeid", "%P%§7Benutze §e/bansystem ids delete §8<§7ID§8>");
-        messages.set("bansystem.usage.addlvl", "%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eset lvlduration §8<§7lvl§8> §8<§7duration§8>");
+        messages.set("bansystem.usage.addlvl", "%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eadd lvl §8<§7duration§8> §8<§7type§8>");
         messages.set("bansystem.usage.removelvl", "%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eremove lvl §8<§7lvl§8>");
         messages.set("bansystem.usage.setlvlduration", "%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eset lvlduration §8<§7lvl§8> §8<§7duration§8>");
         messages.set("bansystem.usage.setlvltype", "%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eset lvltype §8<§7lvl§8> §8<§7type§8>");
@@ -327,7 +327,8 @@ public class ConfigurationUtil {
                 "Siehe die Konsole ein um Mehr informationen zu erfahren.");
         messages.set("bansystem.ids.create.invalidDuration", "%P%§cDie BanID konnte nicht erstellt werden, " +
                 "da die §lBanndauer §cungültig ist.");
-        messages.set("bansystem.ids.create.invalidType", "%P%§cDie BanID konnte nicht erstellt werden, da der §lType §cungültig ist.");
+        messages.set("bansystem.ids.create.invalidType", "%P%§cDie BanID konnte nicht erstellt werden, da der §lType §cungültig ist. " +
+                "Gültig sind: §eNETWORK §cund §eCHAT§c.");
 
         messages.set("bansystem.ids.delete.failure", "%P%§cDie BanID konnte nicht gelöscht werden, da ein Fehler aufgetreten ist. " +
                 "Siehe die Konsole ein um Mehr informationen zu erfahren.");
@@ -337,7 +338,7 @@ public class ConfigurationUtil {
                 "%P% §7Banndauer §8» §e%duration% \n" +
                 "%P% §7Type §8» §c%type%");
         messages.set("bansystem.ids.edit.addlvl.invalidType", "%P%§cDie BanID konnte nicht bearbeitet werden, " +
-                "da der §lType §cungültig ist.");
+                "da der §lType §cungültig ist. Gültig sind: §eNETWORK §cund §eCHAT§c.");
         messages.set("bansystem.ids.edit.addlvl.invalidDuration", "%P%§cDie BanID konnte nicht bearbeitet werden, " +
                 "da die §lBanndauer §cungültig ist.");
         messages.set("bansystem.ids.edit.addlvl.failure", "%P%§cDas Banlvl konnte nicht hinzugefügt werden, " +
@@ -364,7 +365,7 @@ public class ConfigurationUtil {
                 "%P% §7BanLvl §8» §e%lvl% \n" +
                 "%P% §7Bantype §8» §e%type%");
         messages.set("bansystem.ids.edit.setlvltype.invalidType", "%P%§cDie BanID konnte nicht bearbeitet werden, " +
-                "da der §lType §cungültig ist.");
+                "da der §lType §cungültig ist. Gültig sind: §eNETWORK §cund §eCHAT§c.");
         messages.set("bansystem.ids.edit.setlvltype.failure", "%P%§cDas Banlvl konnte nicht bearbeitet werden, " +
                 "da ein Fehler aufgetreten ist. Siehe die Konsole ein um Mehr informationen zu erfahren.");
 

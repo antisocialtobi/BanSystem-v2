@@ -161,11 +161,19 @@ public class CMDban implements Command {
                         .replaceAll("%P%", messages.getString("prefix"))
                         .replaceAll("&", "§"));
                 e.printStackTrace();
+                return;
             }
 
             if (type != null) {
                 if (user.hasPermission("bansys.ban." + args[1]) || user.hasPermission("bansys.ban.all")
                         || user.hasPermission("bansys.ban.admin")) {
+                    String formattedEndDate;
+                    if(endDate  != null) {
+                        formattedEndDate = simpleDateFormat.format(endDate);
+                    } else
+                        formattedEndDate = "§4PERMANENT";
+
+
                     try {
                         if (!(type == Type.CHAT && !banmanager.isBanned(uuid, Type.CHAT)
                                 || (type == Type.NETWORK && !banmanager.isBanned(uuid, Type.NETWORK)))) {
@@ -206,7 +214,6 @@ public class CMDban implements Command {
                             return;
                         }
                         // Kick or send mute message
-                        String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
                         if (type == Type.NETWORK) {
                             String banScreen = BanSystem.getInstance().getBanScreen();
 
@@ -216,7 +223,7 @@ public class CMDban implements Command {
                                     .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                             .getFormattedRemainingTime(duration))
                                     .replaceAll("%creator%", creatorName)
-                                    .replaceAll("%enddate%", enddate)
+                                    .replaceAll("%enddate%", formattedEndDate)
                                     .replaceAll("%lvl%", String.valueOf(lvl))
                                     .replaceAll("&", "§"));
                         } else {
@@ -228,7 +235,7 @@ public class CMDban implements Command {
                                         .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                                 .getFormattedRemainingTime(duration))
                                         .replaceAll("%creator%", creatorName)
-                                        .replaceAll("%enddate%", enddate)
+                                        .replaceAll("%enddate%", formattedEndDate)
                                         .replaceAll("%lvl%", String.valueOf(lvl))
                                         .replaceAll("&", "§"));
                             }
@@ -257,7 +264,7 @@ public class CMDban implements Command {
                                     .getFormattedRemainingTime(duration))
                             .replaceAll("%banner%", creatorName)
                             .replaceAll("%type%", type.toString())
-                            .replaceAll("%enddate%", simpleDateFormat.format(endDate))
+                            .replaceAll("%enddate%", formattedEndDate)
                             .replaceAll("&", "§"));
                     if(user.getUniqueId() != null) {
                         for (String message : messages.getStringList("Ban.notify")) {

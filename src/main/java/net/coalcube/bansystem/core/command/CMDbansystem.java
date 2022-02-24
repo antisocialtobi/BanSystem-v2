@@ -50,7 +50,7 @@ public class CMDbansystem implements Command {
             } else if (args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("rl")) {
                 if (!user.hasPermission("bansys.bansys.reload")
                         || !user.hasPermission("bansys.bansys.*")) {
-                    user.sendMessage(messages.getString("NoPermission")
+                    user.sendMessage(messages.getString("NoPermissionMessage")
                             .replaceAll("%P%", messages.getString("prefix"))
                             .replaceAll("&", "§"));
                     return;
@@ -83,7 +83,7 @@ public class CMDbansystem implements Command {
             } else if (args[0].equalsIgnoreCase("syncids")) {
                 if (!user.hasPermission("bansys.bansys.syncids")
                         || !user.hasPermission("bansys.bansys.*")) {
-                    user.sendMessage(messages.getString("NoPermission")
+                    user.sendMessage(messages.getString("NoPermissionMessage")
                             .replaceAll("%P%", messages.getString("prefix"))
                             .replaceAll("&", "§"));
                     return;
@@ -127,7 +127,7 @@ public class CMDbansystem implements Command {
                     if (!user.hasPermission("bansys.bansys.ids.createid")
                             || !user.hasPermission("bansys.bansys.ids.*")
                             || !user.hasPermission("bansys.bansys.*")) {
-                        user.sendMessage(messages.getString("NoPermission")
+                        user.sendMessage(messages.getString("NoPermissionMessage")
                                 .replaceAll("%P%", messages.getString("prefix"))
                                 .replaceAll("&", "§"));
                         return;
@@ -209,7 +209,7 @@ public class CMDbansystem implements Command {
                     if (!user.hasPermission("bansys.bansys.ids.deleteid")
                             || !user.hasPermission("bansys.bansys.ids.*")
                             || !user.hasPermission("bansys.bansys.*")) {
-                        user.sendMessage(messages.getString("NoPermission")
+                        user.sendMessage(messages.getString("NoPermissionMessage")
                                 .replaceAll("%P%", messages.getString("prefix"))
                                 .replaceAll("&", "§"));
                         return;
@@ -255,7 +255,7 @@ public class CMDbansystem implements Command {
                                 if (!user.hasPermission("bansys.bansys.ids.addlvl")
                                         || !user.hasPermission("bansys.bansys.ids.*")
                                         || !user.hasPermission("bansys.bansys.*")) {
-                                    user.sendMessage(messages.getString("NoPermission")
+                                    user.sendMessage(messages.getString("NoPermissionMessage")
                                             .replaceAll("%P%", messages.getString("prefix"))
                                             .replaceAll("&", "§"));
                                     return;
@@ -334,7 +334,7 @@ public class CMDbansystem implements Command {
                                 if (!user.hasPermission("bansys.bansys.ids.removelvl")
                                         || !user.hasPermission("bansys.bansys.ids.*")
                                         || !user.hasPermission("bansys.bansys.*")) {
-                                    user.sendMessage(messages.getString("NoPermission")
+                                    user.sendMessage(messages.getString("NoPermissionMessage")
                                             .replaceAll("%P%", messages.getString("prefix"))
                                             .replaceAll("&", "§"));
                                     return;
@@ -401,7 +401,7 @@ public class CMDbansystem implements Command {
                                     if (!user.hasPermission("bansys.bansys.ids.setduration")
                                             || !user.hasPermission("bansys.bansys.ids.*")
                                             || !user.hasPermission("bansys.bansys.*")) {
-                                        user.sendMessage(messages.getString("NoPermission")
+                                        user.sendMessage(messages.getString("NoPermissionMessage")
                                                 .replaceAll("%P%", messages.getString("prefix"))
                                                 .replaceAll("&", "§"));
                                         return;
@@ -474,7 +474,7 @@ public class CMDbansystem implements Command {
                                     if (!user.hasPermission("bansys.bansys.ids.setlvltype")
                                             || !user.hasPermission("bansys.bansys.ids.*")
                                             || !user.hasPermission("bansys.bansys.*")) {
-                                        user.sendMessage(messages.getString("NoPermission")
+                                        user.sendMessage(messages.getString("NoPermissionMessage")
                                                 .replaceAll("%P%", messages.getString("prefix"))
                                                 .replaceAll("&", "§"));
                                         return;
@@ -541,7 +541,7 @@ public class CMDbansystem implements Command {
                                     if (!user.hasPermission("bansys.bansys.ids.setonlyadmins")
                                             || !user.hasPermission("bansys.bansys.ids.*")
                                             || !user.hasPermission("bansys.bansys.*")) {
-                                        user.sendMessage(messages.getString("NoPermission")
+                                        user.sendMessage(messages.getString("NoPermissionMessage")
                                                 .replaceAll("%P%", messages.getString("prefix"))
                                                 .replaceAll("&", "§"));
                                         return;
@@ -586,7 +586,7 @@ public class CMDbansystem implements Command {
                                     if (!user.hasPermission("bansys.bansys.ids.setreason")
                                             || !user.hasPermission("bansys.bansys.ids.*")
                                             || !user.hasPermission("bansys.bansys.*")) {
-                                        user.sendMessage(messages.getString("NoPermission")
+                                        user.sendMessage(messages.getString("NoPermissionMessage")
                                                 .replaceAll("%P%", messages.getString("prefix"))
                                                 .replaceAll("&", "§"));
                                         return;

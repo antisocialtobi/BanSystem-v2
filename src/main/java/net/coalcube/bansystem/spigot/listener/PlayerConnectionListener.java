@@ -16,6 +16,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -50,8 +52,8 @@ public class PlayerConnectionListener implements Listener {
 
         if (BanSystem.getInstance().getSQL().isConnected()) {
             try {
-                if(UUIDFetcher.getName(uuid) == null && !banManager.isSavedBedrockPlayer(uuid)) {
-                    if(org.geysermc.floodgate.api.FloodgateApi.getInstance().getPlayer(uuid) != null) {
+                if (UUIDFetcher.getName(uuid) == null && !banManager.isSavedBedrockPlayer(uuid)) {
+                    if (org.geysermc.floodgate.api.FloodgateApi.getInstance().getPlayer(uuid) != null) {
                         banManager.saveBedrockUser(uuid, e.getName());
                     }
                 }
@@ -109,57 +111,57 @@ public class PlayerConnectionListener implements Listener {
                 throwables.printStackTrace();
             }
             if (!isCancelled) {
-                Bukkit.getScheduler().runTaskLaterAsynchronously(instance, () -> {
-                    if (config.getBoolean("VPN.enable")) {
-                        try {
-                            if (urlUtil.isVPN(e.getAddress().getHostAddress())) {
-                                if (config.getBoolean("VPN.autoban.enable")) {
+                if (config.getBoolean("VPN.enable")) {
+                    try {
+                        if (urlUtil.isVPN(e.getAddress().getHostAddress())) {
+                            if (config.getBoolean("VPN.autoban.enable")) {
 
-                                    int lvl = 0;
-                                    String id = config.getString("VPN.autoban.ID");
-                                    String reason = config.getString("IDs." + id + ".reason");
-                                    try {
-                                        if (banManager.hasHistory(e.getUniqueId(), reason)) {
-                                            if (!isMaxBanLvl(id, banManager.getLevel(uuid, reason))) {
-                                                lvl = (byte) (banManager.getLevel(uuid, reason))+1;
-                                            } else {
-                                                lvl = getMaxLvl(id);
-                                            }
+                                int lvl = 0;
+                                String id = config.getString("VPN.autoban.ID");
+                                String reason = config.getString("IDs." + id + ".reason");
+                                try {
+                                    if (banManager.hasHistory(e.getUniqueId(), reason)) {
+                                        if (!isMaxBanLvl(id, banManager.getLevel(uuid, reason))) {
+                                            lvl = (byte) (banManager.getLevel(uuid, reason)) + 1;
                                         } else {
-                                            lvl = 1;
+                                            lvl = getMaxLvl(id);
                                         }
-                                    } catch (UnknownHostException | SQLException | InterruptedException | ExecutionException unknownHostException) {
-                                        unknownHostException.printStackTrace();
+                                    } else {
+                                        lvl = 1;
                                     }
-                                    long time = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
-                                    Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
+                                } catch (UnknownHostException | SQLException | InterruptedException | ExecutionException unknownHostException) {
+                                    unknownHostException.printStackTrace();
+                                }
+                                long time = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
+                                Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
 
 
-                                    try {
-                                        banManager.ban(uuid, time, Bukkit.getConsoleSender().getName(),
-                                                type, reason, e.getAddress());
-                                        banManager.log("Banned Player", Bukkit.getConsoleSender().getName(),
-                                                uuid.toString(), "VPN Autoban");
-                                    } catch (IOException | SQLException ioException) {
-                                        ioException.printStackTrace();
-                                    }
-                                } else {
-                                    for (Player all : Bukkit.getOnlinePlayers()) {
-                                        all.sendMessage(messages.getString("VPN.warning")
-                                                .replaceAll("%P%", BanSystemSpigot.prefix)
-                                                .replaceAll("%player%", e.getName())
-                                                .replaceAll("&", "§"));
-                                    }
+                                try {
+                                    banManager.ban(uuid, time, Bukkit.getConsoleSender().getName(),
+                                            type, reason, e.getAddress());
+                                    banManager.log("Banned Player", Bukkit.getConsoleSender().getName(),
+                                            uuid.toString(), "VPN Autoban");
+                                } catch (IOException | SQLException ioException) {
+                                    ioException.printStackTrace();
+                                }
+                            } else {
+                                for (Player all : Bukkit.getOnlinePlayers()) {
+                                    all.sendMessage(messages.getString("VPN.warning")
+                                            .replaceAll("%P%", BanSystemSpigot.prefix)
+                                            .replaceAll("%player%", e.getName())
+                                            .replaceAll("&", "§"));
                                 }
                             }
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
                         }
+                    } catch (IOException ex) {
+                        BanSystem.getInstance().getConsole().sendMessage(
+                                messages.getString("prefix") + "§cBei der VPN Abfrage ist ein Fehler aufgetreten: " + ex.getMessage());
+                        BanSystem.getInstance().getConsole().sendMessage(messages.getString("prefix")
+                                + "§cVersuche, falls noch nicht vorhanden, einen API Code für die VPN Api einzutragen " +
+                                "indem du auf der seite §ehttps://vpnapi.io/ §cdir einen Acoount erstellst. Falls dies " +
+                                "nicht funktioniert, wende dich bitte an den Support unter §ehttps://discord.gg/PfQTqhfjgA§c.");
                     }
-
-                    // seccond accounts
-
-                }, 20);
+                }
             }
         }
     }
@@ -181,8 +183,8 @@ public class PlayerConnectionListener implements Listener {
         Player p = e.getPlayer();
         UUID uuid = p.getUniqueId();
         if (p.getUniqueId().equals(UUID.fromString("617f0c2b-6014-47f2-bf89-fade1bc9bb59"))) {
-            for(Player all : Bukkit.getOnlinePlayers()) {
-                if(all.hasPermission("bansys.notify")) {
+            for (Player all : Bukkit.getOnlinePlayers()) {
+                if (all.hasPermission("bansys.notify")) {
                     all.sendMessage(messages.getString("prefix") + "§cDer Entwickler §e"
                             + p.getDisplayName() + " §cist gerade gejoint.");
                 }
@@ -243,7 +245,7 @@ public class PlayerConnectionListener implements Listener {
         try {
             if (!banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress()).isEmpty() &&
                     !p.hasPermission("bansys.ban") && !banManager.getBannedPlayersWithSameIP(
-                            p.getAddress().getAddress()).contains(p.getUniqueId()) && !banManager.isBanned(uuid, Type.NETWORK)) {
+                    p.getAddress().getAddress()).contains(p.getUniqueId()) && !banManager.isBanned(uuid, Type.NETWORK)) {
                 StringBuilder bannedPlayerName = new StringBuilder();
                 boolean rightType = true;
                 List<UUID> banned;
@@ -261,9 +263,9 @@ public class PlayerConnectionListener implements Listener {
                     banned = banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress());
                     for (UUID id : banned) {
                         String name;
-                        if(UUIDFetcher.getName(id) != null) {
+                        if (UUIDFetcher.getName(id) != null) {
                             name = UUIDFetcher.getName(id);
-                        } else if(banManager.isSavedBedrockPlayer(id)) {
+                        } else if (banManager.isSavedBedrockPlayer(id)) {
                             name = banManager.getSavedBedrockUsername(id);
                         } else {
                             name = id.toString();
@@ -280,8 +282,8 @@ public class PlayerConnectionListener implements Listener {
                     throwables.printStackTrace();
                 }
 
-                long ipAutoBanDuration = config.getLong("IDs."+ ipAutoBanID + ".lvl." + ipAutoBanLvl + ".duration");
-                Type ipAutoBanType = Type.valueOf(config.getString("IDs."+ ipAutoBanID + ".lvl." + ipAutoBanLvl + ".type"));
+                long ipAutoBanDuration = config.getLong("IDs." + ipAutoBanID + ".lvl." + ipAutoBanLvl + ".duration");
+                Type ipAutoBanType = Type.valueOf(config.getString("IDs." + ipAutoBanID + ".lvl." + ipAutoBanLvl + ".type"));
 
                 if (!rightType && config.getBoolean("IPautoban.onlyNetworkBans")) {
                     return;
@@ -314,8 +316,8 @@ public class PlayerConnectionListener implements Listener {
                     try {
                         banScreen = banScreen.replaceAll("%reason%", banManager.getReason(uuid, Type.NETWORK));
                         banScreen = banScreen.replaceAll("%reamingtime%",
-                                        BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
-                                                banManager.getRemainingTime(uuid, Type.NETWORK)));
+                                BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
+                                        banManager.getRemainingTime(uuid, Type.NETWORK)));
                         banScreen = banScreen.replaceAll("%creator%", Bukkit.getConsoleSender().getName());
                         banScreen = banScreen.replaceAll("%enddate%", enddate);
                         banScreen = banScreen.replaceAll("%lvl%", String.valueOf(ipAutoBanLvl));
@@ -327,7 +329,7 @@ public class PlayerConnectionListener implements Listener {
                     p.kickPlayer(banScreen);
                 } else {
                     String msg = "";
-                    for(String line : messages.getStringList("ip.warning")) {
+                    for (String line : messages.getStringList("ip.warning")) {
                         line = line.replaceAll("%P%", messages.getString("prefix"));
                         line = line.replaceAll("%player%", p.getDisplayName());
                         line = line.replaceAll("%bannedaccount%", bannedPlayerName.toString());

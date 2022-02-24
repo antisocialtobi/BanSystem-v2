@@ -22,7 +22,7 @@ public class CMDkick implements Command {
         this.banManager = banManager;
     }
 
-    public void noReasonKick(User p, User target) throws SQLException {
+    public void kick(User p, User target) throws SQLException {
         BanSystem.getInstance().disconnect(target, messages.getString("Kick.noreason.screen").replaceAll("&", "§"));
         p.sendMessage(messages.getString("Kick.success").replaceAll("%P%", messages.getString("prefix"))
                 .replaceAll("%player%", target.getDisplayName()).replaceAll("&", "§"));
@@ -50,12 +50,12 @@ public class CMDkick implements Command {
         }
     }
 
-    public void reasonKick(User p, User target, String[] args) throws SQLException {
+    public void kick(User p, User target, String[] args) throws SQLException {
         p.sendMessage(messages.getString("Kick.success").replaceAll("%P%", messages.getString("prefix"))
                 .replaceAll("%player%", target.getDisplayName()).replaceAll("&", "§"));
         StringBuilder msg = new StringBuilder();
         for (int i = 1; i < args.length; i++) {
-            msg.append(args[i]).append(" ");
+            msg.append(args[i].replaceAll("&", "§")).append(" ");
         }
         BanSystem.getInstance().disconnect(target, messages.getString("Kick.reason.screen")
                 .replaceAll("%P%", messages.getString("prefix"))
@@ -109,7 +109,7 @@ public class CMDkick implements Command {
                 name = target.getDisplayName();
                 if (!target.getUniqueId().equals(p.getUniqueId())) {
                     if ((target.hasPermission("bansys.kick") && !p.hasPermission("bansys.kick.admin"))
-                            || (target.hasPermission("bansys.kick.admin") && p.hasPermission("bansys.kick.admin"))) {
+                            || (target.hasPermission("bansys.kick.admin") && p.hasPermission("bansys.kick.admin")) && p.getUniqueId() != null) {
                         p.sendMessage(messages.getString("Kick.cannotkick.teammembers")
                                 .replaceAll("%P%", messages.getString("prefix"))
                                 .replaceAll("&", "§"));
@@ -123,13 +123,13 @@ public class CMDkick implements Command {
                     }
                     if (args.length == 1) {
                         try {
-                            noReasonKick(p, target);
+                            kick(p, target);
                         } catch (SQLException throwables) {
                             throwables.printStackTrace();
                         }
                     } else {
                         try {
-                            reasonKick(p, target, args);
+                            kick(p, target, args);
                         } catch (SQLException throwables) {
                             throwables.printStackTrace();
                         }

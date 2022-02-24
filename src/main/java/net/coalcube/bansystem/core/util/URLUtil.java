@@ -5,6 +5,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
@@ -36,17 +39,20 @@ public class URLUtil {
     }
 
     public boolean isVPN(String ip) throws IOException {
-        if (!ip.equals("127.0.0.1") || !ip.equals(BanSystem.getInstance().getConfiguration().getString("VPN.serverIP"))) {
+        if (!ip.equals("127.0.0.1") || !ip.equals(config.getString("VPN.serverIP"))) {
             JSONObject jsonObject;
-            if(config.getString("VPNCheck.key").isEmpty()) {
+
+            if(config.getString("VPN.apikey").isEmpty()) {
+
                 jsonObject = readJsonFromUrl("https://vpnapi.io/api/" + ip);
             } else {
-                jsonObject = readJsonFromUrl("https://vpnapi.io/api/" + ip + "?key=" + config.getString("VPNCheck.key"));
+                jsonObject = readJsonFromUrl("https://vpnapi.io/api/" + ip + "?key=" + config.getString("VPN.apikey"));
             }
 
             if(jsonObject.has("security")) {
                 JSONObject structure = (JSONObject) jsonObject.get("security");
-                return Boolean.getBoolean(structure.get("vpn").toString());
+                if(structure.get("vpn").toString().equals("true"))
+                    return true;
             } else {
                 BanSystem.getInstance().getConsole().sendMessage(messages.getString("prefix")
                                 + "§cBei der VPN Abfrage ist ein Fehler aufgetreten: "

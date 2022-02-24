@@ -220,17 +220,17 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             messages = new SpigotConfig(YamlConfiguration.loadConfiguration(messagesfile));
             config = new SpigotConfig(YamlConfiguration.loadConfiguration(configfile));
             blacklist = new SpigotConfig(YamlConfiguration.loadConfiguration(blacklistfile));
-
-            if (messages.getString("bansystem.help.header") == null) {
-                messages.set("bansystem.help", "");
-                messages.set("bansystem.help", null);
-
-                messages.set("bansystem.help.header", "§8§m--------§8[ §cBanSystem §8]§m--------");
-                messages.set("bansystem.help.entry", "§e/%command% §8» §7%description%");
-                messages.set("bansystem.help.footer", "§8§m-----------------------------");
-
-                messages.save(messagesfile);
-            }
+//
+//            if (messages.getString("bansystem.help.header") == null) {
+//                messages.set("bansystem.help", "");
+//                messages.set("bansystem.help", null);
+//
+//                messages.set("bansystem.help.header", "§8§m--------§8[ §cBanSystem §8]§m--------");
+//                messages.set("bansystem.help.entry", "§e/%command% §8» §7%description%");
+//                messages.set("bansystem.help.footer", "§8§m-----------------------------");
+//
+//                messages.save(messagesfile);
+//            }
         } catch (IOException e) {
             System.err.println("[Bansystem] Dateien konnten nicht erstellt werden.");
         }

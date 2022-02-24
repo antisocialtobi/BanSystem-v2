@@ -166,7 +166,12 @@ public class LoginListener implements Listener {
                                         }
                                     }
                                 } catch (IOException ex) {
-                                    ex.printStackTrace();
+                                    BanSystem.getInstance().getConsole().sendMessage(
+                                            messages.getString("prefix") + "§cBei der VPN Abfrage ist ein Fehler aufgetreten: " + ex.getMessage());
+                                    BanSystem.getInstance().getConsole().sendMessage(messages.getString("prefix")
+                                            + "§cVersuche, falls noch nicht vorhanden, einen API Code für die VPN Api einzutragen " +
+                                            "indem du auf der seite §ehttps://vpnapi.io/ §cdir einen Acoount erstellst. Falls dies " +
+                                            "nicht funktioniert, wende dich bitte an den Support unter §ehttps://discord.gg/PfQTqhfjgA§c.");
                                 }
                             }
 

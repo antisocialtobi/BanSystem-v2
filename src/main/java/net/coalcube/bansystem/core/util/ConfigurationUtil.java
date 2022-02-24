@@ -12,8 +12,6 @@ public class ConfigurationUtil {
         config.set("mysql.host", "localhost");
         config.set("mysql.port", 3306);
 
-        config.set("VPNCheck.key", "");
-
         config.set("IPautoban.enable", false);
         config.set("IPautoban.banid", 9);
         config.set("IPautoban.onlyNetworkBans", false);
@@ -22,6 +20,7 @@ public class ConfigurationUtil {
         config.set("VPN.autoban.enable", true);
         config.set("VPN.autoban.ID", 11);
         config.set("VPN.serverIP", "00.00.00.00");
+        config.set("VPN.apikey", "");
 
         config.set("mute.blockedCommands", Arrays.asList("/msg", "/tell", "/me", "/whisper", "/say"));
 

@@ -213,7 +213,7 @@ public class CMDunban implements Command {
                         .replaceAll("&", "§"));
             }
         } else {
-            user.sendMessage(messages.getString("NoPermission")
+            user.sendMessage(messages.getString("NoPermissionMessage")
                     .replaceAll("%P%", messages.getString("prefix"))
                     .replaceAll("&", "§"));
         }

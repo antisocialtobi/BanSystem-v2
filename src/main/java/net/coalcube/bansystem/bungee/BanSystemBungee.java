@@ -68,7 +68,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         createConfig();
         loadConfig();
 
-        timeFormatUtil = new TimeFormatUtil(config);
+        timeFormatUtil = new TimeFormatUtil(messages);
 
         // Set mysql instance
         if (config.getBoolean("mysql.enable")) {

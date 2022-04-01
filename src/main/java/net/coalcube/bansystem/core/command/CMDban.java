@@ -46,7 +46,7 @@ public class CMDban implements Command {
 
         if (!(user.hasPermission("bansys.ban") ||
                 user.hasPermission("bansys.ban.all") ||
-                user.hasPermission("bansys.all.admin") ||
+                user.hasPermission("bansys.ban.admin") ||
                 hasPermissionForAnyID(user))) {
 
             user.sendMessage(ChatColor.translateAlternateColorCodes('&',
@@ -202,11 +202,20 @@ public class CMDban implements Command {
                                     .replaceAll("&", "§"));
                             return;
                         }
-                        if (target.hasPermission("bansys.ban") && !user.hasPermission("bansys.ban.admin")) {
+
+                        if((target.hasPermission("bansys.ban") || target.hasPermission("bansys.ban.all") || hasPermissionForAnyID(user))
+                                && !user.hasPermission("bansys.ban.admin")) {
                             user.sendMessage(messages.getString("Ban.cannotban.teammembers")
                                     .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
                             return;
                         }
+
+                        if(target.hasPermission("bansys.ban.admin") && user.getUniqueId() != null) {
+                            user.sendMessage(messages.getString("Ban.cannotban.teammembers")
+                                    .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
+                            return;
+                        }
+
                         if (target.hasPermission("bansys.ban.bypass") && !user.hasPermission("bansys.ban.admin")) {
                             user.sendMessage(messages.getString("Ban.cannotban.bypassedplayers")
                                     .replaceAll("%P%", messages.getString("prefix"))

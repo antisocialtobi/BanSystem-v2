@@ -57,8 +57,6 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         PluginManager pluginmanager = ProxyServer.getInstance().getPluginManager();
         console = ProxyServer.getInstance().getConsole();
         UpdateChecker updatechecker = new UpdateChecker(65863);
-        timeFormatUtil = new TimeFormatUtil();
-
 
         console.sendMessage(new TextComponent("§c  ____                    ____                  _                      "));
         console.sendMessage(new TextComponent("§c | __ )    __ _   _ __   / ___|   _   _   ___  | |_    ___   _ __ ___  "));
@@ -69,6 +67,8 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
         createConfig();
         loadConfig();
+
+        timeFormatUtil = new TimeFormatUtil(config);
 
         // Set mysql instance
         if (config.getBoolean("mysql.enable")) {

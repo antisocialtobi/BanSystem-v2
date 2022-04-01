@@ -50,10 +50,10 @@ public class BanManagerMySQL implements BanManager {
 
     public void ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException {
         mysql.update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
-                "VALUES ('" + player + "', '" + time + "', NOW(), '" + creator + "', '" + reason + "', '" + v4adress.getHostName() + "', '" + type + "');");
+                "VALUES ('" + player + "', '" + time + "', NOW(), '" + creator + "', '" + reason + "', '" + v4adress.getHostAddress() + "', '" + type + "');");
 
         mysql.update("INSERT INTO `banhistories` (`player`, `duration`, `creator`, `reason`, `ip`, `type`, `creationdate`) " +
-                "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + v4adress.getHostName() + "', '" + type + "', NOW());");
+                "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + v4adress.getHostAddress() + "', '" + type + "', NOW());");
     }
 
     public void ban(UUID player, long time, String creator, Type type, String reason) throws IOException, SQLException {
@@ -109,7 +109,7 @@ public class BanManagerMySQL implements BanManager {
     }
 
     public void setIP(UUID player, InetAddress address) throws SQLException {
-        mysql.update("UPDATE `bans` SET ip='" + address.getHostName() + "' WHERE (ip IS NULL or ip = '') AND player = '" + player + "';");
+        mysql.update("UPDATE `bans` SET ip='" + address.getHostAddress() + "' WHERE (ip IS NULL or ip = '') AND player = '" + player + "';");
     }
 
     @Override
@@ -197,7 +197,7 @@ public class BanManagerMySQL implements BanManager {
     }
 
     public List<UUID> getBannedPlayersWithSameIP(InetAddress address) throws SQLException, ExecutionException, InterruptedException {
-        ResultSet resultSet = mysql.getResult("SELECT * FROM `bans` WHERE ip = '" + address.getHostName() + "';");
+        ResultSet resultSet = mysql.getResult("SELECT * FROM `bans` WHERE ip = '" + address.getHostAddress() + "';");
         List<UUID> list = new ArrayList<>();
         while (resultSet.next()) {
             list.add(UUID.fromString(resultSet.getString("player")));

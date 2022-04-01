@@ -57,7 +57,6 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         PluginManager pluginmanager = Bukkit.getPluginManager();
         console = Bukkit.getConsoleSender();
         UpdateChecker updatechecker = new UpdateChecker(65863);
-        timeFormatUtil = new TimeFormatUtil();
 
         console.sendMessage("§c  ____                    ____                  _                      ");
         console.sendMessage("§c | __ )    __ _   _ __   / ___|   _   _   ___  | |_    ___   _ __ ___  ");
@@ -68,6 +67,8 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
         createConfig();
         loadConfig();
+
+        timeFormatUtil = new TimeFormatUtil(config);
 
         // Set mysql instance
         if (config.getBoolean("mysql.enable")) {

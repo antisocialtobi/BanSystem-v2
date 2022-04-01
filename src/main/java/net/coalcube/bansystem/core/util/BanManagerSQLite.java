@@ -53,7 +53,7 @@ public class BanManagerSQLite implements BanManager {
 
     public void ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException {
         sqlite.update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
-                "VALUES ('" + player + "', '" + time + "', datetime('now', 'localtime'), '" + creator + "', '" + reason + "', '" + v4adress.getHostName() + "', '" + type + "');");
+                "VALUES ('" + player + "', '" + time + "', datetime('now', 'localtime'), '" + creator + "', '" + reason + "', '" + v4adress.getHostAddress() + "', '" + type + "');");
 
         sqlite.update("INSERT INTO `banhistories` (`player`, `duration`, `creator`, `reason`, `ip`, `type`, `creationdate`) " +
                 "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', " +
@@ -119,7 +119,7 @@ public class BanManagerSQLite implements BanManager {
     }
 
     public void setIP(UUID player, InetAddress address) throws SQLException {
-        sqlite.update("UPDATE `bans` SET ip='" + address.getHostName() + "' WHERE (ip IS NULL or ip = '') AND player = '" + player + "';");
+        sqlite.update("UPDATE `bans` SET ip='" + address.getHostAddress() + "' WHERE (ip IS NULL or ip = '') AND player = '" + player + "';");
     }
 
     @Override
@@ -203,7 +203,7 @@ public class BanManagerSQLite implements BanManager {
     }
 
     public List<UUID> getBannedPlayersWithSameIP(InetAddress address) throws SQLException {
-        ResultSet resultSet = sqlite.getResult("SELECT * FROM `bans` WHERE ip = '" + address.getHostName() + "';");
+        ResultSet resultSet = sqlite.getResult("SELECT * FROM `bans` WHERE ip = '" + address.getHostAddress() + "';");
         List<UUID> list = new ArrayList<>();
         while (resultSet.next()) {
             list.add(UUID.fromString(resultSet.getString("player")));

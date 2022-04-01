@@ -1,5 +1,5 @@
 name: BanSystem
-version: 2.4
+version: 2.6
 author: Tobi
 main: net.coalcube.bansystem.spigot.BanSystemSpigot
 commands:

@@ -240,7 +240,7 @@ public class AsyncPlayerChatListener implements Listener {
                     if(tmpReamingTime < 0) {
                         tmpReamingTime = 0;
                     }
-                    String humanReadableReamingTime = new TimeFormatUtil().getFormattedRemainingTime(tmpReamingTime);
+                    String humanReadableReamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(tmpReamingTime);
 
                     e.setCancelled(true);
                     p.sendMessage(messages.getString("chatdelay")

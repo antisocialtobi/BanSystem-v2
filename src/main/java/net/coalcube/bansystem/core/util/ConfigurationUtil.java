@@ -136,6 +136,10 @@ public class ConfigurationUtil {
         messages.set("chatdelay", "%P%§cDu kannst erst in §e%reamingtime% §cwieder etwas schreiben.");
         messages.set("true", "§2Aktiviert");
         messages.set("false", "§cDeaktiviert");
+        messages.set("TimeFormat.seconds", "§e%sec% §cSekunde(n)");
+        messages.set("TimeFormat.minutes", "§e%min% §cMinute(n)");
+        messages.set("TimeFormat.hours", "§e%hour% §cStunde(n)");
+        messages.set("TimeFormat.days", "§e%day% §cTag(e)");
 
         messages.set("Ban.Network.Screen",
                 Arrays.asList(

@@ -16,8 +16,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.ParseException;

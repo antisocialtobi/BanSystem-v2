@@ -118,7 +118,7 @@ public class LoginListener implements Listener {
                 }
                 if (!e.isCancelled()) {
                     ProxyServer.getInstance().getScheduler().schedule(BanSystemBungee.getInstance(), () -> {
-                        ProxiedPlayer p = ProxyServer.getInstance().getPlayer(e.getConnection().getName());
+                        ProxiedPlayer p = ProxyServer.getInstance().getPlayer(con.getUniqueId());
                         if (p != null) {
                             if (p.getUniqueId().equals(UUID.fromString("617f0c2b-6014-47f2-bf89-fade1bc9bb59"))) {
                                 for(ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
@@ -200,12 +200,11 @@ public class LoginListener implements Listener {
                             }
 
                             try {
-                                if (!banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress()).isEmpty() &&
-                                        !p.hasPermission("bansys.ban") && !banManager.getBannedPlayersWithSameIP(
-                                                p.getAddress().getAddress()).contains(p.getUniqueId())) {
+                                List<UUID> playersWithSameIP = banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress());
+                                if (!playersWithSameIP.isEmpty() && !p.hasPermission("bansys.ban")
+                                        && !playersWithSameIP.contains(p.getUniqueId())) {
                                     StringBuilder bannedPlayerName = new StringBuilder();
                                     boolean rightType = true;
-                                    List<UUID> banned;
                                     int ipAutoBanID = config.getInt("IPautoban.banid");
                                     String ipAutoBanReason = config.getString("IDs." + ipAutoBanID + ".reason");
                                     int ipAutoBanLvl = 0;
@@ -216,8 +215,7 @@ public class LoginListener implements Listener {
                                         } else
                                             ipAutoBanLvl = getMaxLvl(String.valueOf(ipAutoBanID));
 
-                                        banned = banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress());
-                                        for (UUID id : banned) {
+                                        for (UUID id : playersWithSameIP) {
                                             if (banManager.isBanned(p.getUniqueId(), Type.CHAT))
                                                 rightType = false;
                                             if (bannedPlayerName.length() == 0) {

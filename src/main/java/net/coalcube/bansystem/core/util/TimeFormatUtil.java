@@ -5,6 +5,12 @@ import java.util.List;
 
 public class TimeFormatUtil {
 
+    private static Config config;
+
+    public TimeFormatUtil(Config config) {
+        this.config = config;
+    }
+
     public String getFormattedRemainingTime(Long remainingTime) {
         long millis = remainingTime;
 
@@ -36,10 +42,10 @@ public class TimeFormatUtil {
             days++;
         }
 
-        if(seconds > 0) array.add("§e" + seconds + " §cSekunde(n)");
-        if(minutes > 0) array.add("§e" + minutes + " §cMinute(n)");
-        if(hours > 0) array.add("§e" + hours + " §cStunde(n)");
-        if(days > 0) array.add("§e" + days + " §cTag(e)");
+        if(seconds > 0) array.add(config.getString("TimeFormat.seconds").replaceAll("%sec%", String.valueOf(seconds)));
+        if(minutes > 0) array.add(config.getString("TimeFormat.minutes").replaceAll("%sec%", String.valueOf(seconds)));;
+        if(hours > 0) array.add(config.getString("TimeFormat.hours").replaceAll("%sec%", String.valueOf(seconds)));
+        if(days > 0) array.add(config.getString("TimeFormat.days").replaceAll("%sec%", String.valueOf(seconds)));
 
         String formattedRemainingTime = null;
 

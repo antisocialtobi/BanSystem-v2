@@ -83,7 +83,7 @@ public class CMDkick implements Command {
 
     @Override
     public void execute(User p, String[] args) {
-        if (p.hasPermission("bansys.kick")) {
+        if (p.hasPermission("bansys.kick") || p.hasPermission("bansys.kick.admin")) {
             if (args.length >= 1) {
                 if(BanSystem.getInstance().getUser(args[0].replaceAll("&", "§")).getUniqueId() != null) {
                     target = BanSystem.getInstance().getUser(args[0].replaceAll("&", "§"));
@@ -108,8 +108,9 @@ public class CMDkick implements Command {
                 uuid = target.getUniqueId();
                 name = target.getDisplayName();
                 if (!target.getUniqueId().equals(p.getUniqueId())) {
-                    if ((target.hasPermission("bansys.kick") && !p.hasPermission("bansys.kick.admin"))
-                            || (target.hasPermission("bansys.kick.admin") && p.hasPermission("bansys.kick.admin")) && p.getUniqueId() != null) {
+
+                    if(((target.hasPermission("bansys.kick") && !p.hasPermission("bansys.kick.admin"))
+                            || target.hasPermission("bansys.kick.admin")) && p.getUniqueId() != null) {
                         p.sendMessage(messages.getString("Kick.cannotkick.teammembers")
                                 .replaceAll("%P%", messages.getString("prefix"))
                                 .replaceAll("&", "§"));

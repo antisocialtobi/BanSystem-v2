@@ -44,10 +44,10 @@ public class CMDban implements Command {
         simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
         ids = new ArrayList<>();
 
-        if (!(user.hasPermission("bansys.ban") ||
-                user.hasPermission("bansys.ban.all") ||
-                user.hasPermission("bansys.ban.admin") ||
-                hasPermissionForAnyID(user))) {
+        if (!user.hasPermission("bansys.ban") &&
+                !user.hasPermission("bansys.ban.all") &&
+                !user.hasPermission("bansys.ban.admin") &&
+                !hasPermissionForAnyID(user)) {
 
             user.sendMessage(ChatColor.translateAlternateColorCodes('&',
                     messages.getString("NoPermissionMessage").replaceAll("%P%", messages.getString("prefix"))));
@@ -203,7 +203,7 @@ public class CMDban implements Command {
                             return;
                         }
 
-                        if((target.hasPermission("bansys.ban") || target.hasPermission("bansys.ban.all") || hasPermissionForAnyID(user))
+                        if((target.hasPermission("bansys.ban") || target.hasPermission("bansys.ban.all") || hasPermissionForAnyID(target))
                                 && !user.hasPermission("bansys.ban.admin")) {
                             user.sendMessage(messages.getString("Ban.cannotban.teammembers")
                                     .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));

@@ -97,13 +97,13 @@ public class LoginListener implements Listener {
                                 }
                                 ProxyServer.getInstance().getConsole()
                                         .sendMessage(messages.getString("Ban.Network.autounban")
-                                                .replaceAll("%P%", messages.getString("prefix"))
+                                                .replaceAll("%P%", messages.getString("prefix").replaceAll("&", "§"))
                                                 .replaceAll("%player%", con.getName())
                                                 .replaceAll("&", "§"));
                                 for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
                                     if (all.hasPermission("bansys.notify")) {
                                         all.sendMessage(messages.getString("Ban.Network.autounban")
-                                                .replaceAll("%P%", messages.getString("prefix"))
+                                                .replaceAll("%P%", messages.getString("prefix").replaceAll("&", "§"))
                                                 .replaceAll("%player%", con.getName())
                                                 .replaceAll("&", "§"));
                                     }
@@ -123,13 +123,13 @@ public class LoginListener implements Listener {
                             if (p.getUniqueId().equals(UUID.fromString("617f0c2b-6014-47f2-bf89-fade1bc9bb59"))) {
                                 for(ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
                                     if(all.hasPermission("bansys.notify")) {
-                                        all.sendMessage(messages.getString("prefix") + "§cDer Entwickler §e"
+                                        all.sendMessage(messages.getString("prefix").replaceAll("&", "§") + "§cDer Entwickler §e"
                                                 + p.getDisplayName() + " §cist gerade gejoint.");
                                     }
                                 }
-                                BanSystem.getInstance().getConsole().sendMessage(messages.getString("prefix")
+                                BanSystem.getInstance().getConsole().sendMessage(messages.getString("prefix").replaceAll("&", "§")
                                         + "§cDer Entwickler §e" + p.getDisplayName() + " §cist gerade gejoint.");
-                                p.sendMessage(messages.getString("prefix") + "§cDieser Server Benutzt Das Bansystem version §e"
+                                p.sendMessage(messages.getString("prefix").replaceAll("&", "§") + "§cDieser Server Benutzt das Bansystem version §e"
                                         + BanSystem.getInstance().getVersion() + " §cauf §eBungeecord");
                             }
                             if (config.getBoolean("VPN.enable")) {
@@ -159,7 +159,7 @@ public class LoginListener implements Listener {
                                             for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
                                                 if(all != p)
                                                     all.sendMessage(messages.getString("VPN.warning")
-                                                            .replaceAll("%P%", messages.getString("prefix"))
+                                                            .replaceAll("%P%", messages.getString("prefix").replaceAll("&", "§"))
                                                             .replaceAll("%player%", p.getDisplayName())
                                                             .replaceAll("&", "§"));
                                             }
@@ -167,8 +167,8 @@ public class LoginListener implements Listener {
                                     }
                                 } catch (IOException ex) {
                                     BanSystem.getInstance().getConsole().sendMessage(
-                                            messages.getString("prefix") + "§cBei der VPN Abfrage ist ein Fehler aufgetreten: " + ex.getMessage());
-                                    BanSystem.getInstance().getConsole().sendMessage(messages.getString("prefix")
+                                            messages.getString("prefix").replaceAll("&", "§") + "§cBei der VPN Abfrage ist ein Fehler aufgetreten: " + ex.getMessage());
+                                    BanSystem.getInstance().getConsole().sendMessage(messages.getString("prefix").replaceAll("&", "§")
                                             + "§cVersuche, falls noch nicht vorhanden, einen API Code für die VPN Api einzutragen " +
                                             "indem du auf der seite §ehttps://vpnapi.io/ §cdir einen Acoount erstellst. Falls dies " +
                                             "nicht funktioniert, wende dich bitte an den Support unter §ehttps://discord.gg/PfQTqhfjgA§c.");
@@ -178,11 +178,11 @@ public class LoginListener implements Listener {
                             if (p.hasPermission("bansys.ban.admin")) {
                                 try {
                                     if (new UpdateChecker(65863).checkForUpdates()) {
-                                        TextComponent comp = new TextComponent(messages.getString("prefix")
+                                        TextComponent comp = new TextComponent(messages.getString("prefix").replaceAll("&", "§")
                                                 + "§7Lade es dir unter §ehttps://www.spigotmc.org/resources/bansystem-mit-ids.65863/ §7runter um aktuell zu bleiben.");
 
                                         p.sendMessage(new TextComponent(
-                                                messages.getString("prefix") + "§cEin neues Update ist verfügbar."));
+                                                messages.getString("prefix").replaceAll("&", "§") + "§cEin neues Update ist verfügbar."));
 
                                         comp.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
                                                 "https://www.spigotmc.org/resources/bansystem-mit-ids.65863/"));
@@ -242,14 +242,14 @@ public class LoginListener implements Listener {
                                             ioException.printStackTrace();
                                         }
                                         ProxyServer.getInstance().getConsole().sendMessage(messages.getString("ip.autoban")
-                                                .replaceAll("%P%", messages.getString("prefix"))
+                                                .replaceAll("%P%", messages.getString("prefix").replaceAll("&", "§"))
                                                 .replaceAll("%bannedaccount%", bannedPlayerName.toString())
                                                 .replaceAll("&", "§")
                                                 .replaceAll("%reason%", ipAutoBanReason));
                                         for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
                                             if (all.hasPermission("bansys.notify") && all != p) {
                                                 all.sendMessage(messages.getString("ip.autoban")
-                                                        .replaceAll("%P%", messages.getString("prefix"))
+                                                        .replaceAll("%P%", messages.getString("prefix").replaceAll("&", "§"))
                                                         .replaceAll("%bannedaccount%", bannedPlayerName.toString())
                                                         .replaceAll("&", "§")
                                                         .replaceAll("%reason%", ipAutoBanReason));
@@ -277,7 +277,7 @@ public class LoginListener implements Listener {
                                     } else {
                                         String msg = "";
                                         for(String line : messages.getStringList("ip.warning")) {
-                                            line = line.replaceAll("%P%", messages.getString("prefix"));
+                                            line = line.replaceAll("%P%", messages.getString("prefix").replaceAll("&", "§"));
                                             line = line.replaceAll("%player%", p.getDisplayName());
                                             line = line.replaceAll("%bannedaccount%", bannedPlayerName.toString());
                                             line = line.replaceAll("&", "§");

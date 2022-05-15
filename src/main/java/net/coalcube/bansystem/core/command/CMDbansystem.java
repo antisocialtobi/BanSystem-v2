@@ -58,9 +58,9 @@ public class CMDbansystem implements Command {
                     user.sendMessage(messages.getString("bansystem.reload.process")
                             .replaceAll("%P%", messages.getString("prefix")
                                     .replaceAll("&", "§")));
-
-                    BanSystem.getInstance().onDisable();
-                    BanSystem.getInstance().onEnable();
+//                     TODO: fix reload
+//                    BanSystem.getInstance().onDisable();
+//                    BanSystem.getInstance().onEnable();
 
                     user.sendMessage(messages.getString("bansystem.reload.finished")
                             .replaceAll("%P%", messages.getString("prefix")
@@ -691,8 +691,8 @@ public class CMDbansystem implements Command {
             } else
                 sendHelp(user);
         } else {
-            user.sendMessage(messages.getString("prefix") + "§7BanSystem by §eTobi§7.");
-            user.sendMessage(messages.getString("prefix") + "§ehttps://www.spigotmc.org/resources/bansystem-mit-ids-spigot-bungeecord.65863/");
+            user.sendMessage(messages.getString("prefix").replaceAll("&", "§") + "§7BanSystem by §eTobi§7.");
+            user.sendMessage(messages.getString("prefix").replaceAll("&", "§") + "§ehttps://www.spigotmc.org/resources/bansystem-mit-ids-spigot-bungeecord.65863/");
             if (user.getUniqueId().equals(UUID.fromString("617f0c2b-6014-47f2-bf89-fade1bc9bb59"))) {
                 user.sendMessage("HU du bist ja Tobi :)");
             }

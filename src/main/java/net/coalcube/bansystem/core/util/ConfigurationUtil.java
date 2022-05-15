@@ -140,6 +140,7 @@ public class ConfigurationUtil {
         messages.set("TimeFormat.minutes", "§e%min% §cMinute(n)");
         messages.set("TimeFormat.hours", "§e%hour% §cStunde(n)");
         messages.set("TimeFormat.days", "§e%day% §cTag(e)");
+        messages.set("TimeFormat.permanent", "§4§lPERMANENT");
 
         messages.set("Ban.Network.Screen",
                 Arrays.asList(

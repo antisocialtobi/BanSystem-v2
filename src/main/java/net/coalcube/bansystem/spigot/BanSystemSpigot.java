@@ -53,6 +53,8 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
         BanSystem.setInstance(this);
 
+        saveDefaultConfig();
+
         instance = this;
         PluginManager pluginmanager = Bukkit.getPluginManager();
         console = Bukkit.getConsoleSender();
@@ -135,13 +137,10 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             }
         }
 
-
-
         Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, UUIDFetcher::clearCache, 72000, 72000);
 
         if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.enable"))
-            console.sendMessage(
-                    prefix + "§cBitte trage die IP des Servers in der config.yml ein.");
+            console.sendMessage(prefix + "§cBitte trage die IP des Servers in der config.yml ein.");
 
 
         console.sendMessage(prefix + "§7Das BanSystem wurde gestartet.");

@@ -31,6 +31,13 @@ public class MySQL implements Database {
     }
 
     public void connect() throws SQLException {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            System.err.println("Fehler beim Laden des JDBC-Treibers");
+            e.printStackTrace();
+        }
+
         con = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?autoReconnect=true", username, password);
     }
 

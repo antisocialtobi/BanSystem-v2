@@ -451,8 +451,8 @@ public class ConfigurationUtil {
          * TODO add more blacklisted words
          */
 
-        blacklist.set("Words", Arrays.asList("Arsch", "Nutte", "Hure", "Tits", "Pussy", "ez", "Fick",
-                "Basdard", "Muschi", "beschissen", "Huso", "Huan", "Fresse", "Schlampe"));
+        blacklist.set("Words", Arrays.asList("Arsch", "Nutte", "Hure", "Tits", "Pussy", "Fick",
+                "Basdard", "Muschi", "beschissen", "Huso", "Huan", "Fresse", "Schlampe", "Scheiße"));
 
         /**
          * TODO add more blacklisted ads

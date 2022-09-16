@@ -45,11 +45,8 @@ public class BanSystemVelocity implements BanSystem {
     public static String prefix = "§8§l┃ §cBanSystem §8» §7";
 
 
-    @Inject
-    public BanSystemVelocity(ProxyServer server, Logger logger) {
-        this.server = server;
-        this.logger = logger;
-
+    @Override
+    public void onEnable() {
 
         BanSystem.setInstance(this);
         PluginManager pluginManager = server.getPluginManager();
@@ -149,8 +146,8 @@ public class BanSystemVelocity implements BanSystem {
         init(pluginManager);
     }
 
-    @Subscribe
-    public void onProxyShutdown(ProxyShutdownEvent event) {
+    @Override
+    public void onDisable() {
         try {
             if (sql.isConnected())
                 sql.disconnect();
@@ -165,7 +162,20 @@ public class BanSystemVelocity implements BanSystem {
 //        PlayerPreLoginEvent.getHandlerList().unregister(instance);
 
         logger.info(BanSystemSpigot.prefix + "§7Das BanSystem wurde gestoppt.");
+    }
 
+    @Inject
+    public BanSystemVelocity(ProxyServer server, Logger logger) {
+        this.server = server;
+        this.logger = logger;
+
+        onEnable();
+
+    }
+
+    @Subscribe
+    public void onProxyShutdown(ProxyShutdownEvent event) {
+        onDisable();
     }
 
     public void init(PluginManager pluginManager) {
@@ -234,6 +244,8 @@ public class BanSystemVelocity implements BanSystem {
     public String getVersion() {
         return null;
     }
+
+
 
     @Override
     public User getUser(String name) {

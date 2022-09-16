@@ -1,9 +1,9 @@
 package net.coalcube.bansystem.core.util;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -13,6 +13,8 @@ import java.util.function.Consumer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class UUIDFetcher {
 
@@ -26,7 +28,7 @@ public class UUIDFetcher {
     private static Gson gson = new GsonBuilder().registerTypeAdapter(UUID.class, new UUIDTypeAdapter()).create();
 
     private static final String UUID_URL = "https://api.mojang.com/users/profiles/minecraft/%s?at=%d";
-    private static final String NAME_URL = "https://api.mojang.com/user/profiles/%s/names";
+    private static final String NAME_URL = "https://sessionserver.mojang.com/session/minecraft/profile/%s";
 
     private static Map<String, UUID> uuidCache = new HashMap<>();
     private static Map<UUID, String> nameCache = new HashMap<>();
@@ -103,7 +105,9 @@ public class UUIDFetcher {
      * @param action Do what you want to do with the name her
      */
     public static void getName(UUID uuid, Consumer<String> action) {
-        UUIDFetcher.pool.execute(() -> action.accept(UUIDFetcher.getName(uuid)));
+        UUIDFetcher.pool.execute(() -> {
+            action.accept(UUIDFetcher.getName(uuid));
+        });
     }
 
     /**
@@ -113,32 +117,57 @@ public class UUIDFetcher {
      * @return The name
      */
     public static String getName(UUID uuid) {
-        if (UUIDFetcher.nameCache.containsKey(uuid)) {
-            return UUIDFetcher.nameCache.get(uuid);
-        }
+        JSONObject jsonObject = null;
         try {
-            final HttpURLConnection connection = (HttpURLConnection) new URL(
-                    String.format(UUIDFetcher.NAME_URL, UUIDTypeAdapter.fromUUID(uuid))).openConnection();
-            connection.setReadTimeout(5000);
-            final UUIDFetcher[] nameHistory = UUIDFetcher.gson.fromJson(
-                    new BufferedReader(new InputStreamReader(connection.getInputStream())), UUIDFetcher[].class);
-            if(nameHistory == null)
-                return null;
-            final UUIDFetcher currentNameData = nameHistory[nameHistory.length - 1];
-
-            UUIDFetcher.uuidCache.put(currentNameData.name.toLowerCase(), uuid);
-            UUIDFetcher.nameCache.put(uuid, currentNameData.name);
-
-            return currentNameData.name;
-        } catch (final Exception e) {
+            jsonObject = readJsonFromUrl(NAME_URL.replaceAll("%s", UUIDTypeAdapter.fromUUID(uuid)));
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return null;
+        return jsonObject.getString("name");
+
+//        if (UUIDFetcher.nameCache.containsKey(uuid)) {
+//            return UUIDFetcher.nameCache.get(uuid);
+//        }
+//        try {
+//            final HttpURLConnection connection = (HttpURLConnection) new URL(
+//                    String.format(UUIDFetcher.NAME_URL, UUIDTypeAdapter.fromUUID(uuid))).openConnection();
+//            connection.setReadTimeout(5000);
+//            final UUIDFetcher[] nameHistory = UUIDFetcher.gson.fromJson(
+//                    new BufferedReader(new InputStreamReader(connection.getInputStream())), UUIDFetcher[].class);
+//            if(nameHistory == null)
+//                return null;
+//            final UUIDFetcher currentNameData = nameHistory[nameHistory.length - 1];
+//
+//            UUIDFetcher.uuidCache.put(currentNameData.name.toLowerCase(), uuid);
+//            UUIDFetcher.nameCache.put(uuid, currentNameData.name);
+//
+//            return currentNameData.name;
+//        } catch (final Exception e) {
+//            e.printStackTrace();
+//        }
+
     }
 
     public static void clearCache() {
         nameCache.clear();
         uuidCache.clear();
+    }
+
+    private static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
+        try (InputStream is = new URL(url).openStream()) {
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            String jsonText = readAll(rd);
+            return new JSONObject(jsonText);
+        }
+    }
+
+    private static String readAll(Reader rd) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        int cp;
+        while ((cp = rd.read()) != -1) {
+            sb.append((char) cp);
+        }
+        return sb.toString();
     }
 }

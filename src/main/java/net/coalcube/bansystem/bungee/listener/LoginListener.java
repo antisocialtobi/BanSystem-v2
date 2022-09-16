@@ -129,7 +129,7 @@ public class LoginListener implements Listener {
                                 }
                                 BanSystem.getInstance().getConsole().sendMessage(messages.getString("prefix")
                                         + "§cDer Entwickler §e" + p.getDisplayName() + " §cist gerade gejoint.");
-                                p.sendMessage(messages.getString("prefix") + "§cDieser Server Benutzt Das Bansystem version §e"
+                                p.sendMessage(messages.getString("prefix") + "§cDieser Server benutzt das Bansystem Version §e"
                                         + BanSystem.getInstance().getVersion() + " §cauf §eBungeecord");
                             }
                             if (config.getBoolean("VPN.enable")) {

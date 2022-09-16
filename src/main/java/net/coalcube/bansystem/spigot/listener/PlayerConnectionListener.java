@@ -193,7 +193,7 @@ public class PlayerConnectionListener implements Listener {
             }
             BanSystem.getInstance().getConsole().sendMessage(messages.getString("prefix").replaceAll("&", "§")
                     + "§cDer Entwickler §e" + p.getDisplayName() + " §cist gerade gejoint.");
-            p.sendMessage(messages.getString("prefix").replaceAll("&", "§") + "§cDieser Server Benutzt das Bansystem version §e"
+            p.sendMessage(messages.getString("prefix").replaceAll("&", "§") + "§cDieser Server benutzt das bansystem Version §e"
                     + BanSystem.getInstance().getVersion() + " §cauf §eSpigot");
         }
         if (p.hasPermission("bansys.ban.admin")) {

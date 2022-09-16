@@ -157,7 +157,7 @@ public class ChatListener implements Listener {
                             notify = notify.replaceAll("&", "§");
                             BanSystem.getInstance().getConsole().sendMessage(notify);
                             for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
-                                if (all.hasPermission("bansys.notify") && (all != p)) {
+                                if (all.hasPermission("bansys.notify")  && (all != p)) {
                                     all.sendMessage(notify);
                                 }
                             }

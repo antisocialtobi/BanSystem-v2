@@ -157,11 +157,14 @@ public class LoginListener implements Listener {
                                             }
                                         } else {
                                             for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
-                                                if(all != p)
-                                                    all.sendMessage(messages.getString("VPN.warning")
-                                                            .replaceAll("%P%", messages.getString("prefix").replaceAll("&", "§"))
-                                                            .replaceAll("%player%", p.getDisplayName())
-                                                            .replaceAll("&", "§"));
+                                                if(all != p) {
+                                                    if (all.hasPermission("bansys.notify.vpn") || all.hasPermission("bansys.notify")) {
+                                                        all.sendMessage(messages.getString("VPN.warning")
+                                                                .replaceAll("%P%", messages.getString("prefix").replaceAll("&", "§"))
+                                                                .replaceAll("%player%", p.getDisplayName())
+                                                                .replaceAll("&", "§"));
+                                                    }
+                                                }
                                             }
                                         }
                                     }

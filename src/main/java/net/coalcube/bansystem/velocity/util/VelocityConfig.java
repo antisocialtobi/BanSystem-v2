@@ -8,7 +8,10 @@ import java.util.List;
 
 public class VelocityConfig implements Config {
 
-    public VelocityConfig(com.velocitypowered.api.plugin.annotation.DataDirectory)
+    public VelocityConfig(com.velocitypowered.api.plugin.annotation.DataDirectory dataDirectory) {
+
+    }
+
     @Override
     public String getString(String key) {
         return null;

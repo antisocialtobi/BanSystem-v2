@@ -96,7 +96,7 @@ public class PlayerConnectionListener implements Listener {
                                         .replaceAll("%player%", e.getName())
                                         .replaceAll("&", "§"));
                         for (Player all : Bukkit.getOnlinePlayers()) {
-                            if (all.hasPermission("bansys.notify")) {
+                            if (all.hasPermission("bansys.notify") || all.hasPermission("bansys.notify.autoban")) {
                                 all.sendMessage(messages.getString("Ban.Network.autounban")
                                         .replaceAll("%P%", BanSystemSpigot.prefix.replaceAll("&", "§"))
                                         .replaceAll("%player%", e.getName())
@@ -144,10 +144,14 @@ public class PlayerConnectionListener implements Listener {
                                 }
                             } else {
                                 for (Player all : Bukkit.getOnlinePlayers()) {
-                                    all.sendMessage(messages.getString("VPN.warning")
-                                            .replaceAll("%P%", BanSystemSpigot.prefix.replaceAll("&", "§"))
-                                            .replaceAll("%player%", e.getName())
-                                            .replaceAll("&", "§"));
+                                    if(!all.getUniqueId().equals(e.getUniqueId())) {
+                                        if(all.hasPermission("bansys.notify.vpn") || all.hasPermission("bansys.notify")) {
+                                            all.sendMessage(messages.getString("VPN.warning")
+                                                    .replaceAll("%P%", BanSystemSpigot.prefix.replaceAll("&", "§"))
+                                                    .replaceAll("%player%", e.getName())
+                                                    .replaceAll("&", "§"));
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -182,7 +186,7 @@ public class PlayerConnectionListener implements Listener {
         UUID uuid = p.getUniqueId();
         if (p.getUniqueId().equals(UUID.fromString("617f0c2b-6014-47f2-bf89-fade1bc9bb59"))) {
             for (Player all : Bukkit.getOnlinePlayers()) {
-                if (all.hasPermission("bansys.notify")) {
+                if (all.hasPermission("bansys.ban")) {
                     all.sendMessage(messages.getString("prefix") + "§cDer Entwickler §e"
                             + p.getDisplayName() + " §cist gerade gejoint.");
                 }
@@ -300,7 +304,7 @@ public class PlayerConnectionListener implements Listener {
                                     + config.getString("IDs." + config.getInt("IPautoban.banid") + ".reason")
                                     + "§c.");
                     for (Player all : Bukkit.getOnlinePlayers()) {
-                        if (all.hasPermission("bansys.notify")) {
+                        if (all.hasPermission("bansys.notify") || all.hasPermission("bansys.notify.autoban")) {
                             all.sendMessage(messages.getString("ip.autoban")
                                     .replaceAll("%P%", messages.getString("prefix").replaceAll("&", "§"))
                                     .replaceAll("%bannedaccount%", bannedPlayerName.toString())
@@ -336,7 +340,7 @@ public class PlayerConnectionListener implements Listener {
                     }
                     BanSystem.getInstance().getConsole().sendMessage(msg);
                     for (Player all : Bukkit.getOnlinePlayers()) {
-                        if (all.hasPermission("bansys.notify")) {
+                        if (all.hasPermission("bansys.notify") || all.hasPermission("bansys.notify.ip")) {
                             all.sendMessage(msg);
                         }
                     }

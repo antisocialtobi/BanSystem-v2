@@ -13,15 +13,15 @@ public class CMDcheck implements Command {
 
     private final BanManager bm;
     private final Database sql;
-    private final Config messages;
+    private final ConfigurationUtil configurationUtil;
 
     private UUID uuid;
     private String name;
 
-    public CMDcheck(BanManager banmanager, Database sql, Config messages) {
+    public CMDcheck(BanManager banmanager, Database sql, ConfigurationUtil configurationUtil) {
         this.bm = banmanager;
         this.sql = sql;
-        this.messages = messages;
+        this.configurationUtil = configurationUtil;
     }
 
     @Override
@@ -66,10 +66,7 @@ public class CMDcheck implements Command {
                     }
 
                     if (uuid == null) {
-                        user.sendMessage(
-                                messages.getString("Playerdoesnotexist")
-                                        .replaceAll("%P%", messages.getString("prefix"))
-                                        .replaceAll("&", "§"));
+                        user.sendMessage(configurationUtil.getMessage("Playerdoesnotexist"));
                         return;
                     }
 
@@ -104,23 +101,19 @@ public class CMDcheck implements Command {
                             } catch (IllegalArgumentException ignored) {
                             }
 
-                            for (String m : messages.getStringList("Check.networkandchat")) {
-                                assert player != null;
-                                assert bannerchat != null;
-                                assert bannernetwork != null;
-                                user.sendMessage(m
-                                        .replaceAll("%P%", messages.getString("prefix"))
-                                        .replaceAll("%player%", player)
-                                        .replaceAll("%bannerchat%", bannerchat)
-                                        .replaceAll("%reasonchat%", reasonchat)
-                                        .replaceAll("%reamingtimechat%", reamingtimechat)
-                                        .replaceAll("%levelchat%", lvlchat)
-                                        .replaceAll("%bannernetwork%", bannernetwork)
-                                        .replaceAll("%reasonnetwork%", reasonnetwork)
-                                        .replaceAll("%reamingtimenetwork%", reamingtimenetwork)
-                                        .replaceAll("%levelnetwork%", lvlnetwork)
-                                        .replaceAll("&", "§"));
-                            }
+                            assert bannerchat != null;
+                            assert bannernetwork != null;
+                            user.sendMessage(configurationUtil.getMessage("Check.networkandchat")
+                                    .replaceAll("%player%", player)
+                                    .replaceAll("%bannerchat%", bannerchat)
+                                    .replaceAll("%reasonchat%", reasonchat)
+                                    .replaceAll("%reamingtimechat%", reamingtimechat)
+                                    .replaceAll("%levelchat%", lvlchat)
+                                    .replaceAll("%bannernetwork%", bannernetwork)
+                                    .replaceAll("%reasonnetwork%", reasonnetwork)
+                                    .replaceAll("%reamingtimenetwork%", reamingtimenetwork)
+                                    .replaceAll("%levelnetwork%", lvlnetwork));
+
 
                         } else if (bm.isBanned(uuid, Type.CHAT)) {
 
@@ -139,19 +132,15 @@ public class CMDcheck implements Command {
                             } catch (IllegalArgumentException ignored) {
                             }
 
-                            for (String m : messages.getStringList("Check.chat")) {
-                                assert player != null;
-                                assert banner != null;
-                                user.sendMessage(m
-                                        .replaceAll("%P%", messages.getString("prefix"))
-                                        .replaceAll("%player%", player)
-                                        .replaceAll("%banner%", banner)
-                                        .replaceAll("%reason%", reason)
-                                        .replaceAll("%reamingtime%", reamingtime)
-                                        .replaceAll("%level%", lvl)
-                                        .replaceAll("%type%", Type.CHAT.toString())
-                                        .replaceAll("&", "§"));
-                            }
+                            assert player != null;
+                            assert banner != null;
+                            user.sendMessage(configurationUtil.getMessage("Check.chat")
+                                    .replaceAll("%player%", player)
+                                    .replaceAll("%banner%", banner)
+                                    .replaceAll("%reason%", reason)
+                                    .replaceAll("%reamingtime%", reamingtime)
+                                    .replaceAll("%level%", lvl)
+                                    .replaceAll("%type%", Type.CHAT.toString()));
 
                         } else if (bm.isBanned(uuid, Type.NETWORK)) {
 
@@ -166,49 +155,34 @@ public class CMDcheck implements Command {
                             } catch (IllegalArgumentException ignored) {
                             }
 
-
-                            for (String m : messages.getStringList("Check.network")) {
-                                assert player != null;
-                                assert banner != null;
-                                user.sendMessage(m
-                                        .replaceAll("%P%", messages.getString("prefix"))
-                                        .replaceAll("%player%", player)
-                                        .replaceAll("%banner%", banner)
-                                        .replaceAll("%reason%", reason)
-                                        .replaceAll("%reamingtime%", reamingtime)
-                                        .replaceAll("%level%", String.valueOf(lvl))
-                                        .replaceAll("%type%", Type.NETWORK.toString())
-                                        .replaceAll("&", "§"));
-                            }
+                            assert player != null;
+                            assert banner != null;
+                            user.sendMessage(configurationUtil.getMessage("Check.network")
+                                    .replaceAll("%player%", player)
+                                    .replaceAll("%banner%", banner)
+                                    .replaceAll("%reason%", reason)
+                                    .replaceAll("%reamingtime%", reamingtime)
+                                    .replaceAll("%level%", String.valueOf(lvl))
+                                    .replaceAll("%type%", Type.NETWORK.toString()));
 
                         } else {
-                            user.sendMessage(messages.getString("Playernotbanned")
-                                    .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("%player%", name)
-                                    .replaceAll("&", "§"));
+                            user.sendMessage(configurationUtil.getMessage("Playernotbanned")
+                                    .replaceAll("%player%", name));
                         }
                     } catch (UnknownHostException | SQLException | ParseException e) {
-                        user.sendMessage(messages.getString("Check.faild")
-                                .replaceAll("%P%", messages.getString("prefix"))
-                                .replaceAll("&", "§"));
+                        user.sendMessage(configurationUtil.getMessage("Check.faild"));
                         e.printStackTrace();
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
                 } else {
-                    user.sendMessage(messages.getString("Check.usage")
-                            .replaceAll("%P%", messages.getString("prefix"))
-                            .replaceAll("&", "§"));
+                    user.sendMessage(configurationUtil.getMessage("Check.usage"));
                 }
             } else {
-                user.sendMessage(messages.getString("NoDBConnection")
-                        .replaceAll("%P%", messages.getString("prefix"))
-                        .replaceAll("&", "§"));
+                user.sendMessage(configurationUtil.getMessage("NoDBConnection"));
             }
         } else {
-            user.sendMessage(messages.getString("NoPermissionMessage")
-                    .replaceAll("%P%", messages.getString("prefix"))
-                    .replaceAll("&", "§"));
+            user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
         }
     }
 }

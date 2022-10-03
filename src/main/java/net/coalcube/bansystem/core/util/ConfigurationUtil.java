@@ -1,8 +1,17 @@
 package net.coalcube.bansystem.core.util;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class ConfigurationUtil {
+
+    private Config config, messages, blacklist;
+
+    public ConfigurationUtil(Config config, Config messages, Config blacklist) {
+        this.config = config;
+        this.blacklist = blacklist;
+        this.messages = messages;
+    }
 
     public static void initConfig(Config config) {
         config.set("mysql.enable", false);
@@ -159,7 +168,14 @@ public class ConfigurationUtil {
                         "§8§m----------------------------"));
         messages.set("Ban.Chat.autounmute.success", "%P%§e%player% §7wurde §eautomatisch §7entmuted.");
         messages.set("Ban.Chat.autounmute.faild", "%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.");
-        messages.set("Ban.success", "%P%§7Du hast §e%Player% §7erfolgreich §cgebannt/gemuted.");
+        messages.set("Ban.success",
+                Arrays.asList("§8§m----------------------------",
+                        "%P%§7Du hast §e%Player% §7erfolgreich §cgebannt/gemuted.",
+                        "%P%Grund §8» §c%reason%",
+                        "%P%Type §8» §c%type%",
+                        "%P%Verbleibende Zeit §8» §c%reamingtime%",
+                        "%P%Entbannungszeitpunkt §8» §c%enddate%",
+                        "§8§m----------------------------"));
         messages.set("Ban.faild", "%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.");
         messages.set("Ban.bypass", "%P%§cDu kannst Spieler, die eine Bypass Permission haben, nicht bannen.");
         messages.set("Ban.notify",
@@ -444,5 +460,30 @@ public class ConfigurationUtil {
         blacklist.set("Ads",
                 Arrays.asList(".de", ". de", ".  de", "PUNKT de", ".net", ". net", ".  net", "PUNKT net", ".at", ".com",
                         ".be", ".eu", ".shop", ".it", "www.", "de.", "shop.", ".dev", ".xyz", ".wtf", "http://", "https://"));
+    }
+
+    public String getMessage(String path) {
+        String msg = "";
+
+        if(messages.get(path) instanceof List) {
+            int count = 0;
+            for(String line : messages.getStringList(path)) {
+                if(messages.getStringList(path).size()-1 == count) {
+                    msg = msg + line;
+                } else {
+                    msg = msg + line + "\n";
+                }
+                count ++;
+            }
+        } else
+            msg = messages.getString(path);
+
+        if(msg.contains("&"))
+            msg = msg.replaceAll("&", "§");
+
+        if(msg.contains("%P%"))
+            msg = msg.replaceAll("%P%", messages.getString("prefix").replaceAll("&", "§"));
+
+        return msg;
     }
 }

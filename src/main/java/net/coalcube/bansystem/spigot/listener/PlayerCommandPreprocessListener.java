@@ -3,6 +3,7 @@ package net.coalcube.bansystem.spigot.listener;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.util.BanManager;
 import net.coalcube.bansystem.core.util.Config;
+import net.coalcube.bansystem.core.util.ConfigurationUtil;
 import net.coalcube.bansystem.core.util.Type;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -20,14 +21,15 @@ import java.util.concurrent.ExecutionException;
 public class PlayerCommandPreprocessListener implements Listener {
 
     private static BanManager banManager;
-    private static Config config, messages;
+    private static Config config;
     private static List<String> blockedCommands;
+    private static ConfigurationUtil configurationUtil;
 
-    public PlayerCommandPreprocessListener(BanManager banManager, Config config, Config messages, List<String> blockedCommands) {
+    public PlayerCommandPreprocessListener(BanManager banManager, Config config, List<String> blockedCommands, ConfigurationUtil configurationUtil) {
         PlayerCommandPreprocessListener.banManager = banManager;
         PlayerCommandPreprocessListener.config = config;
-        PlayerCommandPreprocessListener.messages = messages;
         PlayerCommandPreprocessListener.blockedCommands = blockedCommands;
+        PlayerCommandPreprocessListener.configurationUtil = configurationUtil;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -52,13 +54,9 @@ public class PlayerCommandPreprocessListener implements Listener {
                             String reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
                                     banManager.getRemainingTime(p.getUniqueId(), Type.CHAT));
 
-                            for (String message : messages.getStringList("Ban.Chat.Screen")) {
-                                p.sendMessage(message
-                                        .replaceAll("%P%", messages.getString("prefix"))
-                                        .replaceAll("%reason%", banManager.getReason(p.getUniqueId(), Type.CHAT))
-                                        .replaceAll("%reamingtime%", reamingTime)
-                                        .replaceAll("&", "§"));
-                            }
+                            p.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
+                                    .replaceAll("%reason%", banManager.getReason(p.getUniqueId(), Type.CHAT))
+                                    .replaceAll("%reamingtime%", reamingTime));
                         }
                     } else {
                         if (config.getBoolean("needReason.Unmute")) {
@@ -67,16 +65,12 @@ public class PlayerCommandPreprocessListener implements Listener {
                             banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName());
                         }
                         banManager.log("Unmuted Player", Bukkit.getConsoleSender().getName(), p.getUniqueId().toString(), "Autounmute");
-                        Bukkit.getConsoleSender().sendMessage(messages.getString("Ban.Chat.autounmute.success")
-                                .replaceAll("%P%", messages.getString("prefix"))
-                                .replaceAll("%player%", p.getDisplayName())
-                                .replaceAll("&", "§"));
+                        Bukkit.getConsoleSender().sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
+                                .replaceAll("%player%", p.getDisplayName()));
                         for(Player all : Bukkit.getOnlinePlayers()) {
                             if(all.hasPermission("bansys.notify")) {
-                                all.sendMessage(messages.getString("Ban.Chat.autounmute.success")
-                                        .replaceAll("%P%", messages.getString("prefix"))
-                                        .replaceAll("%player%", p.getDisplayName())
-                                        .replaceAll("&", "§"));
+                                all.sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
+                                        .replaceAll("%player%", p.getDisplayName()));
 
                             }
                         }

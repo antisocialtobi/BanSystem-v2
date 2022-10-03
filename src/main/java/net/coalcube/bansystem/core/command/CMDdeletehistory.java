@@ -12,16 +12,16 @@ import java.util.concurrent.ExecutionException;
 public class CMDdeletehistory implements Command {
 
     private final BanManager banmanager;
-    private final Config messages;
     private final Database sql;
+    private final ConfigurationUtil configurationUtil;
 
     private UUID uuid;
     private String name;
 
-    public CMDdeletehistory(BanManager banmanager, Config messages, Database sql) {
+    public CMDdeletehistory(BanManager banmanager, Database sql, ConfigurationUtil configurationUtil) {
         this.banmanager = banmanager;
-        this.messages = messages;
         this.sql = sql;
+        this.configurationUtil = configurationUtil;
     }
 
 
@@ -66,8 +66,7 @@ public class CMDdeletehistory implements Command {
                     }
 
                     if (uuid == null) {
-                        user.sendMessage(messages.getString("Playerdoesnotexist")
-                                .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
+                        user.sendMessage(configurationUtil.getMessage("Playerdoesnotexist"));
                         return;
                     }
                     try {
@@ -79,55 +78,41 @@ public class CMDdeletehistory implements Command {
                                 banmanager.log("Deleted History", user.getName(), uuid.toString(), "");
 
                             }
-                            user.sendMessage(messages.getString("Deletehistory.success")
-                                    .replaceAll("%P%", messages.getString("prefix"))
+                            user.sendMessage(configurationUtil.getMessage("Deletehistory.success")
                                     .replaceAll("%player%", Objects.requireNonNull(name)).replaceAll("&", "§"));
                             for (User all : BanSystem.getInstance().getAllPlayers()) {
                                 if (all.hasPermission("bansys.notify") && all.getRawUser() != user.getRawUser()) {
-                                    all.sendMessage(messages.getString("Deletehistory.notify")
-                                            .replaceAll("%P%", messages.getString("prefix"))
+                                    all.sendMessage(configurationUtil.getMessage("Deletehistory.notify")
                                             .replaceAll("%player%", Objects.requireNonNull(name))
                                             .replaceAll("%sender%",
-                                                    (user.getUniqueId() != null ? user.getDisplayName() : user.getName()))
-                                            .replaceAll("&", "§"));
+                                                    (user.getUniqueId() != null ? user.getDisplayName() : user.getName())));
                                 }
                             }
 
                             if (user.getUniqueId() != null)
                                 BanSystem.getInstance().getConsole()
-                                        .sendMessage(messages.getString("Deletehistory.notify")
-                                                .replaceAll("%P%", messages.getString("prefix"))
+                                        .sendMessage(configurationUtil.getMessage("Deletehistory.notify")
                                                 .replaceAll("%player%", Objects.requireNonNull(name))
                                                 .replaceAll("%sender%",
-                                                        (user.getUniqueId() != null ? user.getDisplayName() : user.getName()))
-                                                .replaceAll("&", "§"));
+                                                        (user.getUniqueId() != null ? user.getDisplayName() : user.getName())));
 
                         } else {
-                            user.sendMessage(messages.getString("History.historynotfound")
-                                    .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
+                            user.sendMessage(configurationUtil.getMessage("History.historynotfound"));
                         }
                     } catch (UnknownHostException | SQLException e) {
-                        user.sendMessage(messages.getString("Deletehistroy.faild")
-                                .replaceAll("%prefix%", messages.getString("prefix"))
-                                .replaceAll("&", "§"));
+                        user.sendMessage(configurationUtil.getMessage("Deletehistroy.faild"));
                         e.printStackTrace();
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
                 } else {
-                    user.sendMessage(messages.getString("Deletehistory.usage")
-                            .replaceAll("%P%", messages.getString("prefix"))
-                            .replaceAll("&", "§"));
+                    user.sendMessage(configurationUtil.getMessage("Deletehistory.usage"));
                 }
             } else {
-                user.sendMessage(messages.getString("NoDBConnection")
-                        .replaceAll("%P%", messages.getString("prefix"))
-                        .replaceAll("&", "§"));
+                user.sendMessage(configurationUtil.getMessage("NoDBConnection"));
             }
         } else {
-            user.sendMessage(messages.getString("NoPermissionMessage")
-                    .replaceAll("%P%", messages.getString("prefix"))
-                    .replaceAll("&", "§"));
+            user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
         }
     }
 }

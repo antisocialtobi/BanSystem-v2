@@ -33,10 +33,10 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     private static BanManager banManager;
     private static IDManager idManager;
     private static URLUtil urlUtil;
+    private static ConfigurationUtil configurationUtil;
 
     private Database sql;
     private MySQL mysql;
-    private ServerSocket serversocket;
     private TimeFormatUtil timeFormatUtil;
     private Config config, messages, blacklist;
     private static String Banscreen;
@@ -68,7 +68,8 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         createConfig();
         loadConfig();
 
-        timeFormatUtil = new TimeFormatUtil(messages);
+        configurationUtil = new ConfigurationUtil(config, messages, blacklist);
+        timeFormatUtil = new TimeFormatUtil(configurationUtil);
 
         // Set mysql instance
         if (config.getBoolean("mysql.enable")) {
@@ -164,7 +165,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
 
         idManager = new IDManager(config, sql, new File(this.getDataFolder(), "config.yml"));
-        urlUtil = new URLUtil(messages, config);
+        urlUtil = new URLUtil(configurationUtil, config);
 
         init(pluginmanager);
 
@@ -317,20 +318,30 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     }
 
     private void init(PluginManager pluginManager) {
-        getCommand("ban").setExecutor(new CommandWrapper(new CMDban(banManager, config, messages, sql),true));
-        getCommand("check").setExecutor(new CommandWrapper(new CMDcheck(banManager, sql, messages), true));
-        getCommand("deletehistory").setExecutor(new CommandWrapper(new CMDdeletehistory(banManager, messages, sql), true));
-        getCommand("delhistory").setExecutor(new CommandWrapper(new CMDdeletehistory(banManager, messages, sql), true));
-        getCommand("history").setExecutor(new CommandWrapper(new CMDhistory(banManager, messages, config, sql), true));
-        getCommand("kick").setExecutor(new CommandWrapper(new CMDkick(messages, sql, banManager), true));
-        getCommand("unban").setExecutor(new CommandWrapper(new CMDunban(banManager, sql, messages, config), true));
-        getCommand("unmute").setExecutor(new CommandWrapper(new CMDunmute(banManager, messages, config, sql), true));
-        getCommand("bansystem").setExecutor(new CommandWrapper(new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager), false));
-        getCommand("bansys").setExecutor(new CommandWrapper(new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager), false));
+        getCommand("ban").setExecutor(new CommandWrapper(
+                new CMDban(banManager, config, messages, sql, configurationUtil),true));
+        getCommand("check").setExecutor(new CommandWrapper(
+                new CMDcheck(banManager, sql, configurationUtil), true));
+        getCommand("deletehistory").setExecutor(new CommandWrapper(
+                new CMDdeletehistory(banManager, sql, configurationUtil), true));
+        getCommand("delhistory").setExecutor(new CommandWrapper(
+                new CMDdeletehistory(banManager, sql, configurationUtil), true));
+        getCommand("history").setExecutor(new CommandWrapper
+                (new CMDhistory(banManager, config, sql, configurationUtil), true));
+        getCommand("kick").setExecutor(new CommandWrapper(
+                new CMDkick(sql, banManager, configurationUtil), true));
+        getCommand("unban").setExecutor(new CommandWrapper(
+                new CMDunban(banManager, sql, config, configurationUtil), true));
+        getCommand("unmute").setExecutor(new CommandWrapper(
+                new CMDunmute(banManager, config, sql, configurationUtil), true));
+        getCommand("bansystem").setExecutor(new CommandWrapper(
+                new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
+        getCommand("bansys").setExecutor(new CommandWrapper(
+                new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
 
-        pluginManager.registerEvents(new AsyncPlayerChatListener(config, messages, banManager, mysql, blacklist), this);
-        pluginManager.registerEvents(new PlayerCommandPreprocessListener(banManager, config, messages, blockedCommands), this);
-        pluginManager.registerEvents(new PlayerConnectionListener(banManager, config, messages, Banscreen, instance, urlUtil), this);
+        pluginManager.registerEvents(new AsyncPlayerChatListener(config, banManager, mysql, blacklist, configurationUtil), this);
+        pluginManager.registerEvents(new PlayerCommandPreprocessListener(banManager, config, blockedCommands, configurationUtil), this);
+        pluginManager.registerEvents(new PlayerConnectionListener(banManager, config, Banscreen, instance, urlUtil, configurationUtil), this);
     }
 
     @Override
@@ -362,6 +373,11 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         return this.getDescription().getVersion();
     }
 
+    @Override
+    public ConfigurationUtil getConfigurationUtil() {
+        return configurationUtil;
+    }
+
     public static BanManager getBanmanager() {
         return banManager;
     }
@@ -370,15 +386,4 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         return instance;
     }
 
-    public static List<String> getBlockedWords() {
-        return blockedWords;
-    }
-
-    public static List<String> getBlockedCommands() {
-        return blockedCommands;
-    }
-
-    public static List<String> getAds() {
-        return ads;
-    }
 }

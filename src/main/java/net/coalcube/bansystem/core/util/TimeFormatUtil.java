@@ -5,10 +5,10 @@ import java.util.List;
 
 public class TimeFormatUtil {
 
-    private static Config messages;
+    private static ConfigurationUtil configurationUtil;
 
-    public TimeFormatUtil(Config messages) {
-        this.messages = messages;
+    public TimeFormatUtil(ConfigurationUtil configurationUtil) {
+        this.configurationUtil = configurationUtil;
     }
 
     public String getFormattedRemainingTime(Long remainingTime) {
@@ -42,10 +42,10 @@ public class TimeFormatUtil {
             days++;
         }
 
-        if(seconds > 0) array.add(messages.getString("TimeFormat.seconds").replaceAll("%sec%", String.valueOf(seconds)));
-        if(minutes > 0) array.add(messages.getString("TimeFormat.minutes").replaceAll("%min%", String.valueOf(minutes)));;
-        if(hours > 0) array.add(messages.getString("TimeFormat.hours").replaceAll("%hour%", String.valueOf(hours)));
-        if(days > 0) array.add(messages.getString("TimeFormat.days").replaceAll("%day%", String.valueOf(days)));
+        if(seconds > 0) array.add(configurationUtil.getMessage("TimeFormat.seconds").replaceAll("%sec%", String.valueOf(seconds)));
+        if(minutes > 0) array.add(configurationUtil.getMessage("TimeFormat.minutes").replaceAll("%min%", String.valueOf(minutes)));;
+        if(hours > 0) array.add(configurationUtil.getMessage("TimeFormat.hours").replaceAll("%hour%", String.valueOf(hours)));
+        if(days > 0) array.add(configurationUtil.getMessage("TimeFormat.days").replaceAll("%day%", String.valueOf(days)));
 
         String formattedRemainingTime = null;
 

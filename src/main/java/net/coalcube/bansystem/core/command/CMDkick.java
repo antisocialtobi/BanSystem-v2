@@ -8,23 +8,23 @@ import java.util.UUID;
 
 public class CMDkick implements Command {
 
-    private final Config messages;
     private final Database sql;
     private final BanManager banManager;
+    private final ConfigurationUtil configurationUtil;
 
     private UUID uuid;
     private String name;
     private User target;
 
-    public CMDkick(Config messages, Database sql, BanManager banManager) {
-        this.messages = messages;
+    public CMDkick(Database sql, BanManager banManager, ConfigurationUtil configurationUtil) {
         this.sql = sql;
         this.banManager = banManager;
+        this.configurationUtil = configurationUtil;
     }
 
     public void kick(User p, User target) throws SQLException {
-        BanSystem.getInstance().disconnect(target, messages.getString("Kick.noreason.screen").replaceAll("&", "§"));
-        p.sendMessage(messages.getString("Kick.success").replaceAll("%P%", messages.getString("prefix"))
+        BanSystem.getInstance().disconnect(target, configurationUtil.getMessage("Kick.noreason.screen"));
+        p.sendMessage(configurationUtil.getMessage("Kick.success")
                 .replaceAll("%player%", target.getDisplayName()).replaceAll("&", "§"));
         if (sql.isConnected()) {
             if (p.getUniqueId() == null) {
@@ -35,30 +35,25 @@ public class CMDkick implements Command {
                 banManager.log("Kicked Player", p.getUniqueId().toString(), target.getUniqueId().toString(), "");
             }
         } else {
-            p.sendMessage(messages.getString("NoDBConnection")
-                    .replaceAll("%P%", messages.getString("prefix")));
+            p.sendMessage(configurationUtil.getMessage("NoDBConnection"));
         }
         for (User all : BanSystem.getInstance().getAllPlayers()) {
             if (all.hasPermission("bansys.notify") && all.getUniqueId() != p.getUniqueId()) {
-                for (String message : messages.getStringList("Kick.noreason.notify")) {
-                    all.sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
-                            .replaceAll("%player%", target.getDisplayName())
-                            .replaceAll("%sender%", (p.getUniqueId() != null ? p.getDisplayName() : p.getName()))
-                            .replaceAll("&", "§"));
-                }
+                all.sendMessage(configurationUtil.getMessage("Kick.noreason.notify")
+                        .replaceAll("%player%", target.getDisplayName())
+                        .replaceAll("%sender%", (p.getUniqueId() != null ? p.getDisplayName() : p.getName())));
             }
         }
     }
 
     public void kick(User p, User target, String[] args) throws SQLException {
-        p.sendMessage(messages.getString("Kick.success").replaceAll("%P%", messages.getString("prefix"))
+        p.sendMessage(configurationUtil.getMessage("Kick.success")
                 .replaceAll("%player%", target.getDisplayName()).replaceAll("&", "§"));
         StringBuilder msg = new StringBuilder();
         for (int i = 1; i < args.length; i++) {
             msg.append(args[i].replaceAll("&", "§")).append(" ");
         }
-        BanSystem.getInstance().disconnect(target, messages.getString("Kick.reason.screen")
-                .replaceAll("%P%", messages.getString("prefix"))
+        BanSystem.getInstance().disconnect(target, configurationUtil.getMessage("Kick.reason.screen")
                 .replaceAll("%reason%", msg.toString()));
 
         if (p.getUniqueId() == null) {
@@ -70,13 +65,10 @@ public class CMDkick implements Command {
         }
         for (User all : BanSystem.getInstance().getAllPlayers()) {
             if (all.hasPermission("bansys.notify") && all.getUniqueId() != p.getUniqueId()) {
-                for (String message : messages.getStringList("Kick.reason.notify")) {
-                    all.sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
-                            .replaceAll("%player%", target.getDisplayName())
-                            .replaceAll("%sender%", (p.getUniqueId() != null ? p.getDisplayName() : p.getName()))
-                            .replaceAll("%reason%", msg.toString())
-                            .replaceAll("&", "§"));
-                }
+                all.sendMessage(configurationUtil.getMessage("Kick.reason.notify")
+                        .replaceAll("%player%", target.getDisplayName())
+                        .replaceAll("%sender%", (p.getUniqueId() != null ? p.getDisplayName() : p.getName()))
+                        .replaceAll("%reason%", msg.toString()));
             }
         }
     }
@@ -92,15 +84,11 @@ public class CMDkick implements Command {
                         if(BanSystem.getInstance().getUser(UUID.fromString(args[0])) != null) {
                             target = BanSystem.getInstance().getUser(UUID.fromString(args[0]));
                         } else {
-                            p.sendMessage(messages.getString("PlayerNotFound")
-                                    .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("&", "§"));
+                            p.sendMessage(configurationUtil.getMessage("PlayerNotFound"));
                             return;
                         }
                     } catch (IllegalArgumentException e) {
-                        p.sendMessage(messages.getString("PlayerNotFound")
-                                .replaceAll("%P%", messages.getString("prefix"))
-                                .replaceAll("&", "§"));
+                        p.sendMessage(configurationUtil.getMessage("PlayerNotFound"));
                         return;
                     }
                 }
@@ -111,15 +99,11 @@ public class CMDkick implements Command {
 
                     if(((target.hasPermission("bansys.kick") && !p.hasPermission("bansys.kick.admin"))
                             || target.hasPermission("bansys.kick.admin")) && p.getUniqueId() != null) {
-                        p.sendMessage(messages.getString("Kick.cannotkick.teammembers")
-                                .replaceAll("%P%", messages.getString("prefix"))
-                                .replaceAll("&", "§"));
+                        p.sendMessage(configurationUtil.getMessage("Kick.cannotkick.teammembers"));
                         return;
                     }
                     if (target.hasPermission("bansys.kick.bypass") && !p.hasPermission("bansys.kick.admin")) {
-                        p.sendMessage(messages.getString("Kick.cannotkick.bypass")
-                                .replaceAll("%P%", messages.getString("prefix"))
-                                .replaceAll("&", "§"));
+                        p.sendMessage(configurationUtil.getMessage("Kick.cannotkick.bypass"));
                         return;
                     }
                     if (args.length == 1) {
@@ -136,19 +120,13 @@ public class CMDkick implements Command {
                         }
                     }
                 } else {
-                    p.sendMessage(messages.getString("Kick.cannotkick.youselfe")
-                            .replaceAll("%P%", messages.getString("prefix"))
-                            .replaceAll("&", "§"));
+                    p.sendMessage(configurationUtil.getMessage("Kick.cannotkick.youselfe"));
                 }
             } else {
-                p.sendMessage(messages.getString("Kick.usage")
-                        .replaceAll("%P%", messages.getString("prefix"))
-                        .replaceAll("&", "§"));
+                p.sendMessage(configurationUtil.getMessage("Kick.usage"));
             }
         } else {
-            p.sendMessage(messages.getString("NoPermissionMessage")
-                    .replaceAll("%P%", messages.getString("prefix"))
-                    .replaceAll("&", "§"));
+            p.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
         }
     }
 }

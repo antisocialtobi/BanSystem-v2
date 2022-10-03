@@ -62,4 +62,9 @@ public class SpigotConfigurationSection implements Config {
         return config.getInt(key);
     }
 
+    @Override
+    public Object get(String path) {
+        return config.get(path);
+    }
+
 }

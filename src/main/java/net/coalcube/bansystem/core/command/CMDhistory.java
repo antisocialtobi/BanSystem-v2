@@ -14,18 +14,18 @@ import java.util.concurrent.ExecutionException;
 public class CMDhistory implements Command {
 
     private final BanManager banmanager;
-    private final Config messages;
     private final Config config;
     private final Database sql;
+    private final ConfigurationUtil configurationUtil;
 
     private UUID uuid;
     private String name;
 
-    public CMDhistory(BanManager banmanager, Config messages, Config config, Database sql) {
+    public CMDhistory(BanManager banmanager, Config config, Database sql, ConfigurationUtil configurationUtil) {
         this.banmanager = banmanager;
-        this.messages = messages;
         this.config = config;
         this.sql = sql;
+        this.configurationUtil = configurationUtil;
     }
 
 
@@ -70,63 +70,48 @@ public class CMDhistory implements Command {
                     }
 
                     if (uuid == null) {
-                        user.sendMessage(messages.getString("Playerdoesnotexist")
-                                .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
+                        user.sendMessage(configurationUtil.getMessage("Playerdoesnotexist"));
                         return;
                     }
                     try {
                         if (banmanager.hasHistory(uuid)) {
 
-                            user.sendMessage(messages.getString("History.header")
-                                    .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("%player%", Objects.requireNonNull(name))
-                                    .replaceAll("&", "§"));
+                            user.sendMessage(configurationUtil.getMessage("History.header")
+                                    .replaceAll("%player%", Objects.requireNonNull(name)));
 
-                            user.sendMessage(messages.getString("prefix"));
+                            user.sendMessage(configurationUtil.getMessage("prefix"));
 
-                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(configurationUtil.getMessage("DateTimePattern"));
                             for(History history : banmanager.getHistory(uuid)) {
                                 String id = "Not Found";
                                 for(String ids : config.getSection("IDs").getKeys()) {
                                     if(config.getString("IDs." + ids + ".reason").equals(history.getReason()))
                                         id = ids;
                                 }
-                                for(String message : messages.getStringList("History.body")) {
-                                    user.sendMessage(message.replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%reason%", history.getReason())
-                                            .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
-                                            .replaceAll("%enddate%", simpleDateFormat.format(history.getEndDate()))
-                                            .replaceAll("%creator%", history.getCreator())
-                                            .replaceAll("%ip%", (history.getIp() == null ? "§cNicht vorhanden" : history.getIp().getHostName()))
-                                            .replaceAll("%type%", history.getType().toString())
-                                            .replaceAll("%ID%", id)
-                                            .replaceAll("&", "§"));
-                                }
+                                user.sendMessage(configurationUtil.getMessage("History.body")                                            .replaceAll("%reason%", history.getReason())
+                                        .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
+                                        .replaceAll("%enddate%", simpleDateFormat.format(history.getEndDate()))
+                                        .replaceAll("%creator%", history.getCreator())
+                                        .replaceAll("%ip%", (history.getIp() == null ? "§cNicht vorhanden" : history.getIp().getHostName()))
+                                        .replaceAll("%type%", history.getType().toString())
+                                        .replaceAll("%ID%", id));
                             }
-                            user.sendMessage(messages.getString("History.footer")
-                                    .replaceAll("%P%", messages.getString("prefix"))
-                                    .replaceAll("&", "§"));
+                            user.sendMessage(configurationUtil.getMessage("History.footer"));
 
                         } else {
-                            user.sendMessage(messages.getString("History.historynotfound")
-                                    .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
+                            user.sendMessage(configurationUtil.getMessage("History.historynotfound"));
                         }
                     } catch (UnknownHostException | SQLException | ParseException | InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
                 } else {
-                    user.sendMessage(messages.getString("History.usage")
-                            .replaceAll("%P%", messages.getString("prefix")).replaceAll("&", "§"));
+                    user.sendMessage(configurationUtil.getMessage("History.usage"));
                 }
             } else {
-                user.sendMessage(messages.getString("NoDBConnection")
-                        .replaceAll("%P%", messages.getString("prefix"))
-                        .replaceAll("&", "§"));
+                user.sendMessage(configurationUtil.getMessage("NoDBConnection"));
             }
         } else {
-            user.sendMessage(messages.getString("NoPermissionMessage")
-                    .replaceAll("%P%", messages.getString("prefix"))
-                    .replaceAll("&", "§"));
+            user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
         }
     }
 }

@@ -13,17 +13,17 @@ public class CMDunban implements Command {
 
     private final BanManager banmanager;
     private final Database sql;
-    private final Config messages;
     private final Config config;
+    private final ConfigurationUtil configurationUtil;
 
     private UUID uuid;
     private String name;
 
-    public CMDunban(BanManager banmanager, Database sql, Config messages, Config config) {
+    public CMDunban(BanManager banmanager, Database sql, Config config, ConfigurationUtil configurationUtil) {
         this.banmanager = banmanager;
         this.sql = sql;
-        this.messages = messages;
         this.config = config;
+        this.configurationUtil = configurationUtil;
     }
 
     @Override
@@ -68,9 +68,7 @@ public class CMDunban implements Command {
                     }
 
                     if (uuid == null) {
-                        user.sendMessage(messages.getString("Playerdoesnotexist")
-                                .replaceAll("%P%", messages.getString("prefix"))
-                                .replaceAll("&", "§"));
+                        user.sendMessage(configurationUtil.getMessage("Playerdoesnotexist"));
                         return;
                     }
                     try {
@@ -86,59 +84,42 @@ public class CMDunban implements Command {
                                     try {
                                         if (user.getUniqueId() != null) {
                                             banmanager.unBan(uuid, user.getUniqueId(), reason.toString());
-                                            for(String msg : messages.getStringList("Unban.needreason.notify")) {
-                                                msg = msg.replaceAll("%P%", messages.getString("prefix"));
-                                                msg = msg.replaceAll("%player%", Objects.requireNonNull(name));
-                                                msg = msg.replaceAll("%sender%", user.getName());
-                                                msg = msg.replaceAll("%reason%", reason.toString());
-                                                msg = msg.replaceAll("&", "§");
-
-                                                BanSystem.getInstance().getConsole().sendMessage(msg);
-                                            }
+                                            BanSystem.getInstance().getConsole().sendMessage(
+                                                    configurationUtil.getMessage("Unban.needreason.notify")
+                                                            .replaceAll("%player%", Objects.requireNonNull(name))
+                                                            .replaceAll("%sender%", user.getName())
+                                                            .replaceAll("%reason%", reason.toString()));
                                         } else {
                                             banmanager.unBan(uuid, user.getName(), reason.toString());
                                         }
                                     } catch (IOException | SQLException e) {
                                         e.printStackTrace();
-                                        user.sendMessage(messages.getString("Unban.faild")
-                                                .replaceAll("%P%", messages.getString("prefix"))
-                                                .replaceAll("&", "§"));
+                                        user.sendMessage(configurationUtil.getMessage("Unban.faild"));
                                         return;
                                     }
 
-                                    user.sendMessage(messages.getString("Unban.needreason.success")
-                                            .replaceAll("%P%", messages.getString("prefix"))
+                                    user.sendMessage(configurationUtil.getMessage("Unban.needreason.success")
                                             .replaceAll("%player%", Objects.requireNonNull(name))
-                                            .replaceAll("%reason%", reason.toString())
-                                            .replaceAll("&", "§"));
+                                            .replaceAll("%reason%", reason.toString()));
                                     for (User all : BanSystem.getInstance().getAllPlayers()) {
                                         if (all.hasPermission("bansys.notify") && all.getRawUser() != user) {
-                                            for(String msg : messages.getStringList("Unban.needreason.notify")) {
-                                                msg = msg.replaceAll("%P%", messages.getString("prefix"));
-                                                msg = msg.replaceAll("%player%", Objects.requireNonNull(name));
-                                                msg = msg.replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName()));
-                                                msg = msg.replaceAll("%reason%", reason.toString());
-                                                msg = msg.replaceAll("&", "§");
-
-                                                all.sendMessage(msg);
-                                            }
+                                            all.sendMessage(configurationUtil.getMessage("Unban.needreason.notify")
+                                                    .replaceAll("%player%", Objects.requireNonNull(name))
+                                                    .replaceAll("%sender%", (user.getUniqueId() != null
+                                                            ? user.getDisplayName() : user.getName()))
+                                                    .replaceAll("%reason%", reason.toString()));
                                         }
                                     }
                                     if(user.getUniqueId() != null) {
-                                        for(String msg : messages.getStringList("Unban.needreason.notify")) {
-                                            msg = msg.replaceAll("%P%", messages.getString("prefix"));
-                                            msg = msg.replaceAll("%player%", Objects.requireNonNull(name));
-                                            msg = msg.replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName()));
-                                            msg = msg.replaceAll("%reason%", reason.toString());
-                                            msg = msg.replaceAll("&", "§");
-
-                                            BanSystem.getInstance().getConsole().sendMessage(msg);
-                                        }
+                                        BanSystem.getInstance().getConsole().sendMessage(
+                                                configurationUtil.getMessage("Unban.needreason.notify")
+                                                .replaceAll("%player%", Objects.requireNonNull(name))
+                                                .replaceAll("%sender%", (user.getUniqueId() != null
+                                                        ? user.getDisplayName() : user.getName()))
+                                                .replaceAll("%reason%", reason.toString()));
                                     }
                                 } else {
-                                    user.sendMessage(messages.getString("Unban.needreason.usage")
-                                            .replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("&", "§"));
+                                    user.sendMessage(configurationUtil.getMessage("Unban.needreason.usage"));
                                 }
                             } else {
                                 if(args.length == 1) {
@@ -152,70 +133,51 @@ public class CMDunban implements Command {
                                         }
                                     } catch (IOException e) {
                                         e.printStackTrace();
-                                        user.sendMessage(messages.getString("Unban.faild")
-                                                .replaceAll("%P%", messages.getString("prefix"))
-                                                .replaceAll("&", "§"));
+                                        user.sendMessage(configurationUtil.getMessage("Unban.faild"));
                                         return;
                                     }
                                     user.sendMessage(
-                                            messages.getString("Unban.success")
-                                                    .replaceAll("%P%", messages.getString("prefix"))
-                                                    .replaceAll("%player%", Objects.requireNonNull(name))
-                                                    .replaceAll("&", "§"));
+                                            configurationUtil.getMessage("Unban.success")
+                                                    .replaceAll("%player%", Objects.requireNonNull(name)));
                                     for (User all : BanSystem.getInstance().getAllPlayers()) {
                                         if (all.hasPermission("bansys.notify") && all.getRawUser() != user.getRawUser()) {
-                                            all.sendMessage(messages.getString("Unban.notify")
-                                                    .replaceAll("%P%", messages.getString("prefix"))
+                                            all.sendMessage(configurationUtil.getMessage("Unban.notify")
                                                     .replaceAll("%player%", Objects.requireNonNull(name))
-                                                    .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName()))
-                                                    .replaceAll("&", "§"));
+                                                    .replaceAll("%sender%", (user.getUniqueId() != null
+                                                            ? user.getDisplayName() : user.getName())));
                                         }
                                     }
                                     if(user.getUniqueId() != null) {
                                         BanSystem.getInstance().getConsole()
-                                                .sendMessage(messages.getString("Unban.notify")
-                                                        .replaceAll("%P%", messages.getString("prefix"))
+                                                .sendMessage(configurationUtil.getMessage("Unban.notify")
                                                         .replaceAll("%player%", Objects.requireNonNull(name))
-                                                        .replaceAll("%sender%", (user.getUniqueId() != null ? user.getDisplayName() : user.getName()))
-                                                        .replaceAll("&", "§"));
+                                                        .replaceAll("%sender%", (user.getUniqueId() != null
+                                                                ? user.getDisplayName() : user.getName())));
                                     }
 
                                 } else {
-                                    user.sendMessage(messages.getString("Unban.usage")
-                                            .replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("&", "§"));
+                                    user.sendMessage(configurationUtil.getMessage("Unban.usage"));
                                 }
                             }
                         } else {
-                            user.sendMessage(
-                                    messages.getString("Unban.notbanned")
-                                            .replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%player%", Objects.requireNonNull(name))
-                                            .replaceAll("&", "§"));
+                            user.sendMessage(configurationUtil.getMessage("Unban.notbanned")
+                                            .replaceAll("%player%", Objects.requireNonNull(name)));
                         }
                     } catch (SQLException | InterruptedException | ExecutionException throwables) {
                         throwables.printStackTrace();
                     }
                 } else {
                     if(!config.getBoolean("needReason.Unban")) {
-                        user.sendMessage(messages.getString("Unban.usage")
-                                .replaceAll("%P%", messages.getString("prefix"))
-                                .replaceAll("&", "§"));
+                        user.sendMessage(configurationUtil.getMessage("Unban.usage"));
                     } else {
-                        user.sendMessage(messages.getString("Unban.needreason.usage")
-                                .replaceAll("%P%", messages.getString("prefix"))
-                                .replaceAll("&", "§"));
+                        user.sendMessage(configurationUtil.getMessage("Unban.needreason.usage"));
                     }
                 }
             } else {
-                user.sendMessage(messages.getString("NoDBConnection")
-                        .replaceAll("%P%", messages.getString("prefix"))
-                        .replaceAll("&", "§"));
+                user.sendMessage(configurationUtil.getMessage("NoDBConnection"));
             }
         } else {
-            user.sendMessage(messages.getString("NoPermissionMessage")
-                    .replaceAll("%P%", messages.getString("prefix"))
-                    .replaceAll("&", "§"));
+            user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
         }
     }
 }

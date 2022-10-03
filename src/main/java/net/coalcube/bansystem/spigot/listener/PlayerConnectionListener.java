@@ -29,18 +29,18 @@ public class PlayerConnectionListener implements Listener {
 
     private final BanManager banManager;
     private final Config config;
-    private final Config messages;
     private final String banScreenRow;
     private final Plugin instance;
     private final URLUtil urlUtil;
+    private final ConfigurationUtil configurationUtil;
 
-    public PlayerConnectionListener(BanManager banManager, Config config, Config messages, String banScreen, Plugin instance, URLUtil urlUtil) {
+    public PlayerConnectionListener(BanManager banManager, Config config, String banScreen, Plugin instance, URLUtil urlUtil, ConfigurationUtil configurationUtil) {
         this.banManager = banManager;
         this.config = config;
-        this.messages = messages;
         this.banScreenRow = banScreen;
         this.instance = instance;
         this.urlUtil = urlUtil;
+        this.configurationUtil = configurationUtil;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -62,7 +62,7 @@ public class PlayerConnectionListener implements Listener {
 
                         String reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(banManager.getRemainingTime(uuid, Type.NETWORK));
 
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(configurationUtil.getMessage("DateTimePattern"));
                         String enddate = simpleDateFormat.format(new Date(banManager.getEnd(uuid, Type.NETWORK)));
 
                         String banScreen = banScreenRow
@@ -91,16 +91,12 @@ public class PlayerConnectionListener implements Listener {
                             ex.printStackTrace();
                         }
                         Bukkit.getConsoleSender()
-                                .sendMessage(messages.getString("Ban.Network.autounban")
-                                        .replaceAll("%P%", BanSystemSpigot.prefix)
-                                        .replaceAll("%player%", e.getName())
-                                        .replaceAll("&", "§"));
+                                .sendMessage(configurationUtil.getMessage("Ban.Network.autounban")
+                                        .replaceAll("%player%", e.getName()));
                         for (Player all : Bukkit.getOnlinePlayers()) {
                             if (all.hasPermission("bansys.notify")) {
-                                all.sendMessage(messages.getString("Ban.Network.autounban")
-                                        .replaceAll("%P%", BanSystemSpigot.prefix)
-                                        .replaceAll("%player%", e.getName())
-                                        .replaceAll("&", "§"));
+                                all.sendMessage(configurationUtil.getMessage("Ban.Network.autounban")
+                                        .replaceAll("%player%", e.getName()));
                             }
                         }
                     }
@@ -144,17 +140,15 @@ public class PlayerConnectionListener implements Listener {
                                 }
                             } else {
                                 for (Player all : Bukkit.getOnlinePlayers()) {
-                                    all.sendMessage(messages.getString("VPN.warning")
-                                            .replaceAll("%P%", BanSystemSpigot.prefix)
-                                            .replaceAll("%player%", e.getName())
-                                            .replaceAll("&", "§"));
+                                    all.sendMessage(configurationUtil.getMessage("VPN.warning")
+                                            .replaceAll("%player%", e.getName()));
                                 }
                             }
                         }
                     } catch (IOException ex) {
                         BanSystem.getInstance().getConsole().sendMessage(
-                                messages.getString("prefix") + "§cBei der VPN Abfrage ist ein Fehler aufgetreten: " + ex.getMessage());
-                        BanSystem.getInstance().getConsole().sendMessage(messages.getString("prefix")
+                                configurationUtil.getMessage("prefix") + "§cBei der VPN Abfrage ist ein Fehler aufgetreten: " + ex.getMessage());
+                        BanSystem.getInstance().getConsole().sendMessage(configurationUtil.getMessage("prefix")
                                 + "§cVersuche, falls noch nicht vorhanden, einen API Code für die VPN Api einzutragen " +
                                 "indem du auf der seite §ehttps://vpnapi.io/ §cdir einen Acoount erstellst. Falls dies " +
                                 "nicht funktioniert, wende dich bitte an den Support unter §ehttps://discord.gg/PfQTqhfjgA§c.");
@@ -183,13 +177,13 @@ public class PlayerConnectionListener implements Listener {
         if (p.getUniqueId().equals(UUID.fromString("617f0c2b-6014-47f2-bf89-fade1bc9bb59"))) {
             for (Player all : Bukkit.getOnlinePlayers()) {
                 if (all.hasPermission("bansys.notify")) {
-                    all.sendMessage(messages.getString("prefix") + "§cDer Entwickler §e"
+                    all.sendMessage(configurationUtil.getMessage("prefix") + "§cDer Entwickler §e"
                             + p.getDisplayName() + " §cist gerade gejoint.");
                 }
             }
-            BanSystem.getInstance().getConsole().sendMessage(messages.getString("prefix")
+            BanSystem.getInstance().getConsole().sendMessage(configurationUtil.getMessage("prefix")
                     + "§cDer Entwickler §e" + p.getDisplayName() + " §cist gerade gejoint.");
-            p.sendMessage(messages.getString("prefix") + "§cDieser Server benutzt das Bansystem Version §e"
+            p.sendMessage(configurationUtil.getMessage("prefix") + "§cDieser Server benutzt das Bansystem Version §e"
                     + BanSystem.getInstance().getVersion() + " §cauf §eSpigot");
         }
         if (p.hasPermission("bansys.ban.admin")) {
@@ -220,7 +214,7 @@ public class PlayerConnectionListener implements Listener {
                                     banManager.getRemainingTime(p.getUniqueId(), Type.NETWORK));
 
                             String banScreen = banScreenRow
-                                    .replaceAll("%P%", messages.getString("prefix"))
+                                    .replaceAll("%P%", configurationUtil.getMessage("prefix"))
                                     .replaceAll("%reason%", banManager.getReason(uuid, Type.NETWORK))
                                     .replaceAll("%reamingtime%", reamingTime)
                                     .replaceAll("%creator%", banManager.getBanner(uuid, Type.NETWORK))
@@ -295,21 +289,19 @@ public class PlayerConnectionListener implements Listener {
                         ioException.printStackTrace();
                     }
                     Bukkit.getConsoleSender()
-                            .sendMessage(messages.getString("autoban.ip.notify") + bannedPlayerName
+                            .sendMessage(configurationUtil.getMessage("autoban.ip.notify") + bannedPlayerName
                                     + " §cwurde automatisch gebannt für §e"
                                     + config.getString("IDs." + config.getInt("IPautoban.banid") + ".reason")
                                     + "§c.");
                     for (Player all : Bukkit.getOnlinePlayers()) {
                         if (all.hasPermission("bansys.notify")) {
-                            all.sendMessage(messages.getString("ip.autoban")
-                                    .replaceAll("%P%", messages.getString("prefix"))
+                            all.sendMessage(configurationUtil.getMessage("ip.autoban")
                                     .replaceAll("%bannedaccount%", bannedPlayerName.toString())
-                                    .replaceAll("&", "§")
                                     .replaceAll("%reason%", ipAutoBanReason));
                         }
                     }
                     String banScreen = BanSystem.getInstance().getBanScreen();
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(configurationUtil.getMessage("DateTimePattern"));
                     String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + ipAutoBanDuration));
                     try {
                         banScreen = banScreen.replaceAll("%reason%", banManager.getReason(uuid, Type.NETWORK));
@@ -319,25 +311,21 @@ public class PlayerConnectionListener implements Listener {
                         banScreen = banScreen.replaceAll("%creator%", Bukkit.getConsoleSender().getName());
                         banScreen = banScreen.replaceAll("%enddate%", enddate);
                         banScreen = banScreen.replaceAll("%lvl%", String.valueOf(ipAutoBanLvl));
-                        banScreen = banScreen.replaceAll("%P%", messages.getString("prefix"));
+                        banScreen = banScreen.replaceAll("%P%", configurationUtil.getMessage("prefix"));
                         banScreen = banScreen.replaceAll("&", "§");
                     } catch (SQLException | ParseException throwables) {
                         throwables.printStackTrace();
                     }
                     p.kickPlayer(banScreen);
                 } else {
-                    String msg = "";
-                    for (String line : messages.getStringList("ip.warning")) {
-                        line = line.replaceAll("%P%", messages.getString("prefix"));
-                        line = line.replaceAll("%player%", p.getDisplayName());
-                        line = line.replaceAll("%bannedaccount%", bannedPlayerName.toString());
-                        line = line.replaceAll("&", "§");
-                        msg = msg + line + "\n";
-                    }
-                    BanSystem.getInstance().getConsole().sendMessage(msg);
+                    BanSystem.getInstance().getConsole().sendMessage(configurationUtil.getMessage("ip.warning")
+                            .replaceAll("%player%", p.getDisplayName())
+                            .replaceAll("%bannedaccount%", bannedPlayerName.toString()));
                     for (Player all : Bukkit.getOnlinePlayers()) {
                         if (all.hasPermission("bansys.notify")) {
-                            all.sendMessage(msg);
+                            all.sendMessage(configurationUtil.getMessage("ip.warning")
+                                    .replaceAll("%player%", p.getDisplayName())
+                                    .replaceAll("%bannedaccount%", bannedPlayerName.toString()));
                         }
                     }
                 }

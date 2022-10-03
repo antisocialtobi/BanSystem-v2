@@ -63,4 +63,9 @@ public class BungeeConfig implements Config {
     public int getInt(String key) {
         return config.getInt(key);
     }
+
+    @Override
+    public Object get(String path) {
+        return config.get(path);
+    }
 }

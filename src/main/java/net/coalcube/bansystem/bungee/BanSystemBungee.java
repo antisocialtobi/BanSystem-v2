@@ -33,10 +33,10 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     private BanManager banManager;
     private IDManager idManager;
     private URLUtil urlUtil;
+    private ConfigurationUtil configurationUtil;
 
     private Database sql;
     private MySQL mysql;
-    private ServerSocket serversocket;
     private TimeFormatUtil timeFormatUtil;
     private Config config, messages, blacklist;
     private String banScreen;
@@ -68,7 +68,8 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         createConfig();
         loadConfig();
 
-        timeFormatUtil = new TimeFormatUtil(messages);
+        configurationUtil = new ConfigurationUtil(config, messages, blacklist);
+        timeFormatUtil = new TimeFormatUtil(configurationUtil);
 
         // Set mysql instance
         if (config.getBoolean("mysql.enable")) {
@@ -151,16 +152,9 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        new Thread(() -> {
-//            try {
-//                serversocket = new ServerSocket(6000);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }).start();
 
         idManager = new IDManager(config, sql, new File(this.getDataFolder(), "config.yml"));
-        urlUtil = new URLUtil(messages, config);
+        urlUtil = new URLUtil(configurationUtil, config);
 
         init(pluginmanager);
 
@@ -311,19 +305,29 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     }
 
     private void init(PluginManager pluginManager) {
-        pluginManager.registerCommand(this, new CommandWrapper("ban", new CMDban(banManager, config, messages, sql), true));
-        pluginManager.registerCommand(this, new CommandWrapper("check", new CMDcheck(banManager, sql, messages), true));
-        pluginManager.registerCommand(this, new CommandWrapper("deletehistory", new CMDdeletehistory(banManager, messages, sql), true));
-        pluginManager.registerCommand(this, new CommandWrapper("delhistory", new CMDdeletehistory(banManager, messages, sql), true));
-        pluginManager.registerCommand(this, new CommandWrapper("history", new CMDhistory(banManager, messages, config, sql), true));
-        pluginManager.registerCommand(this, new CommandWrapper("kick", new CMDkick(messages, sql, banManager), true));
-        pluginManager.registerCommand(this, new CommandWrapper("unban", new CMDunban(banManager, sql, messages, config), true));
-        pluginManager.registerCommand(this, new CommandWrapper("unmute", new CMDunmute(banManager, messages, config, sql), true));
-        pluginManager.registerCommand(this, new CommandWrapper("bansystem", new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager), false));
-        pluginManager.registerCommand(this, new CommandWrapper("bansys", new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager), false));
+        pluginManager.registerCommand(this, new CommandWrapper("ban",
+                new CMDban(banManager, config, messages, sql, configurationUtil), true));
+        pluginManager.registerCommand(this, new CommandWrapper("check",
+                new CMDcheck(banManager, sql, configurationUtil), true));
+        pluginManager.registerCommand(this, new CommandWrapper("deletehistory",
+                new CMDdeletehistory(banManager, sql, configurationUtil), true));
+        pluginManager.registerCommand(this, new CommandWrapper("delhistory",
+                new CMDdeletehistory(banManager, sql, configurationUtil), true));
+        pluginManager.registerCommand(this, new CommandWrapper("history",
+                new CMDhistory(banManager, config, sql, configurationUtil), true));
+        pluginManager.registerCommand(this, new CommandWrapper("kick",
+                new CMDkick(sql, banManager, configurationUtil), true));
+        pluginManager.registerCommand(this, new CommandWrapper("unban",
+                new CMDunban(banManager, sql, config, configurationUtil), true));
+        pluginManager.registerCommand(this, new CommandWrapper("unmute",
+                new CMDunmute(banManager, config, sql, configurationUtil), true));
+        pluginManager.registerCommand(this, new CommandWrapper("bansystem",
+                new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
+        pluginManager.registerCommand(this, new CommandWrapper("bansys",
+                new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
 
-        pluginManager.registerListener(this, new LoginListener(banManager, config, messages, sql, urlUtil));
-        pluginManager.registerListener(this, new ChatListener(banManager, config, messages, sql, blacklist));
+        pluginManager.registerListener(this, new LoginListener(banManager, config, sql, urlUtil, configurationUtil));
+        pluginManager.registerListener(this, new ChatListener(banManager, config, sql, blacklist, configurationUtil));
     }
 
     public Database getSQL() {
@@ -338,6 +342,11 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     @Override
     public String getBanScreen() {
         return banScreen;
+    }
+
+    @Override
+    public ConfigurationUtil getConfigurationUtil() {
+        return configurationUtil;
     }
 
     @Override
@@ -357,18 +366,6 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     @Override
     public String getVersion() {
         return this.getDescription().getVersion();
-    }
-
-    public List<String> getAds() {
-        return ads;
-    }
-
-    public List<String> getBlockedCommands() {
-        return blockedCommands;
-    }
-
-    public List<String> getBlockedWords() {
-        return blockedWords;
     }
 
     public static Plugin getInstance() {

@@ -117,14 +117,24 @@ public class UUIDFetcher {
      * @return The name
      */
     public static String getName(UUID uuid) {
+
+        if(nameCache.containsKey(uuid)) {
+            return nameCache.get(uuid);
+        }
+
         JSONObject jsonObject = null;
         try {
             jsonObject = readJsonFromUrl(NAME_URL.replaceAll("%s", UUIDTypeAdapter.fromUUID(uuid)));
         } catch (IOException e) {
-            e.printStackTrace();
+            return null;
+        }
+        if(jsonObject != null && jsonObject.has("name")) {
+            String name = jsonObject.getString("name");
+            nameCache.put(uuid, name);
+            return name;
         }
 
-        return jsonObject.getString("name");
+        return null;
 
 //        if (UUIDFetcher.nameCache.containsKey(uuid)) {
 //            return UUIDFetcher.nameCache.get(uuid);

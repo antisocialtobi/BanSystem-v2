@@ -26,22 +26,23 @@ public class AsyncPlayerChatListener implements Listener {
     private HashMap<UUID, Long> reamingTime = new HashMap<>();
 
     private final BanManager banManager;
-    private final Config config, messages;
+    private final Config config;
     private final MySQL mysql;
     private final Config blacklist;
+    private final ConfigurationUtil configurationUtil;
 
-    public AsyncPlayerChatListener(Config config, Config messages, BanManager banManager, MySQL mysql, Config blacklist) {
+    public AsyncPlayerChatListener(Config config, BanManager banManager, MySQL mysql, Config blacklist, ConfigurationUtil configurationUtil) {
         this.banManager = banManager;
         this.config = config;
-        this.messages = messages;
         this.mysql = mysql;
         this.blacklist = blacklist;
+        this.configurationUtil = configurationUtil;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onChat(AsyncPlayerChatEvent e) throws IOException, SQLException, ExecutionException, InterruptedException {
         if (!(config.getBoolean("mysql.enable") && !mysql.isConnected())) {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(configurationUtil.getMessage("DateTimePattern"));
             Player p = e.getPlayer();
             String msg = e.getMessage();
             UUID uuid = p.getUniqueId();
@@ -50,14 +51,13 @@ public class AsyncPlayerChatListener implements Listener {
                     if (banManager.getEnd(p.getUniqueId(), Type.CHAT) > System.currentTimeMillis()
                             || banManager.getEnd(p.getUniqueId(), Type.CHAT) == -1) {
                         e.setCancelled(true);
-                        for (String message : messages.getStringList("Ban.Chat.Screen")) {
-                            p.sendMessage(message
-                                    .replaceAll("%P%", BanSystemSpigot.prefix)
-                                    .replaceAll("%reason%", banManager.getReason(p.getUniqueId(), Type.CHAT))
-                                    .replaceAll("%reamingtime%",
-                                            BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(banManager.getRemainingTime(p.getUniqueId(), Type.CHAT)))
-                                    .replaceAll("&", "§"));
-                        }
+                        p.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
+                                .replaceAll("%P%", BanSystemSpigot.prefix)
+                                .replaceAll("%reason%", banManager.getReason(p.getUniqueId(), Type.CHAT))
+                                .replaceAll("%reamingtime%",
+                                        BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
+                                                banManager.getRemainingTime(p.getUniqueId(), Type.CHAT)))
+                                .replaceAll("&", "§"));
                     } else {
                         try {
                             if (config.getBoolean("needReason.Unmute")) {
@@ -70,16 +70,12 @@ public class AsyncPlayerChatListener implements Listener {
                             ioException.printStackTrace();
                         }
 
-                        Bukkit.getConsoleSender().sendMessage(messages.getString("Ban.Chat.autounmute.success")
-                                .replaceAll("%P%", BanSystemSpigot.prefix)
-                                .replaceAll("%player%", p.getDisplayName())
-                                .replaceAll("&", "§"));
+                        Bukkit.getConsoleSender().sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
+                                .replaceAll("%player%", p.getDisplayName()));
                         for (Player all : Bukkit.getOnlinePlayers()) {
                             if (all.hasPermission("system.ban")) {
-                                all.sendMessage(messages.getString("Ban.Chat.autounmute.success")
-                                        .replaceAll("%P%", BanSystemSpigot.prefix)
-                                        .replaceAll("%player%", p.getDisplayName())
-                                        .replaceAll("&", "§"));
+                                all.sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
+                                        .replaceAll("%player%", p.getDisplayName()));
                             }
                         }
                     }
@@ -106,12 +102,14 @@ public class AsyncPlayerChatListener implements Listener {
                             String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
 
                             banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(), type, reason);
-                            banManager.log("Banned Player", Bukkit.getConsoleSender().getName(), p.getUniqueId().toString(), "Autoban, Type: " + type + ", Chatmessage: " + messages);
+                            banManager.log("Banned Player", Bukkit.getConsoleSender().getName(),
+                                    p.getUniqueId().toString(), "Autoban, Type: " + type + ", Chatmessage: " + msg);
                             if (type.equals(Type.NETWORK)) {
                                 String banscreen = BanSystem.getInstance().getBanScreen();
-                                banscreen = banscreen.replaceAll("%P%", messages.getString("prefix"));
+                                banscreen = banscreen.replaceAll("%P%", configurationUtil.getMessage("prefix"));
                                 banscreen = banscreen.replaceAll("%reason%", reason);
-                                banscreen = banscreen.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
+                                banscreen = banscreen.replaceAll("%reamingtime%", BanSystem.getInstance()
+                                        .getTimeFormatUtil().getFormattedRemainingTime(duration));
                                 banscreen = banscreen.replaceAll("%creator%", BanSystem.getInstance().getConsole().getName());
                                 banscreen = banscreen.replaceAll("%enddate%", enddate);
                                 banscreen = banscreen.replaceAll("%lvl%", String.valueOf(lvl));
@@ -119,42 +117,39 @@ public class AsyncPlayerChatListener implements Listener {
 
                                 p.kickPlayer(banscreen);
                             } else {
-                                for (String line : messages.getStringList("Ban.Chat.Screen")) {
-                                    p.sendMessage(line
-                                            .replaceAll("%P%", messages.getString("prefix"))
-                                            .replaceAll("%reason%", reason)
-                                            .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration))
-                                            .replaceAll("%creator%", BanSystem.getInstance().getConsole().getName())
-                                            .replaceAll("%enddate%", enddate)
-                                            .replaceAll("%lvl%", String.valueOf(lvl))
-                                            .replaceAll("&", "§"));
-                                }
+                                p.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
+                                        .replaceAll("%reason%", reason)
+                                        .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
+                                                .getFormattedRemainingTime(duration))
+                                        .replaceAll("%creator%", BanSystem.getInstance().getConsole().getName())
+                                        .replaceAll("%enddate%", enddate)
+                                        .replaceAll("%lvl%", String.valueOf(lvl)));
+
                             }
 
-                            for (String notify : messages.getStringList("blacklist.notify.words.autoban")) {
-                                notify = notify.replaceAll("%P%", messages.getString("prefix"));
-                                notify = notify.replaceAll("%player%", p.getDisplayName());
-                                notify = notify.replaceAll("%message%", msg);
-                                notify = notify.replaceAll("%reason%", reason);
-                                notify = notify.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
-                                notify = notify.replaceAll("&", "§");
-                                BanSystem.getInstance().getConsole().sendMessage(notify);
-                                for (Player all : Bukkit.getOnlinePlayers()) {
-                                    if (all.hasPermission("bansys.notify") && (all != p)) {
-                                        all.sendMessage(notify);
-                                    }
+                            BanSystem.getInstance().getConsole().sendMessage(
+                                    configurationUtil.getMessage("blacklist.notify.words.autoban")
+                                    .replaceAll("%player%", p.getDisplayName())
+                                    .replaceAll("%message%", msg)
+                                    .replaceAll("%reason%", reason)
+                                    .replaceAll("%reamingtime%", BanSystem.getInstance()
+                                            .getTimeFormatUtil().getFormattedRemainingTime(duration)));
+                            for (Player all : Bukkit.getOnlinePlayers()) {
+                                if (all.hasPermission("bansys.notify") && (all != p)) {
+                                    all.sendMessage(configurationUtil.getMessage("blacklist.notify.words.autoban")
+                                            .replaceAll("%player%", p.getDisplayName())
+                                            .replaceAll("%message%", msg)
+                                            .replaceAll("%reason%", reason)
+                                            .replaceAll("%reamingtime%", BanSystem.getInstance()
+                                                    .getTimeFormatUtil().getFormattedRemainingTime(duration)));
                                 }
                             }
                         }
-                        for (String warning : messages.getStringList("blacklist.notify.words.warning")) {
-                            warning = warning.replaceAll("%P%", messages.getString("prefix"));
-                            warning = warning.replaceAll("%player%", p.getDisplayName());
-                            warning = warning.replaceAll("%message%", msg);
-                            warning = warning.replaceAll("&", "§");
-                            for (Player all : Bukkit.getOnlinePlayers()) {
-                                if (all.hasPermission("bansys.notify") && (all != p)) {
-                                    all.sendMessage(warning);
-                                }
+                        for (Player all : Bukkit.getOnlinePlayers()) {
+                            if (all.hasPermission("bansys.notify") && (all != p)) {
+                                all.sendMessage(configurationUtil.getMessage("blacklist.notify.words.warning")
+                                        .replaceAll("%player%", p.getDisplayName())
+                                        .replaceAll("%message%", msg));
                             }
                         }
                     }
@@ -175,13 +170,16 @@ public class AsyncPlayerChatListener implements Listener {
                             Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
                             String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
 
-                            banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(), type, reason);
-                            banManager.log("Banned Player", Bukkit.getConsoleSender().getName(), p.getUniqueId().toString(), "Autoban, Type: " + type + ", Chatmessage: " + messages);
+                            banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(),
+                                    type, reason);
+                            banManager.log("Banned Player", Bukkit.getConsoleSender().getName(),
+                                    p.getUniqueId().toString(), "Autoban, Type: " + type + ", Chatmessage: " + msg);
                             if (type.equals(Type.NETWORK)) {
                                 String banscreen = BanSystem.getInstance().getBanScreen();
-                                banscreen = banscreen.replaceAll("%P%", messages.getString("prefix"));
+                                banscreen = banscreen.replaceAll("%P%", configurationUtil.getMessage("prefix"));
                                 banscreen = banscreen.replaceAll("%reason%", reason);
-                                banscreen = banscreen.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
+                                banscreen = banscreen.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
+                                        .getFormattedRemainingTime(duration));
                                 banscreen = banscreen.replaceAll("%creator%", BanSystem.getInstance().getConsole().getName());
                                 banscreen = banscreen.replaceAll("%enddate%", enddate);
                                 banscreen = banscreen.replaceAll("%lvl%", String.valueOf(lvl));
@@ -189,43 +187,39 @@ public class AsyncPlayerChatListener implements Listener {
 
                                 p.kickPlayer(banscreen);
                             } else {
-                                for (String line : messages.getStringList("Ban.Chat.Screen")) {
-                                    line = line.replaceAll("%P%", messages.getString("prefix"));
-                                    line = line.replaceAll("%reason%", reason);
-                                    line = line.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
-                                    line = line.replaceAll("%creator%", BanSystem.getInstance().getConsole().getName());
-                                    line = line.replaceAll("%enddate%", enddate);
-                                    line = line.replaceAll("%lvl%", String.valueOf(lvl));
-                                    line = line.replaceAll("&", "§");
+                                p.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
+                                        .replaceAll("%reason%", reason)
+                                        .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
+                                                .getFormattedRemainingTime(duration))
+                                        .replaceAll("%creator%", BanSystem.getInstance().getConsole().getName())
+                                        .replaceAll("%enddate%", enddate)
+                                        .replaceAll("%lvl%", String.valueOf(lvl)));
 
-                                    p.sendMessage(line);
-                                }
                             }
 
-                            for (String notify : messages.getStringList("blacklist.notify.ads.autoban")) {
-                                notify = notify.replaceAll("%P%", messages.getString("prefix"));
-                                notify = notify.replaceAll("%player%", p.getDisplayName());
-                                notify = notify.replaceAll("%message%", msg);
-                                notify = notify.replaceAll("%reason%", reason);
-                                notify = notify.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
-                                notify = notify.replaceAll("&", "§");
-                                BanSystem.getInstance().getConsole().sendMessage(notify);
-                                for (Player all : Bukkit.getOnlinePlayers()) {
-                                    if (all.hasPermission("bansys.notify") && (all != p)) {
-                                        all.sendMessage(notify);
-                                    }
+                            BanSystem.getInstance().getConsole().sendMessage(
+                                    configurationUtil.getMessage("blacklist.notify.ads.autoban")
+                                            .replaceAll("%player%", p.getDisplayName())
+                                            .replaceAll("%message%", msg)
+                                            .replaceAll("%reason%", reason)
+                                            .replaceAll("%reamingtime%", BanSystem.getInstance()
+                                                    .getTimeFormatUtil().getFormattedRemainingTime(duration)));
+                            for (Player all : Bukkit.getOnlinePlayers()) {
+                                if (all.hasPermission("bansys.notify") && (all != p)) {
+                                    all.sendMessage(configurationUtil.getMessage("blacklist.notify.ads.autoban")
+                                            .replaceAll("%player%", p.getDisplayName())
+                                            .replaceAll("%message%", msg)
+                                            .replaceAll("%reason%", reason)
+                                            .replaceAll("%reamingtime%", BanSystem.getInstance()
+                                                    .getTimeFormatUtil().getFormattedRemainingTime(duration)));
                                 }
                             }
                         }
-                        for (String warning : messages.getStringList("blacklist.notify.ads.warning")) {
-                            warning = warning.replaceAll("%P%", messages.getString("prefix"));
-                            warning = warning.replaceAll("%player%", p.getDisplayName());
-                            warning = warning.replaceAll("%message%", msg);
-                            warning = warning.replaceAll("&", "§");
-                            for (Player all : Bukkit.getOnlinePlayers()) {
-                                if (all.hasPermission("bansys.notify") && (all != p)) {
-                                    all.sendMessage(warning);
-                                }
+                        for (Player all : Bukkit.getOnlinePlayers()) {
+                            if (all.hasPermission("bansys.notify") && (all != p)) {
+                                all.sendMessage(configurationUtil.getMessage("blacklist.notify.ads.warning")
+                                        .replaceAll("%player%", p.getDisplayName())
+                                        .replaceAll("%message%", msg));
                             }
                         }
                     }
@@ -243,10 +237,8 @@ public class AsyncPlayerChatListener implements Listener {
                     String humanReadableReamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(tmpReamingTime);
 
                     e.setCancelled(true);
-                    p.sendMessage(messages.getString("chatdelay")
-                            .replaceAll("%reamingtime%", humanReadableReamingTime)
-                            .replaceAll("%P%", messages.getString("prefix"))
-                            .replaceAll("&", "§"));
+                    p.sendMessage(configurationUtil.getMessage("chatdelay")
+                            .replaceAll("%reamingtime%", humanReadableReamingTime));
                 } else {
                     reamingTime.put(uuid, System.currentTimeMillis() + config.getInt("chatdelay.delay") * 1000);
                     cooldownTask.put(uuid, Bukkit.getScheduler().runTaskLaterAsynchronously(BanSystemSpigot.getPlugin(), () -> {

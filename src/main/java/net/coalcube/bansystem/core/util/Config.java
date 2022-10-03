@@ -24,4 +24,6 @@ public interface Config {
 
     int getInt(String key);
 
+    Object get(String path);
+
 }

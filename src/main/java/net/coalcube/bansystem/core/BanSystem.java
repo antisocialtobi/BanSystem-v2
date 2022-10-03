@@ -45,4 +45,6 @@ public interface BanSystem {
 
     String getBanScreen();
 
+    ConfigurationUtil getConfigurationUtil();
+
 }

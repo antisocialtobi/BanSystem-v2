@@ -10,11 +10,11 @@ import java.nio.charset.StandardCharsets;
 
 public class URLUtil {
 
-    private final  Config messages;
+    private final ConfigurationUtil configurationUtil;
     private final Config config;
 
-    public URLUtil(Config messages, Config config) {
-        this.messages = messages;
+    public URLUtil(ConfigurationUtil configurationUtil, Config config) {
+        this.configurationUtil = configurationUtil;
         this.config = config;
     }
 
@@ -51,7 +51,7 @@ public class URLUtil {
                 if(structure.get("vpn").toString().equals("true"))
                     return true;
             } else {
-                BanSystem.getInstance().getConsole().sendMessage(messages.getString("prefix")
+                BanSystem.getInstance().getConsole().sendMessage(configurationUtil.getMessage("prefix")
                                 + "§cBei der VPN Abfrage ist ein Fehler aufgetreten: "
                                 + jsonObject.getString("message"));
             }

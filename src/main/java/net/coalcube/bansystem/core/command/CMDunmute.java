@@ -84,7 +84,7 @@ public class CMDunmute implements Command {
                                     try {
                                         if (user.getUniqueId() != null) {
                                             bm.unMute(uuid, user.getUniqueId(), reason.toString());
-                                            BanSystem.getInstance().getConsole().sendMessage(
+                                            BanSystem.getInstance().sendConsoleMessage(
                                                     configurationUtil.getMessage("Unmute.needreason.notify")
                                                             .replaceAll("%player%", Objects.requireNonNull(name))
                                                             .replaceAll("%sender%", user.getName())
@@ -109,7 +109,7 @@ public class CMDunmute implements Command {
                                         }
                                     }
                                     if(user.getUniqueId() != null) {
-                                        BanSystem.getInstance().getConsole().sendMessage(
+                                        BanSystem.getInstance().sendConsoleMessage(
                                                 configurationUtil.getMessage("Unmute.needreason.notify")
                                                         .replaceAll("%player%", Objects.requireNonNull(name))
                                                         .replaceAll("%sender%", user.getName())

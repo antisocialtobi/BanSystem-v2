@@ -47,4 +47,6 @@ public interface BanSystem {
 
     ConfigurationUtil getConfigurationUtil();
 
+    void sendConsoleMessage(String msg);
+
 }

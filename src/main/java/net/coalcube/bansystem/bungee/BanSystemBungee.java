@@ -322,9 +322,9 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         pluginManager.registerCommand(this, new CommandWrapper("unmute",
                 new CMDunmute(banManager, config, sql, configurationUtil), true));
         pluginManager.registerCommand(this, new CommandWrapper("bansystem",
-                new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
+                new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
         pluginManager.registerCommand(this, new CommandWrapper("bansys",
-                new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
+                new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
 
         pluginManager.registerListener(this, new LoginListener(banManager, config, sql, urlUtil, configurationUtil));
         pluginManager.registerListener(this, new ChatListener(banManager, config, sql, blacklist, configurationUtil));
@@ -347,6 +347,13 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     @Override
     public ConfigurationUtil getConfigurationUtil() {
         return configurationUtil;
+    }
+
+    @Override
+    public void sendConsoleMessage(String msg) {
+        for (String line : msg.split("\n")) {
+            console.sendMessage(new TextComponent(line));
+        }
     }
 
     @Override

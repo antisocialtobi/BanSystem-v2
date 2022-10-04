@@ -127,7 +127,7 @@ public class AsyncPlayerChatListener implements Listener {
 
                             }
 
-                            BanSystem.getInstance().getConsole().sendMessage(
+                            BanSystem.getInstance().sendConsoleMessage(
                                     configurationUtil.getMessage("blacklist.notify.words.autoban")
                                     .replaceAll("%player%", p.getDisplayName())
                                     .replaceAll("%message%", msg)
@@ -197,7 +197,7 @@ public class AsyncPlayerChatListener implements Listener {
 
                             }
 
-                            BanSystem.getInstance().getConsole().sendMessage(
+                            BanSystem.getInstance().sendConsoleMessage(
                                     configurationUtil.getMessage("blacklist.notify.ads.autoban")
                                             .replaceAll("%player%", p.getDisplayName())
                                             .replaceAll("%message%", msg)

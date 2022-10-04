@@ -88,13 +88,17 @@ public class CMDhistory implements Command {
                                     if(config.getString("IDs." + ids + ".reason").equals(history.getReason()))
                                         id = ids;
                                 }
-                                user.sendMessage(configurationUtil.getMessage("History.body")                                            .replaceAll("%reason%", history.getReason())
+                                String body = configurationUtil.getMessage("History.body")                                            .replaceAll("%reason%", history.getReason())
                                         .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
                                         .replaceAll("%enddate%", simpleDateFormat.format(history.getEndDate()))
                                         .replaceAll("%creator%", history.getCreator())
                                         .replaceAll("%ip%", (history.getIp() == null ? "§cNicht vorhanden" : history.getIp().getHostName()))
                                         .replaceAll("%type%", history.getType().toString())
-                                        .replaceAll("%ID%", id));
+                                        .replaceAll("%ID%", id);
+                                if(user.getUniqueId() != null)
+                                    user.sendMessage(body);
+                                else
+                                    BanSystem.getInstance().sendConsoleMessage(body);
                             }
                             user.sendMessage(configurationUtil.getMessage("History.footer"));
 

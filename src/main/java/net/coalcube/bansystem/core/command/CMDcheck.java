@@ -103,7 +103,8 @@ public class CMDcheck implements Command {
 
                             assert bannerchat != null;
                             assert bannernetwork != null;
-                            user.sendMessage(configurationUtil.getMessage("Check.networkandchat")
+
+                            String networkAndChat = configurationUtil.getMessage("Check.networkandchat")
                                     .replaceAll("%player%", player)
                                     .replaceAll("%bannerchat%", bannerchat)
                                     .replaceAll("%reasonchat%", reasonchat)
@@ -112,8 +113,11 @@ public class CMDcheck implements Command {
                                     .replaceAll("%bannernetwork%", bannernetwork)
                                     .replaceAll("%reasonnetwork%", reasonnetwork)
                                     .replaceAll("%reamingtimenetwork%", reamingtimenetwork)
-                                    .replaceAll("%levelnetwork%", lvlnetwork));
-
+                                    .replaceAll("%levelnetwork%", lvlnetwork);
+                            if(user.getUniqueId() != null)
+                                user.sendMessage(networkAndChat);
+                            else
+                                BanSystem.getInstance().sendConsoleMessage(networkAndChat);
 
                         } else if (bm.isBanned(uuid, Type.CHAT)) {
 
@@ -134,13 +138,19 @@ public class CMDcheck implements Command {
 
                             assert player != null;
                             assert banner != null;
-                            user.sendMessage(configurationUtil.getMessage("Check.chat")
+
+                            String chat = configurationUtil.getMessage("Check.chat")
                                     .replaceAll("%player%", player)
                                     .replaceAll("%banner%", banner)
                                     .replaceAll("%reason%", reason)
                                     .replaceAll("%reamingtime%", reamingtime)
                                     .replaceAll("%level%", lvl)
-                                    .replaceAll("%type%", Type.CHAT.toString()));
+                                    .replaceAll("%type%", Type.CHAT.toString());
+
+                            if(user.getUniqueId() != null)
+                                user.sendMessage(chat);
+                            else
+                                BanSystem.getInstance().sendConsoleMessage(chat);
 
                         } else if (bm.isBanned(uuid, Type.NETWORK)) {
 
@@ -157,13 +167,18 @@ public class CMDcheck implements Command {
 
                             assert player != null;
                             assert banner != null;
-                            user.sendMessage(configurationUtil.getMessage("Check.network")
+
+                            String network = configurationUtil.getMessage("Check.network")
                                     .replaceAll("%player%", player)
                                     .replaceAll("%banner%", banner)
                                     .replaceAll("%reason%", reason)
                                     .replaceAll("%reamingtime%", reamingtime)
                                     .replaceAll("%level%", String.valueOf(lvl))
-                                    .replaceAll("%type%", Type.NETWORK.toString()));
+                                    .replaceAll("%type%", Type.NETWORK.toString());
+                            if(user.getUniqueId() != null)
+                                user.sendMessage(network);
+                            else
+                                BanSystem.getInstance().sendConsoleMessage(network);
 
                         } else {
                             user.sendMessage(configurationUtil.getMessage("Playernotbanned")

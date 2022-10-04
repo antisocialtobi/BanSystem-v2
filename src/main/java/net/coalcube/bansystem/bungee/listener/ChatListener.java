@@ -134,7 +134,7 @@ public class ChatListener implements Listener {
                                     .replaceAll("%lvl%", String.valueOf(lvl)));
                         }
 
-                        BanSystem.getInstance().getConsole().sendMessage(
+                        BanSystem.getInstance().sendConsoleMessage(
                                 configurationUtil.getMessage("blacklist.notify.words.autoban")
                                         .replaceAll("%player%", p.getDisplayName())
                                         .replaceAll("%message%", msg)
@@ -204,7 +204,7 @@ public class ChatListener implements Listener {
                                     .replaceAll("%enddate%", enddate)
                                     .replaceAll("%lvl%", String.valueOf(lvl)));
                         }
-                        BanSystem.getInstance().getConsole().sendMessage(
+                        BanSystem.getInstance().sendConsoleMessage(
                                 configurationUtil.getMessage("blacklist.notify.ads.autoban")
                                         .replaceAll("%player%", p.getDisplayName())
                                         .replaceAll("%message%", msg)

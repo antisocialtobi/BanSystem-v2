@@ -235,17 +235,22 @@ public class CMDban implements Command {
                         e.printStackTrace();
                     }
 
-                    user.sendMessage(configurationUtil.getMessage("Ban.success")
+                    String banSuccess = configurationUtil.getMessage("Ban.success")
                             .replaceAll("%Player%", Objects.requireNonNull(name))
                             .replaceAll("%reason%", reason)
                             .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                     .getFormattedRemainingTime(duration))
                             .replaceAll("%banner%", creatorName)
                             .replaceAll("%type%", type.toString())
-                            .replaceAll("%enddate%", formattedEndDate));
+                            .replaceAll("%enddate%", formattedEndDate);
+
+                    if(user.getUniqueId() != null)
+                        user.sendMessage(banSuccess);
+                    else
+                        BanSystem.getInstance().sendConsoleMessage(banSuccess);
 
                     if(user.getUniqueId() != null) {
-                        BanSystem.getInstance().getConsole().sendMessage(configurationUtil.getMessage("Ban.notify")
+                        BanSystem.getInstance().sendConsoleMessage(configurationUtil.getMessage("Ban.notify")
                                 .replaceAll("%player%", Objects.requireNonNull(name))
                                 .replaceAll("%reason%", reason)
                                 .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()

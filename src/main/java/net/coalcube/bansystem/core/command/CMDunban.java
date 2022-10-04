@@ -84,7 +84,7 @@ public class CMDunban implements Command {
                                     try {
                                         if (user.getUniqueId() != null) {
                                             banmanager.unBan(uuid, user.getUniqueId(), reason.toString());
-                                            BanSystem.getInstance().getConsole().sendMessage(
+                                            BanSystem.getInstance().sendConsoleMessage(
                                                     configurationUtil.getMessage("Unban.needreason.notify")
                                                             .replaceAll("%player%", Objects.requireNonNull(name))
                                                             .replaceAll("%sender%", user.getName())
@@ -111,7 +111,7 @@ public class CMDunban implements Command {
                                         }
                                     }
                                     if(user.getUniqueId() != null) {
-                                        BanSystem.getInstance().getConsole().sendMessage(
+                                        BanSystem.getInstance().sendConsoleMessage(
                                                 configurationUtil.getMessage("Unban.needreason.notify")
                                                 .replaceAll("%player%", Objects.requireNonNull(name))
                                                 .replaceAll("%sender%", (user.getUniqueId() != null

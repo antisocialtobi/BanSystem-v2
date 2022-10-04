@@ -15,15 +15,13 @@ public class CMDbansystem implements Command {
     private final Database sql;
     private final MySQL mySQL;
     private final Config config;
-    private final Config messages;
     private final IDManager idManager;
     private final TimeFormatUtil timeFormatUtil;
     private final BanManager banManager;
     private final ConfigurationUtil configurationUtil;
 
-    public CMDbansystem(Config messages, Config config, Database sql, MySQL mysql, IDManager idManager, TimeFormatUtil timeFormatUtil, BanManager banManager, ConfigurationUtil configurationUtil) {
+    public CMDbansystem(Config config, Database sql, MySQL mysql, IDManager idManager, TimeFormatUtil timeFormatUtil, BanManager banManager, ConfigurationUtil configurationUtil) {
         this.config = config;
-        this.messages = messages;
         this.sql = sql;
         this.mySQL = mysql;
         this.idManager = idManager;
@@ -144,13 +142,19 @@ public class CMDbansystem implements Command {
                                 else
                                     formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration * 1000);
 
-                                user.sendMessage(configurationUtil.getMessage("bansystem.ids.create.success")
+                                String createSuccess = configurationUtil.getMessage("bansystem.ids.create.success")
                                         .replaceAll("%ID%", id)
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%onlyadmins%", onlyAdmins ? configurationUtil.getMessage("true")
                                                 : configurationUtil.getMessage("false"))
                                         .replaceAll("%duration%", formattedDuration)
-                                        .replaceAll("%type%", type.toString()));
+                                        .replaceAll("%type%", type.toString());
+
+                                if(user.getUniqueId() != null)
+                                    user.sendMessage(createSuccess);
+                                else
+                                    BanSystem.getInstance().sendConsoleMessage(createSuccess);
+
                             } catch (SQLException | IOException e) {
                                 user.sendMessage(configurationUtil.getMessage("bansystem.ids.create.failure")
                                         .replaceAll("%ID%", id));
@@ -234,16 +238,22 @@ public class CMDbansystem implements Command {
                                             else
                                                 formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration);
 
-                                            idManager.addLvl(id, duration, type, user.getUniqueId().toString());
+                                            idManager.addLvl(id, duration, type, creator);
                                             banManager.log("added BanID-Lvl", creator, "",
                                                     "id: "+ id
                                                             + ", duration: " + duration
                                                             + ", type: " + type);
-                                            user.sendMessage(configurationUtil.getMessage("bansystem.ids.edit.addlvl.success")
+
+                                            String addlvlSuccess = configurationUtil.getMessage("bansystem.ids.edit.addlvl.success")
                                                     .replaceAll("%lvl%", String.valueOf(idManager.getLastLvl(id)))
                                                     .replaceAll("%duration%", formattedDuration)
                                                     .replaceAll("%type%", type.toString())
-                                                    .replaceAll("%ID%", id));
+                                                    .replaceAll("%ID%", id);
+
+                                            if(user.getUniqueId() != null)
+                                                user.sendMessage(addlvlSuccess);
+                                            else
+                                                BanSystem.getInstance().sendConsoleMessage(addlvlSuccess);
                                         } catch (SQLException | IOException e) {
                                             user.sendMessage(configurationUtil.getMessage("bansystem.ids.edit.addlvl.failure")
                                                     .replaceAll("%ID%", id));
@@ -347,10 +357,16 @@ public class CMDbansystem implements Command {
 
                                                     String formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration);
 
-                                                    user.sendMessage(configurationUtil.getMessage("bansystem.ids.edit.setlvlduration.success")
+                                                    String setLvlDurationSuccess = configurationUtil.getMessage("bansystem.ids.edit.setlvlduration.success")
                                                             .replaceAll("%ID%", id)
                                                             .replaceAll("%duration%", formattedDuration)
-                                                            .replaceAll("%lvl%", lvl));
+                                                            .replaceAll("%lvl%", lvl);
+
+                                                    if(user.getUniqueId() != null)
+                                                        user.sendMessage(setLvlDurationSuccess);
+                                                    else
+                                                        BanSystem.getInstance().sendConsoleMessage(setLvlDurationSuccess);
+
                                                 } catch (SQLException | IOException e) {
                                                     user.sendMessage(configurationUtil.getMessage("bansystem.ids.edit.setlvlduration.failure")
                                                             .replaceAll("%ID%", id)
@@ -399,10 +415,17 @@ public class CMDbansystem implements Command {
                                                             "id: "+ id
                                                                     + ", type: " + type
                                                                     + ", lvl: " + lvl);
-                                                    user.sendMessage(configurationUtil.getMessage("bansystem.ids.edit.setlvltype.success")
+
+                                                    String setLvlTypeSuccess = configurationUtil.getMessage("bansystem.ids.edit.setlvltype.success")
                                                             .replaceAll("%ID%", id)
                                                             .replaceAll("%lvl%", lvl)
-                                                            .replaceAll("%type%", type.toString()));
+                                                            .replaceAll("%type%", type.toString());
+
+                                                    if(user.getUniqueId() != null)
+                                                        user.sendMessage(setLvlTypeSuccess);
+                                                    else
+                                                        BanSystem.getInstance().sendConsoleMessage(setLvlTypeSuccess);
+
                                                 } catch (SQLException | IOException e) {
                                                     user.sendMessage(configurationUtil.getMessage("bansystem.ids.edit.setlvltype.failure")
                                                             .replaceAll("%ID%", id)
@@ -440,10 +463,17 @@ public class CMDbansystem implements Command {
                                                 banManager.log("set banonlyadmins", creator, "",
                                                         "id: " + id
                                                                 + ", onlyAdmins: " + onlyadmins);
-                                                user.sendMessage(configurationUtil.getMessage("bansystem.ids.edit.setonlyadmins.success")
+
+                                                String setOnlyAdminsSuccess = configurationUtil.getMessage("bansystem.ids.edit.setonlyadmins.success")
                                                         .replaceAll("%ID%", id)
                                                         .replaceAll("%onlyadmins%", onlyadmins ? configurationUtil.getMessage("true")
-                                                                : configurationUtil.getMessage("false")));
+                                                                : configurationUtil.getMessage("false"));
+
+                                                if(user.getUniqueId() != null)
+                                                    user.sendMessage(setOnlyAdminsSuccess);
+                                                else
+                                                    BanSystem.getInstance().sendConsoleMessage(setOnlyAdminsSuccess);
+
                                             } catch (SQLException | IOException e) {
                                                 user.sendMessage(configurationUtil.getMessage("bansystem.ids.edit.setonlyadmins.failure")
                                                         .replaceAll("%ID%", id));
@@ -475,9 +505,15 @@ public class CMDbansystem implements Command {
                                                 banManager.log("set banreason", creator, "",
                                                         "id: " + id
                                                                 + ", reason: " + reason);
-                                                user.sendMessage(configurationUtil.getMessage("bansystem.ids.edit.setreason.success")
+
+                                                String setReasonSuccess = configurationUtil.getMessage("bansystem.ids.edit.setreason.success")
                                                         .replaceAll("%ID%", id)
-                                                        .replaceAll("%reason%", reason));
+                                                        .replaceAll("%reason%", reason);
+
+                                                if(user.getUniqueId() != null)
+                                                    user.sendMessage(setReasonSuccess);
+                                                else
+                                                    BanSystem.getInstance().sendConsoleMessage(setReasonSuccess);
                                             } catch (SQLException | IOException e) {
                                                 user.sendMessage(configurationUtil.getMessage("bansystem.ids.edit.setreason.failure")
                                                         .replaceAll("%ID%", id));
@@ -517,11 +553,16 @@ public class CMDbansystem implements Command {
                             } else
                                 onlyAdmins = configurationUtil.getMessage("false");
 
-                            user.sendMessage(configurationUtil.getMessage("bansystem.ids.edit.show.header")
+                            String header = configurationUtil.getMessage("bansystem.ids.edit.show.header")
                                     .replaceAll("%ID%", id)
                                     .replaceAll("%reason%", reason)
                                     .replaceAll("%onlyAdmins%", onlyAdmins)
-                                    .replaceAll("%creator%", creator));
+                                    .replaceAll("%creator%", creator);
+
+                            if(user.getUniqueId() != null)
+                                 user.sendMessage(header);
+                            else
+                                BanSystem.getInstance().sendConsoleMessage(header);
 
                             for(String lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
                                 long rawduration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
@@ -530,13 +571,17 @@ public class CMDbansystem implements Command {
                                     rawduration = rawduration * 1000;
 
                                 String duration = timeFormatUtil.getFormattedRemainingTime(rawduration);
-
-                                user.sendMessage(configurationUtil.getMessage("bansystem.ids.edit.show.lvls")
+                                String lvls = configurationUtil.getMessage("bansystem.ids.edit.show.lvls")
                                         .replaceAll("%lvl%", lvl)
                                         .replaceAll("%duration%", duration)
                                         .replaceAll("%type%",
                                                 config.getString("IDs." + id + ".lvl." + lvl + ".type"))
-                                        .replaceAll("%creator%", creator));
+                                        .replaceAll("%creator%", creator);
+
+                                if(user.getUniqueId() != null)
+                                    user.sendMessage(lvls);
+                                else
+                                    BanSystem.getInstance().sendConsoleMessage(lvls);
                             }
 
                         } else {

@@ -235,7 +235,7 @@ public class LoginListener implements Listener {
                                         } catch (IOException | SQLException ioException) {
                                             ioException.printStackTrace();
                                         }
-                                        ProxyServer.getInstance().getConsole().sendMessage(configurationUtil.getMessage("ip.autoban")
+                                        BanSystem.getInstance().sendConsoleMessage(configurationUtil.getMessage("ip.autoban")
                                                 .replaceAll("%bannedaccount%", bannedPlayerName.toString())
                                                 .replaceAll("%reason%", ipAutoBanReason));
                                         for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
@@ -265,7 +265,7 @@ public class LoginListener implements Listener {
                                         e.setCancelled(true);
                                         p.disconnect(component);
                                     } else {
-                                        BanSystem.getInstance().getConsole().sendMessage(
+                                        BanSystem.getInstance().sendConsoleMessage(
                                                 configurationUtil.getMessage("ip.warning")
                                                         .replaceAll("%player%", p.getDisplayName())
                                                         .replaceAll("%bannedaccount%", bannedPlayerName.toString()));

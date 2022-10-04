@@ -8,6 +8,7 @@ import net.coalcube.bansystem.spigot.listener.PlayerCommandPreprocessListener;
 import net.coalcube.bansystem.spigot.listener.PlayerConnectionListener;
 import net.coalcube.bansystem.spigot.util.SpigotConfig;
 import net.coalcube.bansystem.spigot.util.SpigotUser;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -335,9 +336,9 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         getCommand("unmute").setExecutor(new CommandWrapper(
                 new CMDunmute(banManager, config, sql, configurationUtil), true));
         getCommand("bansystem").setExecutor(new CommandWrapper(
-                new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
+                new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
         getCommand("bansys").setExecutor(new CommandWrapper(
-                new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
+                new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
 
         pluginManager.registerEvents(new AsyncPlayerChatListener(config, banManager, mysql, blacklist, configurationUtil), this);
         pluginManager.registerEvents(new PlayerCommandPreprocessListener(banManager, config, blockedCommands, configurationUtil), this);
@@ -352,6 +353,13 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     @Override
     public String getBanScreen() {
         return Banscreen;
+    }
+
+    @Override
+    public void sendConsoleMessage(String msg) {
+        for (String line : msg.split("\n")) {
+            console.sendMessage(line);
+        }
     }
 
     @Override

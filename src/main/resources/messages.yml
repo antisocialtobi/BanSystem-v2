@@ -1,0 +1,319 @@
+prefix: '§8§l┃ §cBanSystem §8» §7'
+NoPermissionMessage: '%P%§cDafür hast du keine Rechte!'
+NoPlayerMessage: '%P%§cDu bist kein Spieler!'
+Playerdoesnotexist: '%P%§cDieser Spieler existiert nicht!'
+PlayerNotFound: '%P%§cDer Spieler wurde nicht gefunden.'
+NoDBConnection: '%P%§cDie Datenbankverbindung besteht nicht. Wende dich bitte an einen
+  Administrator.'
+Playernotbanned: '%P%§cDieser Spieler ist nicht gebannt/gemuted!'
+DateTimePattern: 'dd.MM.yyyy HH:mm:ss'
+chatdelay: '%P%§cDu kannst erst in §e%reamingtime% §cwieder etwas schreiben.'
+'true': '§2Aktiviert'
+'false': '§cDeaktiviert'
+TimeFormat:
+  seconds: '§e%sec% §cSekunde(n)'
+  minutes: '§e%min% §cMinute(n)'
+  hours: '§e%hour% §cStunde(n)'
+  days: '§e%day% §cTag(e)'
+Ban:
+  Network:
+    Screen:
+      - '§8§m----------------------§r'
+      - ' '
+      - '§4Du wurdest §lGebannt!'
+      - '§7Grund §8» §c%reason%'
+      - '§7Verbleibende Zeit §8» §3%reamingtime%'
+      - ' '
+      - '§8§m----------------------'
+    autounban: '%P%§e%player% §7wurde §eautomatisch §7entbannt.'
+  Chat:
+    Screen:
+      - '§8§m----------------------------'
+      - '§4Du bist aus dem chat gebannt!'
+      - '§7Grund §8» §c%reason%'
+      - '§7Verbleibende Zeit §8» §c%reamingtime%'
+      - '§8§m----------------------------'
+    autounmute:
+      success: '%P%§e%player% §7wurde §eautomatisch §7entmuted.'
+      faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  success:
+    - '§8§m----------------------------'
+    - '%P%§7Du hast §e%Player% §7erfolgreich §cgebannt/gemuted.'
+    - '%P%Grund §8» §c%reason%'
+    - '%P%Type §8» §c%type%'
+    - '%P%Verbleibende Zeit §8» §c%reamingtime%'
+    - '%P%Entbannungszeitpunkt §8» §c%enddate%'
+    - '§8§m----------------------------'
+  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  bypass: '%P%§cDu kannst Spieler, die eine Bypass Permission haben, nicht bannen.'
+  notify:
+    - '%P%§8§m-------------------'
+    - '%P%§e%player% §7wurde Gebannt.'
+    - '%P%Grund §8» §c%reason%'
+    - '%P%Verbleibende Zeit §8» §c%reamingtime%'
+    - '%P%Von §8» §c%banner%'
+    - '%P%Type §8» §c%type%'
+    - '%P%§8§m-------------------'
+  cannotban:
+    teammembers: '%P%§cDu kannst keine Teammitglieder bannen.'
+    bypassedplayers: '%P%§cDu kannst keine Spieler Bannen die eine Bypass Permission
+      haben.'
+    yourself: '%P%§cDu kannst dich nicht selbst bestrafen.'
+  onlyadmins: '%P%§cDas dürfen nur Admins und Owner!'
+  invalidinput: '%P%§cUngültige Eingabe!'
+  alreadybanned: '%P%§cDieser Spieler ist berreits gebannt/gemuted.'
+  usage: '%P%§cBenutze §8» §e/ban §8<§7Spieler§8> §8<§7ID§8>'
+  ID:
+    Listlayout:
+      heading: '§8§m------------§8» §4Bann IDs §8«§m------------'
+      IDs:
+        general: ' §e%ID% §8» §c%reason%'
+        onlyadmins: ' §e%ID% §8» §c%reason% §8» §4nur für Admins und Owner'
+    NoPermission: '%P%§cFür diese ID hast du keine Berechtigung!'
+Check:
+  usage: '%P%§cBenutze §8» §e/check §8<§7Spieler§8>'
+  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  chat:
+    - '%P%§8§m------§8» §e%player% §8«§m------'
+    - '%P%§7Von §8» §c%banner%'
+    - '%P%§7Grund §8» §c%reason%'
+    - '%P%§7Verbleibende Zeit §8» §c%reamingtime%'
+    - '%P%§7Type §8» §cChat'
+    - '%P%§7Level §8» §c%level%'
+    - '%P%§8§m-----------------'
+  network:
+    - '%P%§8§m------§8» §e%player% §8«§m------'
+    - '%P%§7Von §8» §c%banner%'
+    - '%P%§7Grund §8» §c%reason%'
+    - '%P%§7Verbleibende Zeit §8» §c%reamingtime%'
+    - '%P%§7Type §8» §cNetzwerk'
+    - '%P%§7Level §8» §c%level%'
+    - '%P%§8§m-----------------'
+  networkandchat:
+    - '%P%§8§m------§8» §e%player% §8«§m------'
+    - '%P%§7Von §8» §c%bannernetwork%'
+    - '%P%§7Grund §8» §c%reasonnetwork%'
+    - '%P%§7Verbleibende Zeit §8» §c%reamingtimenetwork%'
+    - '%P%§7Type §8» §cNetzwerk'
+    - '%P%§7Level §8» §c%levelnetwork%'
+    - '%P%'
+    - '%P%§7Von §8» §c%bannerchat%'
+    - '%P%§7Grund §8» §c%reasonchat%'
+    - '%P%§7Verbleibende Zeit §8» §c%reamingtimechat%'
+    - '%P%§7Type §8» §cChat'
+    - '%P%§7Level §8» §c%levelchat%'
+    - '%P%§8§m-----------------'
+Deletehistory:
+  notify: '%P%§7Die History von §e%player% §7wurde von §e%sender% §7gelöscht.'
+  success: '%P%§7Die History von §e%player% §7wurde gelöscht.'
+  usage: '%P%§cBenutze §8» §e/deletehistory §8<§7Spieler§8>'
+Deletehistroy:
+  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+History:
+  historynotfound: '%P%§cDieser Spieler hat keine History'
+  usage: '%P%§cBenutze §8» §e/history §8<§7Spieler§8>'
+  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  header: '%P%§8§m-------§8» §e%player% §8«§m-------'
+  body:
+    - '%P%§7Grund §8» §c%reason%'
+    - '%P%§7Erstelldatum §8» §c%creationdate%'
+    - '%P%§7Enddatum §8» §c%enddate%'
+    - '%P%§7Ersteller §8» §c%creator%'
+    - '%P%§7IP §8» §c%ip%'
+    - '%P%§7Type §8» §c%type%'
+    - '%P%§7ID §8» §c%ID%'
+    - '%P%'
+  footer: '%P%§8§m------------------------'
+Kick:
+  usage: '%P%§cBenutze §8» §e/kick §8<§7Spieler§8> §8[§7Grund§8]'
+  cannotkick:
+    youselfe: '%P%§cDu kannst dich nicht selbst Kicken!'
+    teammembers: '%P%§cDu kannst keine Teammitglieder Kicken.'
+    bypass: '%P%§cDu kannst Spieler, die eine Bypass Permission haben, nicht kicken.'
+  noreason:
+    screen: "\n §cDu wurdest vom Netzwerk §4§lgekickt§c! \n \n"
+    notify:
+      - '%P%§8§m------------------------------'
+      - '%P%§7Der Spieler §e%player%'
+      - '%P%§7wurde von §e%sender% §cgekickt.'
+      - '%P%§8§m------------------------------'
+  reason:
+    screen: "\n §cDu wurdest vom Netzwerk §4§lgekickt§c!\n \n§7Grund §8» §c%reason%\n\
+      \n"
+    notify:
+      - '%P%§8§m------------------------------'
+      - '%P%§7Der Spieler §e%player%'
+      - '%P%§7wurde von §e%sender% §cgekickt.'
+      - '%P%§7Grund §8» §e%reason%'
+      - '%P%§8§m------------------------------'
+  success: '%P%§7Der Spieler §e%player% §7wurde gekickt.'
+Unban:
+  success: '%P%§e%player% §7wurde §2erfolgeich §7entbannt.'
+  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  notify: '%P%§e%player% §7wurde von §e%sender% §7entbannt.'
+  notbanned: '%P%§e%player% §cist nicht gebannt.'
+  usage: '%P%§cBenutze §8» §e/unban §8<§7Spieler§8>'
+  needreason:
+    usage: '%P%§cBenutze §8» §e/unban §8<§7Spieler§8> §8<§7Grund§8>'
+    success: '%P%§e%player% §7wurde §2erfolgeich §7entbannt.'
+    notify:
+      - '%P%§8§m------------------------------'
+      - '%P%§e%player% §7wurde von §e%sender% §7entbannt.'
+      - '%P%§7Grund §8» §e%reason%'
+      - '%P%§8§m------------------------------'
+Unmute:
+  usage: '%P%§cBenutze §8» §e/unmute §8<§7Spieler§8>'
+  success: '%P%§7Die Schweigepflicht von §e%player% §7wurde §2aufgehoben!'
+  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  notmuted: '%P%§e%player% §cist nicht gemuted.'
+  notify: '%P%§e%player% §7wurde von §e%sender% §7entmuted.'
+  needreason:
+    usage: '%P%§cBenutze §8» §e/unmute §8<§7Spieler§8> §8<§7Grund§8>'
+    success: '%P%§7Die Schweigepflicht von §e%player% §7wurde §2aufgehoben!'
+    notify:
+      - '%P%§8§m------------------------------'
+      - '%P%§e%player% §7wurde von §e%sender% §7entmuted.'
+      - '%P%§7Grund §8» §e%reason%'
+      - '%P%§8§m------------------------------'
+VPN:
+  warning: '%P%§e%player% §chat sich mit einer VPN verbunden!'
+bansystem:
+  usage:
+    help: '%P%§7Benutze §e/bansystem help'
+    reload: '%P%§7Benutze §e/bansystem reload'
+    version: '%P%§7Benutze §e/bansystem version'
+    syncids: '%P%§7Benutze §e/bansystem syncids'
+    createid: '%P%§7Benutze §e/bansystem ids create §8<§7id§8> §8<§7Grund§8> §8<§7onlyadmins§8>
+      §8<§7Dauer§8>  §8<§7Type§8>'
+    removeid: '%P%§7Benutze §e/bansystem ids delete §8<§7ID§8>'
+    addlvl: '%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eadd lvl §8<§7duration§8>
+      §8<§7type§8>'
+    removelvl: '%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eremove lvl §8<§7lvl§8>'
+    setlvlduration: '%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eset lvlduration
+      §8<§7lvl§8> §8<§7duration§8>'
+    setlvltype: '%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eset lvltype §8<§7lvl§8>
+      §8<§7type§8>'
+    setreason: '%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eset reason §8<§7reason§8>'
+    setonlyadmins: '%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eset onlyadmins
+      §8<§7True§8/§7False§8>'
+    showid: '%P%§7Benutze §e/bansystem ids show §8<§7id§8>'
+  help:
+    header: '§8§m--------§8[ §cBanSystem §8]§m--------'
+    entry: '§e/%command% §8» §7%description%'
+    footer: '§8§m-----------------------------'
+  reload:
+    process: '%P%§7Plugin wird §eneu geladen§7.'
+    finished: '%P%§7Plugin §eneu geladen§7.'
+  version: '%P%§7Version §8» §e%ver%'
+  ids:
+    sync:
+      MySQLdisabled: '%P%§cDu kannst diese Funktion nicht verwenden, wenn du keine
+        MySQL Datenbank verwendest.'
+      faild: '%P%§cDie synchronisation ist fehlgeschlagen. Um mehr Informationen zu
+        bekommen schau in die Konsole.'
+      success: '%P%§7Die BanIDs wurden §2synchronisiert§7.'
+    alreadyexists: '%P%§cDie BanID ist bereits vorhanden.'
+    doesnotexists: '%P%§cDie BanID §e%ID% §ckonnte nicht gefunden werden.'
+    lvldoesnotexists: '%P%§cDas BanLvl §e%lvl% §ckonnte nicht gefunden werden.'
+    create:
+      success: "%P%§7Die BanID §e%ID% §7wurde erfolgreich §2erstellt§7.\n%P% §7Grund\
+        \ §8» §e%reason% \n%P% §7Nur Admins §8» §e%onlyadmins% \n%P% §7Banndauer §\
+        8» §e%duration% \n%P% §7Type §8» §c%type%"
+      failure: '%P%§cDie BanID konnte nicht erstellt werden, da ein Fehler aufgetreten
+        ist. Siehe die Konsole ein um Mehr informationen zu erfahren.'
+      invalidDuration: '%P%§cDie BanID konnte nicht erstellt werden, da die §lBanndauer
+        §cungültig ist.'
+      invalidType: '%P%§cDie BanID konnte nicht erstellt werden, da der §lType §cungültig
+        ist. Gültig sind: §eNETWORK §cund §eCHAT§c.'
+    delete:
+      failure: '%P%§cDie BanID konnte nicht gelöscht werden, da ein Fehler aufgetreten
+        ist. Siehe die Konsole ein um Mehr informationen zu erfahren.'
+      success: '%P%§7Die BanID §e%ID% §7wurde erfolgreich §cgelöscht§7.'
+    edit:
+      addlvl:
+        success: "%P%§7Das lvl §e%lvl% §7wurde erfolgreich zur ID §e%ID% §2hinzugefü\
+          gt§7. \n%P% §7Banndauer §8» §e%duration% \n%P% §7Type §8» §c%type%"
+        invalidType: '%P%§cDie BanID konnte nicht bearbeitet werden, da der §lType
+          §cungültig ist. Gültig sind: §eNETWORK §cund §eCHAT§c.'
+        invalidDuration: '%P%§cDie BanID konnte nicht bearbeitet werden, da die §lBanndauer
+          §cungültig ist.'
+        failure: '%P%§cDas Banlvl konnte nicht hinzugefügt werden, da ein Fehler aufgetreten
+          ist. Siehe die Konsole ein um Mehr informationen zu erfahren.'
+      removelvl:
+        success: '%P%§7Das Banlvl §e%lvl% §7von der BanID §e%ID% §7wurde erfolgreich
+          §cgelöscht§7.'
+        cannotremovelastlvl: '%P%§cDu kannst Lvl §c1 §cnicht löschen.'
+        failure: '%P%§cDas Banlvl §e%lvl% §7konnte nicht gelöscht werden, da ein Fehler
+          aufgetreten ist. Siehe die Konsole ein um Mehr informationen zu erfahren.'
+      setlvlduration:
+        success: "%P%§7Die Bandauer wurde bearbeitet. \n%P% §7BanID §8» §e%ID% \n\
+          %P% §7BanLvl §8» §e%lvl% \n%P% §7Bandauer §8» §e%duration%"
+        invalidDuration: '%P%§cDie BanID konnte nicht bearbeitet werden, da die §lBanndauer
+          §cungültig ist.'
+        failure: '%P%§cDas Banlvl konnte nicht bearbeitet werden, da ein Fehler aufgetreten
+          ist. Siehe die Konsole ein um Mehr informationen zu erfahren.'
+      setlvltype:
+        success: "%P%§7Der Bantype wurde bearbeitet. \n%P% §7BanID §8» §e%ID% \n%P%\
+          \ §7BanLvl §8» §e%lvl% \n%P% §7Bantype §8» §e%type%"
+        invalidType: '%P%§cDie BanID konnte nicht bearbeitet werden, da der §lType
+          §cungültig ist. Gültig sind: §eNETWORK §cund §eCHAT§c.'
+        failure: '%P%§cDas Banlvl konnte nicht bearbeitet werden, da ein Fehler aufgetreten
+          ist. Siehe die Konsole ein um Mehr informationen zu erfahren.'
+      setonlyadmins:
+        success: "%P%§7Die Bandauer wurde bearbeitet. \n%P% §7BanID §8» §e%ID% \n\
+          %P% §7OnlyAdmins §8» §e%onlyadmins%"
+        failure: '%P%§cDie BanID konnte nicht bearbeitet werden, da ein Fehler aufgetreten
+          ist. Siehe die Konsole ein um Mehr informationen zu erfahren.'
+      setreason:
+        success: "%P%§7Der Bangrund wurde bearbeitet. \n%P% §7BanID §8» §e%ID% \n\
+          %P% §7Grund §8» §e%reason%"
+        failure: '%P%§cDie BanID konnte nicht bearbeitet werden, da ein Fehler aufgetreten
+          ist. Siehe die Konsole ein um Mehr informationen zu erfahren.'
+      show:
+        header:
+          - '%P%§8§m------§8» §7ID: §e%ID% §8«§m------'
+          - '%P%Grund §8» §e%reason%'
+          - '%P%onlyAdmins §8» §e%onlyAdmins%'
+        lvls:
+          - '%P%Lvl §e%lvl%§7:'
+          - '%P%  Dauer §8» §e%duration%'
+          - '%P%  Type §8» §e%type%'
+blacklist:
+  notify:
+    words:
+      autoban:
+        - '%P%§8§m------------------------------'
+        - '%P%§e%player% §7wurde für sein Chatverhalten'
+        - '%P%§7automatisch §cgebannt/gemuted§7.'
+        - '%P%§7Grund §8» §c%reason%'
+        - '%P%§7Nachricht §8» §c%message%'
+        - '%P%§7Verbleibende Zeit §8» §e%reamingtime%'
+        - '%P%§8§m------------------------------'
+      warning:
+        - '%P%§8§m------------------------------'
+        - '%P%§e§l§nWARNUNG'
+        - '%P%§e%player% hat eine eventuell unangemessene Nachricht in den Chat geschickt.'
+        - '%P%§7Nachricht §8» §c%message%'
+        - '%P%§8§m------------------------------'
+    ads:
+      autoban:
+        - '%P%§8§m------------------------------'
+        - '%P%§e%player% §7wurde für sein Chatverhalten'
+        - '%P%§7automatisch §cgebannt/gemuted§7.'
+        - '%P%§7Grund §8» §c%reason%'
+        - '%P%§7Nachricht §8» §e%message%'
+        - '%P%§8§m------------------------------'
+      warning:
+        - '%P%§8§m------------------------------'
+        - '%P%§e§l§nWARNUNG'
+        - '%P%§e%player% hat eine eventuell im Chat Werbung gemacht.'
+        - '%P%§7Nachricht §8» §e%message%'
+        - '%P%§8§m------------------------------'
+ip:
+  autoban: '%P%§cDer 2. Account von §e%bannedaccount% §cwurde automatisch gebannt
+    für §e%reason%§c.'
+  warning:
+    - '%P%§8§m------------------------------'
+    - '%P%§e§l§nWARNUNG'
+    - '%P%§e%player% §7ist womöglich ein 2. Account von §e%bannedaccount%§7.'
+    - '%P%§8§m------------------------------'

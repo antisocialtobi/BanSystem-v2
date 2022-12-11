@@ -194,6 +194,9 @@ public class CMDbansystem implements Command {
                                         .replaceAll("%ID%", id));
                             }
 
+                        } else {
+                            user.sendMessage(configurationUtil.getMessage("bansystem.ids.doesnotexists")
+                                    .replaceAll("%ID%", args[2]));
                         }
                     } else {
                         user.sendMessage(configurationUtil.getMessage("bansystem.usage.removeid"));

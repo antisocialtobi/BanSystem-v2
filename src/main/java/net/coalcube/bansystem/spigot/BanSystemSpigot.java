@@ -8,7 +8,6 @@ import net.coalcube.bansystem.spigot.listener.PlayerCommandPreprocessListener;
 import net.coalcube.bansystem.spigot.listener.PlayerConnectionListener;
 import net.coalcube.bansystem.spigot.util.SpigotConfig;
 import net.coalcube.bansystem.spigot.util.SpigotUser;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -20,7 +19,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -196,44 +197,34 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     // create Config files
     private void createConfig() {
         try {
-            File configfile = new File(this.getDataFolder(), "config.yml");
             if(!this.getDataFolder().exists()) {
                 this.getDataFolder().mkdir();
             }
-            if(!configfile.exists()) {
-                configfile.createNewFile();
-                config = new SpigotConfig(YamlConfiguration.loadConfiguration(configfile));
-                ConfigurationUtil.initConfig(config);
-                config.save(configfile);
+
+            File configFile = new File(this.getDataFolder(), "config.yml");
+            if (!configFile.exists()) {
+                InputStream in = this.getClass().getClassLoader().getResourceAsStream("config.yml");
+                Files.copy(in, configFile.toPath());
+                config = new SpigotConfig(YamlConfiguration.loadConfiguration(configFile));
             }
-            File messagesfile = new File(this.getDataFolder(), "messages.yml");
-            if(!messagesfile.exists()) {
-                messagesfile.createNewFile();
-                messages = new SpigotConfig(YamlConfiguration.loadConfiguration(messagesfile));
-                ConfigurationUtil.initMessages(messages);
-                messages.save(messagesfile);
+
+            File messagesFile = new File(this.getDataFolder(), "messages.yml");
+            if (!messagesFile.exists()) {
+                InputStream in = this.getClass().getClassLoader().getResourceAsStream("messages.yml");
+                Files.copy(in, messagesFile.toPath());
+                messages = new SpigotConfig(YamlConfiguration.loadConfiguration(messagesFile));
             }
-            File blacklistfile = new File(this.getDataFolder(), "blacklist.yml");
-            if (!blacklistfile.exists()) {
-                blacklistfile.createNewFile();
-                blacklist = new SpigotConfig(YamlConfiguration.loadConfiguration(blacklistfile));
-                ConfigurationUtil.initBlacklist(blacklist);
-                blacklist.save(blacklistfile);
+
+            File blacklistFile = new File(this.getDataFolder(), "blacklist.yml");
+            if (!blacklistFile.exists()) {
+                InputStream in = this.getClass().getClassLoader().getResourceAsStream("blacklist.yml");
+                Files.copy(in, blacklistFile.toPath());
+                blacklist = new SpigotConfig(YamlConfiguration.loadConfiguration(blacklistFile));
             }
-            messages = new SpigotConfig(YamlConfiguration.loadConfiguration(messagesfile));
-            config = new SpigotConfig(YamlConfiguration.loadConfiguration(configfile));
-            blacklist = new SpigotConfig(YamlConfiguration.loadConfiguration(blacklistfile));
-//
-//            if (messages.getString("bansystem.help.header") == null) {
-//                messages.set("bansystem.help", "");
-//                messages.set("bansystem.help", null);
-//
-//                messages.set("bansystem.help.header", "§8§m--------§8[ §cBanSystem §8]§m--------");
-//                messages.set("bansystem.help.entry", "§e/%command% §8» §7%description%");
-//                messages.set("bansystem.help.footer", "§8§m-----------------------------");
-//
-//                messages.save(messagesfile);
-//            }
+            messages = new SpigotConfig(YamlConfiguration.loadConfiguration(messagesFile));
+            config = new SpigotConfig(YamlConfiguration.loadConfiguration(configFile));
+            blacklist = new SpigotConfig(YamlConfiguration.loadConfiguration(blacklistFile));
+
         } catch (IOException e) {
             System.err.println("[Bansystem] Dateien konnten nicht erstellt werden.");
         }

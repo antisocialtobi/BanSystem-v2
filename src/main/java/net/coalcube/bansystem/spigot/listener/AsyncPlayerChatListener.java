@@ -144,12 +144,13 @@ public class AsyncPlayerChatListener implements Listener {
                                                     .getTimeFormatUtil().getFormattedRemainingTime(duration)));
                                 }
                             }
-                        }
-                        for (Player all : Bukkit.getOnlinePlayers()) {
-                            if (all.hasPermission("bansys.notify") && (all != p)) {
-                                all.sendMessage(configurationUtil.getMessage("blacklist.notify.words.warning")
-                                        .replaceAll("%player%", p.getDisplayName())
-                                        .replaceAll("%message%", msg));
+                        } else {
+                            for (Player all : Bukkit.getOnlinePlayers()) {
+                                if (all.hasPermission("bansys.notify") && (all != p)) {
+                                    all.sendMessage(configurationUtil.getMessage("blacklist.notify.words.warning")
+                                            .replaceAll("%player%", p.getDisplayName())
+                                            .replaceAll("%message%", msg));
+                                }
                             }
                         }
                     }
@@ -214,12 +215,13 @@ public class AsyncPlayerChatListener implements Listener {
                                                     .getTimeFormatUtil().getFormattedRemainingTime(duration)));
                                 }
                             }
-                        }
-                        for (Player all : Bukkit.getOnlinePlayers()) {
-                            if (all.hasPermission("bansys.notify") && (all != p)) {
-                                all.sendMessage(configurationUtil.getMessage("blacklist.notify.ads.warning")
-                                        .replaceAll("%player%", p.getDisplayName())
-                                        .replaceAll("%message%", msg));
+                        } else {
+                            for (Player all : Bukkit.getOnlinePlayers()) {
+                                if (all.hasPermission("bansys.notify") && (all != p)) {
+                                    all.sendMessage(configurationUtil.getMessage("blacklist.notify.ads.warning")
+                                            .replaceAll("%player%", p.getDisplayName())
+                                            .replaceAll("%message%", msg));
+                                }
                             }
                         }
                     }

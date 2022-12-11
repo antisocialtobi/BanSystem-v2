@@ -152,12 +152,13 @@ public class ChatListener implements Listener {
                                                 .getTimeFormatUtil().getFormattedRemainingTime(duration)));
                             }
                         }
-                    }
-                    for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
-                        if (all.hasPermission("bansys.notify") && (all != p)) {
-                            all.sendMessage(configurationUtil.getMessage("blacklist.notify.words.warning")
-                                    .replaceAll("%player%", p.getDisplayName())
-                                    .replaceAll("%message%", msg));
+                    } else {
+                        for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
+                            if (all.hasPermission("bansys.notify") && (all != p)) {
+                                all.sendMessage(configurationUtil.getMessage("blacklist.notify.words.warning")
+                                        .replaceAll("%player%", p.getDisplayName())
+                                        .replaceAll("%message%", msg));
+                            }
                         }
                     }
                 }
@@ -221,12 +222,13 @@ public class ChatListener implements Listener {
                                                 .getFormattedRemainingTime(duration)));
                             }
                         }
-                    }
-                    for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
-                        if (all.hasPermission("bansys.notify") && (all != p)) {
-                            all.sendMessage(configurationUtil.getMessage("blacklist.notify.ads.warning")
-                                    .replaceAll("%player%", p.getDisplayName())
-                                    .replaceAll("%message%", msg));
+                    } else {
+                        for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
+                            if (all.hasPermission("bansys.notify") && (all != p)) {
+                                all.sendMessage(configurationUtil.getMessage("blacklist.notify.ads.warning")
+                                        .replaceAll("%player%", p.getDisplayName())
+                                        .replaceAll("%message%", msg));
+                            }
                         }
                     }
                 }

@@ -15,12 +15,9 @@ public class TimeFormatUtil {
         long millis = remainingTime;
 
         if(millis == 0)
-            return messages.getString("TimeFormat.seconds")
-                    .replaceAll("%sec%", "0")
-                    .replaceAll("&", "§");
+            return "§e0 §cSekunde(n)";
         if(millis == -1)
-            return messages.getString("TimeFormat.permanent")
-                    .replaceAll("&", "§");
+            return "§4§lPERMANENT";
 
         List<String> array = new ArrayList<>();
 
@@ -68,8 +65,6 @@ public class TimeFormatUtil {
             return "§e0 §cSekunde(n)";
         }
 
-        return messages.getString("TimeFormat.seconds")
-                .replaceAll("%sec%", "0")
-                .replaceAll("&", "§");
+        return formattedRemainingTime;
     }
 }

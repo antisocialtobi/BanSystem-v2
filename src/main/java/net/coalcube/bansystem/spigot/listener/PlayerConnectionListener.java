@@ -318,7 +318,7 @@ public class PlayerConnectionListener implements Listener {
                     }
                     p.kickPlayer(banScreen);
                 } else {
-                    BanSystem.getInstance().getConsole().sendMessage(configurationUtil.getMessage("ip.warning")
+                    BanSystem.getInstance().sendConsoleMessage(configurationUtil.getMessage("ip.warning")
                             .replaceAll("%player%", p.getDisplayName())
                             .replaceAll("%bannedaccount%", bannedPlayerName.toString()));
                     for (Player all : Bukkit.getOnlinePlayers()) {

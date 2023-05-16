@@ -168,7 +168,10 @@ public class UUIDFetcher {
         try (InputStream is = new URL(url).openStream()) {
             BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             String jsonText = readAll(rd);
-            return new JSONObject(jsonText);
+            if(jsonText == null)
+                return null;
+            JSONObject jsonObject = new JSONObject(jsonText);
+            return jsonObject;
         }
     }
 
@@ -177,6 +180,9 @@ public class UUIDFetcher {
         int cp;
         while ((cp = rd.read()) != -1) {
             sb.append((char) cp);
+        }
+        if(sb.length() == 0){
+            return null;
         }
         return sb.toString();
     }

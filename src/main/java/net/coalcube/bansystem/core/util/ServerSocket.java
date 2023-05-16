@@ -17,7 +17,7 @@ public class ServerSocket {
             OutputStream os = socket.getOutputStream();
             PrintWriter pw = new PrintWriter(os, true);
 
-            BanSystem.getInstance().getConsole().sendMessage("Connected");
+            BanSystem.getInstance().sendConsoleMessage("Connected");
 
 
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));

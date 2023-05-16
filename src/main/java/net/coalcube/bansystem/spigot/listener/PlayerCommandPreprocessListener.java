@@ -15,7 +15,10 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class PlayerCommandPreprocessListener implements Listener {
@@ -35,8 +38,10 @@ public class PlayerCommandPreprocessListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onCommandPreprocess(PlayerCommandPreprocessEvent e) {
         if(BanSystem.getInstance().getSQL().isConnected()) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(configurationUtil.getMessage("DateTimePattern"));
             Player p = e.getPlayer();
             String msg = e.getMessage();
+            UUID uuid = p.getUniqueId();
             boolean startsWithBlockedCommnad = false;
 
             for(Object s : blockedCommands) {
@@ -51,12 +56,22 @@ public class PlayerCommandPreprocessListener implements Listener {
                         if (startsWithBlockedCommnad) {
                             e.setCancelled(true);
 
-                            String reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
-                                    banManager.getRemainingTime(p.getUniqueId(), Type.CHAT));
+                            Type type = Type.CHAT;
+                            String reason = banManager.getReason(uuid, type);
+                            String reamingTime = BanSystem.getInstance().getTimeFormatUtil()
+                                    .getFormattedRemainingTime(banManager.getRemainingTime(uuid, type));
+                            String creator = banManager.getBanner(uuid, type);
+                            String endDate = simpleDateFormat.format(new Date(banManager.getEnd(uuid, type)));
+
+                            int lvl = banManager.getLevel(uuid, reason);
+
 
                             p.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
                                     .replaceAll("%reason%", banManager.getReason(p.getUniqueId(), Type.CHAT))
-                                    .replaceAll("%reamingtime%", reamingTime));
+                                    .replaceAll("%reamingtime%", reamingTime)
+                                    .replaceAll("%creator%", creator)
+                                    .replaceAll("%enddate%", endDate)
+                                    .replaceAll("%lvl%", "" + lvl));
                         }
                     } else {
                         if (config.getBoolean("needReason.Unmute")) {

@@ -51,7 +51,7 @@ public class URLUtil {
                 if(structure.get("vpn").toString().equals("true"))
                     return true;
             } else {
-                BanSystem.getInstance().getConsole().sendMessage(configurationUtil.getMessage("prefix")
+                BanSystem.getInstance().sendConsoleMessage(configurationUtil.getMessage("prefix")
                                 + "§cBei der VPN Abfrage ist ein Fehler aufgetreten: "
                                 + jsonObject.getString("message"));
             }

@@ -41,10 +41,13 @@ public interface BanManager {
     List<UUID> getBannedPlayersWithSameIP(InetAddress address) throws SQLException, ExecutionException, InterruptedException;
     String getSavedBedrockUsername(UUID player) throws SQLException, ExecutionException, InterruptedException;
     UUID getSavedBedrockUUID(String username) throws SQLException, ExecutionException, InterruptedException;
-    boolean hasHistory(UUID player) throws UnknownHostException, SQLException, ExecutionException, InterruptedException;
-    boolean hasHistory(UUID player, String reason) throws UnknownHostException, SQLException, ExecutionException, InterruptedException;
+    boolean hasHistory(UUID player) throws SQLException, ExecutionException, InterruptedException;
+    boolean hasHistory(UUID player, String reason) throws SQLException, ExecutionException, InterruptedException;
     boolean isSavedBedrockPlayer(UUID player) throws SQLException, ExecutionException, InterruptedException;
     boolean isSavedBedrockPlayer(String username) throws SQLException, ExecutionException, InterruptedException;
     boolean isBanned(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException;
     boolean isSetIP(UUID player) throws SQLException, ExecutionException, InterruptedException;
+    void setBanDuration(UUID player, Type type, long duration) throws SQLException;
+    void setReason(UUID player, Type type, String reason) throws SQLException;
+    void setType(UUID player, Type oldType, Type newType) throws SQLException;
 }

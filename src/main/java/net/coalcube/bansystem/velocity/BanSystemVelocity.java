@@ -10,7 +10,6 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.spigot.BanSystemSpigot;
-import net.coalcube.bansystem.spigot.util.SpigotConfig;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -62,7 +61,7 @@ public class BanSystemVelocity implements BanSystem {
         createConfig();
         loadConfig();
 
-        timeFormatUtil = new TimeFormatUtil(messages);
+        // timeFormatUtil = new TimeFormatUtil(messages);
 
         if (config.getBoolean("mysql.enable")) {
             mysql = new MySQL(hostname, port, database, user, pw);
@@ -141,7 +140,7 @@ public class BanSystemVelocity implements BanSystem {
             e.printStackTrace();
         }
         idManager = new IDManager(config, sql, new File("plugins/BanSystem/", "config.yml"));
-        urlUtil = new URLUtil(messages, config);
+        // urlUtil = new URLUtil(messages, config);
 
         init(pluginManager);
     }
@@ -196,38 +195,38 @@ public class BanSystemVelocity implements BanSystem {
     }
 
     private void createConfig() {
-        try {
-            File configfile = new File("plugins/BanSystem/", "config.yml");
-            if (!new File("plugins/BanSystem/").exists()) {
-                new File("plugins/BanSystem/").mkdir();
-            }
-            if (!configfile.exists()) {
-                configfile.createNewFile();
-                config = new SpigotConfig(YamlConfiguration.loadConfiguration(configfile));
-                ConfigurationUtil.initConfig(config);
-                config.save(configfile);
-            }
-            File messagesfile = new File("plugins/BanSystem/", "messages.yml");
-            if (!messagesfile.exists()) {
-                messagesfile.createNewFile();
-                messages = new SpigotConfig(YamlConfiguration.loadConfiguration(messagesfile));
-                ConfigurationUtil.initMessages(messages);
-                messages.save(messagesfile);
-            }
-            File blacklistfile = new File("plugins/BanSystem/", "blacklist.yml");
-            if (!blacklistfile.exists()) {
-                blacklistfile.createNewFile();
-                blacklist = new SpigotConfig(YamlConfiguration.loadConfiguration(blacklistfile));
-                ConfigurationUtil.initBlacklist(blacklist);
-                blacklist.save(blacklistfile);
-            }
-            messages = new SpigotConfig(YamlConfiguration.loadConfiguration(messagesfile));
-            config = new SpigotConfig(YamlConfiguration.loadConfiguration(configfile));
-            blacklist = new SpigotConfig(YamlConfiguration.loadConfiguration(blacklistfile));
-        } catch (IOException e) {
-            logger.error("[Bansystem] Dateien konnten nicht erstellt werden.");
-            e.printStackTrace();
-        }
+//        try {
+//            File configfile = new File("plugins/BanSystem/", "config.yml");
+//            if (!new File("plugins/BanSystem/").exists()) {
+//                new File("plugins/BanSystem/").mkdir();
+//            }
+//            if (!configfile.exists()) {
+//                configfile.createNewFile();
+//                config = new SpigotConfig(YamlConfiguration.loadConfiguration(configfile));
+//                ConfigurationUtil.initConfig(config);
+//                config.save(configfile);
+//            }
+//            File messagesfile = new File("plugins/BanSystem/", "messages.yml");
+//            if (!messagesfile.exists()) {
+//                messagesfile.createNewFile();
+//                messages = new SpigotConfig(YamlConfiguration.loadConfiguration(messagesfile));
+//                ConfigurationUtil.initMessages(messages);
+//                messages.save(messagesfile);
+//            }
+//            File blacklistfile = new File("plugins/BanSystem/", "blacklist.yml");
+//            if (!blacklistfile.exists()) {
+//                blacklistfile.createNewFile();
+//                blacklist = new SpigotConfig(YamlConfiguration.loadConfiguration(blacklistfile));
+//                ConfigurationUtil.initBlacklist(blacklist);
+//                blacklist.save(blacklistfile);
+//            }
+//            messages = new SpigotConfig(YamlConfiguration.loadConfiguration(messagesfile));
+//            config = new SpigotConfig(YamlConfiguration.loadConfiguration(configfile));
+//            blacklist = new SpigotConfig(YamlConfiguration.loadConfiguration(blacklistfile));
+//        } catch (IOException e) {
+//            logger.error("[Bansystem] Dateien konnten nicht erstellt werden.");
+//            e.printStackTrace();
+//        }
     }
 
     @Override
@@ -290,5 +289,15 @@ public class BanSystemVelocity implements BanSystem {
     @Override
     public String getBanScreen() {
         return null;
+    }
+
+    @Override
+    public ConfigurationUtil getConfigurationUtil() {
+        return null;
+    }
+
+    @Override
+    public void sendConsoleMessage(String msg) {
+
     }
 }

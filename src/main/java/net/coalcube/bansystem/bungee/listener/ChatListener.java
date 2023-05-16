@@ -65,10 +65,21 @@ public class ChatListener implements Listener {
                     if (banManager.getEnd(uuid, Type.CHAT) > System.currentTimeMillis()
                             || banManager.getEnd(uuid, Type.CHAT) == -1) {
                         e.setCancelled(true);
+
+                        Type type = Type.CHAT;
+                        String reason = banManager.getReason(uuid, type);
+                        String reamingTime = BanSystem.getInstance().getTimeFormatUtil()
+                                .getFormattedRemainingTime(banManager.getRemainingTime(uuid, type));
+                        String creator = banManager.getBanner(uuid, type);
+                        String endDate = simpleDateFormat.format(new Date(banManager.getEnd(uuid, type)));
+                        int lvl = banManager.getLevel(uuid, reason);
+
                         p.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
-                                .replaceAll("%reason%", banManager.getReason(uuid, Type.CHAT))
-                                .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                        .getFormattedRemainingTime(banManager.getRemainingTime(uuid, Type.CHAT))));
+                                .replaceAll("%reason%", reason)
+                                .replaceAll("%reamingtime%", reamingTime)
+                                .replaceAll("%creator%", creator)
+                                .replaceAll("%enddate%", endDate)
+                                .replaceAll("%lvl%", "" + lvl));
                     } else {
                         if (config.getBoolean("needReason.Unmute")) {
                             banManager.unMute(uuid, ProxyServer.getInstance().getConsole().getName(), "Strafe abgelaufen");
@@ -134,7 +145,7 @@ public class ChatListener implements Listener {
                                     .replaceAll("%lvl%", String.valueOf(lvl)));
                         }
 
-                        BanSystem.getInstance().getConsole().sendMessage(
+                        BanSystem.getInstance().sendConsoleMessage(
                                 configurationUtil.getMessage("blacklist.notify.words.autoban")
                                         .replaceAll("%player%", p.getDisplayName())
                                         .replaceAll("%message%", msg)
@@ -152,12 +163,13 @@ public class ChatListener implements Listener {
                                                 .getTimeFormatUtil().getFormattedRemainingTime(duration)));
                             }
                         }
-                    }
-                    for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
-                        if (all.hasPermission("bansys.notify") && (all != p)) {
-                            all.sendMessage(configurationUtil.getMessage("blacklist.notify.words.warning")
-                                    .replaceAll("%player%", p.getDisplayName())
-                                    .replaceAll("%message%", msg));
+                    } else {
+                        for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
+                            if (all.hasPermission("bansys.notify") && (all != p)) {
+                                all.sendMessage(configurationUtil.getMessage("blacklist.notify.words.warning")
+                                        .replaceAll("%player%", p.getDisplayName())
+                                        .replaceAll("%message%", msg));
+                            }
                         }
                     }
                 }
@@ -204,7 +216,7 @@ public class ChatListener implements Listener {
                                     .replaceAll("%enddate%", enddate)
                                     .replaceAll("%lvl%", String.valueOf(lvl)));
                         }
-                        BanSystem.getInstance().getConsole().sendMessage(
+                        BanSystem.getInstance().sendConsoleMessage(
                                 configurationUtil.getMessage("blacklist.notify.ads.autoban")
                                         .replaceAll("%player%", p.getDisplayName())
                                         .replaceAll("%message%", msg)
@@ -221,12 +233,13 @@ public class ChatListener implements Listener {
                                                 .getFormattedRemainingTime(duration)));
                             }
                         }
-                    }
-                    for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
-                        if (all.hasPermission("bansys.notify") && (all != p)) {
-                            all.sendMessage(configurationUtil.getMessage("blacklist.notify.ads.warning")
-                                    .replaceAll("%player%", p.getDisplayName())
-                                    .replaceAll("%message%", msg));
+                    } else {
+                        for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
+                            if (all.hasPermission("bansys.notify") && (all != p)) {
+                                all.sendMessage(configurationUtil.getMessage("blacklist.notify.ads.warning")
+                                        .replaceAll("%player%", p.getDisplayName())
+                                        .replaceAll("%message%", msg));
+                            }
                         }
                     }
                 }

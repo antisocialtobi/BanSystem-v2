@@ -51,13 +51,21 @@ public class AsyncPlayerChatListener implements Listener {
                     if (banManager.getEnd(p.getUniqueId(), Type.CHAT) > System.currentTimeMillis()
                             || banManager.getEnd(p.getUniqueId(), Type.CHAT) == -1) {
                         e.setCancelled(true);
+
+                        Type type = Type.CHAT;
+                        String reason = banManager.getReason(uuid, type);
+                        String reamingTime = BanSystem.getInstance().getTimeFormatUtil()
+                                .getFormattedRemainingTime(banManager.getRemainingTime(uuid, type));
+                        String creator = banManager.getBanner(uuid, type);
+                        String endDate = simpleDateFormat.format(new Date(banManager.getEnd(uuid, type)));
+                        int lvl = banManager.getLevel(uuid, reason);
+
                         p.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
-                                .replaceAll("%P%", BanSystemSpigot.prefix)
-                                .replaceAll("%reason%", banManager.getReason(p.getUniqueId(), Type.CHAT))
-                                .replaceAll("%reamingtime%",
-                                        BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
-                                                banManager.getRemainingTime(p.getUniqueId(), Type.CHAT)))
-                                .replaceAll("&", "§"));
+                                .replaceAll("%enddate%", endDate)
+                                .replaceAll("%reason%", reason)
+                                .replaceAll("%reamingtime%", reamingTime)
+                                .replaceAll("%creator", creator)
+                                .replaceAll("%lvl%", "" + lvl));
                     } else {
                         try {
                             if (config.getBoolean("needReason.Unmute")) {
@@ -127,7 +135,7 @@ public class AsyncPlayerChatListener implements Listener {
 
                             }
 
-                            BanSystem.getInstance().getConsole().sendMessage(
+                            BanSystem.getInstance().sendConsoleMessage(
                                     configurationUtil.getMessage("blacklist.notify.words.autoban")
                                     .replaceAll("%player%", p.getDisplayName())
                                     .replaceAll("%message%", msg)
@@ -144,12 +152,13 @@ public class AsyncPlayerChatListener implements Listener {
                                                     .getTimeFormatUtil().getFormattedRemainingTime(duration)));
                                 }
                             }
-                        }
-                        for (Player all : Bukkit.getOnlinePlayers()) {
-                            if (all.hasPermission("bansys.notify") && (all != p)) {
-                                all.sendMessage(configurationUtil.getMessage("blacklist.notify.words.warning")
-                                        .replaceAll("%player%", p.getDisplayName())
-                                        .replaceAll("%message%", msg));
+                        } else {
+                            for (Player all : Bukkit.getOnlinePlayers()) {
+                                if (all.hasPermission("bansys.notify") && (all != p)) {
+                                    all.sendMessage(configurationUtil.getMessage("blacklist.notify.words.warning")
+                                            .replaceAll("%player%", p.getDisplayName())
+                                            .replaceAll("%message%", msg));
+                                }
                             }
                         }
                     }
@@ -197,7 +206,7 @@ public class AsyncPlayerChatListener implements Listener {
 
                             }
 
-                            BanSystem.getInstance().getConsole().sendMessage(
+                            BanSystem.getInstance().sendConsoleMessage(
                                     configurationUtil.getMessage("blacklist.notify.ads.autoban")
                                             .replaceAll("%player%", p.getDisplayName())
                                             .replaceAll("%message%", msg)
@@ -214,12 +223,13 @@ public class AsyncPlayerChatListener implements Listener {
                                                     .getTimeFormatUtil().getFormattedRemainingTime(duration)));
                                 }
                             }
-                        }
-                        for (Player all : Bukkit.getOnlinePlayers()) {
-                            if (all.hasPermission("bansys.notify") && (all != p)) {
-                                all.sendMessage(configurationUtil.getMessage("blacklist.notify.ads.warning")
-                                        .replaceAll("%player%", p.getDisplayName())
-                                        .replaceAll("%message%", msg));
+                        } else {
+                            for (Player all : Bukkit.getOnlinePlayers()) {
+                                if (all.hasPermission("bansys.notify") && (all != p)) {
+                                    all.sendMessage(configurationUtil.getMessage("blacklist.notify.ads.warning")
+                                            .replaceAll("%player%", p.getDisplayName())
+                                            .replaceAll("%message%", msg));
+                                }
                             }
                         }
                     }

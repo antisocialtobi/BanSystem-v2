@@ -78,7 +78,8 @@ public class CMDban implements Command {
                                     .replaceAll("%reason%", config.getString("IDs." + key + ".reason")));
                 } else
                     user.sendMessage(
-                            configurationUtil.getMessage("Ban.ID.Listlayout.IDs.general").replaceAll("%ID%", key.toString())
+                            configurationUtil.getMessage("Ban.ID.Listlayout.IDs.general")
+                                    .replaceAll("%ID%", key.toString())
                                     .replaceAll("%reason%", config.getString("IDs." + key + ".reason")));
             }
             user.sendMessage(configurationUtil.getMessage("Ban.usage"));
@@ -235,23 +236,31 @@ public class CMDban implements Command {
                         e.printStackTrace();
                     }
 
-                    user.sendMessage(configurationUtil.getMessage("Ban.success")
-                            .replaceAll("%Player%", Objects.requireNonNull(name))
+                    String banSuccess = configurationUtil.getMessage("Ban.success")
+                            .replaceAll("%player%", Objects.requireNonNull(name))
                             .replaceAll("%reason%", reason)
                             .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                     .getFormattedRemainingTime(duration))
                             .replaceAll("%banner%", creatorName)
                             .replaceAll("%type%", type.toString())
-                            .replaceAll("%enddate%", formattedEndDate));
+                            .replaceAll("%enddate%", formattedEndDate)
+                            .replaceAll("%lvl%", "" + lvl);
+
+                    if(user.getUniqueId() != null)
+                        user.sendMessage(banSuccess);
+                    else
+                        BanSystem.getInstance().sendConsoleMessage(banSuccess);
 
                     if(user.getUniqueId() != null) {
-                        BanSystem.getInstance().getConsole().sendMessage(configurationUtil.getMessage("Ban.notify")
+                        BanSystem.getInstance().sendConsoleMessage(configurationUtil.getMessage("Ban.notify")
                                 .replaceAll("%player%", Objects.requireNonNull(name))
                                 .replaceAll("%reason%", reason)
                                 .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                         .getFormattedRemainingTime(duration))
                                 .replaceAll("%banner%", creatorName)
-                                .replaceAll("%type%", type.toString()));
+                                .replaceAll("%type%", type.toString())
+                                .replaceAll("%enddate%", simpleDateFormat.format(endDate))
+                                .replaceAll("%lvl%", "" + lvl));
                     }
                     for (User all : BanSystem.getInstance().getAllPlayers()) {
                         if (all.hasPermission("bansys.notify") && (all.getUniqueId() != user.getUniqueId())) {
@@ -261,7 +270,9 @@ public class CMDban implements Command {
                                     .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                             .getFormattedRemainingTime(duration))
                                     .replaceAll("%banner%", creatorName)
-                                    .replaceAll("%type%", type.toString()));
+                                    .replaceAll("%type%", type.toString())
+                                    .replaceAll("%enddate%", simpleDateFormat.format(endDate))
+                                    .replaceAll("%lvl%", "" + lvl));
                         }
                     }
                 } else

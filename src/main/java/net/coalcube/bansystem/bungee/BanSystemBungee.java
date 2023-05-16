@@ -7,6 +7,8 @@ import net.coalcube.bansystem.bungee.util.BungeeUser;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.command.*;
 import net.coalcube.bansystem.core.util.*;
+import net.coalcube.bansystem.spigot.util.SpigotConfig;
+import net.coalcube.bansystem.web.WebServer;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -18,7 +20,9 @@ import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -34,6 +38,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     private IDManager idManager;
     private URLUtil urlUtil;
     private ConfigurationUtil configurationUtil;
+    private WebServer webServer;
 
     private Database sql;
     private MySQL mysql;
@@ -70,6 +75,9 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
         configurationUtil = new ConfigurationUtil(config, messages, blacklist);
         timeFormatUtil = new TimeFormatUtil(configurationUtil);
+
+        if (!getDataFolder().exists())
+            getDataFolder().mkdir();
 
         // Set mysql instance
         if (config.getBoolean("mysql.enable")) {
@@ -155,6 +163,12 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
         idManager = new IDManager(config, sql, new File(this.getDataFolder(), "config.yml"));
         urlUtil = new URLUtil(configurationUtil, config);
+        try {
+            webServer.createWebServer(8000);
+        } catch (IOException e) {
+            console.sendMessage(prefix + "§cDer WebServer konnte nicht gestartet werden.");
+            throw new RuntimeException(e);
+        }
 
         init(pluginmanager);
 
@@ -175,6 +189,8 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
         pm.unregisterListeners(this);
 
+        webServer.stopWebServer();
+
         ProxyServer.getInstance().getConsole()
                 .sendMessage(new TextComponent(prefix + "§7Das BanSystem wurde gestoppt."));
 
@@ -184,45 +200,34 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     // create Config files
     private void createConfig() {
         try {
-            File configfile = new File(this.getDataFolder(), "config.yml");
             if (!this.getDataFolder().exists()) {
                 this.getDataFolder().mkdir();
             }
-            if (!configfile.exists()) {
-                configfile.createNewFile();
-                config = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(configfile));
-                ConfigurationUtil.initConfig(config);
-                config.save(configfile);
-            }
-            File messagesfile = new File(this.getDataFolder(), "messages.yml");
-            if (!messagesfile.exists()) {
-                messagesfile.createNewFile();
-                messages = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(messagesfile));
-                ConfigurationUtil.initMessages(messages);
-                messages.save(messagesfile);
-            }
-            File blacklistfile = new File(this.getDataFolder(), "blacklist.yml");
-            if (!blacklistfile.exists()) {
-                blacklistfile.createNewFile();
-                blacklist = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(blacklistfile));
-                ConfigurationUtil.initBlacklist(blacklist);
-                blacklist.save(blacklistfile);
-            }
-            config = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(configfile));
-            messages = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(messagesfile));
-            blacklist = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(blacklistfile));
 
-
-            if (messages.getString("bansystem.help.header") == null) {
-                messages.set("bansystem.help", "");
-                messages.set("bansystem.help", null);
-
-                messages.set("bansystem.help.header", "§8§m--------§8[ §cBanSystem §8]§m--------");
-                messages.set("bansystem.help.entry", "§e/%command% §8» §7%description%");
-                messages.set("bansystem.help.footer", "§8§m-----------------------------");
-
-                messages.save(messagesfile);
+            File configFile = new File(this.getDataFolder(), "config.yml");
+            if (!configFile.exists()) {
+                InputStream in = this.getClass().getClassLoader().getResourceAsStream("config.yml");
+                Files.copy(in, configFile.toPath());
+                config = new SpigotConfig(org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(configFile));
             }
+
+            File messagesFile = new File(this.getDataFolder(), "messages.yml");
+            if (!messagesFile.exists()) {
+                InputStream in = this.getClass().getClassLoader().getResourceAsStream("messages.yml");
+                Files.copy(in, messagesFile.toPath());
+                messages = new SpigotConfig(org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(messagesFile));
+            }
+
+            File blacklistFile = new File(this.getDataFolder(), "blacklist.yml");
+            if (!blacklistFile.exists()) {
+                InputStream in = this.getClass().getClassLoader().getResourceAsStream("blacklist.yml");
+                Files.copy(in, blacklistFile.toPath());
+                blacklist = new SpigotConfig(org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(blacklistFile));
+            }
+
+            config = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile));
+            messages = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(messagesFile));
+            blacklist = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(blacklistFile));
 
         } catch (IOException e) {
             console.sendMessage(new TextComponent(prefix + "Dateien konnten nicht erstellt werden."));
@@ -322,9 +327,9 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         pluginManager.registerCommand(this, new CommandWrapper("unmute",
                 new CMDunmute(banManager, config, sql, configurationUtil), true));
         pluginManager.registerCommand(this, new CommandWrapper("bansystem",
-                new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
+                new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
         pluginManager.registerCommand(this, new CommandWrapper("bansys",
-                new CMDbansystem(messages, config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
+                new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
 
         pluginManager.registerListener(this, new LoginListener(banManager, config, sql, urlUtil, configurationUtil));
         pluginManager.registerListener(this, new ChatListener(banManager, config, sql, blacklist, configurationUtil));
@@ -347,6 +352,13 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     @Override
     public ConfigurationUtil getConfigurationUtil() {
         return configurationUtil;
+    }
+
+    @Override
+    public void sendConsoleMessage(String msg) {
+        for (String line : msg.split("\n")) {
+            console.sendMessage(new TextComponent(line));
+        }
     }
 
     @Override

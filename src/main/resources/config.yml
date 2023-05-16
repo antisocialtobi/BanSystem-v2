@@ -5,17 +5,24 @@ mysql:
   database: Bansystem
   host: localhost
   port: 3306
+
+# if IPautoban is disabled, every player with the bansys.notify permission gets a notification
 IPautoban:
   enable: false
   banid: 9
   onlyNetworkBans: false
+
+# apikey: if more than 100 players join a day then you have to enter your apikey.
+#         To get the apikey simply go to https://vpnapi.io/ and create an account.
+#         Now the apikey is on the dashboard.
 VPN:
-  enable: false
+  enable: true
   autoban:
-    enable: true
+    enable: false
     ID: 11
   serverIP: 00.00.00.00
   apikey: ''
+
 mute:
   blockedCommands:
     - /msg
@@ -23,9 +30,11 @@ mute:
     - /me
     - /whisper
     - /say
+
 needReason:
   Unban: false
   Unmute: false
+
 blacklist:
   words:
     enable: true
@@ -37,9 +46,16 @@ blacklist:
     autoban:
       enable: true
       id: 7
+
+# If you have the permission bansys.bypasschatdelay you are not affected.
 chatdelay:
   enable: true
   delay: 3
+
+# to add an ID simple use the command "/bansys ids create" or just copy an ID and change the attributes.
+# Possible Types are: NETWORK, CHAT (please note that it is case-sensitive)
+# The duration is calculated in seconds that means 1 day is 86400 duration.
+# If onlyAdmins is enabled you need to have the permission bansys.ban.admin
 IDs:
   '1':
     reason: Unerlaubte Clientmodification/Hackclient

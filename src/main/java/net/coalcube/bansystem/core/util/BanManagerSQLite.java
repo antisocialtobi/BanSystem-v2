@@ -229,7 +229,7 @@ public class BanManagerSQLite implements BanManager {
         return null;
     }
 
-    public boolean hasHistory(UUID player) throws UnknownHostException, SQLException {
+    public boolean hasHistory(UUID player) throws SQLException {
         ResultSet resultSet = sqlite.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "';");
         while (resultSet.next()) {
             return true;
@@ -237,7 +237,7 @@ public class BanManagerSQLite implements BanManager {
         return false;
     }
 
-    public boolean hasHistory(UUID player, String reason) throws UnknownHostException, SQLException {
+    public boolean hasHistory(UUID player, String reason) throws SQLException {
         ResultSet resultSet = sqlite.getResult("SELECT * FROM `banhistories` WHERE player='" + player + "' AND reason='" + reason + "';");
         while (resultSet.next()) {
             return true;
@@ -277,5 +277,19 @@ public class BanManagerSQLite implements BanManager {
             return false;
         }
         return true;
+    }
+    @Override
+    public void setBanDuration(UUID player, Type type, long duration) throws SQLException {
+        sqlite.update("UPDATE `bans` SET duration='" + duration + "' WHERE player = '" + player + "' AND type = '" + type.toString() + "';");
+    }
+
+    @Override
+    public void setReason(UUID player, Type type, String reason) throws SQLException {
+        sqlite.update("UPDATE `bans` SET reason='" + reason + "' WHERE player = '" + player + "' AND type = '" + type.toString() + "';");
+    }
+
+    @Override
+    public void setType(UUID player, Type oldType, Type newType) throws SQLException {
+        sqlite.update("UPDATE `bans` SET type='" + newType + "' WHERE player = '" + player + "' AND type = '" + oldType + "';");
     }
 }

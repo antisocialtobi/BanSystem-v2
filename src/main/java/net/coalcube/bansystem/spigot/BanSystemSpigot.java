@@ -43,7 +43,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     private Config config, messages, blacklist;
     private static String Banscreen;
     private static List<String> blockedCommands, ads, blockedWords;
-    private File sqlitedatabase;
+    private File sqlitedatabase, configFile, messagesFile, blacklistFile;
     private String hostname, database, user, pw;
     private int port;
     private CommandSender console;
@@ -68,10 +68,16 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         console.sendMessage("§c                                  |___/                           §7v" + this.getVersion());
 
         createConfig();
-        loadConfig();
 
-        configurationUtil = new ConfigurationUtil(config, messages, blacklist);
+        configurationUtil = new ConfigurationUtil(config, messages, blacklist, configFile, messagesFile, blacklistFile);
         timeFormatUtil = new TimeFormatUtil(configurationUtil);
+        try {
+            configurationUtil.update();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        loadConfig();
 
         // Set mysql instance
         if (config.getBoolean("mysql.enable")) {
@@ -201,21 +207,21 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
                 this.getDataFolder().mkdir();
             }
 
-            File configFile = new File(this.getDataFolder(), "config.yml");
+            configFile = new File(this.getDataFolder(), "config.yml");
             if (!configFile.exists()) {
                 InputStream in = this.getClass().getClassLoader().getResourceAsStream("config.yml");
                 Files.copy(in, configFile.toPath());
                 config = new SpigotConfig(YamlConfiguration.loadConfiguration(configFile));
             }
 
-            File messagesFile = new File(this.getDataFolder(), "messages.yml");
+            messagesFile = new File(this.getDataFolder(), "messages.yml");
             if (!messagesFile.exists()) {
                 InputStream in = this.getClass().getClassLoader().getResourceAsStream("messages.yml");
                 Files.copy(in, messagesFile.toPath());
                 messages = new SpigotConfig(YamlConfiguration.loadConfiguration(messagesFile));
             }
 
-            File blacklistFile = new File(this.getDataFolder(), "blacklist.yml");
+            blacklistFile = new File(this.getDataFolder(), "blacklist.yml");
             if (!blacklistFile.exists()) {
                 InputStream in = this.getClass().getClassLoader().getResourceAsStream("blacklist.yml");
                 Files.copy(in, blacklistFile.toPath());

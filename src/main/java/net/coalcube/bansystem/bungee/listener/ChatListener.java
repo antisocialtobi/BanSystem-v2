@@ -94,9 +94,11 @@ public class ChatListener implements Listener {
         }
         if(!p.hasPermission("bansys.bypasschatfilter") && !e.isCancelled()) {
             if (config.getBoolean("blacklist.words.enable")) {
-                if (hasBlockedWordsContains(msg)) {
+                if ((msg.startsWith("/") && config.getBoolean("blacklist.words.checkcommands.enable") &&
+                        hasBlockedWordsContains(msg)) || (!msg.startsWith("/") && hasBlockedWordsContains(msg))) {
 
                     e.setCancelled(true);
+
                     if (config.getBoolean("blacklist.words.autoban.enable")) {
                         String id = String.valueOf(config.getInt("blacklist.words.autoban.id"));
                         String reason = config.getString("IDs." + id + ".reason");

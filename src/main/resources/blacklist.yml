@@ -13,6 +13,7 @@ Words:
   - Huan
   - Fresse
   - Schlampe
+
 Ads:
   - .de
   - . de
@@ -36,3 +37,6 @@ Ads:
   - .wtf
   - http://
   - https://
+
+Whitelist:
+  - example.org

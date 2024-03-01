@@ -114,7 +114,7 @@ History:
   usage: '%P%§cBenutze §8» §e/history §8<§7Spieler§8>'
   faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
   header: '%P%§8§m-------§8» §e%player% §8«§m-------'
-  body:
+  ban:
     - '%P%§7Grund §8» §c%reason%'
     - '%P%§7Erstelldatum §8» §c%creationdate%'
     - '%P%§7Enddatum §8» §c%enddate%'
@@ -123,6 +123,7 @@ History:
     - '%P%§7Type §8» §c%type%'
     - '%P%§7ID §8» §c%ID%'
     - '%P%'
+
   footer: '%P%§8§m------------------------'
 Kick:
   usage: '%P%§cBenutze §8» §e/kick §8<§7Spieler§8> §8[§7Grund§8]'

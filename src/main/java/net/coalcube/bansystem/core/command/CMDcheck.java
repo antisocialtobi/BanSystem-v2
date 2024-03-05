@@ -1,6 +1,7 @@
 package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 
 import java.net.UnknownHostException;
@@ -185,7 +186,7 @@ public class CMDcheck implements Command {
                                     .replaceAll("%player%", name));
                         }
                     } catch (UnknownHostException | SQLException | ParseException e) {
-                        user.sendMessage(configurationUtil.getMessage("Check.faild"));
+                        user.sendMessage(configurationUtil.getMessage("Check.failed"));
                         e.printStackTrace();
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();

@@ -3,6 +3,7 @@ package net.coalcube.bansystem.core;
 import java.util.List;
 import java.util.UUID;
 
+import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 
 public interface BanSystem {

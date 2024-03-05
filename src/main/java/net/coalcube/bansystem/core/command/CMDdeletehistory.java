@@ -1,6 +1,7 @@
 package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 
 import java.net.UnknownHostException;
@@ -100,7 +101,7 @@ public class CMDdeletehistory implements Command {
                             user.sendMessage(configurationUtil.getMessage("History.historynotfound"));
                         }
                     } catch (UnknownHostException | SQLException e) {
-                        user.sendMessage(configurationUtil.getMessage("Deletehistroy.faild"));
+                        user.sendMessage(configurationUtil.getMessage("Deletehistroy.failed"));
                         e.printStackTrace();
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();

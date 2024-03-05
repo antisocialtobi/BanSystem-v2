@@ -1,3 +1,7 @@
+# Plugin by Tobias Herzig
+
+# Here you can configure the database connection.
+# If you set enable to false the plugin will create a local SQLite file.
 mysql:
   enable: false
   user: root

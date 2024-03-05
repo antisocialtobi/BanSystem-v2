@@ -1,11 +1,14 @@
 package net.coalcube.bansystem.core.util;
 
+import net.coalcube.bansystem.core.sql.MySQL;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -21,6 +24,52 @@ public class BanManagerMySQL implements BanManager {
     public void log(String action, String creator, String target, String note) throws SQLException {
         mysql.update("INSERT INTO `logs` (`action`, `target`, `creator`, `note`, `creationdate`) " +
                 "VALUES ('" + action + "', '" + target + "','" + creator + "', '" + note + "', NOW());");
+    }
+
+    @Override
+    public Log getLog(int id) throws SQLException, ExecutionException, InterruptedException {
+        ResultSet rs = mysql.getResult("SELECT * FROM `logs` WHERE id=" + id + ";");
+        Log log = null;
+        while(rs.next()) {
+            String target, creator, action, note;
+            Date date;
+
+            target = rs.getString("target");
+            creator = rs.getString("creator");
+            action = rs.getString("action");
+            note = rs.getString("note");
+            date = rs.getTimestamp("creationdate");
+
+            log = new Log(id, target, creator, action, note, date);
+        }
+        return log;
+    }
+
+    @Override
+    public List<Log> getAllLogs() throws SQLException, ExecutionException, InterruptedException {
+        ResultSet rs = mysql.getResult("SELECT * FROM `logs` ORDER BY creationdate DESC;");
+        List<Log> logs = new ArrayList<>();
+        while(rs.next()) {
+            int id;
+            String target, creator, action, note;
+            Date date;
+
+            id = rs.getInt("id");
+            target = rs.getString("target");
+            creator = rs.getString("creator");
+            action = rs.getString("action");
+            note = rs.getString("note");
+            date = rs.getTimestamp("creationdate");
+
+            Log log = new Log(id, target, creator, action, note, date);
+            logs.add(log);
+        }
+        return logs;
+    }
+
+    @Override
+    public void clearLogs() throws SQLException {
+        mysql.update("TRUNCATE TABLE logs;");
     }
 
     public void kick(UUID player, String creator) throws SQLException {

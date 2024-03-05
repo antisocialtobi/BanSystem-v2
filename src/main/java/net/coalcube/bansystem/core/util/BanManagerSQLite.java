@@ -1,5 +1,7 @@
 package net.coalcube.bansystem.core.util;
 
+import net.coalcube.bansystem.core.sql.SQLite;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -9,6 +11,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -26,6 +29,51 @@ public class BanManagerSQLite implements BanManager {
                 "VALUES ('" + action + "', '" + target + "','" + creator + "', '" + note + "', datetime('now', 'localtime'));");
     }
 
+    @Override
+    public Log getLog(int id) throws SQLException, ExecutionException, InterruptedException {
+        ResultSet rs = sqlite.getResult("SELECT * FROM `logs` WHERE id=" + id + ";");
+        Log log = null;
+        while(rs.next()) {
+            String target, creator, action, note;
+            Date date;
+
+            target = rs.getString("target");
+            creator = rs.getString("creator");
+            action = rs.getString("action");
+            note = rs.getString("note");
+            date = rs.getTimestamp("creationdate");
+
+            log = new Log(id, target, creator, action, note, date);
+        }
+        return log;
+    }
+
+    @Override
+    public List<Log> getAllLogs() throws SQLException, ExecutionException, InterruptedException {
+        ResultSet rs = sqlite.getResult("SELECT * FROM `logs` ORDER BY creationdate DESC;");
+        List<Log> logs = new ArrayList<>();
+        while(rs.next()) {
+            int id;
+            String target, creator, action, note;
+            Date date;
+
+            id = rs.getInt("id");
+            target = rs.getString("target");
+            creator = rs.getString("creator");
+            action = rs.getString("action");
+            note = rs.getString("note");
+            date = rs.getTimestamp("creationdate");
+
+            Log log = new Log(id, target, creator, action, note, date);
+            logs.add(log);
+        }
+        return logs;
+    }
+
+    @Override
+    public void clearLogs() throws SQLException {
+        sqlite.update("TRUNCATE TABLE logs;");
+    }
     public void kick(UUID player, String creator) throws SQLException {
         kick(player, creator, "");
     }

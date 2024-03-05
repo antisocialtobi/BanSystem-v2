@@ -1,4 +1,8 @@
-package net.coalcube.bansystem.core.util;
+package net.coalcube.bansystem.core.sql;
+
+import net.coalcube.bansystem.core.util.Config;
+import net.coalcube.bansystem.core.util.History;
+import net.coalcube.bansystem.core.util.Type;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

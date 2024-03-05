@@ -2,6 +2,7 @@ package net.coalcube.bansystem.bungee.listener;
 
 import net.coalcube.bansystem.bungee.BanSystemBungee;
 import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.*;

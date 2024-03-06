@@ -126,6 +126,7 @@ History:
   failed: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
   header: '%P%§8§m-------§8» §e%player% §8«§m-------'
   ban:
+    - '%P% '
     - '%P%§7Grund §8» §c%reason%'
     - '%P%§7Erstelldatum §8» §c%creationdate%'
     - '%P%§7Enddatum §8» §c%enddate%'
@@ -134,7 +135,12 @@ History:
     - '%P%§7Type §8» §c%type%'
     - '%P%§7ID §8» §c%ID%'
     - '%P%'
-
+  kick: '%P%§7Wurde von §e%creator% §cgekickt.'
+  kickWithReason:
+    - '%P%§7Wurde von §e%creator% §cgekickt.'
+    - '%P%'
+  unmute: '%P%§7Wurde von §e%creator% §centbannt§7.'
+  unban: '%P%§7Wurde von §e%creator% §centmuted§7.'
   footer: '%P%§8§m------------------------'
 Kick:
   usage: '%P%§cBenutze §8» §e/kick §8<§7Spieler§8> §8[§7Grund§8]'

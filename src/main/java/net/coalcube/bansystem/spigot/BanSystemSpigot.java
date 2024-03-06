@@ -72,7 +72,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
         createConfig();
 
-        configurationUtil = new ConfigurationUtil(config, messages, blacklist, configFile, messagesFile, blacklistFile);
+        configurationUtil = new ConfigurationUtil(config, messages, blacklist, configFile, messagesFile, blacklistFile, this);
         timeFormatUtil = new TimeFormatUtil(configurationUtil);
         try {
             configurationUtil.update();
@@ -360,6 +360,11 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         for (String line : msg.split("\n")) {
             console.sendMessage(line);
         }
+    }
+
+    @Override
+    public InputStream getResourceAsStream(String path) {
+        return this.getResource(path);
     }
 
     @Override

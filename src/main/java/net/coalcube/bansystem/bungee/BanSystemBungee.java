@@ -18,6 +18,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -74,7 +76,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
         createConfig();
 
-        configurationUtil = new ConfigurationUtil(config, messages, blacklist, configFile, messagesFile, blacklistFile);
+        configurationUtil = new ConfigurationUtil(config, messages, blacklist, configFile, messagesFile, blacklistFile, this);
         timeFormatUtil = new TimeFormatUtil(configurationUtil);
 
         try {

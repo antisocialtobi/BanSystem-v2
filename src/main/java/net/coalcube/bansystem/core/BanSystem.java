@@ -32,5 +32,6 @@ public interface BanSystem {
     String getBanScreen();
     ConfigurationUtil getConfigurationUtil();
     void sendConsoleMessage(String msg);
-    InputStream getResourceAsStream(String path);
+    InputStream getResourceAsInputStream(String path);
+    
 }

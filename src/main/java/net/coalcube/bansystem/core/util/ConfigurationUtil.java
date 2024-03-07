@@ -51,8 +51,7 @@ public class ConfigurationUtil {
     }
 
     public void update() throws IOException {
-        Yaml messagesResource = new Yaml();
-        Map<String, Object> yamlData = messagesResource.load(banSystem.getResourceAsStream("messages.yml"));
+
 
         // Messages
         if(messages.get("History.body") != null)
@@ -91,8 +90,11 @@ public class ConfigurationUtil {
             messages.set("bansystem.logs.show.button.previous", "§c« §c§lZurück");
         if(messages.get("bansystem.logs.show.pageNotFound") == null)
             messages.set("bansystem.logs.show.pageNotFound", "%P%§cDie angegebene Seite wurde nicht gefunden. Die Maximale Seitenanzahl beträgt §e%maxpage%§7.");
-        if(messages.get("bansystem.logs.show.invalidInput") == null)
-            messages.set("bansystem.logs.show.invalidInput", "%P%§cUngültige Eingabe. Bitte geben Sie eine Seitenzahl als Zahl an. 1-%maxpage%");
+//        if(messages.get("bansystem.logs.show.invalidInput") == null)
+//            messages.set("bansystem.logs.show.invalidInput", "%P%§cUngültige Eingabe. Bitte geben Sie eine Seitenzahl als Zahl an. 1-%maxpage%");
+
+        updateConfig(messages, "messages.yml", "bansystem.logs.show.invalidInput");
+
 
 
         // Blacklist
@@ -105,7 +107,7 @@ public class ConfigurationUtil {
         blacklist.save(blacklistFile);
     }
 
-    public static Object getParameterValue(Map<String, Object> yamlData, String path) {
+    private Object getParameterValue(Map<String, Object> yamlData, String path) {
         String[] keys = path.split("\\."); // Split the path by dot
         Object value = yamlData;
         for (String key : keys) {
@@ -117,5 +119,13 @@ public class ConfigurationUtil {
             }
         }
         return value;
+    }
+
+    private void updateConfig(Config config, String resource, String path) {
+        Yaml resourceYAML = new Yaml();
+        Map<String, Object> resourceData = resourceYAML.load(banSystem.getResourceAsInputStream(resource));
+        if(config.get(path) == null) {
+            config.set(path, getParameterValue(resourceData, path));
+        }
     }
 }

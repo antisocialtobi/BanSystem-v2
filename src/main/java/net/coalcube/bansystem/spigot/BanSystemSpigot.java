@@ -363,8 +363,8 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     }
 
     @Override
-    public InputStream getResourceAsStream(String path) {
-        return this.getResource(path);
+    public InputStream getResourceAsInputStream(String path) {
+        return this.getClass().getClassLoader().getResourceAsStream(path);
     }
 
     @Override

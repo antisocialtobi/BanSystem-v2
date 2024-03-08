@@ -5,7 +5,6 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +22,7 @@ public class ConfigurationUtil {
         this.configFile = configFile;
         this.messagesFile = messagesFile;
         this.blacklistFile = blacklistFile;
+        this.banSystem = banSystem;
     }
 
     public String getMessage(String path) {
@@ -88,11 +88,8 @@ public class ConfigurationUtil {
             messages.set("bansystem.logs.show.button.next", "§2§lWeiter §2»");
         if(messages.get("bansystem.logs.show.button.previous") == null)
             messages.set("bansystem.logs.show.button.previous", "§c« §c§lZurück");
-        if(messages.get("bansystem.logs.show.pageNotFound") == null)
-            messages.set("bansystem.logs.show.pageNotFound", "%P%§cDie angegebene Seite wurde nicht gefunden. Die Maximale Seitenanzahl beträgt §e%maxpage%§7.");
-//        if(messages.get("bansystem.logs.show.invalidInput") == null)
-//            messages.set("bansystem.logs.show.invalidInput", "%P%§cUngültige Eingabe. Bitte geben Sie eine Seitenzahl als Zahl an. 1-%maxpage%");
-
+           messages.set("bansystem.logs.show.invalidInput", "%P%§cUngültige Eingabe. Bitte geben Sie eine Seitenzahl als Zahl an. 1-%maxpage%");
+        updateConfig(messages, "messages.yml", "bansystem.logs.show.pageNotFound");
         updateConfig(messages, "messages.yml", "bansystem.logs.show.invalidInput");
 
 

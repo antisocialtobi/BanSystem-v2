@@ -1,12 +1,12 @@
 package net.coalcube.bansystem.core.util;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Date;
 import java.util.UUID;
 
 public class History {
 
+    private final HistoryType historyType;
     private final UUID player;
     private final String creator;
     private final String reason;
@@ -15,7 +15,8 @@ public class History {
     private final Type type;
     private final InetAddress ip;
 
-    public History(UUID player, String creator, String reason, Long createDate, Long duration, Type type, InetAddress ip) {
+    public History(HistoryType historyType, UUID player, String creator, String reason, Long createDate, Long duration, Type type, InetAddress ip) {
+        this.historyType = historyType;
         this.player = player;
         this.creator = creator;
         this.reason = reason;
@@ -23,6 +24,10 @@ public class History {
         this.duration = duration;
         this.type = type;
         this.ip = ip;
+    }
+
+    public HistoryType getHistoryType() {
+        return historyType;
     }
 
     public UUID getPlayer() {

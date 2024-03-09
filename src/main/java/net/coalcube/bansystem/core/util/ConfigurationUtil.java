@@ -56,47 +56,30 @@ public class ConfigurationUtil {
         // Messages
         if(messages.get("History.body") != null)
             messages.set("History.body", null);
-        if(messages.get("History.ban") == null)
-            messages.set("History.ban", Arrays.asList(new String[]{
-                "%P%§7Grund §8» §c%reason%",
-                "%P%§7Erstelldatum §8» §c%creationdate%",
-                "%P%§7Enddatum §8» §c%enddate%",
-                "%P%§7Ersteller §8» §c%creator%",
-                "%P%§7IP §8» §c%ip%",
-                "%P%§7Type §8» §c%type%",
-                "%P%§7ID §8» §c%ID%",
-                "%P%"}));
-        if(messages.get("bansystem.usage.showlogs") == null)
-            messages.set("bansystem.usage.showlogs", "%P%§7Benutze §e/bansystem logs show");
-        if(messages.get("bansystem.usage.clearlogs") == null)
-            messages.set("bansystem.usage.clearlogs", "%P%§7Benutze §e/bansystem logs clear");
-        if(messages.get("bansystem.logs.clear.success") == null)
-            messages.set("bansystem.logs.clear.success", "%P%§7Die Logs wurden §2erfolgreich §7gelöscht.");
-        if(messages.get("bansystem.logs.clear.failed") == null)
-            messages.set("bansystem.logs.clear.failed", "%P%§cDie Logs konnten nicht gelöscht werden.");
-        if(messages.get("bansystem.logs.show.empty") == null)
-            messages.set("bansystem.logs.show.empty", "%P%§cEs sind keine Logs vorhanden.");
-        if(messages.get("bansystem.logs.show.header") == null)
-            messages.set("bansystem.logs.show.header", Arrays.asList(new String[] {
-                    "%P%§8§m---------------§7» §7Logs §7«§8§m---------------",
-                    "§fDatum     §7-     §eErsteller §7- §7Aktion - §eSpieler §7- §bNotiz"}));
-        if(messages.get("bansystem.logs.show.body") == null)
-            messages.set("bansystem.logs.show.body", "§f%date% §e%creator% §7%action% §e%target% §b%note%");
-        if(messages.get("bansystem.logs.show.footer") == null)
-            messages.set("bansystem.logs.show.footer", "%P%%previous% §8§m-------§r %next% §8[§7Seite %curpage%/%maxpage% §8]");
-        if(messages.get("bansystem.logs.show.button.next") == null)
-            messages.set("bansystem.logs.show.button.next", "§2§lWeiter §2»");
-        if(messages.get("bansystem.logs.show.button.previous") == null)
-            messages.set("bansystem.logs.show.button.previous", "§c« §c§lZurück");
-           messages.set("bansystem.logs.show.invalidInput", "%P%§cUngültige Eingabe. Bitte geben Sie eine Seitenzahl als Zahl an. 1-%maxpage%");
-        updateConfig(messages, "messages.yml", "bansystem.logs.show.pageNotFound");
-        updateConfig(messages, "messages.yml", "bansystem.logs.show.invalidInput");
-
-
+        updateConfigValue(messages, "messages.yml", "History.ban");
+        updateConfigValue(messages, "messages.yml", "History.kick");
+        updateConfigValue(messages, "messages.yml", "History.kickWithReason");
+        updateConfigValue(messages, "messages.yml", "History.unmute");
+        updateConfigValue(messages, "messages.yml", "History.unmuteWithReason");
+        updateConfigValue(messages, "messages.yml", "History.unban");
+        updateConfigValue(messages, "messages.yml", "History.unbanWithReason");
+        updateConfigValue(messages, "messages.yml", "History.clearedHistory");
+        updateConfigValue(messages, "messages.yml", "bansystem.usage.showlogs");
+        updateConfigValue(messages, "messages.yml", "bansystem.usage.clearlogs");
+        updateConfigValue(messages, "messages.yml", "bansystem.logs.clear success");
+        updateConfigValue(messages, "messages.yml", "bansystem.logs.clear.failed");
+        updateConfigValue(messages, "messages.yml", "bansystem.logs.show.empty");
+        updateConfigValue(messages, "messages.yml", "bansystem.logs.show.header");
+        updateConfigValue(messages, "messages.yml", "bansystem.logs.show.body");
+        updateConfigValue(messages, "messages.yml", "bansystem.logs.show.footer");
+        updateConfigValue(messages, "messages.yml", "bansystem.logs.show.button.next");
+        updateConfigValue(messages, "messages.yml", "bansystem.logs.show.button.previous");
+        updateConfigValue(messages, "messages.yml", "bansystem.logs.show.header");
+        updateConfigValue(messages, "messages.yml", "bansystem.logs.show.pageNotFound");
+        updateConfigValue(messages, "messages.yml", "bansystem.logs.show.invalidInput");
 
         // Blacklist
-        if(blacklist.getStringList("Whitelist") == null)
-            blacklist.set("Whitelist", Arrays.asList(new String[]{"example.org", "www.example.org"}));
+        updateConfigValue(blacklist, "blacklist.yml", "Whitelist");
 
         // Safe configs
         config.save(configFile);
@@ -118,7 +101,7 @@ public class ConfigurationUtil {
         return value;
     }
 
-    private void updateConfig(Config config, String resource, String path) {
+    private void updateConfigValue(Config config, String resource, String path) {
         Yaml resourceYAML = new Yaml();
         Map<String, Object> resourceData = resourceYAML.load(banSystem.getResourceAsInputStream(resource));
         if(config.get(path) == null) {

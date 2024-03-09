@@ -98,14 +98,12 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             try {
                 if(mysql.isConnected()) {
                     if(mysql.isOldDatabase()) {
-                        mysql.importFromOldBanDatabase();
-                        mysql.importFromOldBanHistoriesDatabase();
                         console.sendMessage(prefix + "§7Die MySQL Daten vom dem alten BanSystem wurden §2importiert§7.");
                     }
                     mysql.createTables(config);
                     console.sendMessage(prefix + "§7Die MySQL Tabellen wurden §2erstellt§7.");
                 }
-            } catch (SQLException | UnknownHostException | ParseException | ExecutionException | InterruptedException e) {
+            } catch (SQLException | ExecutionException | InterruptedException e) {
                 console.sendMessage(prefix + "§7Die MySQL Tabellen §ckonnten nicht §7erstellt werden.");
                 e.printStackTrace();
             }

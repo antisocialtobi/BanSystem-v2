@@ -134,10 +134,7 @@ public class BanManagerSQLite implements BanManager {
     }
 
     public void unBan(UUID player, String unBanner) throws IOException, SQLException {
-        sqlite.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.NETWORK + "'");
-        sqlite.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', datetime('now', 'localtime'), '" + Type.NETWORK +"');");
-
+        unBan(player, unBanner, "");
     }
 
     public void unMute(UUID player, UUID unBanner, String reason) throws IOException, SQLException {
@@ -155,14 +152,14 @@ public class BanManagerSQLite implements BanManager {
     }
 
     public void unMute(UUID player, String unBanner) throws IOException, SQLException {
-        sqlite.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.CHAT + "'");
-        sqlite.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', datetime('now', 'localtime'),'" + Type.CHAT +"');");
-
+        unMute(player, unBanner, "");
     }
 
     public void deleteHistory(UUID player) throws SQLException {
         sqlite.update("DELETE FROM `banhistories` WHERE player = '" + player + "';");
+        sqlite.update("DELETE FROM `kicks` WHERE player = '" + player + "';");
+        sqlite.update("DELETE FROM `unbans` WHERE player = '" + player + "';");
+        sqlite.update("DELETE FROM `logs` WHERE target = '" + player + "' AND action='Deleted History';");
 
     }
 
@@ -233,20 +230,70 @@ public class BanManagerSQLite implements BanManager {
         return null;
     }
 
-    public List<History> getHistory(UUID player) throws UnknownHostException, SQLException, ParseException {
+    public List<History> getHistory(UUID player) throws UnknownHostException, SQLException, ExecutionException, InterruptedException {
         ResultSet resultSet = sqlite.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "';");
         List<History> list = new ArrayList<>();
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         while (resultSet.next()) {
-            list.add(new History(UUID.fromString(
-                    resultSet.getString("player")),
+            list.add(new History(HistoryType.BAN,
+                    UUID.fromString(resultSet.getString("player")),
                     resultSet.getString("creator"),
                     resultSet.getString("reason"),
-                    df.parse(resultSet.getString("creationdate")).getTime(),
+                    resultSet.getTimestamp("creationdate").getTime(),
                     resultSet.getLong("duration"),
                     Type.valueOf(resultSet.getString("type")),
-                    InetAddress.getByName(resultSet.getString("ip"))));
+                    (resultSet.getString("ip") == null ? null : InetAddress.getByName(resultSet.getString("ip")))));
         }
+
+        resultSet = sqlite.getResult("SELECT * FROM `kicks` WHERE player = '" + player + "';");
+        while (resultSet.next()) {
+            HistoryType historyType = HistoryType.KICK;
+            if(resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
+                historyType = HistoryType.KICKWITHREASON;
+            list.add(new History(historyType,
+                    UUID.fromString(resultSet.getString("player")),
+                    resultSet.getString("creator"),
+                    resultSet.getString("reason"),
+                    resultSet.getTimestamp("creationdate").getTime(),
+                    null,
+                    null,
+                    null));
+        }
+        resultSet = sqlite.getResult("SELECT * FROM `unbans` WHERE player = '" + player + "';");
+        while (resultSet.next()) {
+            Type type = Type.valueOf(resultSet.getString("type"));
+            HistoryType historyType = HistoryType.UNBAN;
+            if(type == Type.NETWORK) {
+                if(resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
+                    historyType = HistoryType.UNBANWITHREASON;
+            } else {
+                if(resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
+                    historyType = HistoryType.UNMUTEWITHREASON;
+                else
+                    historyType = HistoryType.UNMUTE;
+            }
+
+            list.add(new History(historyType,
+                    UUID.fromString(resultSet.getString("player")),
+                    resultSet.getString("unbanner"),
+                    resultSet.getString("reason"),
+                    resultSet.getTimestamp("creationdate").getTime(),
+                    null,
+                    type,
+                    null));
+        }
+        resultSet = sqlite.getResult("SELECT * FROM logs WHERE target='" + player + "' AND action='Deleted History';");
+        while (resultSet.next()) {
+            list.add(new History(
+                    HistoryType.CLEAR,
+                    player,
+                    resultSet.getString("creator"),
+                    null,
+                    resultSet.getTimestamp("creationdate").getTime(),
+                    null,
+                    null,
+                    null));
+        }
+
         return list;
     }
 

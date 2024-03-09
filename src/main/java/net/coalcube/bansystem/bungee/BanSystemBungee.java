@@ -102,13 +102,11 @@ public class BanSystemBungee extends Plugin implements BanSystem {
                 if(mysql.isConnected()) {
                     mysql.createTables(config);
                     if(mysql.isOldDatabase()) {
-                        mysql.importFromOldBanDatabase();
-                        mysql.importFromOldBanHistoriesDatabase();
                         console.sendMessage(new TextComponent(prefix + "§7Die MySQL Daten vom dem alten BanSystem wurden §2importiert§7."));
                     }
                     console.sendMessage(new TextComponent(prefix + "§7Die MySQL Tabellen wurden §2erstellt§7."));
                 }
-            } catch (SQLException | UnknownHostException | ParseException | ExecutionException | InterruptedException e) {
+            } catch (SQLException | ExecutionException | InterruptedException e) {
                 console.sendMessage(new TextComponent(prefix + "§7Die MySQL Tabellen §ckonnten nicht §7erstellt werden."));
                 e.printStackTrace();
             }

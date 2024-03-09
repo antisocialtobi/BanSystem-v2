@@ -7,10 +7,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class BanManagerMySQL implements BanManager {
@@ -128,9 +125,7 @@ public class BanManagerMySQL implements BanManager {
     }
 
     public void unBan(UUID player, String unBanner) throws IOException, SQLException {
-        mysql.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.NETWORK + "';");
-        mysql.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', NOW(), '" + Type.NETWORK + "');");
+        unBan(player, unBanner, "");
     }
 
     public void unMute(UUID player, UUID unBanner, String reason) throws IOException, SQLException {
@@ -148,13 +143,14 @@ public class BanManagerMySQL implements BanManager {
     }
 
     public void unMute(UUID player, String unBanner) throws IOException, SQLException {
-        mysql.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.CHAT + "'");
-        mysql.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', NOW(),'" + Type.CHAT + "');");
+        unMute(player, unBanner, "");
     }
 
     public void deleteHistory(UUID player) throws SQLException {
         mysql.update("DELETE FROM `banhistories` WHERE player = '" + player + "';");
+        mysql.update("DELETE FROM `kicks` WHERE player = '" + player + "';");
+        mysql.update("DELETE FROM `unbans` WHERE player = '" + player + "';");
+        mysql.update("DELETE FROM `logs` WHERE target = '" + player + "' AND action='Deleted History';");
     }
 
     public void setIP(UUID player, InetAddress address) throws SQLException {
@@ -233,8 +229,8 @@ public class BanManagerMySQL implements BanManager {
         ResultSet resultSet = mysql.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "';");
         List<History> list = new ArrayList<>();
         while (resultSet.next()) {
-            list.add(new History(UUID.fromString(
-                    resultSet.getString("player")),
+            list.add(new History(HistoryType.BAN,
+                    UUID.fromString(resultSet.getString("player")),
                     resultSet.getString("creator"),
                     resultSet.getString("reason"),
                     resultSet.getTimestamp("creationdate").getTime(),
@@ -242,6 +238,57 @@ public class BanManagerMySQL implements BanManager {
                     Type.valueOf(resultSet.getString("type")),
                     (resultSet.getString("ip") == null ? null : InetAddress.getByName(resultSet.getString("ip")))));
         }
+
+        resultSet = mysql.getResult("SELECT * FROM `kicks` WHERE player = '" + player + "';");
+        while (resultSet.next()) {
+            HistoryType historyType = HistoryType.KICK;
+            if(resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
+                historyType = HistoryType.KICKWITHREASON;
+            list.add(new History(historyType,
+                    UUID.fromString(resultSet.getString("player")),
+                    resultSet.getString("creator"),
+                    resultSet.getString("reason"),
+                    resultSet.getTimestamp("creationdate").getTime(),
+                    null,
+                    null,
+                    null));
+        }
+        resultSet = mysql.getResult("SELECT * FROM `unbans` WHERE player = '" + player + "';");
+        while (resultSet.next()) {
+            Type type = Type.valueOf(resultSet.getString("type"));
+            HistoryType historyType = HistoryType.UNBAN;
+            if(type == Type.NETWORK) {
+                if(resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
+                    historyType = HistoryType.UNBANWITHREASON;
+            } else {
+                if(resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
+                    historyType = HistoryType.UNMUTEWITHREASON;
+                else
+                    historyType = HistoryType.UNMUTE;
+            }
+
+            list.add(new History(historyType,
+                    UUID.fromString(resultSet.getString("player")),
+                    resultSet.getString("unbanner"),
+                    resultSet.getString("reason"),
+                    resultSet.getTimestamp("creationdate").getTime(),
+                    null,
+                    type,
+                    null));
+        }
+        resultSet = mysql.getResult("SELECT * FROM logs WHERE target='" + player + "' AND action='Deleted History';");
+        while (resultSet.next()) {
+            list.add(new History(
+                    HistoryType.CLEAR,
+                    player,
+                    resultSet.getString("creator"),
+                    null,
+                    resultSet.getTimestamp("creationdate").getTime(),
+                    null,
+                    null,
+                    null));
+        }
+
         return list;
     }
 
@@ -273,11 +320,7 @@ public class BanManagerMySQL implements BanManager {
     }
 
     public boolean hasHistory(UUID player) throws UnknownHostException, SQLException, ExecutionException, InterruptedException {
-        ResultSet resultSet = mysql.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "';");
-        while (resultSet.next()) {
-            return true;
-        }
-        return false;
+        return !getHistory(player).isEmpty();
     }
 
     public boolean hasHistory(UUID player, String reason) throws UnknownHostException, SQLException, ExecutionException, InterruptedException {

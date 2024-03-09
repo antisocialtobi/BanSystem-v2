@@ -1,7 +1,6 @@
 package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 
 import java.io.IOException;
@@ -94,7 +93,7 @@ public class CMDunmute implements Command {
                                             bm.unMute(uuid, user.getName(), reason.toString());
                                     } catch (IOException e) {
                                         e.printStackTrace();
-                                        user.sendMessage(configurationUtil.getMessage("Unmute.failed"));
+                                        user.sendMessage(configurationUtil.getMessage("Unmute.faild"));
                                         return;
                                     }
 
@@ -131,7 +130,7 @@ public class CMDunmute implements Command {
                                         }
                                     } catch (IOException e) {
                                         e.printStackTrace();
-                                        user.sendMessage(configurationUtil.getMessage("Unmute.failed"));
+                                        user.sendMessage(configurationUtil.getMessage("Unmute.faild"));
                                         return;
                                     }
 

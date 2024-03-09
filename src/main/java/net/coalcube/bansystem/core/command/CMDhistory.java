@@ -1,14 +1,14 @@
 package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class CMDhistory implements Command {
@@ -31,7 +31,6 @@ public class CMDhistory implements Command {
 
     @Override
     public void execute(User user, String[] args) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(configurationUtil.getMessage("DateTimePattern"));
         if (user.hasPermission("bansys.history.show")) {
             if (sql.isConnected()) {
                 if (args.length == 1) {
@@ -80,81 +79,26 @@ public class CMDhistory implements Command {
                             user.sendMessage(configurationUtil.getMessage("History.header")
                                     .replaceAll("%player%", Objects.requireNonNull(name)));
 
-                            ArrayList<Date> sortDateList = new ArrayList<>();
-                            ArrayList<History> sortedHistory = new ArrayList<>();
+                            user.sendMessage(configurationUtil.getMessage("prefix"));
 
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(configurationUtil.getMessage("DateTimePattern"));
                             for(History history : banmanager.getHistory(uuid)) {
-                                sortDateList.add(history.getCreateDate());
-                            }
-                            Collections.sort(sortDateList, new Comparator<Date>() {
-                                @Override
-                                public int compare(Date o1, Date o2) {
-                                    return (o1.getTime() > o2.getTime() ? 1 : -1);
+                                String id = "Not Found";
+                                for(String ids : config.getSection("IDs").getKeys()) {
+                                    if(config.getString("IDs." + ids + ".reason").equals(history.getReason()))
+                                        id = ids;
                                 }
-                            });
-
-                            for(Date date : sortDateList) {
-                                for(History history : banmanager.getHistory(uuid)) {
-                                    if(history.getCreateDate().equals(date))
-                                        sortedHistory.add(history);
-                                }
-                            }
-
-                            for(History history : sortedHistory) {
-                                String row = "";
-
-                                if(history.getHistoryType().equals(HistoryType.BAN)) {
-                                    String id = "Not Found";
-                                    for(String ids : config.getSection("IDs").getKeys()) {
-                                        if(config.getString("IDs." + ids + ".reason").equals(history.getReason()))
-                                            id = ids;
-                                    }
-                                    row = configurationUtil.getMessage("History.ban")
-                                            .replaceAll("%reason%", history.getReason())
-                                            .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
-                                            .replaceAll("%enddate%", simpleDateFormat.format(history.getEndDate()))
-                                            .replaceAll("%creator%", history.getCreator())
-                                            .replaceAll("%ip%", (history.getIp() == null ? "§cNicht vorhanden" : history.getIp().getHostName()))
-                                            .replaceAll("%type%", history.getType().toString())
-                                            .replaceAll("%ID%", id);
-                                } else if(history.getHistoryType().equals(HistoryType.CLEAR)) {
-                                    row = configurationUtil.getMessage("History.clearedHistory")
-                                            .replaceAll("%reason%", history.getReason())
-                                            .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
-                                            .replaceAll("%creator%", history.getCreator());
-                                } else if(history.getHistoryType().equals(HistoryType.KICK)) {
-                                    row = configurationUtil.getMessage("History.kick")
-                                            .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
-                                            .replaceAll("%creator%", history.getCreator());
-                                } else if(history.getHistoryType().equals(HistoryType.KICKWITHREASON)) {
-                                    row = configurationUtil.getMessage("History.kickWithReason")
-                                            .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
-                                            .replaceAll("%creator%", history.getCreator())
-                                            .replaceAll("%reason%", history.getReason());
-                                } else if(history.getHistoryType().equals(HistoryType.UNMUTE)) {
-                                    row = configurationUtil.getMessage("History.unmute")
-                                            .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
-                                            .replaceAll("%creator%", history.getCreator());
-                                } else if(history.getHistoryType().equals(HistoryType.UNMUTEWITHREASON)) {
-                                    row = configurationUtil.getMessage("History.unmuteWithReason")
-                                            .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
-                                            .replaceAll("%creator%", history.getCreator())
-                                            .replaceAll("%reason%", history.getReason());
-                                } else if(history.getHistoryType().equals(HistoryType.UNBAN)) {
-                                    row = configurationUtil.getMessage("History.unban")
-                                            .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
-                                            .replaceAll("%creator%", history.getCreator());
-                                } else if(history.getHistoryType().equals(HistoryType.UNBANWITHREASON)) {
-                                    row = configurationUtil.getMessage("History.unbanWithReason")
-                                            .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
-                                            .replaceAll("%creator%", history.getCreator())
-                                            .replaceAll("%reason%", history.getReason());
-                                }
-
+                                String body = configurationUtil.getMessage("History.body")                                            .replaceAll("%reason%", history.getReason())
+                                        .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
+                                        .replaceAll("%enddate%", simpleDateFormat.format(history.getEndDate()))
+                                        .replaceAll("%creator%", history.getCreator())
+                                        .replaceAll("%ip%", (history.getIp() == null ? "§cNicht vorhanden" : history.getIp().getHostName()))
+                                        .replaceAll("%type%", history.getType().toString())
+                                        .replaceAll("%ID%", id);
                                 if(user.getUniqueId() != null)
-                                    user.sendMessage(row);
+                                    user.sendMessage(body);
                                 else
-                                    BanSystem.getInstance().sendConsoleMessage(row);
+                                    BanSystem.getInstance().sendConsoleMessage(body);
                             }
                             user.sendMessage(configurationUtil.getMessage("History.footer"));
 

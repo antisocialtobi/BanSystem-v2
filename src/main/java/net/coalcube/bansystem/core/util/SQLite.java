@@ -1,6 +1,4 @@
-package net.coalcube.bansystem.core.sql;
-
-import net.coalcube.bansystem.core.util.Config;
+package net.coalcube.bansystem.core.util;
 
 import java.io.File;
 import java.sql.*;

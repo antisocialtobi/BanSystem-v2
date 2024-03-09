@@ -2,9 +2,6 @@ package net.coalcube.bansystem.spigot;
 
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.command.*;
-import net.coalcube.bansystem.core.sql.Database;
-import net.coalcube.bansystem.core.sql.MySQL;
-import net.coalcube.bansystem.core.sql.SQLite;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.spigot.listener.AsyncPlayerChatListener;
 import net.coalcube.bansystem.spigot.listener.PlayerCommandPreprocessListener;
@@ -46,7 +43,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     private Config config, messages, blacklist;
     private static String Banscreen;
     private static List<String> blockedCommands, ads, blockedWords;
-    private File sqlitedatabase, configFile, messagesFile, blacklistFile;
+    private File sqlitedatabase;
     private String hostname, database, user, pw;
     private int port;
     private CommandSender console;
@@ -71,16 +68,10 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         console.sendMessage("§c                                  |___/                           §7v" + this.getVersion());
 
         createConfig();
-
-        configurationUtil = new ConfigurationUtil(config, messages, blacklist, configFile, messagesFile, blacklistFile, this);
-        timeFormatUtil = new TimeFormatUtil(configurationUtil);
-        try {
-            configurationUtil.update();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
         loadConfig();
+
+        configurationUtil = new ConfigurationUtil(config, messages, blacklist);
+        timeFormatUtil = new TimeFormatUtil(configurationUtil);
 
         // Set mysql instance
         if (config.getBoolean("mysql.enable")) {
@@ -98,12 +89,14 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             try {
                 if(mysql.isConnected()) {
                     if(mysql.isOldDatabase()) {
+                        mysql.importFromOldBanDatabase();
+                        mysql.importFromOldBanHistoriesDatabase();
                         console.sendMessage(prefix + "§7Die MySQL Daten vom dem alten BanSystem wurden §2importiert§7.");
                     }
                     mysql.createTables(config);
                     console.sendMessage(prefix + "§7Die MySQL Tabellen wurden §2erstellt§7.");
                 }
-            } catch (SQLException | ExecutionException | InterruptedException e) {
+            } catch (SQLException | UnknownHostException | ParseException | ExecutionException | InterruptedException e) {
                 console.sendMessage(prefix + "§7Die MySQL Tabellen §ckonnten nicht §7erstellt werden.");
                 e.printStackTrace();
             }
@@ -208,21 +201,21 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
                 this.getDataFolder().mkdir();
             }
 
-            configFile = new File(this.getDataFolder(), "config.yml");
+            File configFile = new File(this.getDataFolder(), "config.yml");
             if (!configFile.exists()) {
                 InputStream in = this.getClass().getClassLoader().getResourceAsStream("config.yml");
                 Files.copy(in, configFile.toPath());
                 config = new SpigotConfig(YamlConfiguration.loadConfiguration(configFile));
             }
 
-            messagesFile = new File(this.getDataFolder(), "messages.yml");
+            File messagesFile = new File(this.getDataFolder(), "messages.yml");
             if (!messagesFile.exists()) {
                 InputStream in = this.getClass().getClassLoader().getResourceAsStream("messages.yml");
                 Files.copy(in, messagesFile.toPath());
                 messages = new SpigotConfig(YamlConfiguration.loadConfiguration(messagesFile));
             }
 
-            blacklistFile = new File(this.getDataFolder(), "blacklist.yml");
+            File blacklistFile = new File(this.getDataFolder(), "blacklist.yml");
             if (!blacklistFile.exists()) {
                 InputStream in = this.getClass().getClassLoader().getResourceAsStream("blacklist.yml");
                 Files.copy(in, blacklistFile.toPath());
@@ -358,11 +351,6 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         for (String line : msg.split("\n")) {
             console.sendMessage(line);
         }
-    }
-
-    @Override
-    public InputStream getResourceAsInputStream(String path) {
-        return this.getClass().getClassLoader().getResourceAsStream(path);
     }
 
     @Override

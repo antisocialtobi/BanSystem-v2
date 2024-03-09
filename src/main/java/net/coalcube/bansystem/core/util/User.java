@@ -1,15 +1,11 @@
 package net.coalcube.bansystem.core.util;
 
-import net.md_5.bungee.api.chat.TextComponent;
-
 import java.net.InetAddress;
 import java.util.UUID;
 
 public interface User {
 
     void sendMessage(String msg);
-
-    void sendMessage(TextComponent msg);
 
     boolean hasPermission(String perm);
 

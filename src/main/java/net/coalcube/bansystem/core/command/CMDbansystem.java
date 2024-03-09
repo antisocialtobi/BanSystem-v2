@@ -1,17 +1,10 @@
 package net.coalcube.bansystem.core.command;
 
-import com.google.common.xml.XmlEscapers;
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.sql.Database;
-import net.coalcube.bansystem.core.sql.MySQL;
 import net.coalcube.bansystem.core.util.*;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -84,7 +77,7 @@ public class CMDbansystem implements Command {
                                 user.sendMessage(configurationUtil.getMessage("bansystem.ids.sync.success"));
 
                             } catch (SQLException throwables) {
-                                user.sendMessage(configurationUtil.getMessage("bansystem.ids.sync.failed"));
+                                user.sendMessage(configurationUtil.getMessage("bansystem.ids.sync.faild"));
                             } catch (InterruptedException | ExecutionException e) {
                                 e.printStackTrace();
                             }
@@ -604,141 +597,6 @@ public class CMDbansystem implements Command {
                 } else {
                     sendHelp(user);
                 }
-            } else if (args[0].equalsIgnoreCase("logs")) {
-                if(args.length < 2) {
-                    sendHelp(user);
-                    return;
-                }
-
-                if(args[1].equalsIgnoreCase("show")) {
-                    if(!user.hasPermission("bansys.logs.show")) {
-                        user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
-                        return;
-                    }
-                    if(args.length >= 2) {
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yy HH:mm");
-                        List<Log> allLogs;
-                        int maxPage, page;
-
-                        try {
-                            allLogs = banManager.getAllLogs();
-                        } catch (SQLException | ExecutionException | InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                        maxPage = (int) Math.ceil((double) allLogs.size() / 10);
-
-                        if(allLogs.isEmpty()) {
-                            user.sendMessage(configurationUtil.getMessage("bansystem.logs.show.empty"));
-                            return;
-                        }
-
-                        if(args.length == 2) {
-                            page = 1;
-                        } else {
-                            try {
-                                page = Integer.parseInt(args[2]);
-                            } catch (NumberFormatException e) {
-                                user.sendMessage(configurationUtil.getMessage("bansystem.logs.show.invalidInput")
-                                        .replaceAll("%maxpage%", String.valueOf(maxPage)));
-                                return;
-                            }
-                            if(page > maxPage) {
-                                user.sendMessage(configurationUtil.getMessage("bansystem.logs.show.pageNotFound")
-                                        .replaceAll("%maxpage%", String.valueOf(maxPage)));
-                                return;
-                            }
-                        }
-
-                        user.sendMessage(configurationUtil.getMessage("bansystem.logs.show.header"));
-
-                        int row;
-                        for(int i=0; i<10; i++) {
-                            row = page*10-10+i;
-                            if(allLogs.size() > row) {
-                                Log log = allLogs.get(row);
-
-                                String creator = log.getCreator();
-                                String target = log.getTarget();
-
-                                try {
-                                    UUID creatorID = UUID.fromString(creator);
-                                    if (UUIDFetcher.getName(creatorID) != null)
-                                        creator = UUIDFetcher.getName(creatorID);
-                                } catch (IllegalArgumentException ignored) {
-                                }
-                                try {
-                                    UUID targetID = UUID.fromString(target);
-                                    if(UUIDFetcher.getName(targetID) != null)
-                                        target = UUIDFetcher.getName(targetID);
-                                } catch (IllegalArgumentException ignored) {
-                                }
-
-                                assert creator != null;
-                                assert target != null;
-                                user.sendMessage(configurationUtil.getMessage("bansystem.logs.show.body")
-                                        .replaceAll("%ID%", String.valueOf(log.getId()))
-                                        .replaceAll("%creator%", creator)
-                                        .replaceAll("%action%", log.getAction())
-                                        .replaceAll("%target%", target)
-                                        .replaceAll("%note%", log.getNote())
-                                        .replaceAll("%date%", simpleDateFormat.format(log.getCreationDate())));
-                            }
-                        }
-
-                        String rawFooter = configurationUtil.getMessage("bansystem.logs.show.footer");
-                        TextComponent footer = new TextComponent();
-                        TextComponent next = new TextComponent();
-                        TextComponent previous = new TextComponent();
-
-                        next.setText(configurationUtil.getMessage("bansystem.logs.show.button.next"));
-                        next.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bansys logs show "+ (page+1)));
-
-                        previous.setText(configurationUtil.getMessage("bansystem.logs.show.button.previous"));
-                        previous.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bansys logs show "+ (page-1)));
-
-                        rawFooter = rawFooter
-                                .replaceAll("%curpage%", String.valueOf(page))
-                                .replaceAll("%maxpage%", String.valueOf(maxPage));
-
-                        String[] splitFooter = rawFooter.split("%");
-
-                        for(String s : splitFooter) {
-                            if(s.equalsIgnoreCase("next")) {
-                                if(page < maxPage)
-                                    footer.addExtra(next);
-                            } else if(s.equalsIgnoreCase("previous")) {
-                                if(page != 1)
-                                    footer.addExtra(previous);
-                            } else {
-                                footer.addExtra(s);
-                            }
-                        }
-
-                        user.sendMessage(footer);
-
-                    }
-                } else if(args[1].equalsIgnoreCase("clear")) {
-                    if(!user.hasPermission("bansys.logs.clear")) {
-                        user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
-                        return;
-                    }
-                    try {
-                        banManager.clearLogs();
-                        user.sendMessage(configurationUtil.getMessage("bansystem.logs.clear.success"));
-                        banManager.log("cleared logs",
-                                user.getUniqueId() == null ? user.getName() : String.valueOf(user.getUniqueId()),
-                                "",
-                                "");
-                    } catch (SQLException e) {
-                        user.sendMessage(configurationUtil.getMessage("bansystem.logs.clear.failed"));
-                        throw new RuntimeException(e);
-                    }
-
-                } else {
-                    user.sendMessage(configurationUtil.getMessage("bansystem.usage.clearlogs"));
-                    return;
-                }
             } else
                 sendHelp(user);
         } else {
@@ -765,10 +623,8 @@ public class CMDbansystem implements Command {
         helpCommands.put("bansystem ids edit §8<§7ID§8> §eset lvlduration §8<§7lvl§8> §8<§7duration§8>", "Ändere die Dauer von einem Ban-lvl");
         helpCommands.put("bansystem ids edit §8<§7ID§8> §eset lvltype  §8<§7lvl§8> §8<§7type§8>", "Ändere die art von einem Ban-lvl");
         helpCommands.put("bansystem ids edit §8<§7ID§8> §eset reason §8<§7reason§8>", "Ändere den Grund von einer Ban-ID");
-        helpCommands.put("bansystem ids edit §8<§7ID§8> §eset onlyadmins §8<§7True§8/§7False§8>", "Ändere eine ID, sodass nur noch Admins ihn verwenden können.");
+        helpCommands.put("bansystem ids edit §8<§7ID§8> §eset onlyadmins §8<§7True§8/§7False§8>", "");
         helpCommands.put("bansystem ids show §8<§7ID§8>", "Zeige alle informationen über eine Ban-ID");
-        helpCommands.put("bansystem logs show §8[§7Seite§8]", "Zeigt die Log einträge an");
-        helpCommands.put("bansystem logs clear", "Löscht alle Logeinträge");
         helpCommands.put("ban §8<§7Spieler§8> §8<§7ID§8>", "Bannt/Muted Spieler");
         helpCommands.put("kick §8<§7Spieler§8> §8[§7Grund§8]", "Kickt einen Spieler");
         helpCommands.put("unban §8<§7Spieler§8>", "Entbannt einen Spieler");

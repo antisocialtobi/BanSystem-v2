@@ -1,8 +1,8 @@
 package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
+import net.md_5.bungee.api.ChatColor;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -145,7 +145,7 @@ public class CMDban implements Command {
             try {
                 setParameters(user, args);
             } catch (UnknownHostException e) {
-                user.sendMessage(configurationUtil.getMessage("Ban.failed"));
+                user.sendMessage(configurationUtil.getMessage("Ban.faild"));
                 e.printStackTrace();
                 return;
             }
@@ -168,7 +168,7 @@ public class CMDban implements Command {
                             return;
                         }
                     } catch (SQLException throwables) {
-                        user.sendMessage(configurationUtil.getMessage("Ban.failed"));
+                        user.sendMessage(configurationUtil.getMessage("Ban.faild"));
                         throwables.printStackTrace();
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
@@ -231,7 +231,7 @@ public class CMDban implements Command {
 
                         banmanager.log("Banned Player", creator, uuid.toString(), "reason: "+reason+", lvl: "+lvl);
                     } catch (IOException | SQLException e) {
-                        user.sendMessage(configurationUtil.getMessage("Ban.failed"));
+                        user.sendMessage(configurationUtil.getMessage("Ban.faild"));
                         e.printStackTrace();
                     }
 
@@ -316,7 +316,7 @@ public class CMDban implements Command {
                     lvl = getMaxLvl(args[1]);
                 }
             } catch (SQLException | ExecutionException | InterruptedException throwables) {
-                user.sendMessage(configurationUtil.getMessage("Ban.failed"));
+                user.sendMessage(configurationUtil.getMessage("Ban.faild"));
                 throwables.printStackTrace();
             }
 

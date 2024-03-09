@@ -1,7 +1,6 @@
 package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 
 import java.sql.SQLException;

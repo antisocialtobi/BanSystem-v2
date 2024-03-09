@@ -1,14 +1,3 @@
-# created by Tobias Herzig
-
-# Here you can edit every single message from the plugin.
-# You can use %P% as the pattern for the prefix in every message.
-# Every message can be changed in a multi line message. For example:
-# From: test: 'Test message 123'
-# To:   test:
-#       - 'Test message 1'
-#       - 'Test message 2'
-
-# You can also use & for colorcodes instead of §.
 prefix: '§8§l┃ §cBanSystem §8» §7'
 NoPermissionMessage: '%P%§cDafür hast du keine Rechte!'
 NoPlayerMessage: '%P%§cDu bist kein Spieler!'
@@ -46,7 +35,7 @@ Ban:
       - '§8§m----------------------------'
     autounmute:
       success: '%P%§e%player% §7wurde §eautomatisch §7entmuted.'
-      failed: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+      faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
   success:
     - '§8§m----------------------------'
     - '%P%§7Du hast §e%Player% §7erfolgreich §cgebannt/gemuted.'
@@ -55,7 +44,7 @@ Ban:
     - '%P%Verbleibende Zeit §8» §c%reamingtime%'
     - '%P%Entbannungszeitpunkt §8» §c%enddate%'
     - '§8§m----------------------------'
-  failed: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
   bypass: '%P%§cDu kannst Spieler, die eine Bypass Permission haben, nicht bannen.'
   notify:
     - '%P%§8§m-------------------'
@@ -83,7 +72,7 @@ Ban:
     NoPermission: '%P%§cFür diese ID hast du keine Berechtigung!'
 Check:
   usage: '%P%§cBenutze §8» §e/check §8<§7Spieler§8>'
-  failed: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
   chat:
     - '%P%§8§m------§8» §e%player% §8«§m------'
     - '%P%§7Von §8» §c%banner%'
@@ -119,33 +108,21 @@ Deletehistory:
   success: '%P%§7Die History von §e%player% §7wurde gelöscht.'
   usage: '%P%§cBenutze §8» §e/deletehistory §8<§7Spieler§8>'
 Deletehistroy:
-  failed: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
 History:
   historynotfound: '%P%§cDieser Spieler hat keine History'
   usage: '%P%§cBenutze §8» §e/history §8<§7Spieler§8>'
-  failed: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
   header: '%P%§8§m-------§8» §e%player% §8«§m-------'
-  ban:
-    - '%P%§7[%creationdate%] Wurde von §e%creator% §cgebannt§7.'
-    - '%P%§7├ Grund §8» §c%reason%'
-    - '%P%§7├ Erstelldatum §8» §c%creationdate%'
-    - '%P%§7├ Enddatum §8» §c%enddate%'
-    - '%P%§7├ IP §8» §c%ip%'
-    - '%P%§7├ Type §8» §c%type%'
-    - '%P%§7└ ID §8» §c%ID%'
-  kick: '%P%§7[%creationdate%] Wurde von §e%creator% §cgekickt§7.'
-  kickWithReason:
-    - '%P%§7[%creationdate%] Wurde von §e%creator% §cgekickt§7.'
-    - '%P%§7└ Grund §8» §c%reason%'
-  unmute: '%P%§7[%creationdate%] Wurde von §e%creator% §centmuted§7.'
-  unmuteWithReason:
-    - '%P%§7[%creationdate%] Wurde von §e%creator% §centmuted§7.'
-    - '%P%§7└ Grund §8» §c%reason%'
-  unban: '%P%§7[%creationdate%] Wurde von §e%creator% §centbannt§7.'
-  unbanWithReason:
-    - '%P%§7[%creationdate%] Wurde von §e%creator% §centbannt§7.'
-    - '%P%§7└ Grund §8» §c%reason%'
-  clearedHistory: '%P%§7[%creationdate%] History wurde von §e%creator% §cgeleert§7.'
+  body:
+    - '%P%§7Grund §8» §c%reason%'
+    - '%P%§7Erstelldatum §8» §c%creationdate%'
+    - '%P%§7Enddatum §8» §c%enddate%'
+    - '%P%§7Ersteller §8» §c%creator%'
+    - '%P%§7IP §8» §c%ip%'
+    - '%P%§7Type §8» §c%type%'
+    - '%P%§7ID §8» §c%ID%'
+    - '%P%'
   footer: '%P%§8§m------------------------'
 Kick:
   usage: '%P%§cBenutze §8» §e/kick §8<§7Spieler§8> §8[§7Grund§8]'
@@ -172,7 +149,7 @@ Kick:
   success: '%P%§7Der Spieler §e%player% §7wurde gekickt.'
 Unban:
   success: '%P%§e%player% §7wurde §2erfolgeich §7entbannt.'
-  failed: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
   notify: '%P%§e%player% §7wurde von §e%sender% §7entbannt.'
   notbanned: '%P%§e%player% §cist nicht gebannt.'
   usage: '%P%§cBenutze §8» §e/unban §8<§7Spieler§8>'
@@ -187,7 +164,7 @@ Unban:
 Unmute:
   usage: '%P%§cBenutze §8» §e/unmute §8<§7Spieler§8>'
   success: '%P%§7Die Schweigepflicht von §e%player% §7wurde §2aufgehoben!'
-  failed: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
   notmuted: '%P%§e%player% §cist nicht gemuted.'
   notify: '%P%§e%player% §7wurde von §e%sender% §7entmuted.'
   needreason:
@@ -220,8 +197,6 @@ bansystem:
     setonlyadmins: '%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eset onlyadmins
       §8<§7True§8/§7False§8>'
     showid: '%P%§7Benutze §e/bansystem ids show §8<§7id§8>'
-    showlogs: '%P%§7Benutze §e/bansystem logs show'
-    clearlogs: '%P%§7Benutze §e/bansystem logs clear'
   help:
     header: '§8§m--------§8[ §cBanSystem §8]§m--------'
     entry: '§e/%command% §8» §7%description%'
@@ -234,7 +209,7 @@ bansystem:
     sync:
       MySQLdisabled: '%P%§cDu kannst diese Funktion nicht verwenden, wenn du keine
         MySQL Datenbank verwendest.'
-      failed: '%P%§cDie synchronisation ist fehlgeschlagen. Um mehr Informationen zu
+      faild: '%P%§cDie synchronisation ist fehlgeschlagen. Um mehr Informationen zu
         bekommen schau in die Konsole.'
       success: '%P%§7Die BanIDs wurden §2synchronisiert§7.'
     alreadyexists: '%P%§cDie BanID ist bereits vorhanden.'
@@ -303,29 +278,6 @@ bansystem:
           - '%P%Lvl §e%lvl%§7:'
           - '%P%  Dauer §8» §e%duration%'
           - '%P%  Type §8» §e%type%'
-  logs:
-    clear:
-      success: '%P%§7Die Logs wurden §2erfolgreich §7gelöscht.'
-      failed: '%P%§cDie Logs konnten nicht gelöscht werden.'
-    show:
-      empty: '%P%§cEs sind keine Logs vorhanden.'
-      header:
-        - '%P%§8§m---------------§7» §cLogs §7«§8§m---------------'
-        - '§fDatum     §7-     §eErsteller §7- §7Aktion - §eSpieler §7- §bNotiz'
-      # Possible patterns for body:
-      # %ID% - log ID
-      # %date% - timestamp of the log
-      # %creator% - creator of the log
-      # %action% - Action that was carried out
-      # %target% - targeted player of the action
-      # %note% - some other information e.g. ban or kick reason
-      body: '§f%date% §e%creator% §7%action% §e%target% §b%note%'
-      footer: '%P%%previous% §8§m-------§r %next% §8[§7Seite %curpage%/%maxpage% §8]'
-      buttons:
-        next: '§2§lWeiter §2»'
-        previous: '§c« §c§lZurück'
-      pageNotFound: '%P%§cDie angegebene Seite wurde nicht gefunden. Die Maximale Seitenanzahl beträgt §e%maxpage%§7.'
-      invalidInput: '%P%§cUngültige Eingabe. Bitte geben Sie eine Seitenzahl als Zahl an. 1-%maxpage%'
 blacklist:
   notify:
     words:

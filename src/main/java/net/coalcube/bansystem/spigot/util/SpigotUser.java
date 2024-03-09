@@ -3,8 +3,6 @@ package net.coalcube.bansystem.spigot.util;
 import java.net.InetAddress;
 import java.util.UUID;
 
-import net.coalcube.bansystem.spigot.BanSystemSpigot;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -21,14 +19,6 @@ public class SpigotUser implements User {
     @Override
     public void sendMessage(String msg) {
         sender.sendMessage(msg);
-    }
-
-    @Override
-    public void sendMessage(TextComponent msg) {
-        if(sender instanceof Player)
-            ((Player) sender).spigot().sendMessage(msg);
-        else
-            sender.sendMessage(msg.getText());
     }
 
     @Override

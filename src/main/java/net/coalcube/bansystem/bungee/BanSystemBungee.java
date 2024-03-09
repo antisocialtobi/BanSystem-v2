@@ -6,8 +6,10 @@ import net.coalcube.bansystem.bungee.util.BungeeConfig;
 import net.coalcube.bansystem.bungee.util.BungeeUser;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.command.*;
+import net.coalcube.bansystem.core.sql.Database;
+import net.coalcube.bansystem.core.sql.MySQL;
+import net.coalcube.bansystem.core.sql.SQLite;
 import net.coalcube.bansystem.core.util.*;
-import net.coalcube.bansystem.spigot.util.SpigotConfig;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -43,8 +45,8 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     private TimeFormatUtil timeFormatUtil;
     private Config config, messages, blacklist;
     private String banScreen;
-    private List<String> blockedCommands, ads, blockedWords;
-    private File sqlitedatabase;
+    private List<String> blockedCommands, ads, blockedWords, whitelist;
+    private File sqlitedatabase, configFile, messagesFile, blacklistFile;
     private String hostname, database, user, pw;
     private int port;
     private CommandSender console;
@@ -69,10 +71,16 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         console.sendMessage(new TextComponent("§c                                  |___/                           §7v" + this.getVersion()));
 
         createConfig();
-        loadConfig();
 
-        configurationUtil = new ConfigurationUtil(config, messages, blacklist);
+        configurationUtil = new ConfigurationUtil(config, messages, blacklist, configFile, messagesFile, blacklistFile, this);
         timeFormatUtil = new TimeFormatUtil(configurationUtil);
+
+        try {
+            configurationUtil.update();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        loadConfig();
 
         if (!getDataFolder().exists())
             getDataFolder().mkdir();
@@ -94,13 +102,11 @@ public class BanSystemBungee extends Plugin implements BanSystem {
                 if(mysql.isConnected()) {
                     mysql.createTables(config);
                     if(mysql.isOldDatabase()) {
-                        mysql.importFromOldBanDatabase();
-                        mysql.importFromOldBanHistoriesDatabase();
                         console.sendMessage(new TextComponent(prefix + "§7Die MySQL Daten vom dem alten BanSystem wurden §2importiert§7."));
                     }
                     console.sendMessage(new TextComponent(prefix + "§7Die MySQL Tabellen wurden §2erstellt§7."));
                 }
-            } catch (SQLException | UnknownHostException | ParseException | ExecutionException | InterruptedException e) {
+            } catch (SQLException | ExecutionException | InterruptedException e) {
                 console.sendMessage(new TextComponent(prefix + "§7Die MySQL Tabellen §ckonnten nicht §7erstellt werden."));
                 e.printStackTrace();
             }
@@ -194,25 +200,22 @@ public class BanSystemBungee extends Plugin implements BanSystem {
                 this.getDataFolder().mkdir();
             }
 
-            File configFile = new File(this.getDataFolder(), "config.yml");
+            configFile = new File(this.getDataFolder(), "config.yml");
             if (!configFile.exists()) {
                 InputStream in = this.getClass().getClassLoader().getResourceAsStream("config.yml");
                 Files.copy(in, configFile.toPath());
-                config = new SpigotConfig(org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(configFile));
             }
 
-            File messagesFile = new File(this.getDataFolder(), "messages.yml");
+            messagesFile = new File(this.getDataFolder(), "messages.yml");
             if (!messagesFile.exists()) {
                 InputStream in = this.getClass().getClassLoader().getResourceAsStream("messages.yml");
                 Files.copy(in, messagesFile.toPath());
-                messages = new SpigotConfig(org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(messagesFile));
             }
 
-            File blacklistFile = new File(this.getDataFolder(), "blacklist.yml");
+            blacklistFile = new File(this.getDataFolder(), "blacklist.yml");
             if (!blacklistFile.exists()) {
                 InputStream in = this.getClass().getClassLoader().getResourceAsStream("blacklist.yml");
                 Files.copy(in, blacklistFile.toPath());
-                blacklist = new SpigotConfig(org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(blacklistFile));
             }
 
             config = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile));
@@ -241,7 +244,6 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     public void loadConfig() {
         try {
             prefix = messages.getString("prefix").replaceAll("&", "§");
-
             banScreen = "";
             for (String screen : messages.getStringList("Ban.Network.Screen")) {
                 if (banScreen == null) {
@@ -258,12 +260,12 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             ads = new ArrayList<>();
             blockedCommands = new ArrayList<>();
             blockedWords = new ArrayList<>();
+            whitelist = new ArrayList<>();
 
             ads.addAll(blacklist.getStringList("Ads"));
-
             blockedCommands.addAll(config.getStringList("mute.blockedCommands"));
-
             blockedWords.addAll(blacklist.getStringList("Words"));
+            whitelist.addAll(blacklist.getStringList("Whitelist"));
 
         } catch (NullPointerException e) {
             System.err.println("[Bansystem] Es ist ein Fehler beim laden der Config/messages Datei aufgetreten.");
@@ -349,6 +351,11 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         for (String line : msg.split("\n")) {
             console.sendMessage(new TextComponent(line));
         }
+    }
+
+    @Override
+    public InputStream getResourceAsInputStream(String path) {
+        return this.getResourceAsStream(path);
     }
 
     @Override

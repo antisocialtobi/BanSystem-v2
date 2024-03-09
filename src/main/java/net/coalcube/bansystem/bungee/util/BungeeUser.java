@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import net.coalcube.bansystem.core.util.User;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class BungeeUser implements User {
@@ -18,6 +19,11 @@ public class BungeeUser implements User {
     @SuppressWarnings("deprecation")
     @Override
     public void sendMessage(String msg) {
+        sender.sendMessage(msg);
+    }
+
+    @Override
+    public void sendMessage(TextComponent msg) {
         sender.sendMessage(msg);
     }
 

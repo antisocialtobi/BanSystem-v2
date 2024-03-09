@@ -1,4 +1,8 @@
-package net.coalcube.bansystem.core.util;
+package net.coalcube.bansystem.core.sql;
+
+import net.coalcube.bansystem.core.util.Config;
+import net.coalcube.bansystem.core.util.History;
+import net.coalcube.bansystem.core.util.Type;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -111,39 +115,39 @@ public class MySQL implements Database {
         }
     }
 
-    public void importFromOldBanHistoriesDatabase() throws SQLException, UnknownHostException, ParseException, ExecutionException, InterruptedException {
-        DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-        ArrayList<History> histories = new ArrayList<>();
-        ResultSet resultSet = getResult("SELECT * FROM banhistory");
-
-        while (resultSet.next()) {
-            UUID player = UUID.fromString(resultSet.getString("UUID"));
-            long duration = resultSet.getLong("duration");
-            InetAddress ip = null;
-            if(resultSet.getString("IP") != null) {
-                ip = InetAddress.getByName(resultSet.getString("IP"));
-            }
-
-            History history = new History(
-                    player,
-                    resultSet.getString("Ersteller"),
-                    resultSet.getString("Grund"),
-                    df.parse(resultSet.getString("Erstelldatum")).getTime(),
-                    (duration != -1 ? duration*1000 : duration),
-                    Type.valueOf(resultSet.getString("Type")),
-                    ip);
-
-            histories.add(history);
-        }
-        update("DROP TABLE `banhistory`;");
-
-        for(History history : histories) {
-            update("INSERT INTO `banhistories` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
-                    "VALUES ('" + history.getPlayer() + "', '" + history.getDuration() + "', '"
-                    + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(history.getCreateDate()) + "', '" + history.getCreator() + "', '"
-                    + history.getReason() + "', '" + history.getIp() + "', '" + history.getType() + "');");
-        }
-    }
+//    public void importFromOldBanHistoriesDatabase() throws SQLException, UnknownHostException, ParseException, ExecutionException, InterruptedException {
+//        DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+//        ArrayList<History> histories = new ArrayList<>();
+//        ResultSet resultSet = getResult("SELECT * FROM banhistory");
+//
+//        while (resultSet.next()) {
+//            UUID player = UUID.fromString(resultSet.getString("UUID"));
+//            long duration = resultSet.getLong("duration");
+//            InetAddress ip = null;
+//            if(resultSet.getString("IP") != null) {
+//                ip = InetAddress.getByName(resultSet.getString("IP"));
+//            }
+//
+//            History history = new History(
+//                    player,
+//                    resultSet.getString("Ersteller"),
+//                    resultSet.getString("Grund"),
+//                    df.parse(resultSet.getString("Erstelldatum")).getTime(),
+//                    (duration != -1 ? duration*1000 : duration),
+//                    Type.valueOf(resultSet.getString("Type")),
+//                    ip);
+//
+//            histories.add(history);
+//        }
+//        update("DROP TABLE `banhistory`;");
+//
+//        for(History history : histories) {
+//            update("INSERT INTO `banhistories` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
+//                    "VALUES ('" + history.getPlayer() + "', '" + history.getDuration() + "', '"
+//                    + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(history.getCreateDate()) + "', '" + history.getCreator() + "', '"
+//                    + history.getReason() + "', '" + history.getIp() + "', '" + history.getType() + "');");
+//        }
+//    }
 
     public void createTables(Config config) throws SQLException, ExecutionException, InterruptedException {
         update("CREATE TABLE IF NOT EXISTS `bans` " +
@@ -199,28 +203,18 @@ public class MySQL implements Database {
                 "( `username` VARCHAR(64) NOT NULL ," +
                 " `uuid` VARCHAR(64) NOT NULL ) ENGINE = InnoDB;");
 
-        if(!config.getBoolean("needReason.Unban") && !config.getBoolean("needReason.Unmute")) {
-            update("CREATE TABLE IF NOT EXISTS `unbans` " +
-                    "( `player` VARCHAR(36) NOT NULL ," +
-                    " `unbanner` VARCHAR(36) NOT NULL ," +
-                    " `creationdate` DATETIME NOT NULL ," +
-                    " `type` VARCHAR(20) NOT NULL )" +
-                    " ENGINE = InnoDB;");
-        } else {
-            update("CREATE TABLE IF NOT EXISTS `unbans` " +
-                    "( `player` VARCHAR(36) NOT NULL ," +
-                    " `unbanner` VARCHAR(36) NOT NULL ," +
-                    " `creationdate` DATETIME NOT NULL ," +
-                    " `reason` VARCHAR(1000) NOT NULL ," +
-                    " `type` VARCHAR(20) NOT NULL )" +
-                    " ENGINE = InnoDB;");
+        update("CREATE TABLE IF NOT EXISTS `unbans` " +
+                "( `player` VARCHAR(36) NOT NULL ," +
+                " `unbanner` VARCHAR(36) NOT NULL ," +
+                " `creationdate` DATETIME NOT NULL ," +
+                " `reason` VARCHAR(1000) NOT NULL ," +
+                " `type` VARCHAR(20) NOT NULL )" +
+                " ENGINE = InnoDB;");
 
-            if(!hasUnbanreason()) {
-                update("ALTER TABLE `unbans` \n" +
-                        "ADD reason varchar(100) NOT NULL \n" +
-                        "AFTER unbanner;");
-            }
-
+        if(!hasUnbanreason()) {
+            update("ALTER TABLE `unbans` \n" +
+                    "ADD reason varchar(100) NOT NULL \n" +
+                    "AFTER unbanner;");
         }
     }
 

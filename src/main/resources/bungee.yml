@@ -1,6 +1,6 @@
 name: BanSystem
-version: 2.8.1
-author: Tobi
+version: 2.9
+author: Tobias Herzig
 main: net.coalcube.bansystem.bungee.BanSystemBungee
 commands:
   ban:

@@ -1,3 +1,7 @@
+# Plugin by Tobias Herzig
+
+# Here you can configure the database connection.
+# If you set enable to false the plugin will create a local SQLite file.
 mysql:
   enable: false
   user: root
@@ -38,18 +42,34 @@ needReason:
 blacklist:
   words:
     enable: true
+    checkcommands:
+      enable: true
+      commands:
+        - /msg
+        - /tell
+        - /me
+        - /whisper
+        - /say
     autoban:
       enable: true
       id: 6
   ads:
     enable: true
+    checkcommands:
+      enable: true
+      commands:
+        - /msg
+        - /tell
+        - /me
+        - /whisper
+        - /say
     autoban:
       enable: true
       id: 7
 
 # If you have the permission bansys.bypasschatdelay you are not affected.
 chatdelay:
-  enable: true
+  enable: false
   delay: 3
 
 # to add an ID simple use the command "/bansys ids create" or just copy an ID and change the attributes.
@@ -58,7 +78,7 @@ chatdelay:
 # If onlyAdmins is enabled you need to have the permission bansys.ban.admin
 IDs:
   '1':
-    reason: Unerlaubte Clientmodification/Hackclient
+    reason: Unerlaubte Clientmodifikation/Hackclient
     onlyAdmins: false
     lvl:
       '1':

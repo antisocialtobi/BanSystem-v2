@@ -29,14 +29,14 @@ public class AsyncPlayerChatListener implements Listener {
     private final BanManager banManager;
     private final Config config;
     private final MySQL mysql;
-    private final Config blacklist;
+    private final BlacklistUtil blacklistUtil;
     private final ConfigurationUtil configurationUtil;
 
-    public AsyncPlayerChatListener(Config config, BanManager banManager, MySQL mysql, Config blacklist, ConfigurationUtil configurationUtil) {
+    public AsyncPlayerChatListener(Config config, BanManager banManager, MySQL mysql, BlacklistUtil blacklistUtil, ConfigurationUtil configurationUtil) {
         this.banManager = banManager;
         this.config = config;
         this.mysql = mysql;
-        this.blacklist = blacklist;
+        this.blacklistUtil = blacklistUtil;
         this.configurationUtil = configurationUtil;
     }
 
@@ -87,7 +87,7 @@ public class AsyncPlayerChatListener implements Listener {
 
             if (!p.hasPermission("bansys.bypasschatfilter") && !banManager.isBanned(p.getUniqueId(), Type.CHAT)) {
                 if (config.getBoolean("blacklist.words.enable")) {
-                    if (hasBlockedWordsContains(msg)) {
+                    if (blacklistUtil.hasBlockedWordsContains(msg)) {
                         e.setCancelled(true);
                         if (config.getBoolean("blacklist.words.autoban.enable")) {
                             String id = String.valueOf(config.getInt("blacklist.words.autoban.id"));
@@ -157,7 +157,7 @@ public class AsyncPlayerChatListener implements Listener {
                     }
                 }
                 if (config.getBoolean("blacklist.ads.enable")) {
-                    if (hasAdContains(msg)) {
+                    if (blacklistUtil.hasAdContains(msg)) {
                         e.setCancelled(true);
                         if (config.getBoolean("blacklist.ads.autoban.enable")) {
                             String id = String.valueOf(config.getInt("blacklist.ads.autoban.id"));
@@ -252,58 +252,7 @@ public class AsyncPlayerChatListener implements Listener {
             }
         }
     }
-    private boolean hasBlockedWordsContains(String message) {
-        message = message.trim();
-        message = message.replaceAll("0", "O");
-        message = message.replaceAll("1", "I");
-        message = message.replaceAll("3", "E");
-        message = message.replaceAll("4", "A");
-        message = message.replaceAll("5", "S");
-        message = message.replaceAll("8", "B");
-        String[] trimmed = message.split(" ");
 
-        for(String word : blacklist.getStringList("Words")) {
-            if(message.contains(word) || message.equalsIgnoreCase(word) || message.toUpperCase().equals(word) || message.toLowerCase().equals(word))
-                return true;
-
-            for(String pice : trimmed) {
-                if(pice.equalsIgnoreCase(word))
-                    return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean hasAdContains(String message) {
-        message = message.trim();
-        message = message.replaceAll("0", "O");
-        message = message.replaceAll("1", "I");
-        message = message.replaceAll("3", "E");
-        message = message.replaceAll("4", "A");
-        message = message.replaceAll("5", "S");
-        message = message.replaceAll("8", "B");
-        message = message.replaceAll("AE", "Ä");
-        message = message.replaceAll("OE", "Ö");
-        message = message.replaceAll("UE", "Ü");
-        message = message.replaceAll("Ä", "AE");
-        message = message.replaceAll("Ö", "OE");
-        message = message.replaceAll("Ü", "UE");
-        message = message.replaceAll("Punkt", ".");
-        message = message.replaceAll("Point", ".");
-
-        String[] trimmed = message.split(" ");
-
-        for(String ad : blacklist.getStringList("Ads")) {
-            if(message.contains(ad) || message.equalsIgnoreCase(ad) || message.toUpperCase().equals(ad) || message.toLowerCase().equals(ad))
-                return true;
-
-            for(String pice : trimmed) {
-                if(pice.equalsIgnoreCase(ad))
-                    return true;
-            }
-        }
-        return false;
-    }
     private boolean isMaxBanLvl(String id, int lvl) {
         int maxLvl = 0;
 

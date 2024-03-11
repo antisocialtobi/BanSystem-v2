@@ -22,10 +22,8 @@ import net.md_5.bungee.config.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -39,7 +37,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     private IDManager idManager;
     private URLUtil urlUtil;
     private ConfigurationUtil configurationUtil;
-
+    private BlacklistUtil blacklistUtil;
     private Database sql;
     private MySQL mysql;
     private TimeFormatUtil timeFormatUtil;
@@ -167,6 +165,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
         idManager = new IDManager(config, sql, new File(this.getDataFolder(), "config.yml"));
         urlUtil = new URLUtil(configurationUtil, config);
+        blacklistUtil = new BlacklistUtil(blacklist);
 
         init(pluginmanager);
 
@@ -324,7 +323,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
                 new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
 
         pluginManager.registerListener(this, new LoginListener(banManager, config, sql, urlUtil, configurationUtil));
-        pluginManager.registerListener(this, new ChatListener(banManager, config, sql, blacklist, configurationUtil));
+        pluginManager.registerListener(this, new ChatListener(banManager, config, sql, blacklistUtil, configurationUtil));
     }
 
     public Database getSQL() {

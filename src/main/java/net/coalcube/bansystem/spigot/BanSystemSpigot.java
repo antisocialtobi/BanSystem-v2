@@ -39,7 +39,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     private static IDManager idManager;
     private static URLUtil urlUtil;
     private static ConfigurationUtil configurationUtil;
-
+    private BlacklistUtil blacklistUtil;
     private Database sql;
     private MySQL mysql;
     private TimeFormatUtil timeFormatUtil;
@@ -164,17 +164,10 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        new Thread(() -> {
-//            try {
-//                serversocket = new ServerSocket(6000);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }).start();
-
 
         idManager = new IDManager(config, sql, new File(this.getDataFolder(), "config.yml"));
         urlUtil = new URLUtil(configurationUtil, config);
+        blacklistUtil = new BlacklistUtil(blacklist);
 
         init(pluginmanager);
 
@@ -338,7 +331,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         getCommand("bansys").setExecutor(new CommandWrapper(
                 new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
 
-        pluginManager.registerEvents(new AsyncPlayerChatListener(config, banManager, mysql, blacklist, configurationUtil), this);
+        pluginManager.registerEvents(new AsyncPlayerChatListener(config, banManager, mysql, blacklistUtil, configurationUtil), this);
         pluginManager.registerEvents(new PlayerCommandPreprocessListener(banManager, config, blockedCommands, configurationUtil), this);
         pluginManager.registerEvents(new PlayerConnectionListener(banManager, config, Banscreen, instance, urlUtil, configurationUtil), this);
     }

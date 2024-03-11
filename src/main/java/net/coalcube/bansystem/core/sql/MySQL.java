@@ -36,10 +36,12 @@ public class MySQL implements Database {
 
     public void connect() throws SQLException {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
         } catch (ClassNotFoundException e) {
             System.err.println("Fehler beim Laden des JDBC-Treibers");
             e.printStackTrace();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
 
         con = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?autoReconnect=true", username, password);
@@ -60,6 +62,7 @@ public class MySQL implements Database {
     }
 
     public void update(String qry) throws SQLException {
+
         if(!isConnected()) {
             connect();
         }
@@ -363,6 +366,10 @@ public class MySQL implements Database {
     }
 
     public boolean isConnected() {
-        return (con != null);
+        try {
+            return (con != null && con.isValid(5));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

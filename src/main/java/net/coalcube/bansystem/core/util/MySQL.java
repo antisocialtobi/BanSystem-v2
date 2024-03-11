@@ -65,6 +65,7 @@ public class MySQL implements Database {
 
     @Override
     public void update(String qry) throws SQLException {
+
         if(!isConnected()) {
             connect();
         }

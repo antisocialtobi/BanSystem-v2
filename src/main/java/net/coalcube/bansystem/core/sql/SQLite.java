@@ -98,26 +98,13 @@ public class SQLite implements Database {
                 "( `username` VARCHAR(64) NOT NULL ," +
                 " `uuid` VARCHAR(64) NOT NULL );");
 
-        if(!config.getBoolean("needReason.Unban") && !config.getBoolean("needReason.Unmute")) {
-            update("CREATE TABLE IF NOT EXISTS `unbans` " +
-                    "( `player` VARCHAR(36) NOT NULL ," +
-                    " `unbanner` VARCHAR(36) NOT NULL ," +
-                    " `creationdate` DATETIME NOT NULL ," +
-                    " `type` VARCHAR(20) NOT NULL );");
-        } else {
-            update("CREATE TABLE IF NOT EXISTS `unbans` " +
-                    "( `player` VARCHAR(36) NOT NULL ," +
-                    " `unbanner` VARCHAR(36) NOT NULL ," +
-                    " `creationdate` DATETIME NOT NULL ," +
-                    " `reason` VARCHAR(1000) NOT NULL ," +
-                    " `type` VARCHAR(20) NOT NULL );");
-
-            if(!hasUnbanreason()) {
-                update("ALTER TABLE `unbans` \n" +
-                        "ADD reason varchar(100);");
-            }
-
-        }
+        update("CREATE TABLE IF NOT EXISTS `unbans` " +
+                "( `player` VARCHAR(36) NOT NULL ," +
+                " `unbanner` VARCHAR(36) NOT NULL ," +
+                " `creationdate` DATETIME NOT NULL ," +
+                " `reason` VARCHAR(1000) NOT NULL ," +
+                " `type` VARCHAR(20) NOT NULL )" +
+                " ENGINE = InnoDB;");
     }
 
     private boolean hasUnbanreason() throws SQLException {

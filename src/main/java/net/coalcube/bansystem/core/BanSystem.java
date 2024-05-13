@@ -24,8 +24,6 @@ public interface BanSystem {
     User getUser(String name);
     User getUser(UUID uniqueId);
     void disconnect(User u, String msg);
-    Config getMessages();
-    Config getConfiguration();
     void loadConfig();
     Database getSQL();
     TimeFormatUtil getTimeFormatUtil();

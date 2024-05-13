@@ -299,16 +299,6 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         }
     }
 
-    @Override
-    public Config getMessages() {
-        return messages;
-    }
-
-    @Override
-    public Config getConfiguration() {
-        return config;
-    }
-
     private void init(PluginManager pluginManager) {
         getCommand("ban").setExecutor(new CommandWrapper(
                 new CMDban(banManager, config, messages, sql, configurationUtil),true));

@@ -282,22 +282,11 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         return new BungeeUser(ProxyServer.getInstance().getPlayer(uniqueId));
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void disconnect(User u, String msg) {
         if (u.getRawUser() instanceof ProxiedPlayer) {
             ((ProxiedPlayer) u.getRawUser()).disconnect(msg);
         }
-    }
-
-    @Override
-    public Config getMessages() {
-        return messages;
-    }
-
-    @Override
-    public Config getConfiguration() {
-        return config;
     }
 
     private void init(PluginManager pluginManager) {

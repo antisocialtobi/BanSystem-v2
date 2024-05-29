@@ -103,8 +103,7 @@ public class SQLite implements Database {
                 " `unbanner` VARCHAR(36) NOT NULL ," +
                 " `creationdate` DATETIME NOT NULL ," +
                 " `reason` VARCHAR(1000) NOT NULL ," +
-                " `type` VARCHAR(20) NOT NULL )" +
-                " ENGINE = InnoDB;");
+                " `type` VARCHAR(20) NOT NULL );");
     }
 
     private boolean hasUnbanreason() throws SQLException {

@@ -1,15 +1,15 @@
 package net.coalcube.bansystem.core.command;
 
-import com.google.common.xml.XmlEscapers;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.sql.MySQL;
 import net.coalcube.bansystem.core.util.*;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
+import net.coalcube.bansystem.velocity.BanSystemVelocity;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +26,9 @@ public class CMDbansystem implements Command {
     private final TimeFormatUtil timeFormatUtil;
     private final BanManager banManager;
     private final ConfigurationUtil configurationUtil;
+    private final TextComponent textComponent;
 
-    public CMDbansystem(Config config, Database sql, MySQL mysql, IDManager idManager, TimeFormatUtil timeFormatUtil, BanManager banManager, ConfigurationUtil configurationUtil) {
+    public CMDbansystem(Config config, Database sql, MySQL mysql, IDManager idManager, TimeFormatUtil timeFormatUtil, BanManager banManager, ConfigurationUtil configurationUtil, TextComponent textComponent) {
         this.config = config;
         this.sql = sql;
         this.mySQL = mysql;
@@ -35,6 +36,7 @@ public class CMDbansystem implements Command {
         this.timeFormatUtil = timeFormatUtil;
         this.banManager = banManager;
         this.configurationUtil = configurationUtil;
+        this.textComponent = textComponent;
     }
 
     @Override
@@ -622,7 +624,7 @@ public class CMDbansystem implements Command {
 
                         try {
                             allLogs = banManager.getAllLogs();
-                        } catch (SQLException | ExecutionException | InterruptedException e) {
+                        } catch (SQLException | ExecutionException | InterruptedException | ParseException e) {
                             throw new RuntimeException(e);
                         }
 
@@ -685,37 +687,7 @@ public class CMDbansystem implements Command {
                                         .replaceAll("%date%", simpleDateFormat.format(log.getCreationDate())));
                             }
                         }
-
-                        String rawFooter = configurationUtil.getMessage("bansystem.logs.show.footer");
-                        TextComponent footer = new TextComponent();
-                        TextComponent next = new TextComponent();
-                        TextComponent previous = new TextComponent();
-
-                        next.setText(configurationUtil.getMessage("bansystem.logs.show.button.next"));
-                        next.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bansys logs show "+ (page+1)));
-
-                        previous.setText(configurationUtil.getMessage("bansystem.logs.show.button.previous"));
-                        previous.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bansys logs show "+ (page-1)));
-
-                        rawFooter = rawFooter
-                                .replaceAll("%curpage%", String.valueOf(page))
-                                .replaceAll("%maxpage%", String.valueOf(maxPage));
-
-                        String[] splitFooter = rawFooter.split("%");
-
-                        for(String s : splitFooter) {
-                            if(s.equalsIgnoreCase("next")) {
-                                if(page < maxPage)
-                                    footer.addExtra(next);
-                            } else if(s.equalsIgnoreCase("previous")) {
-                                if(page != 1)
-                                    footer.addExtra(previous);
-                            } else {
-                                footer.addExtra(s);
-                            }
-                        }
-
-                        user.sendMessage(footer);
+                        textComponent.sendLogsFooter(user, page, maxPage);
 
                     }
                 } else if(args[1].equalsIgnoreCase("clear")) {

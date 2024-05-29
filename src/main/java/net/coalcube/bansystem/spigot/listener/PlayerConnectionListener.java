@@ -2,6 +2,7 @@ package net.coalcube.bansystem.spigot.listener;
 
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.util.*;
+import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 import net.coalcube.bansystem.spigot.BanSystemSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

@@ -1,4 +1,4 @@
-package net.coalcube.bansystem.core.util;
+package net.coalcube.bansystem.core.uuidfetcher;
 
 import java.io.*;
 import java.net.HttpURLConnection;

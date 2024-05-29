@@ -7,7 +7,7 @@ import java.util.List;
 import net.coalcube.bansystem.core.command.Command;
 import net.coalcube.bansystem.velocity.util.VelocityUser;
 
-public final class CommandWrapper implements SimpleCommand {
+public class CommandWrapper implements SimpleCommand {
 
     private final Command cmd;
 

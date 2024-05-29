@@ -1,6 +1,7 @@
 package net.coalcube.bansystem.core.util;
 
 import net.coalcube.bansystem.core.sql.MySQL;
+import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 
 import java.io.IOException;
 import java.net.InetAddress;

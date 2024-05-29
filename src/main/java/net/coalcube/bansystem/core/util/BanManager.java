@@ -11,8 +11,8 @@ import java.util.concurrent.ExecutionException;
 
 public interface BanManager {
     void log(String action, String creator, String target, String note) throws SQLException;
-    Log getLog(int id) throws SQLException, ExecutionException, InterruptedException;
-    List<Log> getAllLogs() throws SQLException, ExecutionException, InterruptedException;
+    Log getLog(int id) throws SQLException, ExecutionException, InterruptedException, ParseException;
+    List<Log> getAllLogs() throws SQLException, ExecutionException, InterruptedException, ParseException;
     void clearLogs() throws SQLException;
     void kick(UUID player, String creator) throws SQLException;
     void kick(UUID player, UUID creator) throws SQLException;

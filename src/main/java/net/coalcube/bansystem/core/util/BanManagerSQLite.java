@@ -19,9 +19,11 @@ import java.util.concurrent.ExecutionException;
 public class BanManagerSQLite implements BanManager {
 
     private final SQLite sqlite;
+    SimpleDateFormat simpleDateFormat;
 
     public BanManagerSQLite(SQLite sqlite) {
         this.sqlite = sqlite;
+        simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 2024-05-23 15:44:17"
     }
 
     public void log(String action, String creator, String target, String note) throws SQLException {
@@ -30,7 +32,7 @@ public class BanManagerSQLite implements BanManager {
     }
 
     @Override
-    public Log getLog(int id) throws SQLException, ExecutionException, InterruptedException {
+    public Log getLog(int id) throws SQLException, ExecutionException, InterruptedException, ParseException {
         ResultSet rs = sqlite.getResult("SELECT * FROM `logs` WHERE id=" + id + ";");
         Log log = null;
         while(rs.next()) {
@@ -41,7 +43,7 @@ public class BanManagerSQLite implements BanManager {
             creator = rs.getString("creator");
             action = rs.getString("action");
             note = rs.getString("note");
-            date = rs.getTimestamp("creationdate");
+            date = simpleDateFormat.parse(rs.getString("creationdate"));
 
             log = new Log(id, target, creator, action, note, date);
         }
@@ -49,7 +51,7 @@ public class BanManagerSQLite implements BanManager {
     }
 
     @Override
-    public List<Log> getAllLogs() throws SQLException, ExecutionException, InterruptedException {
+    public List<Log> getAllLogs() throws SQLException, ExecutionException, InterruptedException, ParseException {
         ResultSet rs = sqlite.getResult("SELECT * FROM `logs` ORDER BY creationdate DESC;");
         List<Log> logs = new ArrayList<>();
         while(rs.next()) {
@@ -62,7 +64,7 @@ public class BanManagerSQLite implements BanManager {
             creator = rs.getString("creator");
             action = rs.getString("action");
             note = rs.getString("note");
-            date = rs.getTimestamp("creationdate");
+            date = simpleDateFormat.parse(rs.getString("creationdate"));
 
             Log log = new Log(id, target, creator, action, note, date);
             logs.add(log);
@@ -230,7 +232,7 @@ public class BanManagerSQLite implements BanManager {
         return null;
     }
 
-    public List<History> getHistory(UUID player) throws UnknownHostException, SQLException, ExecutionException, InterruptedException {
+    public List<History> getHistory(UUID player) throws UnknownHostException, SQLException, ExecutionException, InterruptedException, ParseException {
         ResultSet resultSet = sqlite.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "';");
         List<History> list = new ArrayList<>();
         while (resultSet.next()) {
@@ -238,7 +240,7 @@ public class BanManagerSQLite implements BanManager {
                     UUID.fromString(resultSet.getString("player")),
                     resultSet.getString("creator"),
                     resultSet.getString("reason"),
-                    resultSet.getTimestamp("creationdate").getTime(),
+                    simpleDateFormat.parse(resultSet.getString("creationdate")).getTime(),
                     resultSet.getLong("duration"),
                     Type.valueOf(resultSet.getString("type")),
                     (resultSet.getString("ip") == null ? null : InetAddress.getByName(resultSet.getString("ip")))));
@@ -253,7 +255,7 @@ public class BanManagerSQLite implements BanManager {
                     UUID.fromString(resultSet.getString("player")),
                     resultSet.getString("creator"),
                     resultSet.getString("reason"),
-                    resultSet.getTimestamp("creationdate").getTime(),
+                    simpleDateFormat.parse(resultSet.getString("creationdate")).getTime(),
                     null,
                     null,
                     null));
@@ -276,7 +278,7 @@ public class BanManagerSQLite implements BanManager {
                     UUID.fromString(resultSet.getString("player")),
                     resultSet.getString("unbanner"),
                     resultSet.getString("reason"),
-                    resultSet.getTimestamp("creationdate").getTime(),
+                    simpleDateFormat.parse(resultSet.getString("creationdate")).getTime(),
                     null,
                     type,
                     null));
@@ -288,7 +290,7 @@ public class BanManagerSQLite implements BanManager {
                     player,
                     resultSet.getString("creator"),
                     null,
-                    resultSet.getTimestamp("creationdate").getTime(),
+                    simpleDateFormat.parse(resultSet.getString("creationdate")).getTime(),
                     null,
                     null,
                     null));

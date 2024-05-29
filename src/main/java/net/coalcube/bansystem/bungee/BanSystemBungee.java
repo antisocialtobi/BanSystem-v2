@@ -10,6 +10,7 @@ import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.sql.MySQL;
 import net.coalcube.bansystem.core.sql.SQLite;
 import net.coalcube.bansystem.core.util.*;
+import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -19,6 +20,7 @@ import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,6 +44,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     private MySQL mysql;
     private TimeFormatUtil timeFormatUtil;
     private Config config, messages, blacklist;
+    private net.coalcube.bansystem.core.util.TextComponent textComponent;
     private String banScreen;
     private List<String> blockedCommands, ads, blockedWords, whitelist;
     private File sqlitedatabase, configFile, messagesFile, blacklistFile;
@@ -79,6 +82,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             throw new RuntimeException(e);
         }
         loadConfig();
+
 
         if (!getDataFolder().exists())
             getDataFolder().mkdir();
@@ -166,9 +170,31 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         idManager = new IDManager(config, sql, new File(this.getDataFolder(), "config.yml"));
         urlUtil = new URLUtil(configurationUtil, config);
         blacklistUtil = new BlacklistUtil(blacklist);
+        textComponent = new TextComponentmd5(configurationUtil);
 
         init(pluginmanager);
 
+        /*
+        WebHook webhook = new WebHook("https://discord.com/api/webhooks/1243098087862304788/4zAzjFPGPoHSIxoPbhcAFZIc-0oLHtwplZFD3klX4NSxdIL06HLBxg8r1Fo31XeO4NvC");
+        webhook.setAvatarUrl("https://www.spigotmc.org/data/resource_icons/65/65863.jpg?1561923292");
+        webhook.setUsername("Bansystem");
+        webhook.setTts(false);
+        webhook.addEmbed(new WebHook.EmbedObject()
+                .setTitle("Neuer Ban")
+                .setDescription("Ein Spieler wurde aus dem Spiel ausgeschlossen.")
+                .setColor(Color.RED)
+                .addField("Spieler", "Test", true)
+                .addField("Ersteller", "TO81", true)
+                .addField("Dauer", "30 Tage", true)
+                .addField("Grund", "Unerlaubte Clientmodifikation/Hackclient", true)
+                .setFooter("Bansystem by Tobias Herzig", "https://mineskin.eu/helm/617f0c2b-6014-47f2-bf89-fade1bc9bb59")
+                .setThumbnail("https://mineskin.eu/helm/d8d5a923-7b20-43d8-883b-1150148d6955"));
+        try {
+            webhook.execute(); //Handle exception
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        */
     }
 
     @Override
@@ -307,9 +333,9 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         pluginManager.registerCommand(this, new CommandWrapper("unmute",
                 new CMDunmute(banManager, config, sql, configurationUtil), true));
         pluginManager.registerCommand(this, new CommandWrapper("bansystem",
-                new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
+                new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil, textComponent), false));
         pluginManager.registerCommand(this, new CommandWrapper("bansys",
-                new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
+                new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil, textComponent), false));
 
         pluginManager.registerListener(this, new LoginListener(banManager, config, sql, urlUtil, configurationUtil));
         pluginManager.registerListener(this, new ChatListener(banManager, config, sql, blacklistUtil, configurationUtil));

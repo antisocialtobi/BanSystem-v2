@@ -4,6 +4,7 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import net.coalcube.bansystem.core.util.User;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.chat.TextComponent;
 
 import java.net.InetAddress;
@@ -20,14 +21,25 @@ public class VelocityUser implements User {
     @SuppressWarnings("deprecation")
     @Override
     public void sendMessage(String msg) {
-        Component component = Component.text(msg);
-        sender.sendMessage(component);
+        if(getUniqueId() == null) {
+            LegacyComponentSerializer lcs = LegacyComponentSerializer.legacySection();
+            sender.sendMessage(lcs.deserialize(msg));
+        } else {
+            Component component = Component.text(msg);
+            sender.sendMessage(component);
+        }
     }
 
     @Override
     public void sendMessage(TextComponent msg) {
-        Component component = Component.text(msg.getText());
-        sender.sendMessage(component);
+        if(getUniqueId() == null) {
+            LegacyComponentSerializer lcs = LegacyComponentSerializer.legacySection();
+            sender.sendMessage(lcs.deserialize(msg.getText()));
+        } else {
+            Component component = Component.text(msg.getText());
+            sender.sendMessage(component);
+        }
+
     }
 
     @Override
@@ -47,6 +59,8 @@ public class VelocityUser implements User {
 
     @Override
     public UUID getUniqueId() {
+        if(sender == null)
+            return null;
         return sender instanceof Player ? ((Player) sender).getUniqueId() : null;
     }
 

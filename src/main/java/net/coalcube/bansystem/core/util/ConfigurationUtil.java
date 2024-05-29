@@ -78,6 +78,10 @@ public class ConfigurationUtil {
         updateConfigValue(messages, "messages.yml", "bansystem.logs.show.pageNotFound");
         updateConfigValue(messages, "messages.yml", "bansystem.logs.show.invalidInput");
 
+        // config
+        updateConfigValue(config, "config.yml", "webhook.enable");
+        updateConfigValue(config, "config.yml", "webhook.url");
+
         // Blacklist
         updateConfigValue(blacklist, "blacklist.yml", "Whitelist");
 
@@ -88,15 +92,25 @@ public class ConfigurationUtil {
     }
 
     private Object getParameterValue(Map<String, Object> yamlData, String path) {
-        String[] keys = path.split("\\."); // Split the path by dot
-        Object value = yamlData;
-        for (String key : keys) {
-            if (value instanceof Map) {
-                value = ((Map<?, ?>) value).get(key);
+        String[] keys = path.split("\\.");
+        Object value = null;
+        int i=1;
+        for(String key : keys) {
+            if(i == 1) {
+                value = yamlData.get(keys[0]);
             } else {
-                // Key not found or reached a non-map value
-                return null;
+                if (value instanceof Map) {
+                    value = ((Map<?, ?>) value).get(key);
+                } else if (value != null && keys.length == i) {
+                    // Value have
+                    System.out.println("value: " + value + "\n");
+                    return value;
+                } else {
+                    // Value is null
+                    return null;
+                }
             }
+            i++;
         }
         return value;
     }

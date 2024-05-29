@@ -128,7 +128,6 @@ History:
   ban:
     - '%P%§7[%creationdate%] Wurde von §e%creator% §cgebannt§7.'
     - '%P%§7├ Grund §8» §c%reason%'
-    - '%P%§7├ Erstelldatum §8» §c%creationdate%'
     - '%P%§7├ Enddatum §8» §c%enddate%'
     - '%P%§7├ IP §8» §c%ip%'
     - '%P%§7├ Type §8» §c%type%'

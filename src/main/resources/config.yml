@@ -72,10 +72,17 @@ chatdelay:
   enable: false
   delay: 3
 
+# To embed webhooks to your Discord server enable this option and provide your webhook URL.
+# You can simply create a webhook by go to your Discord channel Settings to Integrations,
+# then create Webhook, then you can copy your URL.
+webhook:
+  enable: false
+  url: 'https://discord.com/api/webhooks/...'
+
 # to add an ID simple use the command "/bansys ids create" or just copy an ID and change the attributes.
 # Possible Types are: NETWORK, CHAT (please note that it is case-sensitive)
 # The duration is calculated in seconds that means 1 day is 86400 duration.
-# If onlyAdmins is enabled you need to have the permission bansys.ban.admin
+# If onlyAdmins is enabled you need to have the permission bansys.ban.admin to perform the punishment.
 IDs:
   '1':
     reason: Unerlaubte Clientmodifikation/Hackclient

@@ -6,6 +6,7 @@ import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.sql.MySQL;
 import net.coalcube.bansystem.core.sql.SQLite;
 import net.coalcube.bansystem.core.util.*;
+import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 import net.coalcube.bansystem.spigot.listener.AsyncPlayerChatListener;
 import net.coalcube.bansystem.spigot.listener.PlayerCommandPreprocessListener;
 import net.coalcube.bansystem.spigot.listener.PlayerConnectionListener;
@@ -23,10 +24,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -44,6 +43,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     private MySQL mysql;
     private TimeFormatUtil timeFormatUtil;
     private Config config, messages, blacklist;
+    private TextComponent textComponent;
     private static String Banscreen;
     private static List<String> blockedCommands, ads, blockedWords;
     private File sqlitedatabase, configFile, messagesFile, blacklistFile;
@@ -140,10 +140,9 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
                 }
             } catch (SQLException e) {
                 console.sendMessage(prefix + "§7Die SQLite Tabellen §ckonnten nicht §7erstellt werden.");
-                console.sendMessage(prefix + e.getMessage() + " " + e.getCause());
+                e.printStackTrace();
             }
         }
-
 
 
         Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, UUIDFetcher::clearCache, 72000, 72000);
@@ -168,6 +167,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         idManager = new IDManager(config, sql, new File(this.getDataFolder(), "config.yml"));
         urlUtil = new URLUtil(configurationUtil, config);
         blacklistUtil = new BlacklistUtil(blacklist);
+        textComponent = new TextComponentmd5(configurationUtil);
 
         init(pluginmanager);
 
@@ -317,9 +317,9 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         getCommand("unmute").setExecutor(new CommandWrapper(
                 new CMDunmute(banManager, config, sql, configurationUtil), true));
         getCommand("bansystem").setExecutor(new CommandWrapper(
-                new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
+                new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil, textComponent), false));
         getCommand("bansys").setExecutor(new CommandWrapper(
-                new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil), false));
+                new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil, textComponent), false));
 
         pluginManager.registerEvents(new AsyncPlayerChatListener(config, banManager, mysql, blacklistUtil, configurationUtil), this);
         pluginManager.registerEvents(new PlayerCommandPreprocessListener(banManager, config, blockedCommands, configurationUtil), this);

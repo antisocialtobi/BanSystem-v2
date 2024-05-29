@@ -1,5 +1,7 @@
 package net.coalcube.bansystem.core.util;
 
+import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
+
 import java.net.InetAddress;
 import java.util.Date;
 import java.util.UUID;

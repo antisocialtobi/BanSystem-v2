@@ -10,7 +10,6 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.plugin.PluginManager;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
-import com.velocitypowered.api.plugin.meta.PluginDependency;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.coalcube.bansystem.core.BanSystem;
@@ -19,22 +18,21 @@ import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.sql.MySQL;
 import net.coalcube.bansystem.core.sql.SQLite;
 import net.coalcube.bansystem.core.util.*;
-import net.coalcube.bansystem.spigot.util.SpigotConfig;
+import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
+import net.coalcube.bansystem.velocity.listener.LoginEvent;
 import net.coalcube.bansystem.velocity.listener.PlayerChatEvent;
 import net.coalcube.bansystem.velocity.util.VelocityConfig;
 import net.coalcube.bansystem.velocity.util.VelocityUser;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.slf4j.Logger;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -46,6 +44,7 @@ public class BanSystemVelocity implements BanSystem {
     private final ProxyServer server;
     private final Logger logger;
     private final Path dataDirectory;
+    private LegacyComponentSerializer lcs;
     private static BanManager banManager;
     private static IDManager idManager;
     private static URLUtil urlUtil;
@@ -55,6 +54,7 @@ public class BanSystemVelocity implements BanSystem {
     private MySQL mysql;
     private TimeFormatUtil timeFormatUtil;
     private Config config, messages, blacklist;
+    private TextComponent textComponent;
     private static String Banscreen;
     private static List<String> blockedCommands, ads, blockedWords;
     private File sqlitedatabase, configFile, messagesFile, blacklistFile;
@@ -67,7 +67,6 @@ public class BanSystemVelocity implements BanSystem {
         this.server = server;
         this.logger = logger;
         this.dataDirectory = dataDirectory;
-        onEnable();
     }
 
     public void onEnable() {
@@ -75,26 +74,27 @@ public class BanSystemVelocity implements BanSystem {
         BanSystem.setInstance(this);
 
         PluginManager pluginmanager = server.getPluginManager();
-
         UpdateChecker updatechecker = new UpdateChecker(65863);
+        lcs = LegacyComponentSerializer.legacySection();
 
-        server.sendMessage(Component.text("§c  ____                    ____                  _                      "));
-        server.sendMessage(Component.text("§c | __ )    __ _   _ __   / ___|   _   _   ___  | |_    ___   _ __ ___  "));
-        server.sendMessage(Component.text("§c |  _ \\   / _` | | '_ \\  \\___ \\  | | | | / __| | __|  / _ \\ | '_ ` _ \\ "));
-        server.sendMessage(Component.text("§c | |_) | | (_| | | | | |  ___) | | |_| | \\__ \\ | |_  |  __/ | | | | | |"));
-        server.sendMessage(Component.text("§c |____/   \\__,_| |_| |_| |____/   \\__, | |___/  \\__|  \\___| |_| |_| |_|"));
-        server.sendMessage(Component.text("§c                                  |___/                           §7v" + this.getVersion()));
+        sendConsoleMessage("§c  ____                    ____                  _                      ");
+        sendConsoleMessage("§c | __ )    __ _   _ __   / ___|   _   _   ___  | |_    ___   _ __ ___  ");
+        sendConsoleMessage("§c |  _ \\   / _` | | '_ \\  \\___ \\  | | | | / __| | __|  / _ \\ | '_ ` _ \\ ");
+        sendConsoleMessage("§c | |_) | | (_| | | | | |  ___) | | |_| | \\__ \\ | |_  |  __/ | | | | | |");
+        sendConsoleMessage("§c |____/   \\__,_| |_| |_| |____/   \\__, | |___/  \\__|  \\___| |_| |_| |_|");
+        sendConsoleMessage("§c                                  |___/                           §7v" + this.getVersion());
 
         createConfig();
 
         configurationUtil = new ConfigurationUtil(config, messages, blacklist, configFile, messagesFile, blacklistFile, this);
         timeFormatUtil = new TimeFormatUtil(configurationUtil);
+        /*
         try {
             configurationUtil.update();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
+        */
         loadConfig();
 
         // Set mysql instance
@@ -104,32 +104,32 @@ public class BanSystemVelocity implements BanSystem {
             banManager = new BanManagerMySQL(mysql);
             try {
                 mysql.connect();
-                logger.info(prefix + "§7Datenbankverbindung §2erfolgreich §7hergestellt.");
+                sendConsoleMessage(prefix + "§7Datenbankverbindung §2erfolgreich §7hergestellt.");
             } catch (SQLException e) {
-                logger.info(prefix + "§7Datenbankverbindung konnte §4nicht §7hergestellt werden.");
-                logger.info(prefix + "§cBitte überprüfe die eingetragenen MySQL daten in der Config.yml.");
-                logger.info(prefix + "§cDebug Message: §e" + e.getMessage());
+                sendConsoleMessage(prefix + "§7Datenbankverbindung konnte §4nicht §7hergestellt werden.");
+                sendConsoleMessage(prefix + "§cBitte überprüfe die eingetragenen MySQL daten in der Config.yml.");
+                sendConsoleMessage(prefix + "§cDebug Message: §e" + e.getMessage());
             }
             try {
                 if(mysql.isConnected()) {
                     if(mysql.isOldDatabase()) {
-                        logger.info(prefix + "§7Die MySQL Daten vom dem alten BanSystem wurden §2importiert§7.");
+                        sendConsoleMessage(prefix + "§7Die MySQL Daten vom dem alten BanSystem wurden §2importiert§7.");
                     }
                     mysql.createTables(config);
-                    logger.info(prefix + "§7Die MySQL Tabellen wurden §2erstellt§7.");
+                    sendConsoleMessage(prefix + "§7Die MySQL Tabellen wurden §2erstellt§7.");
                 }
             } catch (SQLException | ExecutionException | InterruptedException e) {
-                logger.info(prefix + "§7Die MySQL Tabellen §ckonnten nicht §7erstellt werden.");
+                sendConsoleMessage(prefix + "§7Die MySQL Tabellen §ckonnten nicht §7erstellt werden.");
                 e.printStackTrace();
             }
             try {
                 if(mysql.isConnected()) {
                     mysql.syncIDs(config);
-                    logger.info(prefix + "§7Die Ban IDs wurden §2synchronisiert§7.");
+                    sendConsoleMessage(prefix + "§7Die Ban IDs wurden §2synchronisiert§7.");
                 }
 
             } catch (SQLException e) {
-                logger.info(prefix + "§7Die IDs konnten nicht mit MySQL synchronisiert werden.");
+                sendConsoleMessage(prefix + "§7Die IDs konnten nicht mit MySQL synchronisiert werden.");
                 e.printStackTrace();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
@@ -142,20 +142,20 @@ public class BanSystemVelocity implements BanSystem {
             sql = sqlite;
             try {
                 sqlite.connect();
-                logger.info(prefix + "§7Datenbankverbindung §2erfolgreich §7hergestellt.");
+                sendConsoleMessage(prefix + "§7Datenbankverbindung §2erfolgreich §7hergestellt.");
             } catch (SQLException e) {
-                logger.info(prefix + "§7Datenbankverbindung konnte §4nicht §7hergestellt werden.");
-                logger.info(prefix + "§cBitte überprüfe die eingetragenen SQlite daten in der Config.yml.");
+                sendConsoleMessage(prefix + "§7Datenbankverbindung konnte §4nicht §7hergestellt werden.");
+                sendConsoleMessage(prefix + "§cBitte überprüfe die eingetragenen SQlite daten in der Config.yml.");
                 e.printStackTrace();
             }
             try {
                 if(sqlite.isConnected()) {
                     sqlite.createTables(config);
-                    logger.info(prefix + "§7Die SQLite Tabellen wurden §2erstellt§7.");
+                    sendConsoleMessage(prefix + "§7Die SQLite Tabellen wurden §2erstellt§7.");
                 }
             } catch (SQLException e) {
-                logger.info(prefix + "§7Die SQLite Tabellen §ckonnten nicht §7erstellt werden.");
-                logger.info(prefix + e.getMessage() + " " + e.getCause());
+                sendConsoleMessage(prefix + "§7Die SQLite Tabellen §ckonnten nicht §7erstellt werden.");
+                sendConsoleMessage(prefix + e.getMessage() + " " + e.getCause());
             }
         }
 
@@ -166,16 +166,16 @@ public class BanSystemVelocity implements BanSystem {
                 .schedule();
 
         if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.enable"))
-            logger.info(
+            sendConsoleMessage(
                     prefix + "§cBitte trage die IP des Servers in der config.yml ein.");
 
 
-        logger.info(prefix + "§7Das BanSystem wurde gestartet.");
+        sendConsoleMessage(prefix + "§7Das BanSystem wurde gestartet.");
 
         try {
             if (updatechecker.checkForUpdates()) {
-                logger.info(prefix + "§cEin neues Update ist verfügbar.");
-                logger.info(prefix + "§7Lade es dir unter " +
+                sendConsoleMessage(prefix + "§cEin neues Update ist verfügbar.");
+                sendConsoleMessage(prefix + "§7Lade es dir unter " +
                         "§ehttps://www.spigotmc.org/resources/bansystem-mit-ids.65863/ §7runter um aktuell zu bleiben.");
             }
         } catch (Exception e) {
@@ -185,10 +185,9 @@ public class BanSystemVelocity implements BanSystem {
         idManager = new IDManager(config, sql, new File(dataDirectory.toFile(), "config.yml"));
         urlUtil = new URLUtil(configurationUtil, config);
         blacklistUtil = new BlacklistUtil(blacklist);
-
+        textComponent = new TextComponentKyori(configurationUtil);
     }
 
-    @Override
     public void onDisable() {
         try {
             if (sql.isConnected())
@@ -228,8 +227,8 @@ public class BanSystemVelocity implements BanSystem {
                 Files.copy(in, blacklistFile.toPath());
                 blacklist = new VelocityConfig(blacklistFile);
             }
-            messages = new VelocityConfig(configFile);
-            config = new VelocityConfig(messagesFile);
+            messages = new VelocityConfig(messagesFile);
+            config = new VelocityConfig(configFile);
             blacklist = new VelocityConfig(blacklistFile);
 
         } catch (IOException e) {
@@ -291,16 +290,21 @@ public class BanSystemVelocity implements BanSystem {
 
     @Override
     public User getUser(String name) {
-        return new VelocityUser(server.getPlayer(name).get());
+        if(server.getPlayer(name).isPresent())
+            return new VelocityUser(server.getPlayer(name).get());
+        return new VelocityUser(null);
     }
 
     @Override
     public User getUser(UUID uniqueId) {
-        return new VelocityUser(server.getPlayer(uniqueId).get());
+        if(server.getPlayer(uniqueId).isPresent())
+            return new VelocityUser(server.getPlayer(uniqueId).get());
+        return new VelocityUser(null);
     }
 
     @Subscribe
     public void onProxyInitialize(ProxyInitializeEvent event) {
+        onEnable();
         CommandManager commandManager = server.getCommandManager();
 
         CommandMeta commandBanMeta = commandManager.metaBuilder("ban")
@@ -333,7 +337,7 @@ public class BanSystemVelocity implements BanSystem {
         SimpleCommand commandBan = new CommandWrapper(
                 new CMDban(banManager, config, messages, sql, configurationUtil));
         SimpleCommand commandBanSystem = new CommandWrapper(
-                new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil));
+                new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil, textComponent));
         SimpleCommand commandCheck = new CommandWrapper(
                 new CMDcheck(banManager, sql, configurationUtil));
         SimpleCommand commandDeleteHistory = new CommandWrapper(
@@ -358,6 +362,8 @@ public class BanSystemVelocity implements BanSystem {
 
         server.getEventManager().register(this,
                 new PlayerChatEvent(server, banManager, config, sql, blacklistUtil, configurationUtil));
+        server.getEventManager().register(this,
+                new LoginEvent(this, banManager, config, sql, urlUtil, configurationUtil));
     }
 
     @Override
@@ -373,7 +379,7 @@ public class BanSystemVelocity implements BanSystem {
     @Override
     public void sendConsoleMessage(String msg) {
         for (String line : msg.split("\n")) {
-            logger.info(line);
+            server.getConsoleCommandSource().sendMessage(lcs.deserialize(line));
         }
     }
 
@@ -393,7 +399,7 @@ public class BanSystemVelocity implements BanSystem {
 
     @Override
     public User getConsole() {
-        return new VelocityUser((Player) server.getConsoleCommandSource());
+        return new VelocityUser(server.getConsoleCommandSource());
     }
 
     @Override
@@ -420,5 +426,13 @@ public class BanSystemVelocity implements BanSystem {
         if (u.getRawUser() instanceof Player) {
             ((Player) u.getRawUser()).disconnect(Component.text(msg));
         }
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public ProxyServer getServer() {
+        return server;
     }
 }

@@ -12,12 +12,18 @@ import org.apache.commons.io.*;
 
 public final class ChatAdapter extends JavaPlugin implements PluginMessageListener {
 
+    private final String CHANNEL_NAME = "bansys:chatsign";
+
     @Override
     public void onEnable(){
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, "bansys:chatsign", this);
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, CHANNEL_NAME, this);
         Bukkit.getConsoleSender().sendMessage("§8§l┃ §cBanSystem-ChatAdapter §8» §7Plugin wurde gestartet.");
     }
 
+    @Override
+    public void onDisable() {
+        Bukkit.getMessenger().unregisterIncomingPluginChannel(this, CHANNEL_NAME, this);
+    }
 
     public void onPluginMessageReceived(String s, Player player, byte[] bytes) {
         if(s.equalsIgnoreCase("bansys:chatsign")){

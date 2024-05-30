@@ -12,6 +12,8 @@ import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -260,6 +262,21 @@ public class ChatListener implements Listener {
                     reamingTime.remove(uuid);
                 }, config.getInt("chatdelay.delay"), TimeUnit.SECONDS));
             }
+        }
+
+        // send message to Spigot server.
+        if(e.isCommand() || e.isCancelled() || e.isProxyCommand()) return;
+
+        if(p.getPendingConnection().getVersion() < 759)
+            return;
+
+        e.setCancelled(true);
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        try (DataOutputStream out = new DataOutputStream(b)) {
+            out.writeUTF(e.getMessage());
+            p.getServer().sendData("bansys:chatsign", b.toByteArray());
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 

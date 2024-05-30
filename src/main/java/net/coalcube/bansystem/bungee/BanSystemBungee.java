@@ -11,6 +11,7 @@ import net.coalcube.bansystem.core.sql.MySQL;
 import net.coalcube.bansystem.core.sql.SQLite;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
+import net.coalcube.bansystem.velocity.listener.PluginMessageListener;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -171,6 +172,9 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         urlUtil = new URLUtil(configurationUtil, config);
         blacklistUtil = new BlacklistUtil(blacklist);
         textComponent = new TextComponentmd5(configurationUtil);
+
+        // Register channel to bypass chat message signing
+        this.getProxy().registerChannel("bansys:chatsign");
 
         init(pluginmanager);
 
@@ -339,6 +343,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
         pluginManager.registerListener(this, new LoginListener(banManager, config, sql, urlUtil, configurationUtil));
         pluginManager.registerListener(this, new ChatListener(banManager, config, sql, blacklistUtil, configurationUtil));
+        pluginManager.registerListener(this, new PluginMessageListener());
     }
 
     public Database getSQL() {

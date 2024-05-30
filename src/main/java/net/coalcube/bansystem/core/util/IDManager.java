@@ -31,7 +31,7 @@ public class IDManager {
         config.save(configFile);
         if(isMySQLused())
             database.update("INSERT INTO `ids` (`id`, `reason`, `lvl`, `duration`, `onlyadmin`, `type`, `creationdate`, `creator`) " +
-                "VALUES ('" + id + "', '" + reason + "', '1', '" + duration + "', '" + onlyAdmin + "', '" + type.toString() + "', NOW(), '" + creator + "');");
+                "VALUES ('" + id + "', '" + reason + "', '1', '" + duration + "', " + onlyAdmin + ", '" + type.toString() + "', NOW(), '" + creator + "');");
     }
 
     public void deleteID(String id) throws SQLException, IOException {
@@ -49,8 +49,8 @@ public class IDManager {
         config.save(configFile);
         if(isMySQLused()) {
             database.update("INSERT INTO `ids` (`id`, `reason`, `lvl`, `duration`, `onlyadmin`, `type`, `creationdate`, `creator`) " +
-                    "VALUES ('" + id + "', '" + getReason(id) + "', '" + lvl + "', '" + duration + "', " +
-                    "'" + getOnlyAdmins(id) + "', '" + type.toString() + "', NOW(), '" + creator + "')");
+                    "VALUES ('" + id + "', '" + getReason(id) + "', '" + lvl + "', '" + duration + "', " + getOnlyAdmins(id)
+                    + ", '" + type.toString() + "', NOW(), '" + creator + "')");
         }
     }
 
@@ -81,7 +81,7 @@ public class IDManager {
         config.set("IDs." + id + ".onlyAdmins", onlyAdmins);
         config.save(configFile);
         if(isMySQLused())
-            database.update("UPDATE `ids` SET onlyadmin='" + onlyAdmins + "' WHERE id='" + id + "'");
+            database.update("UPDATE `ids` SET onlyadmin=" + onlyAdmins + " WHERE id='" + id + "'");
     }
 
     public void setReason(String id, String reason) throws IOException, SQLException {
@@ -133,8 +133,8 @@ public class IDManager {
 
                 database.update("DELETE FROM `ids` WHERE id='" + id + "' AND lvl='" + lvl + "';");
                 database.update("INSERT INTO `ids` (`id`, `reason`, `lvl`, `duration`, `onlyadmin`, `type`, `creationdate`, `creator`) " +
-                        "VALUES ('" + id + "', '" + tmpReason + "', '" + count2 + "', '" + tmpDuration + "', '"
-                        + tmpOnlyAdmins + "', '" + tmpType.toString() + "', '" + tmpCreationDate + "', '" + tmpCreator + "');");
+                        "VALUES ('" + id + "', '" + tmpReason + "', '" + count2 + "', '" + tmpDuration + "', "
+                        + tmpOnlyAdmins + ", '" + tmpType.toString() + "', '" + tmpCreationDate + "', '" + tmpCreator + "');");
 
                 count++;
             }

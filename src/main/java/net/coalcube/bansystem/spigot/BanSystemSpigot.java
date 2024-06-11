@@ -1,6 +1,9 @@
 package net.coalcube.bansystem.spigot;
 
 import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.ban.BanManager;
+import net.coalcube.bansystem.core.ban.BanManagerMySQL;
+import net.coalcube.bansystem.core.ban.BanManagerSQLite;
 import net.coalcube.bansystem.core.command.*;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.sql.MySQL;
@@ -86,7 +89,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         if (config.getBoolean("mysql.enable")) {
             mysql = new MySQL(hostname, port, database, user, pw);
             sql = mysql;
-            banManager = new BanManagerMySQL(mysql);
+            banManager = new BanManagerMySQL(mysql, config);
             try {
                 mysql.connect();
                 console.sendMessage(prefix + "§7Datenbankverbindung §2erfolgreich §7hergestellt.");
@@ -123,7 +126,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         } else {
             createFileDatabase();
             SQLite sqlite = new SQLite(sqlitedatabase);
-            banManager = new BanManagerSQLite(sqlite);
+            banManager = new BanManagerSQLite(sqlite, config);
             sql = sqlite;
             try {
                 sqlite.connect();
@@ -321,7 +324,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         getCommand("bansys").setExecutor(new CommandWrapper(
                 new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil, textComponent), false));
 
-        pluginManager.registerEvents(new AsyncPlayerChatListener(config, banManager, mysql, blacklistUtil, configurationUtil), this);
+        pluginManager.registerEvents(new AsyncPlayerChatListener(config, banManager, sql, blacklistUtil, configurationUtil), this);
         pluginManager.registerEvents(new PlayerCommandPreprocessListener(banManager, config, blockedCommands, configurationUtil), this);
         pluginManager.registerEvents(new PlayerConnectionListener(banManager, config, Banscreen, instance, urlUtil, configurationUtil), this);
     }

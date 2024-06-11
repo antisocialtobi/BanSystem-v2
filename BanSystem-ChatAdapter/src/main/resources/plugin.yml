@@ -1,3 +1,0 @@
-name: BanSystem-ChatAdapter
-version: '${project.version}'
-main: net.coalcube.bansystem.chatadapter.ChatAdapter

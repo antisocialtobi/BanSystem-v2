@@ -122,4 +122,12 @@ public class ConfigurationUtil {
             config.set(path, getParameterValue(resourceData, path));
         }
     }
+
+    public Config getConfig() {
+        return config;
+    }
+
+    public Config getMessagesConfig() {
+        return messages;
+    }
 }

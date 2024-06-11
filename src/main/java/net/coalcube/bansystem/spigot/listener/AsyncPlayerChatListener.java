@@ -1,7 +1,10 @@
 package net.coalcube.bansystem.spigot.listener;
 
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.sql.MySQL;
+import net.coalcube.bansystem.core.ban.Ban;
+import net.coalcube.bansystem.core.ban.BanManager;
+import net.coalcube.bansystem.core.ban.Type;
+import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.spigot.BanSystemSpigot;
 import org.bukkit.Bukkit;
@@ -28,64 +31,68 @@ public class AsyncPlayerChatListener implements Listener {
 
     private final BanManager banManager;
     private final Config config;
-    private final MySQL mysql;
+    private final Database sql;
     private final BlacklistUtil blacklistUtil;
     private final ConfigurationUtil configurationUtil;
 
-    public AsyncPlayerChatListener(Config config, BanManager banManager, MySQL mysql, BlacklistUtil blacklistUtil, ConfigurationUtil configurationUtil) {
+    public AsyncPlayerChatListener(Config config, BanManager banManager, Database sql, BlacklistUtil blacklistUtil, ConfigurationUtil configurationUtil) {
         this.banManager = banManager;
         this.config = config;
-        this.mysql = mysql;
+        this.sql = sql;
         this.blacklistUtil = blacklistUtil;
         this.configurationUtil = configurationUtil;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onChat(AsyncPlayerChatEvent e) throws IOException, SQLException, ExecutionException, InterruptedException {
-        if (!(config.getBoolean("mysql.enable") && !mysql.isConnected())) {
+        if(!sql.isConnected()) {
+            try {
+                sql.connect();
+            } catch (SQLException ex) {
+                return;
+            }
+        }
+        if (!(config.getBoolean("mysql.enable") && !sql.isConnected())) {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(configurationUtil.getMessage("DateTimePattern"));
             Player p = e.getPlayer();
             String msg = e.getMessage();
             UUID uuid = p.getUniqueId();
-            try {
-                if (banManager.isBanned(p.getUniqueId(), Type.CHAT)) {
-                    if (banManager.getEnd(p.getUniqueId(), Type.CHAT) > System.currentTimeMillis()
-                            || banManager.getEnd(p.getUniqueId(), Type.CHAT) == -1) {
-                        e.setCancelled(true);
-                        p.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
-                                .replaceAll("%P%", BanSystemSpigot.prefix)
-                                .replaceAll("%reason%", banManager.getReason(p.getUniqueId(), Type.CHAT))
-                                .replaceAll("%reamingtime%",
-                                        BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
-                                                banManager.getRemainingTime(p.getUniqueId(), Type.CHAT)))
-                                .replaceAll("&", "§"));
-                    } else {
-                        try {
-                            if (config.getBoolean("needReason.Unmute")) {
-                                banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
-                            } else {
-                                banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName());
-                            }
-                            banManager.log("Unmuted Player", Bukkit.getConsoleSender().getName(), p.getUniqueId().toString(), "Autounmute");
-                        } catch (IOException | SQLException ioException) {
-                            ioException.printStackTrace();
+            Ban mute = banManager.getBan(uuid, Type.CHAT);
+            if (mute != null) {
+                if (mute.getEnd() > System.currentTimeMillis()
+                        || mute.getEnd() == -1) {
+                    e.setCancelled(true);
+                    p.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
+                            .replaceAll("%P%", BanSystemSpigot.prefix)
+                            .replaceAll("%reason%", mute.getReason())
+                            .replaceAll("%reamingtime%",
+                                    BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
+                                            mute.getRemainingTime()))
+                            .replaceAll("&", "§"));
+                } else {
+                    try {
+                        if (config.getBoolean("needReason.Unmute")) {
+                            banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
+                        } else {
+                            banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName());
                         }
+                        banManager.log("Unmuted Player", Bukkit.getConsoleSender().getName(), p.getUniqueId().toString(), "Autounmute");
+                    } catch (IOException | SQLException ioException) {
+                        ioException.printStackTrace();
+                    }
 
-                        Bukkit.getConsoleSender().sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
-                                .replaceAll("%player%", p.getDisplayName()));
-                        for (Player all : Bukkit.getOnlinePlayers()) {
-                            if (all.hasPermission("system.ban")) {
-                                all.sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
-                                        .replaceAll("%player%", p.getDisplayName()));
-                            }
+                    Bukkit.getConsoleSender().sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
+                            .replaceAll("%player%", p.getDisplayName()));
+                    for (Player all : Bukkit.getOnlinePlayers()) {
+                        if (all.hasPermission("system.ban")) {
+                            all.sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
+                                    .replaceAll("%player%", p.getDisplayName()));
                         }
                     }
                 }
-            } catch (SQLException | ParseException | InterruptedException | ExecutionException throwables) {
-                throwables.printStackTrace();
             }
 
-            if (!p.hasPermission("bansys.bypasschatfilter") && !banManager.isBanned(p.getUniqueId(), Type.CHAT)) {
+            if (!p.hasPermission("bansys.bypasschatfilter") && mute == null) {
                 if (config.getBoolean("blacklist.words.enable")) {
                     if (blacklistUtil.hasBlockedWordsContains(msg)) {
                         e.setCancelled(true);
@@ -93,10 +100,10 @@ public class AsyncPlayerChatListener implements Listener {
                             String id = String.valueOf(config.getInt("blacklist.words.autoban.id"));
                             String reason = config.getString("IDs." + id + ".reason");
                             int lvl;
-                            if (!isMaxBanLvl(id, banManager.getLevel(p.getUniqueId(), reason)))
+                            if (!banManager.isMaxBanLvl(id, banManager.getLevel(p.getUniqueId(), reason)))
                                 lvl = banManager.getLevel(p.getUniqueId(), reason) + 1;
                             else
-                                lvl = getMaxLvl(id);
+                                lvl = banManager.getMaxLvl(id);
                             Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
                             if(duration != -1) duration = duration * 1000;
                             Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
@@ -163,10 +170,10 @@ public class AsyncPlayerChatListener implements Listener {
                             String id = String.valueOf(config.getInt("blacklist.ads.autoban.id"));
                             String reason = config.getString("IDs." + id + ".reason");
                             int lvl;
-                            if (!isMaxBanLvl(id, banManager.getLevel(p.getUniqueId(), reason)))
+                            if (!banManager.isMaxBanLvl(id, banManager.getLevel(p.getUniqueId(), reason)))
                                 lvl = banManager.getLevel(p.getUniqueId(), reason) + 1;
                             else
-                                lvl = getMaxLvl(id);
+                                lvl = banManager.getMaxLvl(id);
                             Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
                             if(duration != -1) duration = duration * 1000;
                             Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
@@ -252,23 +259,4 @@ public class AsyncPlayerChatListener implements Listener {
             }
         }
     }
-
-    private boolean isMaxBanLvl(String id, int lvl) {
-        int maxLvl = 0;
-
-        for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if (Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
-        }
-        return lvl >= maxLvl;
-    }
-
-    private int getMaxLvl(String id) {
-        int maxLvl = 0;
-
-        for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if (Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
-        }
-        return maxLvl;
-    }
-
 }

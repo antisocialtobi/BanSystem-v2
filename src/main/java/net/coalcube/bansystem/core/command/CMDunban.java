@@ -1,6 +1,9 @@
 package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.ban.Ban;
+import net.coalcube.bansystem.core.ban.BanManager;
+import net.coalcube.bansystem.core.ban.Type;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
@@ -74,7 +77,8 @@ public class CMDunban implements Command {
                         return;
                     }
                     try {
-                        if (banmanager.isBanned(uuid, Type.NETWORK)) {
+                        Ban ban = banmanager.getBan(uuid, Type.NETWORK);
+                        if (ban != null) {
                             if (config.getBoolean("needReason.Unban")) {
                                 if (args.length > 1) {
 

@@ -1,6 +1,10 @@
 package net.coalcube.bansystem.spigot.listener;
 
 import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.ban.Ban;
+import net.coalcube.bansystem.core.ban.BanManager;
+import net.coalcube.bansystem.core.ban.Type;
+import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 import net.coalcube.bansystem.spigot.BanSystemSpigot;
@@ -48,6 +52,14 @@ public class PlayerConnectionListener implements Listener {
     public void onPreLogin(PlayerPreLoginEvent e) {
         boolean isCancelled = false;
         UUID uuid = e.getUniqueId();
+        Database sql = BanSystem.getInstance().getSQL();
+        if(!sql.isConnected()) {
+            try {
+                sql.connect();
+            } catch (SQLException ex) {
+                return;
+            }
+        }
 
         if (BanSystem.getInstance().getSQL().isConnected()) {
             try {
@@ -56,23 +68,25 @@ public class PlayerConnectionListener implements Listener {
                         banManager.saveBedrockUser(uuid, e.getName());
                     }
                 }
-                if (banManager.isBanned(uuid, Type.NETWORK)) {
-                    if (banManager.getEnd(uuid, Type.NETWORK) > System.currentTimeMillis()
-                            || banManager.getEnd(uuid, Type.NETWORK) == -1) {
+
+                Ban ban = banManager.getBan(uuid, Type.NETWORK);
+                if (ban != null) {
+                    if (ban.getEnd() > System.currentTimeMillis()
+                            || ban.getEnd() == -1) {
                         // disallow connecting when user is banned
 
-                        String reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(banManager.getRemainingTime(uuid, Type.NETWORK));
+                        String reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(ban.getRemainingTime());
 
                         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(configurationUtil.getMessage("DateTimePattern"));
-                        String enddate = simpleDateFormat.format(new Date(banManager.getEnd(uuid, Type.NETWORK)));
+                        String enddate = simpleDateFormat.format(new Date(ban.getEnd()));
 
                         String banScreen = banScreenRow
-                                .replaceAll("%reason%", banManager.getReason(uuid, Type.NETWORK))
-                                .replaceAll("%creator%", banManager.getBanner(uuid, Type.NETWORK))
+                                .replaceAll("%reason%", ban.getReason())
+                                .replaceAll("%creator%", ban.getCreator())
                                 .replaceAll("%enddate%", enddate)
                                 .replaceAll("%reamingtime%", reamingTime)
                                 .replaceAll("&", "§")
-                                .replaceAll("%lvl%", String.valueOf(banManager.getLevel(uuid, banManager.getReason(uuid, Type.NETWORK))));
+                                .replaceAll("%lvl%", String.valueOf(banManager.getLevel(uuid, ban.getReason())));
                         if (!config.getBoolean("Ban.KickDelay.enable")) e.disallow(Result.KICK_BANNED, banScreen);
                         isCancelled = true;
 
@@ -102,7 +116,7 @@ public class PlayerConnectionListener implements Listener {
                         }
                     }
                 }
-            } catch (SQLException | ParseException | UnknownHostException | InterruptedException | ExecutionException throwables) {
+            } catch (SQLException | UnknownHostException | InterruptedException | ExecutionException throwables) {
                 throwables.printStackTrace();
             }
             if (!isCancelled) {
@@ -116,10 +130,10 @@ public class PlayerConnectionListener implements Listener {
                                 String reason = config.getString("IDs." + id + ".reason");
                                 try {
                                     if (banManager.hasHistory(e.getUniqueId(), reason)) {
-                                        if (!isMaxBanLvl(id, banManager.getLevel(uuid, reason))) {
+                                        if (!banManager.isMaxBanLvl(id, banManager.getLevel(uuid, reason))) {
                                             lvl = (byte) (banManager.getLevel(uuid, reason)) + 1;
                                         } else {
-                                            lvl = getMaxLvl(id);
+                                            lvl = banManager.getMaxLvl(id);
                                         }
                                     } else {
                                         lvl = 1;
@@ -163,7 +177,8 @@ public class PlayerConnectionListener implements Listener {
     public void onDisconnect(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         try {
-            if (banManager.isBanned(p.getUniqueId(), Type.NETWORK)) {
+            Ban ban = banManager.getBan(p.getUniqueId(), Type.NETWORK);
+            if (ban != null) {
                 e.setQuitMessage(null);
             }
         } catch (SQLException | ExecutionException | InterruptedException throwables) {
@@ -202,7 +217,8 @@ public class PlayerConnectionListener implements Listener {
             }
         }
         try {
-            if (banManager.isBanned(p.getUniqueId(), Type.NETWORK)) {
+            Ban ban = banManager.getBan(p.getUniqueId(), Type.NETWORK);
+            if (ban != null) {
                 e.setJoinMessage(null);
                 new BukkitRunnable() {
 
@@ -212,19 +228,22 @@ public class PlayerConnectionListener implements Listener {
                         String reamingTime;
                         try {
                             reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
-                                    banManager.getRemainingTime(p.getUniqueId(), Type.NETWORK));
+                                    ban.getRemainingTime());
+                            Config messages = configurationUtil.getMessagesConfig();
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
+                            String enddate = simpleDateFormat.format(new Date(ban.getEnd()));
 
                             String banScreen = banScreenRow
                                     .replaceAll("%P%", configurationUtil.getMessage("prefix"))
-                                    .replaceAll("%reason%", banManager.getReason(uuid, Type.NETWORK))
+                                    .replaceAll("%reason%", ban.getReason())
                                     .replaceAll("%reamingtime%", reamingTime)
-                                    .replaceAll("%creator%", banManager.getBanner(uuid, Type.NETWORK))
-                                    .replaceAll("%enddate%", banManager.getBanReason(uuid, Type.NETWORK))
+                                    .replaceAll("%creator%", ban.getCreator())
+                                    .replaceAll("%enddate%", enddate)
                                     .replaceAll("%lvl%", String.valueOf(banManager.getLevel(uuid,
-                                            banManager.getReason(uuid, Type.NETWORK))))
+                                            ban.getReason())))
                                     .replaceAll("&", "§");
                             p.kickPlayer(banScreen);
-                        } catch (SQLException | ParseException | InterruptedException | ExecutionException | UnknownHostException throwables) {
+                        } catch (SQLException | InterruptedException | ExecutionException | UnknownHostException throwables) {
                             throwables.printStackTrace();
                         }
 
@@ -236,9 +255,10 @@ public class PlayerConnectionListener implements Listener {
         }
 
         try {
+            Ban ban = banManager.getBan(p.getUniqueId(), Type.NETWORK);
             if (!banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress()).isEmpty() &&
                     !p.hasPermission("bansys.ban") && !banManager.getBannedPlayersWithSameIP(
-                    p.getAddress().getAddress()).contains(p.getUniqueId()) && !banManager.isBanned(uuid, Type.NETWORK)) {
+                    p.getAddress().getAddress()).contains(p.getUniqueId()) && ban == null) {
                 StringBuilder bannedPlayerName = new StringBuilder();
                 boolean rightType = true;
                 List<UUID> banned;
@@ -247,10 +267,10 @@ public class PlayerConnectionListener implements Listener {
                 int ipAutoBanLvl = 0;
 
                 try {
-                    if (!isMaxBanLvl(String.valueOf(ipAutoBanID), banManager.getLevel(uuid, ipAutoBanReason))) {
+                    if (!banManager.isMaxBanLvl(String.valueOf(ipAutoBanID), banManager.getLevel(uuid, ipAutoBanReason))) {
                         ipAutoBanLvl = banManager.getLevel(uuid, ipAutoBanReason) + 1;
                     } else
-                        ipAutoBanLvl = getMaxLvl(String.valueOf(ipAutoBanID));
+                        ipAutoBanLvl = banManager.getMaxLvl(String.valueOf(ipAutoBanID));
 
 
                     banned = banManager.getBannedPlayersWithSameIP(p.getAddress().getAddress());
@@ -263,7 +283,7 @@ public class PlayerConnectionListener implements Listener {
                         } else {
                             name = id.toString();
                         }
-                        if (banManager.isBanned(p.getUniqueId(), Type.CHAT))
+                        if (banManager.getBan(p.getUniqueId(), Type.CHAT) != null)
                             rightType = false;
                         if (bannedPlayerName.length() == 0) {
                             bannedPlayerName = new StringBuilder(name);
@@ -304,19 +324,16 @@ public class PlayerConnectionListener implements Listener {
                     String banScreen = BanSystem.getInstance().getBanScreen();
                     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(configurationUtil.getMessage("DateTimePattern"));
                     String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + ipAutoBanDuration));
-                    try {
-                        banScreen = banScreen.replaceAll("%reason%", banManager.getReason(uuid, Type.NETWORK));
-                        banScreen = banScreen.replaceAll("%reamingtime%",
-                                BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
-                                        banManager.getRemainingTime(uuid, Type.NETWORK)));
-                        banScreen = banScreen.replaceAll("%creator%", Bukkit.getConsoleSender().getName());
-                        banScreen = banScreen.replaceAll("%enddate%", enddate);
-                        banScreen = banScreen.replaceAll("%lvl%", String.valueOf(ipAutoBanLvl));
-                        banScreen = banScreen.replaceAll("%P%", configurationUtil.getMessage("prefix"));
-                        banScreen = banScreen.replaceAll("&", "§");
-                    } catch (SQLException | ParseException throwables) {
-                        throwables.printStackTrace();
-                    }
+
+                    banScreen = banScreen.replaceAll("%reason%", ban.getReason());
+                    banScreen = banScreen.replaceAll("%reamingtime%",
+                            BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
+                                    ban.getRemainingTime()));
+                    banScreen = banScreen.replaceAll("%creator%", Bukkit.getConsoleSender().getName());
+                    banScreen = banScreen.replaceAll("%enddate%", enddate);
+                    banScreen = banScreen.replaceAll("%lvl%", String.valueOf(ipAutoBanLvl));
+                    banScreen = banScreen.replaceAll("%P%", configurationUtil.getMessage("prefix"));
+                    banScreen = banScreen.replaceAll("&", "§");
                     p.kickPlayer(banScreen);
                 } else {
                     BanSystem.getInstance().sendConsoleMessage(configurationUtil.getMessage("ip.warning")
@@ -334,25 +351,5 @@ public class PlayerConnectionListener implements Listener {
         } catch (SQLException | ExecutionException | InterruptedException throwables) {
             throwables.printStackTrace();
         }
-    }
-
-    private boolean isMaxBanLvl(String id, int lvl) {
-        int maxLvl = 0;
-
-        for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if (Integer.parseInt(key) > maxLvl) {
-                maxLvl = Integer.parseInt(key);
-            }
-        }
-        return lvl >= maxLvl;
-    }
-
-    private int getMaxLvl(String id) {
-        int maxLvl = 0;
-
-        for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if (Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
-        }
-        return maxLvl;
     }
 }

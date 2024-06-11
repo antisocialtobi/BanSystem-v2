@@ -1,5 +1,6 @@
 package net.coalcube.bansystem.core.util;
 
+import net.coalcube.bansystem.core.ban.Type;
 import net.coalcube.bansystem.core.sql.Database;
 
 import java.io.File;

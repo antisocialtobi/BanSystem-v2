@@ -1,6 +1,9 @@
 package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.ban.Ban;
+import net.coalcube.bansystem.core.ban.BanManager;
+import net.coalcube.bansystem.core.ban.Type;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
@@ -162,8 +165,8 @@ public class CMDban implements Command {
 
 
                     try {
-                        if (!(type == Type.CHAT && !banmanager.isBanned(uuid, Type.CHAT)
-                                || (type == Type.NETWORK && !banmanager.isBanned(uuid, Type.NETWORK)))) {
+                        if (!(type == Type.CHAT && banmanager.getBan(uuid, Type.CHAT) == null
+                                || (type == Type.NETWORK && banmanager.getBan(uuid, Type.NETWORK) == null))) {
                             user.sendMessage(configurationUtil.getMessage("Ban.alreadybanned")
                                     .replaceAll("%player%", Objects.requireNonNull(name)));
                             return;
@@ -311,10 +314,10 @@ public class CMDban implements Command {
 
             // set lvl
             try {
-                if (!isMaxBanLvl(args[1], banmanager.getLevel(uuid, reason))) {
+                if (!banmanager.isMaxBanLvl(args[1], banmanager.getLevel(uuid, reason))) {
                     lvl = banmanager.getLevel(uuid, reason)+1;
                 } else {
-                    lvl = getMaxLvl(args[1]);
+                    lvl = banmanager.getMaxLvl(args[1]);
                 }
             } catch (SQLException | ExecutionException | InterruptedException throwables) {
                 user.sendMessage(configurationUtil.getMessage("Ban.failed"));
@@ -346,18 +349,5 @@ public class CMDban implements Command {
         if(duration != -1)
             endDate = new Date(System.currentTimeMillis() + duration);
 
-    }
-
-    private boolean isMaxBanLvl(String id, int lvl) {
-        int maxLvl = 0;
-
-        for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if (Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
-        }
-        return lvl >= maxLvl;
-    }
-
-    private int getMaxLvl(String id) {
-        return config.getSection("IDs." + id + ".lvl").getKeys().size();
     }
 }

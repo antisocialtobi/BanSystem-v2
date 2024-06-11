@@ -18,12 +18,13 @@ public class SQLite implements Database {
     public void connect() throws SQLException {
         try {
             Class.forName("org.sqlite.JDBC");
+            con = DriverManager.getConnection("jdbc:sqlite:" + database.getPath() +"?autoReconnect=true");
         } catch (ClassNotFoundException e) {
             System.err.println("Fehler beim Laden des JDBC-Treibers");
             e.printStackTrace();
         }
 
-        con = DriverManager.getConnection("jdbc:sqlite:" + database.getPath());
+
     }
 
     @Override
@@ -105,18 +106,18 @@ public class SQLite implements Database {
                 " `reason` VARCHAR(1000) NOT NULL ," +
                 " `type` VARCHAR(20) NOT NULL );");
     }
-
-    private boolean hasUnbanreason() throws SQLException {
-        ResultSet rs = getResult("PRAGMA table_info('unbans');");
-
-        while (rs.next()) {
-            String name = rs.getString("name");
-            if(name.equals("reason")) {
-                return true;
-            }
-        }
-        return false;
-    }
+//
+//    private boolean hasUnbanreason() throws SQLException {
+//        ResultSet rs = getResult("PRAGMA table_info('unbans');");
+//
+//        while (rs.next()) {
+//            String name = rs.getString("name");
+//            if(name.equals("reason")) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     @Override
     public boolean isConnected() {

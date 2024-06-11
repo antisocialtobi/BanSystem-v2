@@ -13,6 +13,9 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.ban.BanManager;
+import net.coalcube.bansystem.core.ban.BanManagerMySQL;
+import net.coalcube.bansystem.core.ban.BanManagerSQLite;
 import net.coalcube.bansystem.core.command.*;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.sql.MySQL;
@@ -101,7 +104,7 @@ public class BanSystemVelocity implements BanSystem {
         if (config.getBoolean("mysql.enable")) {
             mysql = new MySQL(hostname, port, database, user, pw);
             sql = mysql;
-            banManager = new BanManagerMySQL(mysql);
+            banManager = new BanManagerMySQL(mysql, config);
             try {
                 mysql.connect();
                 sendConsoleMessage(prefix + "§7Datenbankverbindung §2erfolgreich §7hergestellt.");
@@ -138,7 +141,7 @@ public class BanSystemVelocity implements BanSystem {
         } else {
             createFileDatabase();
             SQLite sqlite = new SQLite(sqlitedatabase);
-            banManager = new BanManagerSQLite(sqlite);
+            banManager = new BanManagerSQLite(sqlite, config);
             sql = sqlite;
             try {
                 sqlite.connect();

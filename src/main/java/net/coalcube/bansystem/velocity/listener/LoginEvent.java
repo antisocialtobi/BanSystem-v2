@@ -5,6 +5,9 @@ import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.proxy.Player;
 import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.ban.Ban;
+import net.coalcube.bansystem.core.ban.BanManager;
+import net.coalcube.bansystem.core.ban.Type;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
@@ -46,6 +49,14 @@ public class LoginEvent {
         Player player = e.getPlayer();
         UUID uuid = player.getUniqueId();
 
+        if(!sql.isConnected()) {
+            try {
+                sql.connect();
+            } catch (SQLException ex) {
+                return;
+            }
+        }
+
         if (!(config.getBoolean("mysql.enable") && !sql.isConnected())) {
             //new Thread(() -> {
                 try {
@@ -58,22 +69,23 @@ public class LoginEvent {
                     ex.printStackTrace();
                 }
                 try {
-                    if (banManager.isBanned(uuid, Type.NETWORK)) {
+                    Ban ban = banManager.getBan(uuid, Type.NETWORK);
+                    if (ban != null) {
                         try {
-                            if (banManager.getEnd(uuid, Type.NETWORK) > System.currentTimeMillis()
-                                    || banManager.getEnd(uuid, Type.NETWORK) == -1) {
+                            if (ban.getEnd() > System.currentTimeMillis()
+                                    || ban.getEnd() == -1) {
                                 String banScreen = BanSystem.getInstance().getBanScreen();
                                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(configurationUtil.getMessage("DateTimePattern"));
-                                String enddate = simpleDateFormat.format(new Date(banManager.getEnd(uuid, Type.NETWORK)));
+                                String enddate = simpleDateFormat.format(new Date(ban.getEnd()));
                                 try {
                                     e.setResult(ResultedEvent.ComponentResult.denied(Component.text(banScreen
-                                            .replaceAll("%reason%", banManager.getReason(uuid, Type.NETWORK))
+                                            .replaceAll("%reason%", ban.getReason())
                                             .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                                    .getFormattedRemainingTime(banManager.getRemainingTime(uuid, Type.NETWORK)))
-                                            .replaceAll("%creator%", banManager.getBanner(uuid, Type.NETWORK))
+                                                    .getFormattedRemainingTime(ban.getRemainingTime()))
+                                            .replaceAll("%creator%", ban.getCreator())
                                             .replaceAll("%enddate%", enddate)
                                             .replaceAll("&", "§")
-                                            .replaceAll("%lvl%", String.valueOf(banManager.getLevel(uuid, banManager.getReason(uuid, Type.NETWORK)))))));
+                                            .replaceAll("%lvl%", String.valueOf(banManager.getLevel(uuid, ban.getReason()))))));
                                 } catch (UnknownHostException unknownHostException) {
                                     unknownHostException.printStackTrace();
                                 }
@@ -102,7 +114,7 @@ public class LoginEvent {
                                     }
                                 }
                             }
-                        } catch (SQLException | ParseException | InterruptedException | ExecutionException throwables) {
+                        } catch (SQLException | InterruptedException | ExecutionException throwables) {
                             throwables.printStackTrace();
                         }
                     }
@@ -208,8 +220,9 @@ public class LoginEvent {
                                 } else
                                     ipAutoBanLvl = getMaxLvl(String.valueOf(ipAutoBanID));
 
+                                Ban mute = banManager.getBan(player.getUniqueId(), Type.CHAT);
                                 for (UUID id : playersWithSameIP) {
-                                    if (banManager.isBanned(player.getUniqueId(), Type.CHAT))
+                                    if (mute != null)
                                         rightType = false;
                                     if (bannedPlayerName.length() == 0) {
                                         bannedPlayerName = new StringBuilder(Objects.requireNonNull(UUIDFetcher.getName(id)));
@@ -228,8 +241,9 @@ public class LoginEvent {
                                 return;
                             }
                             if (config.getBoolean("IPautoban.enable")) {
+                                Ban ban = null;
                                 try {
-                                    banManager.ban(uuid, ipAutoBanDuration, BanSystem.getInstance().getConsole().getName(), ipAutoBanType, ipAutoBanReason, player.getRemoteAddress().getAddress());
+                                    ban = banManager.ban(uuid, ipAutoBanDuration, BanSystem.getInstance().getConsole().getName(), ipAutoBanType, ipAutoBanReason, player.getRemoteAddress().getAddress());
                                     banManager.log("Banned Player", banSystemVelocity.getConsole().getName(), uuid.toString(), "Same IP Autoban");
                                 } catch (IOException | SQLException ioException) {
                                     ioException.printStackTrace();
@@ -247,19 +261,15 @@ public class LoginEvent {
                                 Component component = null;
                                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(configurationUtil.getMessage("DateTimePattern"));
                                 String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + ipAutoBanDuration));
-                                try {
-                                    component = Component.text(BanSystem.getInstance().getBanScreen()
-                                            .replaceAll("%reason%", banManager.getReason(uuid, Type.NETWORK))
-                                            .replaceAll("%reamingtime%",
-                                                    BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
-                                                            banManager.getRemainingTime(uuid, Type.NETWORK)))
-                                            .replaceAll("%creator%", banSystemVelocity.getConsole().getName())
-                                            .replaceAll("%enddate%", enddate)
-                                            .replaceAll("%lvl%", String.valueOf(ipAutoBanLvl))
-                                            .replaceAll("&", "§"));
-                                } catch (SQLException | ParseException throwables) {
-                                    throwables.printStackTrace();
-                                }
+                                component = Component.text(BanSystem.getInstance().getBanScreen()
+                                        .replaceAll("%reason%", ban.getReason())
+                                        .replaceAll("%reamingtime%",
+                                                BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
+                                                        ban.getRemainingTime()))
+                                        .replaceAll("%creator%", banSystemVelocity.getConsole().getName())
+                                        .replaceAll("%enddate%", enddate)
+                                        .replaceAll("%lvl%", String.valueOf(ipAutoBanLvl))
+                                        .replaceAll("&", "§"));
                                 e.setResult(ResultedEvent.ComponentResult.denied(component));
                             } else {
                                 BanSystem.getInstance().sendConsoleMessage(

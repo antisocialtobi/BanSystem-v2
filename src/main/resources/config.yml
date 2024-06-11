@@ -72,12 +72,13 @@ chatdelay:
   enable: false
   delay: 3
 
-# To embed webhooks to your Discord server enable this option and provide your webhook URL.
-# You can simply create a webhook by go to your Discord channel Settings to Integrations,
-# then create Webhook, then you can copy your URL.
-webhook:
-  enable: false
-  url: 'https://discord.com/api/webhooks/...'
+# This allows the developer of this Plugin to see some Statistics of his Plugin like
+# how much server uses it. It sends this data:
+# Environment - Bungeecord, Spigot or Velocity
+# Server version - The current version of the Minecraftserver
+# Plugin version - The current installed plugin version
+# Public IP - to identify the Server
+publicStatistic: true
 
 # to add an ID simple use the command "/bansys ids create" or just copy an ID and change the attributes.
 # Possible Types are: NETWORK, CHAT (please note that it is case-sensitive)

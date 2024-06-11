@@ -1,10 +1,11 @@
 package net.coalcube.bansystem.spigot.listener;
 
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.util.BanManager;
+import net.coalcube.bansystem.core.ban.Ban;
+import net.coalcube.bansystem.core.ban.BanManager;
 import net.coalcube.bansystem.core.util.Config;
 import net.coalcube.bansystem.core.util.ConfigurationUtil;
-import net.coalcube.bansystem.core.util.Type;
+import net.coalcube.bansystem.core.ban.Type;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -34,6 +35,13 @@ public class PlayerCommandPreprocessListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onCommandPreprocess(PlayerCommandPreprocessEvent e) {
+        if(!BanSystem.getInstance().getSQL().isConnected()) {
+            try {
+                BanSystem.getInstance().getSQL().connect();
+            } catch (SQLException ex) {
+                return;
+            }
+        }
         if(BanSystem.getInstance().getSQL().isConnected()) {
             Player p = e.getPlayer();
             String msg = e.getMessage();
@@ -45,17 +53,18 @@ public class PlayerCommandPreprocessListener implements Listener {
                 }
             }
             try {
-                if(banManager.isBanned(p.getUniqueId(), Type.CHAT)) {
-                    if(banManager.getEnd(p.getUniqueId(), Type.CHAT) > System.currentTimeMillis()
-                            || banManager.getEnd(p.getUniqueId(), Type.CHAT) == -1) {
+                Ban mute = banManager.getBan(p.getUniqueId(), Type.CHAT);
+                if(mute != null) {
+                    if(mute.getEnd() > System.currentTimeMillis()
+                            || mute.getEnd() == -1) {
                         if (startsWithBlockedCommnad) {
                             e.setCancelled(true);
 
                             String reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
-                                    banManager.getRemainingTime(p.getUniqueId(), Type.CHAT));
+                                    mute.getRemainingTime());
 
                             p.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
-                                    .replaceAll("%reason%", banManager.getReason(p.getUniqueId(), Type.CHAT))
+                                    .replaceAll("%reason%", mute.getReason())
                                     .replaceAll("%reamingtime%", reamingTime));
                         }
                     } else {
@@ -76,7 +85,7 @@ public class PlayerCommandPreprocessListener implements Listener {
                         }
                     }
                 }
-            } catch (SQLException | IOException | ParseException | InterruptedException | ExecutionException throwables) {
+            } catch (SQLException | IOException | InterruptedException | ExecutionException throwables) {
                 throwables.printStackTrace();
             }
         }

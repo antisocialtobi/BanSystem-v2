@@ -1,4 +1,4 @@
-package net.coalcube.bansystem.chatadapter;
+package net.coalcube.bansystem.spigotchatadapter;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.*;
 
-public final class ChatAdapter extends JavaPlugin implements PluginMessageListener {
+public final class SpigotChatAdapter extends JavaPlugin implements PluginMessageListener {
 
     private final String CHANNEL_NAME = "bansys:chatsign";
 

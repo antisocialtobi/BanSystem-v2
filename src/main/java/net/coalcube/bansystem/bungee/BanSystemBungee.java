@@ -5,13 +5,16 @@ import net.coalcube.bansystem.bungee.listener.LoginListener;
 import net.coalcube.bansystem.bungee.util.BungeeConfig;
 import net.coalcube.bansystem.bungee.util.BungeeUser;
 import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.ban.BanManager;
+import net.coalcube.bansystem.core.ban.BanManagerMySQL;
+import net.coalcube.bansystem.core.ban.BanManagerSQLite;
 import net.coalcube.bansystem.core.command.*;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.sql.MySQL;
 import net.coalcube.bansystem.core.sql.SQLite;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
-import net.coalcube.bansystem.velocity.listener.PluginMessageListener;
+import net.coalcube.bansystem.bungee.listener.PluginMessageListener;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -21,7 +24,6 @@ import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,6 +60,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     public void onEnable() {
         super.onEnable();
 
+        ProxyServer proxy = ProxyServer.getInstance();
         instance = this;
         BanSystem.setInstance(this);
 
@@ -92,7 +95,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         if (config.getBoolean("mysql.enable")) {
             mysql = new MySQL(hostname, port, database, user, pw);
             sql = mysql;
-            banManager = new BanManagerMySQL(mysql);
+            banManager = new BanManagerMySQL(mysql, config);
             try {
                 mysql.connect();
                 console.sendMessage(new TextComponent(prefix + "§7Datenbankverbindung §2erfolgreich §7hergestellt."));
@@ -127,7 +130,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         } else {
             createFileDatabase();
             SQLite sqlite = new SQLite(sqlitedatabase);
-            banManager = new BanManagerSQLite(sqlite);
+            banManager = new BanManagerSQLite(sqlite, config);
             sql = sqlite;
             try {
                 sqlite.connect();
@@ -177,6 +180,16 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         this.getProxy().registerChannel("bansys:chatsign");
 
         init(pluginmanager);
+
+
+        new Thread(() -> {
+            StatisticServerSocket statisticServerSocket = new StatisticServerSocket(banManager);
+
+            String enviroment = "Bungeecord";
+            String serverVersion = proxy.getVersion();
+
+            statisticServerSocket.register(enviroment, serverVersion, this.getVersion());
+        }).run();
 
         /*
         WebHook webhook = new WebHook("https://discord.com/api/webhooks/1243098087862304788/4zAzjFPGPoHSIxoPbhcAFZIc-0oLHtwplZFD3klX4NSxdIL06HLBxg8r1Fo31XeO4NvC");

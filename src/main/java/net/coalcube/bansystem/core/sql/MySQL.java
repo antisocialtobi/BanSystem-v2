@@ -1,16 +1,11 @@
 package net.coalcube.bansystem.core.sql;
 
 import net.coalcube.bansystem.core.util.Config;
-import net.coalcube.bansystem.core.util.History;
-import net.coalcube.bansystem.core.util.Type;
+import net.coalcube.bansystem.core.ban.Type;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.sql.*;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -37,6 +32,7 @@ public class MySQL implements Database {
     public void connect() throws SQLException {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+            con = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?autoReconnect=true", username, password);
         } catch (ClassNotFoundException e) {
             System.err.println("Fehler beim Laden des JDBC-Treibers");
             e.printStackTrace();
@@ -44,10 +40,11 @@ public class MySQL implements Database {
             throw new RuntimeException(e);
         }
 
-        con = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?autoReconnect=true", username, password);
+
     }
 
     public ResultSet getResult(String s) throws SQLException, ExecutionException, InterruptedException {
+        System.out.println("getResult: " + s);
         if(!isConnected()) {
             connect();
         }
@@ -62,7 +59,7 @@ public class MySQL implements Database {
     }
 
     public void update(String qry) throws SQLException {
-
+        System.out.println("update: " + qry);
         if(!isConnected()) {
             connect();
         }
@@ -367,6 +364,7 @@ public class MySQL implements Database {
 
     public boolean isConnected() {
         try {
+            System.out.println("isConnected: " + (con != null && con.isValid(5)));
             return (con != null && con.isValid(5));
         } catch (SQLException e) {
             throw new RuntimeException(e);

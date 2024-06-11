@@ -1,6 +1,9 @@
 package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.ban.Ban;
+import net.coalcube.bansystem.core.ban.BanManager;
+import net.coalcube.bansystem.core.ban.Type;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
@@ -74,7 +77,8 @@ public class CMDunmute implements Command {
                         return;
                     }
                     try {
-                        if (bm.isBanned(uuid, Type.CHAT)) {
+                        Ban mute = bm.getBan(uuid, Type.CHAT);
+                        if (mute != null) {
                             if(config.getBoolean("needReason.Unmute")) {
                                 if (args.length > 1) {
 

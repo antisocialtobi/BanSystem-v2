@@ -1,6 +1,9 @@
 package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.ban.Ban;
+import net.coalcube.bansystem.core.ban.BanManager;
+import net.coalcube.bansystem.core.ban.Type;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
@@ -73,17 +76,19 @@ public class CMDcheck implements Command {
                     }
 
                     try {
-                        if (bm.isBanned(uuid, Type.CHAT) && bm.isBanned(uuid, Type.NETWORK)) {
+                        Ban ban = bm.getBan(uuid, Type.NETWORK);
+                        Ban mute = bm.getBan(uuid, Type.CHAT);
+                        if (mute != null && ban != null){
 
                             String player = name;
-                            String bannerchat = bm.getBanner(uuid, Type.CHAT);
-                            String bannernetwork = bm.getBanner(uuid, Type.NETWORK);
-                            String reasonchat = bm.getReason(uuid, Type.CHAT);
-                            String reasonnetwork = bm.getReason(uuid, Type.NETWORK);
-                            String reamingtimechat = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(bm.getRemainingTime(uuid, Type.CHAT));
-                            String reamingtimenetwork = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(bm.getRemainingTime(uuid, Type.NETWORK));
-                            String lvlchat = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.CHAT)));
-                            String lvlnetwork = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.NETWORK)));
+                            String bannerchat = mute.getCreator();
+                            String bannernetwork = ban.getCreator();
+                            String reasonchat = mute.getReason();
+                            String reasonnetwork = ban.getReason();
+                            String reamingtimechat = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(mute.getRemainingTime());
+                            String reamingtimenetwork = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(ban.getRemainingTime());
+                            String lvlchat = String.valueOf(bm.getLevel(uuid, mute.getReason()));
+                            String lvlnetwork = String.valueOf(bm.getLevel(uuid, ban.getReason()));
 
                             try {
                                 if(UUIDFetcher.getName(UUID.fromString(bannerchat)) != null) {
@@ -121,13 +126,13 @@ public class CMDcheck implements Command {
                             else
                                 BanSystem.getInstance().sendConsoleMessage(networkAndChat);
 
-                        } else if (bm.isBanned(uuid, Type.CHAT)) {
+                        } else if (mute != null) {
 
                             String player = name;
-                            String banner = bm.getBanner(uuid, Type.CHAT);
-                            String reason = bm.getReason(uuid, Type.CHAT);
-                            String reamingtime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(bm.getRemainingTime(uuid, Type.CHAT));
-                            String lvl = String.valueOf(bm.getLevel(uuid, bm.getReason(uuid, Type.CHAT)));
+                            String banner = mute.getCreator();
+                            String reason = mute.getReason();
+                            String reamingtime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(mute.getRemainingTime());
+                            String lvl = String.valueOf(bm.getLevel(uuid, mute.getReason()));
 
                             try {
                                 if(UUIDFetcher.getName(UUID.fromString(banner)) != null) {
@@ -154,13 +159,14 @@ public class CMDcheck implements Command {
                             else
                                 BanSystem.getInstance().sendConsoleMessage(chat);
 
-                        } else if (bm.isBanned(uuid, Type.NETWORK)) {
+                        } else if (ban != null) {
 
                             String player = name;
-                            String banner = bm.getBanner(uuid, Type.NETWORK);
-                            String reason = bm.getReason(uuid, Type.NETWORK);
-                            String reamingtime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(bm.getRemainingTime(uuid, Type.NETWORK));
-                            int lvl = bm.getLevel(uuid, bm.getReason(uuid, Type.NETWORK));
+                            String banner = ban.getCreator();
+                            String reason = ban.getReason();
+                            String reamingtime = BanSystem.getInstance().getTimeFormatUtil()
+                                    .getFormattedRemainingTime(ban.getRemainingTime());
+                            int lvl = bm.getLevel(uuid, ban.getReason());
 
                             try {
                                 banner = UUIDFetcher.getName(UUID.fromString(banner));
@@ -186,7 +192,7 @@ public class CMDcheck implements Command {
                             user.sendMessage(configurationUtil.getMessage("Playernotbanned")
                                     .replaceAll("%player%", name));
                         }
-                    } catch (UnknownHostException | SQLException | ParseException e) {
+                    } catch (UnknownHostException | SQLException e) {
                         user.sendMessage(configurationUtil.getMessage("Check.failed"));
                         e.printStackTrace();
                     } catch (InterruptedException | ExecutionException e) {

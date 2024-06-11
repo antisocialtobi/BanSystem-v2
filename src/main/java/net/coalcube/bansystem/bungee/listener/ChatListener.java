@@ -2,6 +2,9 @@ package net.coalcube.bansystem.bungee.listener;
 
 import net.coalcube.bansystem.bungee.BanSystemBungee;
 import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.ban.Ban;
+import net.coalcube.bansystem.core.ban.BanManager;
+import net.coalcube.bansystem.core.ban.Type;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 import net.md_5.bungee.api.ProxyServer;
@@ -53,8 +56,12 @@ public class ChatListener implements Listener {
         boolean startsWithBlockedCommnad = false;
 
         if (config.getBoolean("mysql.enable") && !sql.isConnected()) {
-            p.sendMessage(configurationUtil.getMessage("NoDBConnection"));
-            return;
+            try {
+                sql.connect();
+            } catch (SQLException ex) {
+                p.sendMessage(configurationUtil.getMessage("NoDBConnection"));
+                return;
+            }
         }
         for (String s : config.getStringList("mute.blockedCommands")) {
             if (msg.startsWith(s) || msg.contains(s) || msg.equalsIgnoreCase(s)) {
@@ -64,14 +71,15 @@ public class ChatListener implements Listener {
         }
         if (startsWithBlockedCommnad || !msg.startsWith("/")) {
             try {
-                if (banManager.isBanned(uuid, Type.CHAT)) {
-                    if (banManager.getEnd(uuid, Type.CHAT) > System.currentTimeMillis()
-                            || banManager.getEnd(uuid, Type.CHAT) == -1) {
+                Ban ban = banManager.getBan(uuid, Type.CHAT);
+                if (ban != null) {
+                    if (ban.getEnd() > System.currentTimeMillis()
+                            || ban.getEnd() == -1) {
                         e.setCancelled(true);
                         p.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
-                                .replaceAll("%reason%", banManager.getReason(uuid, Type.CHAT))
+                                .replaceAll("%reason%", ban.getReason())
                                 .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                        .getFormattedRemainingTime(banManager.getRemainingTime(uuid, Type.CHAT))));
+                                        .getFormattedRemainingTime(ban.getRemainingTime())));
                     } else {
                         if (config.getBoolean("needReason.Unmute")) {
                             banManager.unMute(uuid, ProxyServer.getInstance().getConsole().getName(), "Strafe abgelaufen");
@@ -91,7 +99,7 @@ public class ChatListener implements Listener {
                         }
                     }
                 }
-            } catch (SQLException | IOException | ParseException | InterruptedException | ExecutionException throwables) {
+            } catch (SQLException | IOException | InterruptedException | ExecutionException throwables) {
                 throwables.printStackTrace();
             }
         }

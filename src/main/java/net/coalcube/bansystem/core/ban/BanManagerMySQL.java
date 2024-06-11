@@ -1,6 +1,11 @@
-package net.coalcube.bansystem.core.util;
+package net.coalcube.bansystem.core.ban;
 
+import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.sql.MySQL;
+import net.coalcube.bansystem.core.util.Config;
+import net.coalcube.bansystem.core.util.History;
+import net.coalcube.bansystem.core.util.HistoryType;
+import net.coalcube.bansystem.core.util.Log;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 
 import java.io.IOException;
@@ -14,9 +19,31 @@ import java.util.concurrent.ExecutionException;
 public class BanManagerMySQL implements BanManager {
 
     private final MySQL mysql;
+    private final Config config;
 
-    public BanManagerMySQL(MySQL mysql) {
+    public BanManagerMySQL(MySQL mysql, Config config) {
         this.mysql = mysql;
+        this.config = config;
+    }
+
+    @Override
+    public Ban getBan(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException {
+        ResultSet rs = mysql.getResult("SELECT * FROM `bans` WHERE player=" + player.toString() + " AND type=" + type + ";");
+
+        long duration = 0;
+        String reason = "",
+                creator = "",
+                ip = "";
+        Date creationDate = null;
+
+        while(rs.next()) {
+            duration = rs.getLong("duration");
+            reason = rs.getString("reason");
+            creator = rs.getString("creator");
+            ip = rs.getString("ip");
+            creationDate = rs.getTimestamp("creationdate");
+        }
+        return new Ban(player, type, reason, creator, ip, creationDate, duration);
     }
 
     public void log(String action, String creator, String target, String note) throws SQLException {
@@ -87,28 +114,30 @@ public class BanManagerMySQL implements BanManager {
         kick(player, creator.toString(), "");
     }
 
-    public void ban(UUID player, long time, UUID creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException {
-        ban(player, time, creator.toString(), type, reason, v4adress);
+    public Ban ban(UUID player, long time, UUID creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException {
+        return ban(player, time, creator.toString(), type, reason, v4adress);
     }
 
-    public void ban(UUID player, long time, UUID creator, Type type, String reason) throws IOException, SQLException {
-        ban(player, time, creator.toString(), type, reason);
+    public Ban ban(UUID player, long time, UUID creator, Type type, String reason) throws IOException, SQLException {
+        return ban(player, time, creator.toString(), type, reason);
     }
 
-    public void ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException {
+    public Ban ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException {
         mysql.update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
                 "VALUES ('" + player + "', '" + time + "', NOW(), '" + creator + "', '" + reason + "', '" + v4adress.getHostAddress() + "', '" + type + "');");
 
         mysql.update("INSERT INTO `banhistories` (`player`, `duration`, `creator`, `reason`, `ip`, `type`, `creationdate`) " +
                 "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + v4adress.getHostAddress() + "', '" + type + "', NOW());");
+        return new Ban(player, type, reason, creator, v4adress.getHostAddress(), new Date(System.currentTimeMillis()), time);
     }
 
-    public void ban(UUID player, long time, String creator, Type type, String reason) throws IOException, SQLException {
+    public Ban ban(UUID player, long time, String creator, Type type, String reason) throws IOException, SQLException {
         mysql.update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
                 "VALUES ('" + player + "', '" + time + "', NOW(), '" + creator + "', '" + reason + "', '','" + type + "');");
 
         mysql.update("INSERT INTO `banhistories` (`player`, `duration`, `creator`, `reason`, `type`, `ip`,`creationdate`) " +
                 "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + type + "', '', NOW());");
+        return new Ban(player, type, reason, creator, null, new Date(System.currentTimeMillis()), time);
     }
 
     public void unBan(UUID player, UUID unBanner, String reason) throws IOException, SQLException {
@@ -364,5 +393,20 @@ public class BanManagerMySQL implements BanManager {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public boolean isMaxBanLvl(String id, int lvl) {
+        int maxLvl = 0;
+
+        for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
+            if (Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
+        }
+        return lvl >= maxLvl;
+    }
+
+    @Override
+    public int getMaxLvl(String id) {
+        return config.getSection("IDs." + id + ".lvl").getKeys().size();
     }
 }

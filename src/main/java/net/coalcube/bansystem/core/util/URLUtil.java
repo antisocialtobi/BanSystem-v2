@@ -1,5 +1,6 @@
 package net.coalcube.bansystem.core.util;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,9 +12,9 @@ import java.nio.charset.StandardCharsets;
 public class URLUtil {
 
     private final ConfigurationUtil configurationUtil;
-    private final Config config;
+    private final YamlDocument config;
 
-    public URLUtil(ConfigurationUtil configurationUtil, Config config) {
+    public URLUtil(ConfigurationUtil configurationUtil, YamlDocument config) {
         this.configurationUtil = configurationUtil;
         this.config = config;
     }

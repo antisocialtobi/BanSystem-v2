@@ -1,8 +1,8 @@
 package net.coalcube.bansystem.bungee;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.bungee.listener.ChatListener;
 import net.coalcube.bansystem.bungee.listener.LoginListener;
-import net.coalcube.bansystem.bungee.util.BungeeConfig;
 import net.coalcube.bansystem.bungee.util.BungeeUser;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.BanManager;
@@ -12,6 +12,7 @@ import net.coalcube.bansystem.core.command.*;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.sql.MySQL;
 import net.coalcube.bansystem.core.sql.SQLite;
+import net.coalcube.bansystem.core.textcomponent.TextComponentmd5;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 import net.coalcube.bansystem.bungee.listener.PluginMessageListener;
@@ -21,13 +22,10 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
-import net.md_5.bungee.config.ConfigurationProvider;
-import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,11 +44,11 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     private Database sql;
     private MySQL mysql;
     private TimeFormatUtil timeFormatUtil;
-    private Config config, messages, blacklist;
-    private net.coalcube.bansystem.core.util.TextComponent textComponent;
+    private YamlDocument config, messages, blacklist;
+    private net.coalcube.bansystem.core.textcomponent.TextComponent textComponent;
     private String banScreen;
     private List<String> blockedCommands, ads, blockedWords, whitelist;
-    private File sqlitedatabase, configFile, messagesFile, blacklistFile;
+    private File sqlitedatabase;
     private String hostname, database, user, pw;
     private int port;
     private CommandSender console;
@@ -60,13 +58,14 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     public void onEnable() {
         super.onEnable();
 
-        ProxyServer proxy = ProxyServer.getInstance();
         instance = this;
         BanSystem.setInstance(this);
 
+        ProxyServer proxy = ProxyServer.getInstance();
         PluginManager pluginmanager = ProxyServer.getInstance().getPluginManager();
-        console = ProxyServer.getInstance().getConsole();
         UpdateChecker updatechecker = new UpdateChecker(65863);
+        console = ProxyServer.getInstance().getConsole();
+        configurationUtil = new ConfigurationUtil(config, messages, blacklist, this);
 
         console.sendMessage(new TextComponent("§c  ____                    ____                  _                      "));
         console.sendMessage(new TextComponent("§c | __ )    __ _   _ __   / ___|   _   _   ___  | |_    ___   _ __ ___  "));
@@ -75,16 +74,18 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         console.sendMessage(new TextComponent("§c |____/   \\__,_| |_| |_| |____/   \\__, | |___/  \\__|  \\___| |_| |_| |_|"));
         console.sendMessage(new TextComponent("§c                                  |___/                           §7v" + this.getVersion()));
 
-        createConfig();
-
-        configurationUtil = new ConfigurationUtil(config, messages, blacklist, configFile, messagesFile, blacklistFile, this);
-        timeFormatUtil = new TimeFormatUtil(configurationUtil);
-
         try {
-            configurationUtil.update();
+            configurationUtil.createConfigs(getDataFolder());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        config = configurationUtil.getConfig();
+        messages = configurationUtil.getMessagesConfig();
+        blacklist = configurationUtil.getBlacklist();
+
+        timeFormatUtil = new TimeFormatUtil(configurationUtil);
+
         loadConfig();
 
 
@@ -141,7 +142,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
                 e.printStackTrace();
             }
             try {
-                if(sqlite.isConnected()) {
+                if (sqlite.isConnected()) {
                     sqlite.createTables(config);
                     console.sendMessage(new TextComponent(prefix + "§7Die SQLite Tabellen wurden §2erstellt§7."));
                 }
@@ -152,11 +153,32 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             }
         }
 
+        // Clear UUID Fetcher Cache
         ProxyServer.getInstance().getScheduler().schedule(this, UUIDFetcher::clearCache, 1, 1, TimeUnit.HOURS);
 
         if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.enable"))
-            ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(
+            console.sendMessage(new TextComponent(
                     BanSystemBungee.prefix + "§cBitte trage die IP des Servers in der config.yml ein."));
+
+        idManager = new IDManager(config, sql, new File(this.getDataFolder(), "config.yml"));
+        urlUtil = new URLUtil(configurationUtil, config);
+        blacklistUtil = new BlacklistUtil(blacklist);
+        textComponent = new TextComponentmd5(configurationUtil);
+
+        // Register channel to bypass chat message signing
+        this.getProxy().registerChannel("bansys:chatsign");
+
+        init(pluginmanager);
+
+
+
+        if(sql.isConnected()) {
+            try {
+                sql.updateTables();
+            } catch (SQLException | ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
 
         console.sendMessage(new TextComponent(BanSystemBungee.prefix + "§7Das BanSystem wurde gestartet."));
@@ -171,25 +193,14 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             e.printStackTrace();
         }
 
-        idManager = new IDManager(config, sql, new File(this.getDataFolder(), "config.yml"));
-        urlUtil = new URLUtil(configurationUtil, config);
-        blacklistUtil = new BlacklistUtil(blacklist);
-        textComponent = new TextComponentmd5(configurationUtil);
-
-        // Register channel to bypass chat message signing
-        this.getProxy().registerChannel("bansys:chatsign");
-
-        init(pluginmanager);
-
-
         new Thread(() -> {
             StatisticServerSocket statisticServerSocket = new StatisticServerSocket(banManager);
 
             String enviroment = "Bungeecord";
             String serverVersion = proxy.getVersion();
 
-            statisticServerSocket.register(enviroment, serverVersion, this.getVersion());
-        }).run();
+            //statisticServerSocket.register(enviroment, serverVersion, this.getVersion());
+        }).start();
 
         /*
         WebHook webhook = new WebHook("https://discord.com/api/webhooks/1243098087862304788/4zAzjFPGPoHSIxoPbhcAFZIc-0oLHtwplZFD3klX4NSxdIL06HLBxg8r1Fo31XeO4NvC");
@@ -232,41 +243,6 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         ProxyServer.getInstance().getConsole()
                 .sendMessage(new TextComponent(prefix + "§7Das BanSystem wurde gestoppt."));
 
-    }
-
-
-    // create Config files
-    private void createConfig() {
-        try {
-            if (!this.getDataFolder().exists()) {
-                this.getDataFolder().mkdir();
-            }
-
-            configFile = new File(this.getDataFolder(), "config.yml");
-            if (!configFile.exists()) {
-                InputStream in = this.getClass().getClassLoader().getResourceAsStream("config.yml");
-                Files.copy(in, configFile.toPath());
-            }
-
-            messagesFile = new File(this.getDataFolder(), "messages.yml");
-            if (!messagesFile.exists()) {
-                InputStream in = this.getClass().getClassLoader().getResourceAsStream("messages.yml");
-                Files.copy(in, messagesFile.toPath());
-            }
-
-            blacklistFile = new File(this.getDataFolder(), "blacklist.yml");
-            if (!blacklistFile.exists()) {
-                InputStream in = this.getClass().getClassLoader().getResourceAsStream("blacklist.yml");
-                Files.copy(in, blacklistFile.toPath());
-            }
-
-            config = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile));
-            messages = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(messagesFile));
-            blacklist = new BungeeConfig(ConfigurationProvider.getProvider(YamlConfiguration.class).load(blacklistFile));
-
-        } catch (IOException e) {
-            console.sendMessage(new TextComponent(prefix + "Dateien konnten nicht erstellt werden."));
-        }
     }
 
     private void createFileDatabase() {
@@ -376,6 +352,11 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     @Override
     public ConfigurationUtil getConfigurationUtil() {
         return configurationUtil;
+    }
+
+    @Override
+    public BanManager getBanManager() {
+        return banManager;
     }
 
     @Override

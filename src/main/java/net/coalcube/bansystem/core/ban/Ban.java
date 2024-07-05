@@ -10,8 +10,10 @@ public class Ban {
     private UUID player;
     private Date creationdate;
     private long duration;
+    private String id;
 
-    public Ban(UUID player, Type type, String reason, String creator, String ip, Date creationdate, long duration) {
+    public Ban(String id, UUID player, Type type, String reason, String creator, String ip, Date creationdate, long duration) {
+        this.id = id;
         this.player = player;
         this.reason = reason;
         this.creationdate = creationdate;
@@ -21,7 +23,8 @@ public class Ban {
         this.duration = duration;
     }
 
-    public Ban(UUID player, Type type, String reason, UUID creator, String ip, Date creationdate, long duration) {
+    public Ban(String id, UUID player, Type type, String reason, UUID creator, String ip, Date creationdate, long duration) {
+        this.id = id;
         this.player = player;
         this.reason = reason;
         this.creationdate = creationdate;
@@ -93,5 +96,9 @@ public class Ban {
 
     public long getRemainingTime() {
         return (getEnd() == -1) ? -1 : getEnd() - System.currentTimeMillis();
+    }
+
+    public String getId() {
+        return id;
     }
 }

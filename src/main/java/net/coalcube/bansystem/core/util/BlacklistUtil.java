@@ -1,11 +1,13 @@
 package net.coalcube.bansystem.core.util;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
+
 import java.util.List;
 
 public class BlacklistUtil {
 
-    private Config blacklist;
-    public BlacklistUtil(Config blacklist) {
+    private YamlDocument blacklist;
+    public BlacklistUtil(YamlDocument blacklist) {
         this.blacklist = blacklist;
     }
     public boolean hasBlockedWordsContains(String message) {

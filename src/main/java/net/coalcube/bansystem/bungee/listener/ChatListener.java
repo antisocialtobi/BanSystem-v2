@@ -1,5 +1,6 @@
 package net.coalcube.bansystem.bungee.listener;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.bungee.BanSystemBungee;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.Ban;
@@ -33,12 +34,12 @@ public class ChatListener implements Listener {
     private HashMap<UUID, Long> reamingTime = new HashMap<>();
 
     private final BanManager banManager;
-    private final Config config;
+    private final YamlDocument config;
     private final BlacklistUtil blacklistUtil;
     private final Database sql;
     private final ConfigurationUtil configurationUtil;
 
-    public ChatListener(BanManager banManager, Config config, Database sql, BlacklistUtil blacklistUtil, ConfigurationUtil configurationUtil) {
+    public ChatListener(BanManager banManager, YamlDocument config, Database sql, BlacklistUtil blacklistUtil, ConfigurationUtil configurationUtil) {
         this.banManager = banManager;
         this.config = config;
         this.sql = sql;
@@ -55,7 +56,7 @@ public class ChatListener implements Listener {
         String msg = e.getMessage();
         boolean startsWithBlockedCommnad = false;
 
-        if (config.getBoolean("mysql.enable") && !sql.isConnected()) {
+        if (config.getBoolean("mysql.enable") && !sql.isConnected() && !(e.isProxyCommand() || !e.isCommand())) {
             try {
                 sql.connect();
             } catch (SQLException ex) {
@@ -82,9 +83,9 @@ public class ChatListener implements Listener {
                                         .getFormattedRemainingTime(ban.getRemainingTime())));
                     } else {
                         if (config.getBoolean("needReason.Unmute")) {
-                            banManager.unMute(uuid, ProxyServer.getInstance().getConsole().getName(), "Strafe abgelaufen");
+                            banManager.unBan(uuid, ProxyServer.getInstance().getConsole().getName(), Type.CHAT, "Strafe abgelaufen");
                         } else {
-                            banManager.unMute(uuid, ProxyServer.getInstance().getConsole().getName());
+                            banManager.unBan(uuid, ProxyServer.getInstance().getConsole().getName(), Type.CHAT);
                         }
 
                         banManager.log("Unmuted Player", ProxyServer.getInstance().getConsole().getName(), uuid.toString(), "Autounmute");
@@ -291,8 +292,8 @@ public class ChatListener implements Listener {
     private boolean isMaxBanLvl(String id, int lvl) {
         int maxLvl = 0;
 
-        for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if (Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
+        for (Object key : config.getSection("IDs." + id + ".lvl").getKeys()) {
+            if (Integer.parseInt(key.toString()) > maxLvl) maxLvl = Integer.parseInt(key.toString());
         }
         return lvl >= maxLvl;
     }
@@ -300,8 +301,8 @@ public class ChatListener implements Listener {
     private int getMaxLvl(String id) {
         int maxLvl = 0;
 
-        for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if (Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
+        for (Object key : config.getSection("IDs." + id + ".lvl").getKeys()) {
+            if (Integer.parseInt(key.toString()) > maxLvl) maxLvl = Integer.parseInt(key.toString());
         }
         return maxLvl;
     }

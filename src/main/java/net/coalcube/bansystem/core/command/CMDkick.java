@@ -28,16 +28,21 @@ public class CMDkick implements Command {
         BanSystem.getInstance().disconnect(target, configurationUtil.getMessage("Kick.noreason.screen"));
         p.sendMessage(configurationUtil.getMessage("Kick.success")
                 .replaceAll("%player%", target.getDisplayName()).replaceAll("&", "§"));
-        if (sql.isConnected()) {
-            if (p.getUniqueId() == null) {
-                banManager.kick(target.getUniqueId(), p.getName());
-                banManager.log("Kicked Player", p.getName(), target.getUniqueId().toString(), "");
-            } else {
-                banManager.kick(target.getUniqueId(), p.getUniqueId());
-                banManager.log("Kicked Player", p.getUniqueId().toString(), target.getUniqueId().toString(), "");
+
+        if (!sql.isConnected()) {
+            try {
+                sql.connect();
+            } catch (SQLException ex) {
+                p.sendMessage(configurationUtil.getMessage("NoDBConnection"));
+                return;
             }
+        }
+        if (p.getUniqueId() == null) {
+            banManager.kick(target.getUniqueId(), p.getName());
+            banManager.log("Kicked Player", p.getName(), target.getUniqueId().toString(), "");
         } else {
-            p.sendMessage(configurationUtil.getMessage("NoDBConnection"));
+            banManager.kick(target.getUniqueId(), p.getUniqueId());
+            banManager.log("Kicked Player", p.getUniqueId().toString(), target.getUniqueId().toString(), "");
         }
         for (User all : BanSystem.getInstance().getAllPlayers()) {
             if (all.hasPermission("bansys.notify") && all.getUniqueId() != p.getUniqueId()) {

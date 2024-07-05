@@ -1,5 +1,7 @@
-package net.coalcube.bansystem.core.util;
+package net.coalcube.bansystem.core.textcomponent;
 
+import net.coalcube.bansystem.core.util.ConfigurationUtil;
+import net.coalcube.bansystem.core.util.User;
 import net.md_5.bungee.api.chat.ClickEvent;
 
 public class TextComponentmd5 implements TextComponent {

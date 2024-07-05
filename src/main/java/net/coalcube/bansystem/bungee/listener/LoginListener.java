@@ -1,5 +1,6 @@
 package net.coalcube.bansystem.bungee.listener;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.bungee.BanSystemBungee;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.Ban;
@@ -32,12 +33,12 @@ import java.util.concurrent.TimeUnit;
 public class LoginListener implements Listener {
 
     private final BanManager banManager;
-    private final Config config;
+    private final YamlDocument config;
     private final Database sql;
     private final URLUtil urlUtil;
     private final ConfigurationUtil configurationUtil;
 
-    public LoginListener(BanManager banManager, Config config, Database sql, URLUtil urlUtil, ConfigurationUtil configurationUtil) {
+    public LoginListener(BanManager banManager, YamlDocument config, Database sql, URLUtil urlUtil, ConfigurationUtil configurationUtil) {
         this.banManager = banManager;
         this.config = config;
         this.sql = sql;
@@ -100,9 +101,9 @@ public class LoginListener implements Listener {
                     } else {
                         try {
                             if (config.getBoolean("needReason.Unmute")) {
-                                banManager.unBan(uuid, ProxyServer.getInstance().getConsole().getName(), "Strafe abgelaufen");
+                                banManager.unBan(uuid, ProxyServer.getInstance().getConsole().getName(), Type.NETWORK, "Strafe abgelaufen");
                             } else {
-                                banManager.unBan(uuid, ProxyServer.getInstance().getConsole().getName());
+                                banManager.unBan(uuid, ProxyServer.getInstance().getConsole().getName(), Type.NETWORK);
                             }
                             banManager.log("Unbanned Player", ProxyServer.getInstance().getConsole().getName(),
                                     con.getUniqueId().toString(), "Autounban");

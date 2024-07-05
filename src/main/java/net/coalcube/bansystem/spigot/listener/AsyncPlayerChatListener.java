@@ -1,5 +1,6 @@
 package net.coalcube.bansystem.spigot.listener;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.Ban;
 import net.coalcube.bansystem.core.ban.BanManager;
@@ -30,12 +31,12 @@ public class AsyncPlayerChatListener implements Listener {
     private HashMap<UUID, Long> reamingTime = new HashMap<>();
 
     private final BanManager banManager;
-    private final Config config;
+    private final YamlDocument config;
     private final Database sql;
     private final BlacklistUtil blacklistUtil;
     private final ConfigurationUtil configurationUtil;
 
-    public AsyncPlayerChatListener(Config config, BanManager banManager, Database sql, BlacklistUtil blacklistUtil, ConfigurationUtil configurationUtil) {
+    public AsyncPlayerChatListener(YamlDocument config, BanManager banManager, Database sql, BlacklistUtil blacklistUtil, ConfigurationUtil configurationUtil) {
         this.banManager = banManager;
         this.config = config;
         this.sql = sql;
@@ -72,9 +73,9 @@ public class AsyncPlayerChatListener implements Listener {
                 } else {
                     try {
                         if (config.getBoolean("needReason.Unmute")) {
-                            banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
+                            banManager.unBan(p.getUniqueId(), Bukkit.getConsoleSender().getName(), Type.CHAT, "Strafe abgelaufen");
                         } else {
-                            banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName());
+                            banManager.unBan(p.getUniqueId(), Bukkit.getConsoleSender().getName(), Type.CHAT);
                         }
                         banManager.log("Unmuted Player", Bukkit.getConsoleSender().getName(), p.getUniqueId().toString(), "Autounmute");
                     } catch (IOException | SQLException ioException) {

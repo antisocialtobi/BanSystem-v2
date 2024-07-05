@@ -1,6 +1,8 @@
-package net.coalcube.bansystem.core.util;
+package net.coalcube.bansystem.core.textcomponent;
 
 import com.velocitypowered.api.proxy.Player;
+import net.coalcube.bansystem.core.util.ConfigurationUtil;
+import net.coalcube.bansystem.core.util.User;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 

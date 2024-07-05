@@ -1,5 +1,6 @@
 package net.coalcube.bansystem.spigot.listener;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.Ban;
 import net.coalcube.bansystem.core.ban.BanManager;
@@ -22,11 +23,11 @@ import java.util.concurrent.ExecutionException;
 public class PlayerCommandPreprocessListener implements Listener {
 
     private static BanManager banManager;
-    private static Config config;
+    private static YamlDocument config;
     private static List<String> blockedCommands;
     private static ConfigurationUtil configurationUtil;
 
-    public PlayerCommandPreprocessListener(BanManager banManager, Config config, List<String> blockedCommands, ConfigurationUtil configurationUtil) {
+    public PlayerCommandPreprocessListener(BanManager banManager, YamlDocument config, List<String> blockedCommands, ConfigurationUtil configurationUtil) {
         PlayerCommandPreprocessListener.banManager = banManager;
         PlayerCommandPreprocessListener.config = config;
         PlayerCommandPreprocessListener.blockedCommands = blockedCommands;
@@ -69,9 +70,9 @@ public class PlayerCommandPreprocessListener implements Listener {
                         }
                     } else {
                         if (config.getBoolean("needReason.Unmute")) {
-                            banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
+                            banManager.unBan(p.getUniqueId(), Bukkit.getConsoleSender().getName(), Type.CHAT, "Strafe abgelaufen");
                         } else {
-                            banManager.unMute(p.getUniqueId(), Bukkit.getConsoleSender().getName());
+                            banManager.unBan(p.getUniqueId(), Bukkit.getConsoleSender().getName(), Type.CHAT);
                         }
                         banManager.log("Unmuted Player", Bukkit.getConsoleSender().getName(), p.getUniqueId().toString(), "Autounmute");
                         Bukkit.getConsoleSender().sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")

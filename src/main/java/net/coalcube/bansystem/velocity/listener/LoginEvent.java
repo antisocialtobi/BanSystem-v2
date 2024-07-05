@@ -4,6 +4,7 @@ import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.proxy.Player;
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.Ban;
 import net.coalcube.bansystem.core.ban.BanManager;
@@ -30,12 +31,12 @@ public class LoginEvent {
 
     private final BanSystemVelocity banSystemVelocity;
     private final BanManager banManager;
-    private final Config config;
+    private final YamlDocument config;
     private final Database sql;
     private final URLUtil urlUtil;
     private final ConfigurationUtil configurationUtil;
 
-    public LoginEvent(BanSystemVelocity banSystemVelocity, BanManager banManager, Config config, Database sql, URLUtil urlUtil, ConfigurationUtil configurationUtil) {
+    public LoginEvent(BanSystemVelocity banSystemVelocity, BanManager banManager, YamlDocument config, Database sql, URLUtil urlUtil, ConfigurationUtil configurationUtil) {
         this.banSystemVelocity = banSystemVelocity;
         this.banManager = banManager;
         this.config = config;
@@ -96,9 +97,9 @@ public class LoginEvent {
                             } else {
                                 try {
                                     if(config.getBoolean("needReason.Unmute")) {
-                                        banManager.unBan(uuid, banSystemVelocity.getConsole().getName(), "Strafe abgelaufen");
+                                        banManager.unBan(uuid, banSystemVelocity.getConsole().getName(), Type.NETWORK, "Strafe abgelaufen");
                                     } else {
-                                        banManager.unBan(uuid, banSystemVelocity.getConsole().getName());
+                                        banManager.unBan(uuid, banSystemVelocity.getConsole().getName(), Type.NETWORK);
                                     }
                                     banManager.log("Unbanned Player", banSystemVelocity.getConsole().getName(),
                                             player.getUniqueId().toString(), "Autounban");

@@ -1,5 +1,6 @@
 package net.coalcube.bansystem.core.sql;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.util.Config;
 
 import java.sql.ResultSet;
@@ -12,7 +13,7 @@ public interface Database {
     void disconnect() throws SQLException;
     void update(String qry) throws SQLException;
     ResultSet getResult(String qry) throws SQLException, ExecutionException, InterruptedException;
-    void createTables(Config config) throws SQLException, ExecutionException, InterruptedException;
+    void createTables(YamlDocument config) throws SQLException, ExecutionException, InterruptedException;
     boolean isConnected();
-
+     void updateTables() throws SQLException, ExecutionException, InterruptedException;
 }

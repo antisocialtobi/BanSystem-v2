@@ -13,7 +13,7 @@ import java.net.URL;
 public class StatisticServerSocket {
 
     private final int PORT = 8501;
-    private final String HOST = "localhost";
+    private final String HOST = "coalcube.net";
 
     private final BanManager banManager;
 

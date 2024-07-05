@@ -364,3 +364,6 @@ ip:
     - '%P%§e§l§nWARNUNG'
     - '%P%§e%player% §7ist womöglich ein 2. Account von §e%bannedaccount%§7.'
     - '%P%§8§m------------------------------'
+
+# File version (do NOT edit):
+file-version: 1

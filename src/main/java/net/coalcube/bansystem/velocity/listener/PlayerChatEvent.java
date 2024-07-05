@@ -5,6 +5,7 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.scheduler.ScheduledTask;
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.Ban;
 import net.coalcube.bansystem.core.ban.BanManager;
@@ -29,12 +30,12 @@ public class PlayerChatEvent {
 
     private final ProxyServer server;
     private final BanManager banManager;
-    private final Config config;
+    private final YamlDocument config;
     private final BlacklistUtil blacklistUtil;
     private final Database sql;
     private final ConfigurationUtil configurationUtil;
 
-    public PlayerChatEvent(ProxyServer server, BanManager banManager, Config config, Database sql, BlacklistUtil blacklistUtil, ConfigurationUtil configurationUtil) {
+    public PlayerChatEvent(ProxyServer server, BanManager banManager, YamlDocument config, Database sql, BlacklistUtil blacklistUtil, ConfigurationUtil configurationUtil) {
         this.server = server;
         this.banManager = banManager;
         this.config = config;
@@ -78,9 +79,9 @@ public class PlayerChatEvent {
                                         .getFormattedRemainingTime(mute.getRemainingTime()))));
                     } else {
                         if (config.getBoolean("needReason.Unmute")) {
-                            banManager.unMute(uuid, "CONSOLE", "Strafe abgelaufen");
+                            banManager.unBan(uuid, "CONSOLE", Type.CHAT, "Strafe abgelaufen");
                         } else {
-                            banManager.unMute(uuid, "CONSOLE");
+                            banManager.unBan(uuid, "CONSOLE", Type.CHAT);
                         }
 
                         banManager.log("Unmuted Player", "CONSOLE", uuid.toString(), "Autounmute");
@@ -112,10 +113,10 @@ public class PlayerChatEvent {
                         String id = String.valueOf(config.getInt("blacklist.words.autoban.id"));
                         String reason = config.getString("IDs." + id + ".reason");
                         int lvl;
-                        if (!isMaxBanLvl(id, banManager.getLevel(uuid, reason)))
+                        if (!banManager.isMaxBanLvl(id, banManager.getLevel(uuid, reason)))
                             lvl = banManager.getLevel(uuid, reason) + 1;
                         else
-                            lvl = getMaxLvl(id);
+                            lvl = banManager.getMaxLvl(id);
                         Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
                         if(duration != -1) duration = duration * 1000;
                         Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
@@ -181,10 +182,10 @@ public class PlayerChatEvent {
                         String id = String.valueOf(config.getInt("blacklist.ads.autoban.id"));
                         String reason = config.getString("IDs." + id + ".reason");
                         int lvl;
-                        if (!isMaxBanLvl(id, banManager.getLevel(uuid, reason)))
+                        if (!banManager.isMaxBanLvl(id, banManager.getLevel(uuid, reason)))
                             lvl = banManager.getLevel(uuid, reason) + 1;
                         else
-                            lvl = getMaxLvl(id);
+                            lvl = banManager.getMaxLvl(id);
                         Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
                         if(duration != -1) duration = duration * 1000;
                         Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
@@ -272,22 +273,4 @@ public class PlayerChatEvent {
             }
         }
     }
-    private boolean isMaxBanLvl(String id, int lvl) {
-        int maxLvl = 0;
-
-        for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if (Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
-        }
-        return lvl >= maxLvl;
-    }
-
-    private int getMaxLvl(String id) {
-        int maxLvl = 0;
-
-        for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if (Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
-        }
-        return maxLvl;
-    }
-
 }

@@ -1,5 +1,6 @@
 package net.coalcube.bansystem.spigot;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.BanManager;
 import net.coalcube.bansystem.core.ban.BanManagerMySQL;
@@ -8,16 +9,16 @@ import net.coalcube.bansystem.core.command.*;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.sql.MySQL;
 import net.coalcube.bansystem.core.sql.SQLite;
+import net.coalcube.bansystem.core.textcomponent.TextComponent;
+import net.coalcube.bansystem.core.textcomponent.TextComponentmd5;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 import net.coalcube.bansystem.spigot.listener.AsyncPlayerChatListener;
 import net.coalcube.bansystem.spigot.listener.PlayerCommandPreprocessListener;
 import net.coalcube.bansystem.spigot.listener.PlayerConnectionListener;
-import net.coalcube.bansystem.spigot.util.SpigotConfig;
 import net.coalcube.bansystem.spigot.util.SpigotUser;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.*;
 import org.bukkit.plugin.Plugin;
@@ -27,7 +28,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,11 +45,11 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     private Database sql;
     private MySQL mysql;
     private TimeFormatUtil timeFormatUtil;
-    private Config config, messages, blacklist;
+    private YamlDocument config, messages, blacklist;
     private TextComponent textComponent;
     private static String Banscreen;
     private static List<String> blockedCommands, ads, blockedWords;
-    private File sqlitedatabase, configFile, messagesFile, blacklistFile;
+    private File sqlitedatabase;
     private String hostname, database, user, pw;
     private int port;
     private CommandSender console;
@@ -62,8 +62,9 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         BanSystem.setInstance(this);
 
         instance = this;
-        PluginManager pluginmanager = Bukkit.getPluginManager();
         console = Bukkit.getConsoleSender();
+        PluginManager pluginmanager = Bukkit.getPluginManager();
+        configurationUtil = new ConfigurationUtil(config, messages, blacklist, this);
         UpdateChecker updatechecker = new UpdateChecker(65863);
 
         console.sendMessage("§c  ____                    ____                  _                      ");
@@ -73,9 +74,16 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         console.sendMessage("§c |____/   \\__,_| |_| |_| |____/   \\__, | |___/  \\__|  \\___| |_| |_| |_|");
         console.sendMessage("§c                                  |___/                           §7v" + this.getVersion());
 
-        createConfig();
+        try {
+            configurationUtil.createConfigs(getDataFolder());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-        configurationUtil = new ConfigurationUtil(config, messages, blacklist, configFile, messagesFile, blacklistFile, this);
+        config = configurationUtil.getConfig();
+        messages = configurationUtil.getMessagesConfig();
+        blacklist = configurationUtil.getBlacklist();
+
         timeFormatUtil = new TimeFormatUtil(configurationUtil);
         try {
             configurationUtil.update();
@@ -198,7 +206,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
 
     // create Config files
-    private void createConfig() {
+    /*private void createConfig() {
         try {
             if(!this.getDataFolder().exists()) {
                 this.getDataFolder().mkdir();
@@ -231,7 +239,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         } catch (IOException e) {
             System.err.println("[Bansystem] Dateien konnten nicht erstellt werden.");
         }
-    }
+    }*/
 
     private void createFileDatabase() {
         try {
@@ -375,7 +383,8 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         return configurationUtil;
     }
 
-    public static BanManager getBanmanager() {
+    @Override
+    public BanManager getBanManager() {
         return banManager;
     }
 

@@ -12,6 +12,7 @@ import com.velocitypowered.api.plugin.PluginManager;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.BanManager;
 import net.coalcube.bansystem.core.ban.BanManagerMySQL;
@@ -20,18 +21,18 @@ import net.coalcube.bansystem.core.command.*;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.sql.MySQL;
 import net.coalcube.bansystem.core.sql.SQLite;
+import net.coalcube.bansystem.core.textcomponent.TextComponent;
+import net.coalcube.bansystem.core.textcomponent.TextComponentKyori;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 import net.coalcube.bansystem.velocity.listener.LoginEvent;
 import net.coalcube.bansystem.velocity.listener.PlayerChatEvent;
-import net.coalcube.bansystem.velocity.util.VelocityConfig;
 import net.coalcube.bansystem.velocity.util.VelocityUser;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.slf4j.Logger;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.*;
@@ -56,7 +57,7 @@ public class BanSystemVelocity implements BanSystem {
     private Database sql;
     private MySQL mysql;
     private TimeFormatUtil timeFormatUtil;
-    private Config config, messages, blacklist;
+    private YamlDocument config, messages, blacklist;
     private TextComponent textComponent;
     private static String Banscreen;
     private static List<String> blockedCommands, ads, blockedWords;
@@ -73,12 +74,13 @@ public class BanSystemVelocity implements BanSystem {
     }
 
     public void onEnable() {
-
         BanSystem.setInstance(this);
 
         PluginManager pluginmanager = server.getPluginManager();
         UpdateChecker updatechecker = new UpdateChecker(65863);
         lcs = LegacyComponentSerializer.legacySection();
+        configurationUtil = new ConfigurationUtil(config, messages, blacklist, this);
+        timeFormatUtil = new TimeFormatUtil(configurationUtil);
 
         sendConsoleMessage("§c  ____                    ____                  _                      ");
         sendConsoleMessage("§c | __ )    __ _   _ __   / ___|   _   _   ___  | |_    ___   _ __ ___  ");
@@ -87,17 +89,16 @@ public class BanSystemVelocity implements BanSystem {
         sendConsoleMessage("§c |____/   \\__,_| |_| |_| |____/   \\__, | |___/  \\__|  \\___| |_| |_| |_|");
         sendConsoleMessage("§c                                  |___/                           §7v" + this.getVersion());
 
-        createConfig();
-
-        configurationUtil = new ConfigurationUtil(config, messages, blacklist, configFile, messagesFile, blacklistFile, this);
-        timeFormatUtil = new TimeFormatUtil(configurationUtil);
-        /*
         try {
-            configurationUtil.update();
+            configurationUtil.createConfigs(dataDirectory.toFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        */
+
+        config = configurationUtil.getConfig();
+        messages = configurationUtil.getMessagesConfig();
+        blacklist = configurationUtil.getBlacklist();
+
         loadConfig();
 
         // Set mysql instance
@@ -204,7 +205,7 @@ public class BanSystemVelocity implements BanSystem {
 
 
     // create Config files
-    private void createConfig() {
+    /*private void createConfig() {
         try {
             if(!dataDirectory.toFile().exists()) {
                 dataDirectory.toFile().mkdir();
@@ -237,7 +238,7 @@ public class BanSystemVelocity implements BanSystem {
         } catch (IOException e) {
             System.err.println("[Bansystem] Dateien konnten nicht erstellt werden.");
         }
-    }
+    }*/
 
     private void createFileDatabase() {
         try {
@@ -420,7 +421,8 @@ public class BanSystemVelocity implements BanSystem {
         return configurationUtil;
     }
 
-    public static BanManager getBanmanager() {
+    @Override
+    public BanManager getBanManager() {
         return banManager;
     }
 

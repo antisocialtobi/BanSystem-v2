@@ -1,5 +1,6 @@
 package net.coalcube.bansystem.core.ban;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.sql.MySQL;
 import net.coalcube.bansystem.core.util.Config;
@@ -19,31 +20,61 @@ import java.util.concurrent.ExecutionException;
 public class BanManagerMySQL implements BanManager {
 
     private final MySQL mysql;
-    private final Config config;
+    private final YamlDocument config;
 
-    public BanManagerMySQL(MySQL mysql, Config config) {
+    public BanManagerMySQL(MySQL mysql, YamlDocument config) {
         this.mysql = mysql;
         this.config = config;
     }
 
     @Override
     public Ban getBan(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException {
-        ResultSet rs = mysql.getResult("SELECT * FROM `bans` WHERE player=" + player.toString() + " AND type=" + type + ";");
+        ResultSet rs = mysql.getResult("SELECT * FROM `bans` WHERE player='" + player.toString() + "' AND type='" + type + "';");
+
+        long duration = 0;
+        String reason = "",
+                creator = "",
+                ip = "",
+                id = "";
+        Date creationDate = null;
+
+        while(rs.next()) {
+            id = rs.getString("id");
+            duration = rs.getLong("duration");
+            reason = rs.getString("reason");
+            creator = rs.getString("creator");
+            ip = rs.getString("ip");
+            creationDate = rs.getTimestamp("creationdate");
+            return new Ban(id, player, type, reason, creator, ip, creationDate, duration);
+        }
+        return null;
+    }
+
+    @Override
+    public Ban getBan(String id) throws SQLException, ExecutionException, InterruptedException {
+        ResultSet rs = mysql.getResult("SELECT * FROM `bans` WHERE id='" + id + "';");
 
         long duration = 0;
         String reason = "",
                 creator = "",
                 ip = "";
         Date creationDate = null;
+        UUID player = null;
+        Type type = null;
 
         while(rs.next()) {
+            id = rs.getString("id");
             duration = rs.getLong("duration");
             reason = rs.getString("reason");
             creator = rs.getString("creator");
             ip = rs.getString("ip");
             creationDate = rs.getTimestamp("creationdate");
+            player = UUID.fromString(rs.getString("player"));
+            type = Type.valueOf(rs.getString("type"));
+
+            return new Ban(id, player, type, reason, creator, ip, creationDate, duration);
         }
-        return new Ban(player, type, reason, creator, ip, creationDate, duration);
+        return null;
     }
 
     public void log(String action, String creator, String target, String note) throws SQLException {
@@ -114,66 +145,81 @@ public class BanManagerMySQL implements BanManager {
         kick(player, creator.toString(), "");
     }
 
-    public Ban ban(UUID player, long time, UUID creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException {
+    public Ban ban(UUID player, long time, UUID creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException, ExecutionException, InterruptedException {
         return ban(player, time, creator.toString(), type, reason, v4adress);
     }
 
-    public Ban ban(UUID player, long time, UUID creator, Type type, String reason) throws IOException, SQLException {
+    public Ban ban(UUID player, long time, UUID creator, Type type, String reason) throws IOException, SQLException, ExecutionException, InterruptedException {
         return ban(player, time, creator.toString(), type, reason);
     }
 
-    public Ban ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException {
-        mysql.update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
-                "VALUES ('" + player + "', '" + time + "', NOW(), '" + creator + "', '" + reason + "', '" + v4adress.getHostAddress() + "', '" + type + "');");
+    public Ban ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException, ExecutionException, InterruptedException {
+        String id = generateNewID();
 
-        mysql.update("INSERT INTO `banhistories` (`player`, `duration`, `creator`, `reason`, `ip`, `type`, `creationdate`) " +
-                "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + v4adress.getHostAddress() + "', '" + type + "', NOW());");
-        return new Ban(player, type, reason, creator, v4adress.getHostAddress(), new Date(System.currentTimeMillis()), time);
+        mysql.update("INSERT INTO `bans` (`id`, `player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
+                "VALUES ('" + id + "', '" + player + "', '" + time + "', datetime('now', 'localtime'), '" + creator + "', '" + reason + "', '" + v4adress.getHostAddress() + "', '" + type + "');");
+
+        mysql.update("INSERT INTO `banhistories` (`id`, `player`, `duration`, `creator`, `reason`, `ip`, `type`, `creationdate`) " +
+                "VALUES ('" + id + "', '" + player + "', '" + time + "', '" + creator + "', '" + reason + "', " +
+                "'" + v4adress.getHostName() + "', '" + type + "', datetime('now', 'localtime'));");
+        return new Ban(id, player, type, reason, creator, v4adress.getHostAddress(), new Date(System.currentTimeMillis()), time);
     }
 
-    public Ban ban(UUID player, long time, String creator, Type type, String reason) throws IOException, SQLException {
-        mysql.update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
-                "VALUES ('" + player + "', '" + time + "', NOW(), '" + creator + "', '" + reason + "', '','" + type + "');");
+    public Ban ban(UUID player, long time, String creator, Type type, String reason) throws IOException, SQLException, ExecutionException, InterruptedException {
+        String id = generateNewID();
 
-        mysql.update("INSERT INTO `banhistories` (`player`, `duration`, `creator`, `reason`, `type`, `ip`,`creationdate`) " +
-                "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + type + "', '', NOW());");
-        return new Ban(player, type, reason, creator, null, new Date(System.currentTimeMillis()), time);
+        mysql.update("INSERT INTO `bans` (`id`, `player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
+                "VALUES ('" + id + "', '" + player + "', '" + time + "', datetime('now', 'localtime')," +
+                " '" + creator + "', '" + reason + "', '','" + type + "');");
+
+        mysql.update("INSERT INTO `banhistories` (`id`, `player`, `duration`, `creator`, `reason`, `type`, `ip`,`creationdate`) " +
+                "VALUES ('" + id + "', '" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + type + "', '', datetime('now', 'localtime'));");
+        return new Ban(id, player, type, reason, creator, null, new Date(System.currentTimeMillis()), time);
     }
 
-    public void unBan(UUID player, UUID unBanner, String reason) throws IOException, SQLException {
-        unBan(player, unBanner.toString(), reason);
+    @Override
+    public void unBan(String id, String unBanner, String reason) throws SQLException, ExecutionException, InterruptedException {
+        Ban ban = getBan(id);
+        mysql.update("DELETE FROM `bans` WHERE id = '" + id + "';");
+        mysql.update("INSERT INTO `unbans` (`id`, `player`, `unbanner`, `creationdate`, `reason`, `type`) " +
+                "VALUES ('" + id + "', '" + ban.getPlayer() + "', '" + unBanner + "', NOW(), '" + reason + "','" + ban.getType() + "');");
     }
 
-    public void unBan(UUID player, String unBanner, String reason) throws IOException, SQLException {
-        mysql.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.NETWORK + "';");
+    @Override
+    public void unBan(String id, UUID unBanner, String reason) throws SQLException, ExecutionException, InterruptedException {
+        unBan(id, unBanner.toString(), reason);
+    }
+
+    @Override
+    public void unBan(String id, String unBanner) throws SQLException, ExecutionException, InterruptedException {
+        unBan(id, unBanner, "");
+    }
+
+    @Override
+    public void unBan(String id, UUID unBanner) throws SQLException, ExecutionException, InterruptedException {
+        unBan(id, unBanner.toString(), "");
+    }
+
+    @Override
+    public void unBan(UUID player, UUID unBanner, Type type, String reason) throws IOException, SQLException {
+        unBan(player, unBanner.toString(), type, reason);
+    }
+
+    @Override
+    public void unBan(UUID player, String unBanner, Type type, String reason) throws IOException, SQLException {
+        mysql.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "';");
         mysql.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `reason`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', NOW(), '" + reason + "','" + Type.NETWORK + "');");
+                "VALUES ('" + player + "', '" + unBanner + "', NOW(), '" + reason + "','" + type + "');");
     }
 
-    public void unBan(UUID player, UUID unBanner) throws IOException, SQLException {
-        unBan(player, unBanner.toString());
+    @Override
+    public void unBan(UUID player, UUID unBanner, Type type) throws IOException, SQLException {
+        unBan(player, unBanner.toString(), type);
     }
 
-    public void unBan(UUID player, String unBanner) throws IOException, SQLException {
-        unBan(player, unBanner, "");
-    }
-
-    public void unMute(UUID player, UUID unBanner, String reason) throws IOException, SQLException {
-        unMute(player, unBanner.toString(), reason);
-    }
-
-    public void unMute(UUID player, String unBanner, String reason) throws IOException, SQLException {
-        mysql.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.CHAT + "'");
-        mysql.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `reason`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', NOW(), '" + reason + "','" + Type.CHAT + "');");
-    }
-
-    public void unMute(UUID player, UUID unBanner) throws IOException, SQLException {
-        unMute(player, unBanner.toString());
-    }
-
-    public void unMute(UUID player, String unBanner) throws IOException, SQLException {
-        unMute(player, unBanner, "");
+    @Override
+    public void unBan(UUID player, String unBanner, Type type) throws IOException, SQLException {
+        unBan(player, unBanner, type, "");
     }
 
     public void deleteHistory(UUID player) throws SQLException {
@@ -399,8 +445,8 @@ public class BanManagerMySQL implements BanManager {
     public boolean isMaxBanLvl(String id, int lvl) {
         int maxLvl = 0;
 
-        for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if (Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
+        for (Object key : config.getSection("IDs." + id + ".lvl").getKeys()) {
+            if (Integer.parseInt(key.toString()) > maxLvl) maxLvl = Integer.parseInt(key.toString());
         }
         return lvl >= maxLvl;
     }
@@ -408,5 +454,25 @@ public class BanManagerMySQL implements BanManager {
     @Override
     public int getMaxLvl(String id) {
         return config.getSection("IDs." + id + ".lvl").getKeys().size();
+    }
+
+    @Override
+    public String generateNewID() throws SQLException, ExecutionException, InterruptedException {
+        String uuid = UUID.randomUUID().toString();
+        String id = "";
+        int i = 0;
+        for(String character :  uuid.split("")) {
+            if(i >= 5) {
+                break;
+            }
+            id = id + character;
+            i++;
+        }
+        ResultSet rs = mysql.getResult("SELECT id FROM `banhistories` WHERE id='" + id + "'");
+        while(rs.next()) {
+            return generateNewID();
+        }
+
+        return id;
     }
 }

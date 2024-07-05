@@ -1,5 +1,6 @@
 package net.coalcube.bansystem.core.command;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.Ban;
 import net.coalcube.bansystem.core.ban.BanManager;
@@ -19,8 +20,8 @@ import java.util.concurrent.ExecutionException;
 public class CMDban implements Command {
 
     private final BanManager banmanager;
-    private final Config config;
-    private final Config messages;
+    private final YamlDocument config;
+    private final YamlDocument messages;
     private final Database sql;
     private final ConfigurationUtil configurationUtil;
 
@@ -38,7 +39,7 @@ public class CMDban implements Command {
     private ArrayList<Integer> ids;
 
 
-    public CMDban(BanManager banmanager, Config config, Config messages, Database sql, ConfigurationUtil configurationUtil) {
+    public CMDban(BanManager banmanager, YamlDocument config, YamlDocument messages, Database sql, ConfigurationUtil configurationUtil) {
         this.banmanager = banmanager;
         this.config = config;
         this.messages = messages;
@@ -61,15 +62,19 @@ public class CMDban implements Command {
             return;
         }
 
-        for (String key : config.getSection("IDs").getKeys()) {
-            ids.add(Integer.valueOf(key));
+        for (Object key : config.getSection("IDs").getKeys()) {
+            ids.add(Integer.valueOf(key.toString()));
         }
 
         Collections.sort(ids);
 
-        if (config.getBoolean("mysql.enable") && !sql.isConnected()) {
-            user.sendMessage(configurationUtil.getMessage("NoDBConnection"));
-            return;
+        if (!sql.isConnected()) {
+            try {
+                sql.connect();
+            } catch (SQLException ex) {
+                user.sendMessage(configurationUtil.getMessage("NoDBConnection"));
+                return;
+            }
         }
 
         if (args.length <= 1) {
@@ -237,6 +242,8 @@ public class CMDban implements Command {
                     } catch (IOException | SQLException e) {
                         user.sendMessage(configurationUtil.getMessage("Ban.failed"));
                         e.printStackTrace();
+                    } catch (ExecutionException | InterruptedException e) {
+                        throw new RuntimeException(e);
                     }
 
                     String banSuccess = configurationUtil.getMessage("Ban.success")
@@ -326,8 +333,8 @@ public class CMDban implements Command {
 
 
             //set duration
-            for (String lvlkey : config.getSection("IDs." + id + ".lvl").getKeys()) {
-                if (Integer.parseInt(lvlkey) == lvl) {
+            for (Object lvlkey : config.getSection("IDs." + id + ".lvl").getKeys()) {
+                if (Integer.parseInt(lvlkey.toString()) == lvl) {
                     duration = config.getLong("IDs." + id + ".lvl." + lvlkey + ".duration");
                     duration = (duration == -1) ? duration : duration * 1000;
                     type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvlkey + ".type"));

@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutionException;
 public interface BanManager {
 
     Ban getBan(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException;
+    Ban getBan(String id) throws SQLException, ExecutionException, InterruptedException;
     void log(String action, String creator, String target, String note) throws SQLException;
     Log getLog(int id) throws SQLException, ExecutionException, InterruptedException, ParseException;
     List<Log> getAllLogs() throws SQLException, ExecutionException, InterruptedException, ParseException;
@@ -23,18 +24,18 @@ public interface BanManager {
     void kick(UUID player, UUID creator) throws SQLException;
     void kick(UUID player, String creator, String reason) throws SQLException;
     void kick(UUID player, UUID creator, String reason) throws SQLException;
-    Ban ban(UUID player, long time, UUID creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException;
-    Ban ban(UUID player, long time, UUID creator, Type type, String reason) throws IOException, SQLException;
-    Ban ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException;
-    Ban ban(UUID player, long time, String creator, Type type, String reason) throws IOException, SQLException;
-    void unBan(UUID player, UUID unBanner, String reason) throws IOException, SQLException;
-    void unBan(UUID player, String unBanner, String reason) throws IOException, SQLException;
-    void unBan(UUID player, UUID unBanner) throws IOException, SQLException;
-    void unBan(UUID player, String unBanner) throws IOException, SQLException;
-    void unMute(UUID player, UUID unBanner, String reason) throws IOException, SQLException;
-    void unMute(UUID player, String unBanner, String reason) throws IOException, SQLException;
-    void unMute(UUID player, UUID unBanner) throws IOException, SQLException;
-    void unMute(UUID player, String unBanner) throws IOException, SQLException;
+    Ban ban(UUID player, long time, UUID creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException, ExecutionException, InterruptedException;
+    Ban ban(UUID player, long time, UUID creator, Type type, String reason) throws IOException, SQLException, ExecutionException, InterruptedException;
+    Ban ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException, ExecutionException, InterruptedException;
+    Ban ban(UUID player, long time, String creator, Type type, String reason) throws IOException, SQLException, ExecutionException, InterruptedException;
+    void unBan(String id, String unBanner, String reason) throws SQLException, ExecutionException, InterruptedException;
+    void unBan(String id, UUID unBanner, String reason) throws SQLException, ExecutionException, InterruptedException;
+    void unBan(String id, String unBanner) throws SQLException, ExecutionException, InterruptedException;
+    void unBan(String id, UUID unBanner) throws SQLException, ExecutionException, InterruptedException;
+    void unBan(UUID player, UUID unBanner, Type type, String reason) throws IOException, SQLException, ExecutionException, InterruptedException;
+    void unBan(UUID player, String unBanner, Type type, String reason) throws IOException, SQLException, ExecutionException, InterruptedException;
+    void unBan(UUID player, UUID unBanner, Type type) throws IOException, SQLException, ExecutionException, InterruptedException;
+    void unBan(UUID player, String unBanner, Type type) throws IOException, SQLException, ExecutionException, InterruptedException;
     void deleteHistory(UUID player) throws SQLException;
     void setIP(UUID player, InetAddress address) throws SQLException;
     void saveBedrockUser(UUID uuid, String username) throws SQLException;
@@ -57,4 +58,5 @@ public interface BanManager {
     boolean isSetIP(UUID player) throws SQLException, ExecutionException, InterruptedException;
     boolean isMaxBanLvl(String id, int lvl);
     int getMaxLvl(String id);
+    String generateNewID() throws SQLException, ExecutionException, InterruptedException;
 }

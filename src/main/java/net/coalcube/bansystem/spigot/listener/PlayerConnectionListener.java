@@ -1,5 +1,6 @@
 package net.coalcube.bansystem.spigot.listener;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.Ban;
 import net.coalcube.bansystem.core.ban.BanManager;
@@ -13,8 +14,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerPreLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
@@ -23,7 +24,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -33,13 +33,13 @@ import java.util.concurrent.ExecutionException;
 public class PlayerConnectionListener implements Listener {
 
     private final BanManager banManager;
-    private final Config config;
+    private final YamlDocument config;
     private final String banScreenRow;
     private final Plugin instance;
     private final URLUtil urlUtil;
     private final ConfigurationUtil configurationUtil;
 
-    public PlayerConnectionListener(BanManager banManager, Config config, String banScreen, Plugin instance, URLUtil urlUtil, ConfigurationUtil configurationUtil) {
+    public PlayerConnectionListener(BanManager banManager, YamlDocument config, String banScreen, Plugin instance, URLUtil urlUtil, ConfigurationUtil configurationUtil) {
         this.banManager = banManager;
         this.config = config;
         this.banScreenRow = banScreen;
@@ -49,7 +49,7 @@ public class PlayerConnectionListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPreLogin(PlayerPreLoginEvent e) {
+    public void onPreLogin(AsyncPlayerPreLoginEvent e) {
         boolean isCancelled = false;
         UUID uuid = e.getUniqueId();
         Database sql = BanSystem.getInstance().getSQL();
@@ -97,9 +97,9 @@ public class PlayerConnectionListener implements Listener {
                         // autounban
                         try {
                             if (config.getBoolean("needReason.Unban")) {
-                                banManager.unBan(uuid, Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
+                                banManager.unBan(uuid, Bukkit.getConsoleSender().getName(), Type.NETWORK, "Strafe abgelaufen");
                             } else {
-                                banManager.unBan(uuid, Bukkit.getConsoleSender().getName());
+                                banManager.unBan(uuid, Bukkit.getConsoleSender().getName(), Type.NETWORK);
                             }
                             banManager.log("Unbanned Player", Bukkit.getConsoleSender().getName(), uuid.toString(), "Autounban");
                         } catch (IOException ex) {
@@ -144,13 +144,12 @@ public class PlayerConnectionListener implements Listener {
                                 long time = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
                                 Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
 
-
                                 try {
                                     banManager.ban(uuid, time, Bukkit.getConsoleSender().getName(),
                                             type, reason, e.getAddress());
                                     banManager.log("Banned Player", Bukkit.getConsoleSender().getName(),
                                             uuid.toString(), "VPN Autoban");
-                                } catch (IOException | SQLException ioException) {
+                                } catch (IOException | SQLException | ExecutionException | InterruptedException ioException) {
                                     ioException.printStackTrace();
                                 }
                             } else {
@@ -229,7 +228,7 @@ public class PlayerConnectionListener implements Listener {
                         try {
                             reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
                                     ban.getRemainingTime());
-                            Config messages = configurationUtil.getMessagesConfig();
+                            YamlDocument messages = configurationUtil.getMessagesConfig();
                             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(messages.getString("DateTimePattern"));
                             String enddate = simpleDateFormat.format(new Date(ban.getEnd()));
 

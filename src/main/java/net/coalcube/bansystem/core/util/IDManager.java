@@ -1,5 +1,6 @@
 package net.coalcube.bansystem.core.util;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.ban.Type;
 import net.coalcube.bansystem.core.sql.Database;
 
@@ -14,11 +15,11 @@ import java.util.concurrent.ExecutionException;
 
 public class IDManager {
 
-    private final Config config;
+    private final YamlDocument config;
     private final Database database;
     private final File configFile;
 
-    public IDManager(Config config, Database database, File configfile) {
+    public IDManager(YamlDocument config, Database database, File configfile) {
         this.config = config;
         this.database = database;
         this.configFile = configfile;
@@ -36,7 +37,7 @@ public class IDManager {
     }
 
     public void deleteID(String id) throws SQLException, IOException {
-        config.set("IDs." + id, null);
+        config.remove("IDs." + id);
         config.save(configFile);
         if(isMySQLused())
             database.update("DELETE FROM `ids` WHERE id='" + id + "';");
@@ -56,7 +57,7 @@ public class IDManager {
     }
 
     public void removeLvl(String id, String lvl) throws IOException, SQLException, ExecutionException, InterruptedException {
-        config.set("IDs." + id + ".lvl." + lvl, null);
+        config.remove("IDs." + id + ".lvl." + lvl);
         config.save(configFile);
         if(isMySQLused())
             database.update("DELETE FROM `ids` WHERE id='" + id + "' AND lvl='" + lvl + "';");
@@ -98,10 +99,10 @@ public class IDManager {
         HashMap<String, Type> type = new HashMap();
         HashMap<String, Long> duration = new HashMap();
 
-        for(String lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            lvls.add(lvl);
-            type.put(lvl, Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type")));
-            duration.put(lvl, config.getLong("IDs." + id + ".lvl." + lvl + ".duration"));
+        for(Object lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
+            lvls.add(lvl.toString());
+            type.put(lvl.toString(), Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type")));
+            duration.put(lvl.toString(), config.getLong("IDs." + id + ".lvl." + lvl + ".duration"));
         }
         config.set("IDs." + id + ".lvl", null);
 
@@ -161,9 +162,9 @@ public class IDManager {
 
     public int getLastLvl(String id) {
         int lastLvl = 0;
-        for(String lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if(lastLvl < Integer.valueOf(lvl))
-                lastLvl = Integer.valueOf(lvl);
+        for(Object lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
+            if(lastLvl < Integer.valueOf(lvl.toString()))
+                lastLvl = Integer.valueOf(lvl.toString());
         }
         return lastLvl;
     }
@@ -182,7 +183,7 @@ public class IDManager {
 
     private int getHighestLvl(String id) {
         int count = 0;
-        for (String lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
+        for (Object lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
             count++;
         }
         return count;

@@ -1,10 +1,12 @@
 package net.coalcube.bansystem.core.command;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.BanManager;
 import net.coalcube.bansystem.core.ban.Type;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.sql.MySQL;
+import net.coalcube.bansystem.core.textcomponent.TextComponent;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 
@@ -22,14 +24,14 @@ public class CMDbansystem implements Command {
 
     private final Database sql;
     private final MySQL mySQL;
-    private final Config config;
+    private final YamlDocument config;
     private final IDManager idManager;
     private final TimeFormatUtil timeFormatUtil;
     private final BanManager banManager;
     private final ConfigurationUtil configurationUtil;
     private final TextComponent textComponent;
 
-    public CMDbansystem(Config config, Database sql, MySQL mysql, IDManager idManager, TimeFormatUtil timeFormatUtil, BanManager banManager, ConfigurationUtil configurationUtil, TextComponent textComponent) {
+    public CMDbansystem(YamlDocument config, Database sql, MySQL mysql, IDManager idManager, TimeFormatUtil timeFormatUtil, BanManager banManager, ConfigurationUtil configurationUtil, TextComponent textComponent) {
         this.config = config;
         this.sql = sql;
         this.mySQL = mysql;
@@ -43,6 +45,14 @@ public class CMDbansystem implements Command {
     @Override
     public void execute(User user, String[] args) {
         if (user.hasPermission("bansys.bansys")) {
+            if (!sql.isConnected()) {
+                try {
+                    sql.connect();
+                } catch (SQLException ex) {
+                    user.sendMessage(configurationUtil.getMessage("NoDBConnection"));
+                    return;
+                }
+            }
             if (args.length == 0) {
                 user.sendMessage(configurationUtil.getMessage("bansystem.usage.help"));
                 return;
@@ -577,7 +587,7 @@ public class CMDbansystem implements Command {
                             else
                                 BanSystem.getInstance().sendConsoleMessage(header);
 
-                            for(String lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
+                            for(Object lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
                                 long rawduration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
 
                                 if(rawduration != -1)
@@ -585,7 +595,7 @@ public class CMDbansystem implements Command {
 
                                 String duration = timeFormatUtil.getFormattedRemainingTime(rawduration);
                                 String lvls = configurationUtil.getMessage("bansystem.ids.edit.show.lvls")
-                                        .replaceAll("%lvl%", lvl)
+                                        .replaceAll("%lvl%", lvl.toString())
                                         .replaceAll("%duration%", duration)
                                         .replaceAll("%type%",
                                                 config.getString("IDs." + id + ".lvl." + lvl + ".type"))

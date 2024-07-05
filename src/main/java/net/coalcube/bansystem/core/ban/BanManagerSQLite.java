@@ -1,5 +1,6 @@
 package net.coalcube.bansystem.core.ban;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.sql.SQLite;
 import net.coalcube.bansystem.core.util.Config;
 import net.coalcube.bansystem.core.util.History;
@@ -24,9 +25,9 @@ public class BanManagerSQLite implements BanManager {
 
     private final SQLite sqlite;
     SimpleDateFormat simpleDateFormat;
-    private final Config config;
+    private final YamlDocument config;
 
-    public BanManagerSQLite(SQLite sqlite, Config config) {
+    public BanManagerSQLite(SQLite sqlite, YamlDocument config) {
         this.sqlite = sqlite;
         simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 2024-05-23 15:44:17"
         this.config = config;
@@ -34,12 +35,13 @@ public class BanManagerSQLite implements BanManager {
 
     @Override
     public Ban getBan(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException {
-        ResultSet rs = sqlite.getResult("SELECT * FROM `bans` WHERE player=" + player.toString() + " AND type=" + type + ";");
+        ResultSet rs = sqlite.getResult("SELECT * FROM `bans` WHERE player='" + player.toString() + "' AND type='" + type + "';");
 
         long duration = 0;
         String reason = "",
                 creator = "",
-                ip = "";
+                ip = "",
+                id = "";
         Date creationDate = null;
 
         while(rs.next()) {
@@ -48,7 +50,36 @@ public class BanManagerSQLite implements BanManager {
             creator = rs.getString("creator");
             ip = rs.getString("ip");
             creationDate = rs.getTimestamp("creationdate");
-            return new Ban(player, type, reason, creator, ip, creationDate, duration);
+            id = rs.getString("id");
+
+            return new Ban(id, player, type, reason, creator, ip, creationDate, duration);
+        }
+        return null;
+    }
+
+    @Override
+    public Ban getBan(String id) throws SQLException, ExecutionException, InterruptedException {
+        ResultSet rs = sqlite.getResult("SELECT * FROM `bans` WHERE id='" + id + "';");
+
+        long duration = 0;
+        String reason = "",
+                creator = "",
+                ip = "";
+        Date creationDate = null;
+        UUID player = null;
+        Type type = null;
+
+        while(rs.next()) {
+            id = rs.getString("id");
+            duration = rs.getLong("duration");
+            reason = rs.getString("reason");
+            creator = rs.getString("creator");
+            ip = rs.getString("ip");
+            creationDate = rs.getTimestamp("creationdate");
+            player = UUID.fromString(rs.getString("player"));
+            type = Type.valueOf(rs.getString("type"));
+
+            return new Ban(id, player, type, reason, creator, ip, creationDate, duration);
         }
         return null;
     }
@@ -120,68 +151,83 @@ public class BanManagerSQLite implements BanManager {
         kick(player, creator.toString(), "");
     }
 
-    public Ban ban(UUID player, long time, UUID creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException {
+    public Ban ban(UUID player, long time, UUID creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException, ExecutionException, InterruptedException {
         return ban(player, time, creator.toString(), type, reason, v4adress);
     }
 
-    public Ban ban(UUID player, long time, UUID creator, Type type, String reason) throws IOException, SQLException {
+    public Ban ban(UUID player, long time, UUID creator, Type type, String reason) throws IOException, SQLException, ExecutionException, InterruptedException {
         return ban(player, time, creator.toString(), type, reason);
     }
 
-    public Ban ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException {
-        sqlite.update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
-                "VALUES ('" + player + "', '" + time + "', datetime('now', 'localtime'), '" + creator + "', '" + reason + "', '" + v4adress.getHostAddress() + "', '" + type + "');");
+    public Ban ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException, ExecutionException, InterruptedException {
+        String id = generateNewID();
 
-        sqlite.update("INSERT INTO `banhistories` (`player`, `duration`, `creator`, `reason`, `ip`, `type`, `creationdate`) " +
-                "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', " +
+        sqlite.update("INSERT INTO `bans` (`id`, `player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
+                "VALUES ('" + id + "', '" + player + "', '" + time + "', datetime('now', 'localtime'), '" + creator + "', '" + reason + "', '" + v4adress.getHostAddress() + "', '" + type + "');");
+
+        sqlite.update("INSERT INTO `banhistories` (`id`, `player`, `duration`, `creator`, `reason`, `ip`, `type`, `creationdate`) " +
+                "VALUES ('" + id + "', '" + player + "', '" + time + "', '" + creator + "', '" + reason + "', " +
                 "'" + v4adress.getHostName() + "', '" + type + "', datetime('now', 'localtime'));");
-        return new Ban(player, type, reason, creator, v4adress.getHostAddress(), new Date(System.currentTimeMillis()), time);
+        return new Ban(id, player, type, reason, creator, v4adress.getHostAddress(), new Date(System.currentTimeMillis()), time);
     }
 
-    public Ban ban(UUID player, long time, String creator, Type type, String reason) throws IOException, SQLException {
-        sqlite.update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
-                "VALUES ('" + player + "', '" + time + "', datetime('now', 'localtime')," +
+    public Ban ban(UUID player, long time, String creator, Type type, String reason) throws IOException, SQLException, ExecutionException, InterruptedException {
+        String id = generateNewID();
+
+        sqlite.update("INSERT INTO `bans` (`id`, `player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
+                "VALUES ('" + id + "', '" + player + "', '" + time + "', datetime('now', 'localtime')," +
                 " '" + creator + "', '" + reason + "', '','" + type + "');");
 
-        sqlite.update("INSERT INTO `banhistories` (`player`, `duration`, `creator`, `reason`, `type`, `ip`,`creationdate`) " +
-                "VALUES ('" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + type + "', '', datetime('now', 'localtime'));");
-        return new Ban(player, type, reason, creator, null, new Date(System.currentTimeMillis()), time);
+        sqlite.update("INSERT INTO `banhistories` (`id`, `player`, `duration`, `creator`, `reason`, `type`, `ip`,`creationdate`) " +
+                "VALUES ('" + id + "', '" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + type + "', '', datetime('now', 'localtime'));");
+        return new Ban(id, player, type, reason, creator, null, new Date(System.currentTimeMillis()), time);
     }
 
-    public void unBan(UUID player, UUID unBanner, String reason) throws IOException, SQLException {
-        unBan(player, unBanner.toString(), reason);
+    @Override
+    public void unBan(String id, String unBanner, String reason) throws SQLException, ExecutionException, InterruptedException {
+        Ban ban = getBan(id);
+
+        sqlite.update("DELETE FROM `bans` WHERE id = '" + id + "';");
+        sqlite.update("INSERT INTO `unbans` (`id`, `player`, `unbanner`, `creationdate`, `reason`, `type`) " +
+                "VALUES ('" + ban.getId() + "', '" + ban.getPlayer() + "', '" + unBanner + "', datetime('now', 'localtime'), '" + reason + "','" + ban.getType() +"');");
     }
 
-    public void unBan(UUID player, String unBanner, String reason) throws IOException, SQLException {
-        sqlite.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.NETWORK + "'");
-        sqlite.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `reason`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', datetime('now', 'localtime'), '" + reason + "','" + Type.NETWORK +"');");
+    @Override
+    public void unBan(String id, UUID unBanner, String reason) throws SQLException, ExecutionException, InterruptedException {
+        unBan(id, unBanner.toString(), reason);
     }
 
-    public void unBan(UUID player, UUID unBanner) throws IOException, SQLException {
-        unBan(player, unBanner.toString());
+    @Override
+    public void unBan(String id, String unBanner) throws SQLException, ExecutionException, InterruptedException {
+        unBan(id, unBanner.toString(), "");
     }
 
-    public void unBan(UUID player, String unBanner) throws IOException, SQLException {
-        unBan(player, unBanner, "");
+    @Override
+    public void unBan(String id, UUID unBanner) throws SQLException, ExecutionException, InterruptedException {
+        unBan(id, unBanner.toString(), "");
     }
 
-    public void unMute(UUID player, UUID unBanner, String reason) throws IOException, SQLException {
-        unMute(player, unBanner.toString(), reason);
+    public void unBan(UUID player, UUID unBanner, Type type, String reason) throws IOException, SQLException, ExecutionException, InterruptedException {
+        unBan(player, unBanner.toString(), type, reason);
     }
 
-    public void unMute(UUID player, String unBanner, String reason) throws IOException, SQLException {
-        sqlite.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + Type.CHAT + "'");
-        sqlite.update("INSERT INTO `unbans` (`player`, `unbanner`, `creationdate`, `reason`, `type`) " +
-                "VALUES ('" + player + "', '" + unBanner + "', datetime('now', 'localtime'), '" + reason + "','" + Type.CHAT +"');");
+    @Override
+    public void unBan(UUID player, String unBanner, Type type, String reason) throws IOException, SQLException, ExecutionException, InterruptedException {
+        Ban ban = getBan(player, type);
+
+        sqlite.update("DELETE FROM `bans` WHERE player = '" + player + "' AND type = '" + type + "'");
+        sqlite.update("INSERT INTO `unbans` (`id`, `player`, `unbanner`, `creationdate`, `reason`, `type`) " +
+                "VALUES ('" + ban.getId() + "', '" + player + "', '" + unBanner + "', datetime('now', 'localtime'), '" + reason + "','" + type +"');");
     }
 
-    public void unMute(UUID player, UUID unBanner) throws IOException, SQLException {
-        unMute(player, unBanner.toString());
+    @Override
+    public void unBan(UUID player, UUID unBanner, Type type) throws IOException, SQLException, ExecutionException, InterruptedException {
+        unBan(player, unBanner.toString(), type);
     }
 
-    public void unMute(UUID player, String unBanner) throws IOException, SQLException {
-        unMute(player, unBanner, "");
+    @Override
+    public void unBan(UUID player, String unBanner, Type type) throws IOException, SQLException, ExecutionException, InterruptedException {
+        unBan(player, unBanner, type, "");
     }
 
     public void deleteHistory(UUID player) throws SQLException {
@@ -407,8 +453,8 @@ public class BanManagerSQLite implements BanManager {
     public boolean isMaxBanLvl(String id, int lvl) {
         int maxLvl = 0;
 
-        for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if (Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
+        for (Object key : config.getSection("IDs." + id + ".lvl").getKeys()) {
+            if (Integer.parseInt(key.toString()) > maxLvl) maxLvl = Integer.parseInt(key.toString());
         }
         return lvl >= maxLvl;
     }
@@ -416,5 +462,25 @@ public class BanManagerSQLite implements BanManager {
     @Override
     public int getMaxLvl(String id) {
         return config.getSection("IDs." + id + ".lvl").getKeys().size();
+    }
+
+    @Override
+    public String generateNewID() throws SQLException, ExecutionException, InterruptedException {
+        String uuid = UUID.randomUUID().toString();
+        String id = "";
+        int i = 0;
+        for(String character :  uuid.split("")) {
+            if(i >= 5) {
+                break;
+            }
+            id = id + character;
+            i++;
+        }
+        ResultSet rs = sqlite.getResult("SELECT id FROM `banhistories` WHERE id='" + id + "'");
+        while(rs.next()) {
+            return generateNewID();
+        }
+
+        return id;
     }
 }

@@ -17,8 +17,9 @@ public class History {
     private final Long duration;
     private final Type type;
     private final InetAddress ip;
+    private final String id;
 
-    public History(HistoryType historyType, UUID player, String creator, String reason, Long createDate, Long duration, Type type, InetAddress ip) {
+    public History(HistoryType historyType, UUID player, String creator, String reason, Long createDate, Long duration, Type type, InetAddress ip, String id) {
         this.historyType = historyType;
         this.player = player;
         this.creator = creator;
@@ -27,6 +28,7 @@ public class History {
         this.duration = duration;
         this.type = type;
         this.ip = ip;
+        this.id = id;
     }
 
     public HistoryType getHistoryType() {
@@ -69,5 +71,12 @@ public class History {
 
     public Date getEndDate() {
         return new Date(getCreateDate().getTime() + getDuration());
+    }
+
+    public String getId() {
+        if(id == null) {
+            return "Not available";
+        }
+        return id;
     }
 }

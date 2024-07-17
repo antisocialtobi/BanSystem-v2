@@ -86,7 +86,8 @@ public class LoginEvent {
                                             .replaceAll("%creator%", ban.getCreator())
                                             .replaceAll("%enddate%", enddate)
                                             .replaceAll("&", "§")
-                                            .replaceAll("%lvl%", String.valueOf(banManager.getLevel(uuid, ban.getReason()))))));
+                                            .replaceAll("%lvl%", String.valueOf(banManager.getLevel(uuid, ban.getReason())))
+                                            .replaceAll("%id%", ban.getId()))));
                                 } catch (UnknownHostException unknownHostException) {
                                     unknownHostException.printStackTrace();
                                 }
@@ -95,17 +96,13 @@ public class LoginEvent {
                                     banManager.setIP(player.getUniqueId(), player.getRemoteAddress().getAddress());
                                 }
                             } else {
-                                try {
-                                    if(config.getBoolean("needReason.Unmute")) {
-                                        banManager.unBan(uuid, banSystemVelocity.getConsole().getName(), Type.NETWORK, "Strafe abgelaufen");
-                                    } else {
-                                        banManager.unBan(uuid, banSystemVelocity.getConsole().getName(), Type.NETWORK);
-                                    }
-                                    banManager.log("Unbanned Player", banSystemVelocity.getConsole().getName(),
-                                            player.getUniqueId().toString(), "Autounban");
-                                } catch (IOException ioException) {
-                                    ioException.printStackTrace();
+                                if(config.getBoolean("needReason.Unmute")) {
+                                    banManager.unBan(ban, banSystemVelocity.getConsole().getName(), "Strafe abgelaufen");
+                                } else {
+                                    banManager.unBan(ban, banSystemVelocity.getConsole().getName());
                                 }
+                                banManager.log("Unbanned Player", banSystemVelocity.getConsole().getName(),
+                                        player.getUniqueId().toString(), "Autounban");
                                 banSystemVelocity.sendConsoleMessage(configurationUtil.getMessage("Ban.Network.autounban")
                                                 .replaceAll("%player%", player.getUsername()));
                                 for (User all : banSystemVelocity.getAllPlayers()) {
@@ -270,7 +267,8 @@ public class LoginEvent {
                                         .replaceAll("%creator%", banSystemVelocity.getConsole().getName())
                                         .replaceAll("%enddate%", enddate)
                                         .replaceAll("%lvl%", String.valueOf(ipAutoBanLvl))
-                                        .replaceAll("&", "§"));
+                                        .replaceAll("&", "§")
+                                        .replaceAll("%id%", ban.getId()));
                                 e.setResult(ResultedEvent.ComponentResult.denied(component));
                             } else {
                                 BanSystem.getInstance().sendConsoleMessage(

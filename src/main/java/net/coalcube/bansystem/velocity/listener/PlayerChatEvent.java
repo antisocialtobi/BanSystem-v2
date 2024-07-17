@@ -75,13 +75,14 @@ public class PlayerChatEvent {
                         e.setResult(com.velocitypowered.api.event.player.PlayerChatEvent.ChatResult.denied());
                         p.sendMessage(Component.text(configurationUtil.getMessage("Ban.Chat.Screen")
                                 .replaceAll("%reason%", mute.getReason())
+                                .replaceAll("%id%", mute.getId())
                                 .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                         .getFormattedRemainingTime(mute.getRemainingTime()))));
                     } else {
                         if (config.getBoolean("needReason.Unmute")) {
-                            banManager.unBan(uuid, "CONSOLE", Type.CHAT, "Strafe abgelaufen");
+                            banManager.unBan(mute, "CONSOLE", "Strafe abgelaufen");
                         } else {
-                            banManager.unBan(uuid, "CONSOLE", Type.CHAT);
+                            banManager.unBan(mute, "CONSOLE");
                         }
 
                         banManager.log("Unmuted Player", "CONSOLE", uuid.toString(), "Autounmute");
@@ -97,7 +98,7 @@ public class PlayerChatEvent {
                         }
                     }
                 }
-            } catch (SQLException | IOException | InterruptedException | ExecutionException throwables) {
+            } catch (SQLException | InterruptedException | ExecutionException throwables) {
                 throwables.printStackTrace();
             }
         }
@@ -122,7 +123,7 @@ public class PlayerChatEvent {
                         Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
                         String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
 
-                        banManager.ban(uuid, duration, BanSystem.getInstance().getConsole().getName(), type, reason);
+                        Ban ban = banManager.ban(uuid, duration, BanSystem.getInstance().getConsole().getName(), type, reason);
 
                         banManager.log("Banned Player", "CONSOLE", uuid.toString(), "Autoban, Type: " + type + ", Chatmessage: " + msg);
 
@@ -135,6 +136,7 @@ public class PlayerChatEvent {
                             banscreen = banscreen.replaceAll("%enddate%", enddate);
                             banscreen = banscreen.replaceAll("%lvl%", String.valueOf(lvl));
                             banscreen = banscreen.replaceAll("&", "§");
+                            banscreen = banscreen.replaceAll("%id%", ban.getId());
 
                             p.disconnect(Component.text(banscreen));
                         } else {
@@ -143,6 +145,7 @@ public class PlayerChatEvent {
                                     .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration))
                                     .replaceAll("%creator%", BanSystem.getInstance().getConsole().getName())
                                     .replaceAll("%enddate%", enddate)
+                                    .replaceAll("%id%", ban.getId())
                                     .replaceAll("%lvl%", String.valueOf(lvl))));
                         }
 
@@ -150,9 +153,10 @@ public class PlayerChatEvent {
                                 configurationUtil.getMessage("blacklist.notify.words.autoban")
                                         .replaceAll("%player%", p.getUsername())
                                         .replaceAll("%message%", msg)
-                                        .replaceAll("%reason%", reason)
+                                        .replaceAll("%reason%", reason
+                                        .replaceAll("%id%", ban.getId())
                                         .replaceAll("%reamingtime%", BanSystem.getInstance()
-                                                .getTimeFormatUtil().getFormattedRemainingTime(duration)));
+                                                .getTimeFormatUtil().getFormattedRemainingTime(duration))));
 
                         for (Player all : server.getAllPlayers()) {
                             if (all.hasPermission("bansys.notify") && (all != p)) {
@@ -161,7 +165,8 @@ public class PlayerChatEvent {
                                         .replaceAll("%message%", msg)
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%reamingtime%", BanSystem.getInstance()
-                                                .getTimeFormatUtil().getFormattedRemainingTime(duration))));
+                                                .getTimeFormatUtil().getFormattedRemainingTime(duration))
+                                        .replaceAll("%id%", ban.getId())));
                             }
                         }
                     } else {
@@ -191,7 +196,7 @@ public class PlayerChatEvent {
                         Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
                         String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
 
-                        banManager.ban(uuid, duration, BanSystem.getInstance().getConsole().getName(), type, reason);
+                        Ban ban = banManager.ban(uuid, duration, BanSystem.getInstance().getConsole().getName(), type, reason);
 
                         banManager.log("Banned Player", "CONSOLE",
                                 uuid.toString(), "Autoban, Type: " + type + ", Chatmessage: " + msg);
@@ -206,6 +211,7 @@ public class PlayerChatEvent {
                             banscreen = banscreen.replaceAll("%enddate%", enddate);
                             banscreen = banscreen.replaceAll("%lvl%", String.valueOf(lvl));
                             banscreen = banscreen.replaceAll("&", "§");
+                            banscreen = banscreen.replaceAll("%id%", ban.getId());
 
                             p.disconnect(Component.text(banscreen));
                         } else {
@@ -215,7 +221,8 @@ public class PlayerChatEvent {
                                             .getFormattedRemainingTime(duration))
                                     .replaceAll("%creator%", BanSystem.getInstance().getConsole().getName())
                                     .replaceAll("%enddate%", enddate)
-                                    .replaceAll("%lvl%", String.valueOf(lvl))));
+                                    .replaceAll("%lvl%", String.valueOf(lvl))
+                                    .replaceAll("%id%", ban.getId())));
                         }
                         BanSystem.getInstance().sendConsoleMessage(
                                 configurationUtil.getMessage("blacklist.notify.ads.autoban")
@@ -223,7 +230,8 @@ public class PlayerChatEvent {
                                         .replaceAll("%message%", msg)
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                                .getFormattedRemainingTime(duration)));
+                                                .getFormattedRemainingTime(duration))
+                                        .replaceAll("%id%", ban.getId()));
                         for (Player all : server.getAllPlayers()) {
                             if (all.hasPermission("bansys.notify") && (all != p)) {
                                 all.sendMessage(Component.text(configurationUtil.getMessage("blacklist.notify.ads.autoban")
@@ -231,7 +239,8 @@ public class PlayerChatEvent {
                                         .replaceAll("%message%", msg)
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                                .getFormattedRemainingTime(duration))));
+                                                .getFormattedRemainingTime(duration))
+                                        .replaceAll("%id%", ban.getId())));
                             }
                         }
                     } else {

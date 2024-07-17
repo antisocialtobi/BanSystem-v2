@@ -126,7 +126,8 @@ public class CMDhistory implements Command {
                                         .replaceAll("%creator%", history.getCreator())
                                         .replaceAll("%ip%", (history.getIp() == null ? "§cNicht vorhanden" : history.getIp().getHostName()))
                                         .replaceAll("%type%", history.getType().toString())
-                                        .replaceAll("%ID%", id);
+                                        .replaceAll("%ID%", history.getId())
+                                        .replaceAll("%id%", history.getId());
                             } else if (history.getHistoryType().equals(HistoryType.CLEAR)) {
                                 row = configurationUtil.getMessage("History.clearedHistory")
                                         .replaceAll("%reason%", history.getReason())
@@ -144,21 +145,29 @@ public class CMDhistory implements Command {
                             } else if (history.getHistoryType().equals(HistoryType.UNMUTE)) {
                                 row = configurationUtil.getMessage("History.unmute")
                                         .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
-                                        .replaceAll("%creator%", history.getCreator());
+                                        .replaceAll("%creator%", history.getCreator())
+                                        .replaceAll("%ID%", history.getId())
+                                        .replaceAll("%id%", history.getId());
                             } else if (history.getHistoryType().equals(HistoryType.UNMUTEWITHREASON)) {
                                 row = configurationUtil.getMessage("History.unmuteWithReason")
                                         .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
                                         .replaceAll("%creator%", history.getCreator())
-                                        .replaceAll("%reason%", history.getReason());
+                                        .replaceAll("%reason%", history.getReason())
+                                        .replaceAll("%ID%", history.getId())
+                                        .replaceAll("%id%", history.getId());
                             } else if (history.getHistoryType().equals(HistoryType.UNBAN)) {
                                 row = configurationUtil.getMessage("History.unban")
                                         .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
-                                        .replaceAll("%creator%", history.getCreator());
+                                        .replaceAll("%creator%", history.getCreator())
+                                        .replaceAll("%ID%", history.getId())
+                                        .replaceAll("%id%", history.getId());
                             } else if (history.getHistoryType().equals(HistoryType.UNBANWITHREASON)) {
                                 row = configurationUtil.getMessage("History.unbanWithReason")
                                         .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
                                         .replaceAll("%creator%", history.getCreator())
-                                        .replaceAll("%reason%", history.getReason());
+                                        .replaceAll("%reason%", history.getReason())
+                                        .replaceAll("%ID%", history.getId())
+                                        .replaceAll("%id%", history.getId());
                             }
 
                             if (user.getUniqueId() != null)

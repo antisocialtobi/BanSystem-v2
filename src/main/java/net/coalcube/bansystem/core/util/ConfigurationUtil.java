@@ -156,7 +156,6 @@ public class ConfigurationUtil {
                     value = ((Map<?, ?>) value).get(key);
                 } else if (value != null && keys.length == i) {
                     // Value have
-                    System.out.println("value: " + value + "\n");
                     return value;
                 } else {
                     // Value is null

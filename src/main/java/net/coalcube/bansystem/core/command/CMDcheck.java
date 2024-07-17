@@ -96,6 +96,8 @@ public class CMDcheck implements Command {
                         String reamingtimenetwork = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(ban.getRemainingTime());
                         String lvlchat = String.valueOf(bm.getLevel(uuid, mute.getReason()));
                         String lvlnetwork = String.valueOf(bm.getLevel(uuid, ban.getReason()));
+                        String idchat = mute.getId();
+                        String idnetwork = ban.getId();
 
                         try {
                             if (UUIDFetcher.getName(UUID.fromString(bannerchat)) != null) {
@@ -127,7 +129,9 @@ public class CMDcheck implements Command {
                                 .replaceAll("%bannernetwork%", bannernetwork)
                                 .replaceAll("%reasonnetwork%", reasonnetwork)
                                 .replaceAll("%reamingtimenetwork%", reamingtimenetwork)
-                                .replaceAll("%levelnetwork%", lvlnetwork);
+                                .replaceAll("%levelnetwork%", lvlnetwork)
+                                .replaceAll("%idchat%", idchat)
+                                .replaceAll("%idnetwork%", idnetwork);
                         if (user.getUniqueId() != null)
                             user.sendMessage(networkAndChat);
                         else
@@ -159,7 +163,8 @@ public class CMDcheck implements Command {
                                 .replaceAll("%reason%", reason)
                                 .replaceAll("%reamingtime%", reamingtime)
                                 .replaceAll("%level%", lvl)
-                                .replaceAll("%type%", Type.CHAT.toString());
+                                .replaceAll("%type%", Type.CHAT.toString())
+                                .replaceAll("%id%", mute.getId());
 
                         if (user.getUniqueId() != null)
                             user.sendMessage(chat);
@@ -189,7 +194,8 @@ public class CMDcheck implements Command {
                                 .replaceAll("%reason%", reason)
                                 .replaceAll("%reamingtime%", reamingtime)
                                 .replaceAll("%level%", String.valueOf(lvl))
-                                .replaceAll("%type%", Type.NETWORK.toString());
+                                .replaceAll("%type%", Type.NETWORK.toString())
+                                .replaceAll("%id%", ban.getId());
                         if (user.getUniqueId() != null)
                             user.sendMessage(network);
                         else

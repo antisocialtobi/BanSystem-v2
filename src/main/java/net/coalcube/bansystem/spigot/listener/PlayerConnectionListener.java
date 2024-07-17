@@ -86,7 +86,8 @@ public class PlayerConnectionListener implements Listener {
                                 .replaceAll("%enddate%", enddate)
                                 .replaceAll("%reamingtime%", reamingTime)
                                 .replaceAll("&", "§")
-                                .replaceAll("%lvl%", String.valueOf(banManager.getLevel(uuid, ban.getReason())));
+                                .replaceAll("%lvl%", String.valueOf(banManager.getLevel(uuid, ban.getReason())))
+                                .replaceAll("%id%", ban.getId());
                         if (!config.getBoolean("Ban.KickDelay.enable")) e.disallow(Result.KICK_BANNED, banScreen);
                         isCancelled = true;
 
@@ -95,16 +96,12 @@ public class PlayerConnectionListener implements Listener {
                         }
                     } else {
                         // autounban
-                        try {
-                            if (config.getBoolean("needReason.Unban")) {
-                                banManager.unBan(uuid, Bukkit.getConsoleSender().getName(), Type.NETWORK, "Strafe abgelaufen");
-                            } else {
-                                banManager.unBan(uuid, Bukkit.getConsoleSender().getName(), Type.NETWORK);
-                            }
-                            banManager.log("Unbanned Player", Bukkit.getConsoleSender().getName(), uuid.toString(), "Autounban");
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
+                        if (config.getBoolean("needReason.Unban")) {
+                            banManager.unBan(ban, Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
+                        } else {
+                            banManager.unBan(ban, Bukkit.getConsoleSender().getName());
                         }
+                        banManager.log("Unbanned Player", Bukkit.getConsoleSender().getName(), uuid.toString(), "Autounban");
                         Bukkit.getConsoleSender()
                                 .sendMessage(configurationUtil.getMessage("Ban.Network.autounban")
                                         .replaceAll("%player%", e.getName()));
@@ -240,7 +237,8 @@ public class PlayerConnectionListener implements Listener {
                                     .replaceAll("%enddate%", enddate)
                                     .replaceAll("%lvl%", String.valueOf(banManager.getLevel(uuid,
                                             ban.getReason())))
-                                    .replaceAll("&", "§");
+                                    .replaceAll("&", "§")
+                                    .replaceAll("%id%", ban.getId());
                             p.kickPlayer(banScreen);
                         } catch (SQLException | InterruptedException | ExecutionException | UnknownHostException throwables) {
                             throwables.printStackTrace();
@@ -333,6 +331,7 @@ public class PlayerConnectionListener implements Listener {
                     banScreen = banScreen.replaceAll("%lvl%", String.valueOf(ipAutoBanLvl));
                     banScreen = banScreen.replaceAll("%P%", configurationUtil.getMessage("prefix"));
                     banScreen = banScreen.replaceAll("&", "§");
+                    banScreen = banScreen.replaceAll("%id%", ban.getId());
                     p.kickPlayer(banScreen);
                 } else {
                     BanSystem.getInstance().sendConsoleMessage(configurationUtil.getMessage("ip.warning")

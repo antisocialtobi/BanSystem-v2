@@ -110,7 +110,7 @@ public class CMDdeletehistory implements Command {
                         user.sendMessage(configurationUtil.getMessage("History.historynotfound"));
                     }
                 } catch (UnknownHostException | SQLException e) {
-                    user.sendMessage(configurationUtil.getMessage("Deletehistroy.failed"));
+                    user.sendMessage(configurationUtil.getMessage("Deletehistory.failed"));
                     e.printStackTrace();
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();

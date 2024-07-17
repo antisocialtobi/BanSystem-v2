@@ -182,6 +182,14 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
         init(pluginmanager);
 
+        if(sql.isConnected()) {
+            try {
+                sql.updateTables();
+            } catch (SQLException | ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 
     @Override

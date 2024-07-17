@@ -18,6 +18,7 @@ import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
+import org.geysermc.floodgate.api.FloodgateApi;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -65,7 +66,7 @@ public class LoginListener implements Listener {
             Ban ban = null;
             try {
                 if (UUIDFetcher.getName(uuid) == null && !banManager.isSavedBedrockPlayer(uuid)) {
-                    if (org.geysermc.floodgate.api.FloodgateApi.getInstance().getPlayer(uuid) != null) {
+                    if (FloodgateApi.getInstance().getPlayer(uuid) != null) {
                         banManager.saveBedrockUser(uuid, con.getName());
                     }
                 }
@@ -89,7 +90,8 @@ public class LoginListener implements Listener {
                                     .replaceAll("%creator%", ban.getCreator())
                                     .replaceAll("%enddate%", enddate)
                                     .replaceAll("&", "§")
-                                    .replaceAll("%lvl%", String.valueOf(banManager.getLevel(uuid, ban.getReason()))));
+                                    .replaceAll("%lvl%", String.valueOf(banManager.getLevel(uuid, ban.getReason())))
+                                    .replaceAll("%id%", ban.getId()));
                         } catch (UnknownHostException unknownHostException) {
                             unknownHostException.printStackTrace();
                         }
@@ -99,17 +101,13 @@ public class LoginListener implements Listener {
                             banManager.setIP(e.getConnection().getUniqueId(), con.getAddress().getAddress());
                         }
                     } else {
-                        try {
-                            if (config.getBoolean("needReason.Unmute")) {
-                                banManager.unBan(uuid, ProxyServer.getInstance().getConsole().getName(), Type.NETWORK, "Strafe abgelaufen");
-                            } else {
-                                banManager.unBan(uuid, ProxyServer.getInstance().getConsole().getName(), Type.NETWORK);
-                            }
-                            banManager.log("Unbanned Player", ProxyServer.getInstance().getConsole().getName(),
-                                    con.getUniqueId().toString(), "Autounban");
-                        } catch (IOException ioException) {
-                            ioException.printStackTrace();
+                        if (config.getBoolean("needReason.Unmute")) {
+                            banManager.unBan(ban, ProxyServer.getInstance().getConsole().getName(), "Strafe abgelaufen");
+                        } else {
+                            banManager.unBan(ban, ProxyServer.getInstance().getConsole().getName());
                         }
+                        banManager.log("Unbanned Player", ProxyServer.getInstance().getConsole().getName(),
+                                con.getUniqueId().toString(), "Autounban");
                         ProxyServer.getInstance().getConsole()
                                 .sendMessage(configurationUtil.getMessage("Ban.Network.autounban")
                                         .replaceAll("%player%", con.getName()));
@@ -271,7 +269,8 @@ public class LoginListener implements Listener {
                                             .replaceAll("%creator%", ProxyServer.getInstance().getConsole().getName())
                                             .replaceAll("%enddate%", enddate)
                                             .replaceAll("%lvl%", String.valueOf(ipAutoBanLvl))
-                                            .replaceAll("&", "§"));
+                                            .replaceAll("&", "§")
+                                            .replaceAll("%id%", finalBan.getId()));
                                     e.setCancelReason(component);
                                     e.setCancelled(true);
                                     p.disconnect(component);

@@ -95,31 +95,28 @@ public class CMDunmute implements Command {
                                     reason.append(args[i]).append(" ");
                                 }
 
-                                try {
-                                    if (user.getUniqueId() != null) {
-                                        bm.unBan(uuid, user.getUniqueId(), Type.CHAT, reason.toString());
-                                        BanSystem.getInstance().sendConsoleMessage(
-                                                configurationUtil.getMessage("Unmute.needreason.notify")
-                                                        .replaceAll("%player%", Objects.requireNonNull(name))
-                                                        .replaceAll("%sender%", user.getName())
-                                                        .replaceAll("%reason%", reason.toString()));
-                                    } else
-                                        bm.unBan(uuid, user.getName(), Type.CHAT, reason.toString());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                    user.sendMessage(configurationUtil.getMessage("Unmute.failed"));
-                                    return;
-                                }
+                                if (user.getUniqueId() != null) {
+                                    bm.unBan(mute, user.getUniqueId(), reason.toString());
+                                    BanSystem.getInstance().sendConsoleMessage(
+                                            configurationUtil.getMessage("Unmute.needreason.notify")
+                                                    .replaceAll("%player%", Objects.requireNonNull(name))
+                                                    .replaceAll("%sender%", user.getName())
+                                                    .replaceAll("%reason%", reason.toString())
+                                                    .replaceAll("%id%", mute.getId()));
+                                } else
+                                    bm.unBan(mute, user.getName(), reason.toString());
 
                                 user.sendMessage(configurationUtil.getMessage("Unmute.needreason.success")
                                         .replaceAll("%player%", Objects.requireNonNull(name))
-                                        .replaceAll("%reason%", reason.toString()));
+                                        .replaceAll("%reason%", reason.toString())
+                                        .replaceAll("%id%", mute.getId()));
                                 for (User all : BanSystem.getInstance().getAllPlayers()) {
                                     if (all.hasPermission("bansys.notify") && all.getUniqueId() != user.getUniqueId()) {
                                         all.sendMessage(configurationUtil.getMessage("Unmute.needreason.notify")
                                                 .replaceAll("%player%", Objects.requireNonNull(name))
                                                 .replaceAll("%sender%", user.getName())
-                                                .replaceAll("%reason%", reason.toString()));
+                                                .replaceAll("%reason%", reason.toString())
+                                                .replaceAll("%id%", mute.getId()));
                                     }
                                 }
                                 if (user.getUniqueId() != null) {
@@ -127,25 +124,20 @@ public class CMDunmute implements Command {
                                             configurationUtil.getMessage("Unmute.needreason.notify")
                                                     .replaceAll("%player%", Objects.requireNonNull(name))
                                                     .replaceAll("%sender%", user.getName())
-                                                    .replaceAll("%reason%", reason.toString()));
+                                                    .replaceAll("%reason%", reason.toString())
+                                                    .replaceAll("%id%", mute.getId()));
                                 }
                             } else {
                                 user.sendMessage(configurationUtil.getMessage("Unmute.needreason.usage"));
                             }
                         } else {
                             if (args.length == 1) {
-                                try {
-                                    if (user.getUniqueId() != null) {
-                                        bm.unBan(uuid, user.getUniqueId(), Type.CHAT);
-                                        bm.log("Unmuted Player", user.getUniqueId().toString(), uuid.toString(), "");
-                                    } else {
-                                        bm.unBan(uuid, user.getName(), Type.CHAT);
-                                        bm.log("Unmuted Player", user.getName(), uuid.toString(), "");
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                    user.sendMessage(configurationUtil.getMessage("Unmute.failed"));
-                                    return;
+                                if (user.getUniqueId() != null) {
+                                    bm.unBan(mute, user.getUniqueId());
+                                    bm.log("Unmuted Player", user.getUniqueId().toString(), uuid.toString(), "");
+                                } else {
+                                    bm.unBan(mute, user.getName());
+                                    bm.log("Unmuted Player", user.getName(), uuid.toString(), "");
                                 }
 
                                 user.sendMessage(
@@ -156,7 +148,8 @@ public class CMDunmute implements Command {
                                         all.sendMessage(configurationUtil.getMessage("Unmute.notify")
                                                 .replaceAll("%player%", Objects.requireNonNull(name))
                                                 .replaceAll("%sender%", (user.getUniqueId() != null
-                                                        ? user.getDisplayName() : user.getName())));
+                                                        ? user.getDisplayName() : user.getName()))
+                                                .replaceAll("%id%", mute.getId()));
                                     }
                                 }
                                 if (user.getUniqueId() != null) {
@@ -164,7 +157,8 @@ public class CMDunmute implements Command {
                                             .sendMessage(configurationUtil.getMessage("Unmute.notify")
                                                     .replaceAll("%player%", Objects.requireNonNull(name))
                                                     .replaceAll("%sender%", (user.getUniqueId() != null
-                                                            ? user.getDisplayName() : user.getName())));
+                                                            ? user.getDisplayName() : user.getName()))
+                                                    .replaceAll("%id%", mute.getId()));
                                 }
                             } else {
                                 user.sendMessage(configurationUtil.getMessage("Unmute.usage"));

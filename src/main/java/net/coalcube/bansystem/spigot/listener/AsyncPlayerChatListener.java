@@ -69,16 +69,17 @@ public class AsyncPlayerChatListener implements Listener {
                             .replaceAll("%reamingtime%",
                                     BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
                                             mute.getRemainingTime()))
-                            .replaceAll("&", "§"));
+                            .replaceAll("&", "§")
+                            .replaceAll("%id%", mute.getId()));
                 } else {
                     try {
                         if (config.getBoolean("needReason.Unmute")) {
-                            banManager.unBan(p.getUniqueId(), Bukkit.getConsoleSender().getName(), Type.CHAT, "Strafe abgelaufen");
+                            banManager.unBan(mute, Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
                         } else {
-                            banManager.unBan(p.getUniqueId(), Bukkit.getConsoleSender().getName(), Type.CHAT);
+                            banManager.unBan(mute, Bukkit.getConsoleSender().getName());
                         }
                         banManager.log("Unmuted Player", Bukkit.getConsoleSender().getName(), p.getUniqueId().toString(), "Autounmute");
-                    } catch (IOException | SQLException ioException) {
+                    } catch (SQLException ioException) {
                         ioException.printStackTrace();
                     }
 
@@ -110,7 +111,7 @@ public class AsyncPlayerChatListener implements Listener {
                             Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
                             String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
 
-                            banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(), type, reason);
+                            Ban ban = banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(), type, reason);
                             banManager.log("Banned Player", Bukkit.getConsoleSender().getName(),
                                     p.getUniqueId().toString(), "Autoban, Type: " + type + ", Chatmessage: " + msg);
                             if (type.equals(Type.NETWORK)) {
@@ -122,6 +123,7 @@ public class AsyncPlayerChatListener implements Listener {
                                 banscreen = banscreen.replaceAll("%creator%", BanSystem.getInstance().getConsole().getName());
                                 banscreen = banscreen.replaceAll("%enddate%", enddate);
                                 banscreen = banscreen.replaceAll("%lvl%", String.valueOf(lvl));
+                                banscreen = banscreen.replaceAll("%id%", ban.getId());
                                 banscreen = banscreen.replaceAll("&", "§");
 
                                 p.kickPlayer(banscreen);
@@ -132,7 +134,8 @@ public class AsyncPlayerChatListener implements Listener {
                                                 .getFormattedRemainingTime(duration))
                                         .replaceAll("%creator%", BanSystem.getInstance().getConsole().getName())
                                         .replaceAll("%enddate%", enddate)
-                                        .replaceAll("%lvl%", String.valueOf(lvl)));
+                                        .replaceAll("%lvl%", String.valueOf(lvl))
+                                        .replaceAll("%id%", ban.getId()));
 
                             }
 
@@ -180,7 +183,7 @@ public class AsyncPlayerChatListener implements Listener {
                             Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
                             String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
 
-                            banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(),
+                            Ban ban = banManager.ban(p.getUniqueId(), duration, BanSystem.getInstance().getConsole().getName(),
                                     type, reason);
                             banManager.log("Banned Player", Bukkit.getConsoleSender().getName(),
                                     p.getUniqueId().toString(), "Autoban, Type: " + type + ", Chatmessage: " + msg);
@@ -194,6 +197,7 @@ public class AsyncPlayerChatListener implements Listener {
                                 banscreen = banscreen.replaceAll("%enddate%", enddate);
                                 banscreen = banscreen.replaceAll("%lvl%", String.valueOf(lvl));
                                 banscreen = banscreen.replaceAll("&", "§");
+                                banscreen = banscreen.replaceAll("%id%", ban.getId());
 
                                 p.kickPlayer(banscreen);
                             } else {
@@ -203,7 +207,8 @@ public class AsyncPlayerChatListener implements Listener {
                                                 .getFormattedRemainingTime(duration))
                                         .replaceAll("%creator%", BanSystem.getInstance().getConsole().getName())
                                         .replaceAll("%enddate%", enddate)
-                                        .replaceAll("%lvl%", String.valueOf(lvl)));
+                                        .replaceAll("%lvl%", String.valueOf(lvl))
+                                        .replaceAll("%id%", ban.getId()));
 
                             }
 
@@ -213,7 +218,8 @@ public class AsyncPlayerChatListener implements Listener {
                                             .replaceAll("%message%", msg)
                                             .replaceAll("%reason%", reason)
                                             .replaceAll("%reamingtime%", BanSystem.getInstance()
-                                                    .getTimeFormatUtil().getFormattedRemainingTime(duration)));
+                                                    .getTimeFormatUtil().getFormattedRemainingTime(duration))
+                                            .replaceAll("%id%", ban.getId()));
                             for (Player all : Bukkit.getOnlinePlayers()) {
                                 if (all.hasPermission("bansys.notify") && (all != p)) {
                                     all.sendMessage(configurationUtil.getMessage("blacklist.notify.ads.autoban")
@@ -221,7 +227,8 @@ public class AsyncPlayerChatListener implements Listener {
                                             .replaceAll("%message%", msg)
                                             .replaceAll("%reason%", reason)
                                             .replaceAll("%reamingtime%", BanSystem.getInstance()
-                                                    .getTimeFormatUtil().getFormattedRemainingTime(duration)));
+                                                    .getTimeFormatUtil().getFormattedRemainingTime(duration))
+                                            .replaceAll("%id%", ban.getId()));
                                 }
                             }
                         } else {

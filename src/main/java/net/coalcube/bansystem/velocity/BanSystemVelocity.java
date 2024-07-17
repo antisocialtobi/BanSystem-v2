@@ -186,6 +186,14 @@ public class BanSystemVelocity implements BanSystem {
             e.printStackTrace();
         }
 
+        if(sql.isConnected()) {
+            try {
+                sql.updateTables();
+            } catch (SQLException | ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         idManager = new IDManager(config, sql, new File(dataDirectory.toFile(), "config.yml"));
         urlUtil = new URLUtil(configurationUtil, config);
         blacklistUtil = new BlacklistUtil(blacklist);

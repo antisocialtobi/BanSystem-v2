@@ -66,13 +66,14 @@ public class PlayerCommandPreprocessListener implements Listener {
 
                             p.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
                                     .replaceAll("%reason%", mute.getReason())
-                                    .replaceAll("%reamingtime%", reamingTime));
+                                    .replaceAll("%reamingtime%", reamingTime)
+                                    .replaceAll("%id%", mute.getId()));
                         }
                     } else {
                         if (config.getBoolean("needReason.Unmute")) {
-                            banManager.unBan(p.getUniqueId(), Bukkit.getConsoleSender().getName(), Type.CHAT, "Strafe abgelaufen");
+                            banManager.unBan(mute, Bukkit.getConsoleSender().getName(), "Strafe abgelaufen");
                         } else {
-                            banManager.unBan(p.getUniqueId(), Bukkit.getConsoleSender().getName(), Type.CHAT);
+                            banManager.unBan(mute, Bukkit.getConsoleSender().getName());
                         }
                         banManager.log("Unmuted Player", Bukkit.getConsoleSender().getName(), p.getUniqueId().toString(), "Autounmute");
                         Bukkit.getConsoleSender().sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
@@ -86,7 +87,7 @@ public class PlayerCommandPreprocessListener implements Listener {
                         }
                     }
                 }
-            } catch (SQLException | IOException | InterruptedException | ExecutionException throwables) {
+            } catch (SQLException | InterruptedException | ExecutionException throwables) {
                 throwables.printStackTrace();
             }
         }

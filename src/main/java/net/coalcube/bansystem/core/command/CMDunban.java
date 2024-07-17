@@ -97,16 +97,17 @@ public class CMDunban implements Command {
 
                                 try {
                                     if (user.getUniqueId() != null) {
-                                        banmanager.unBan(uuid, user.getUniqueId(), Type.NETWORK, reason.toString());
+                                        banmanager.unBan(ban, user.getUniqueId(), reason.toString());
                                         BanSystem.getInstance().sendConsoleMessage(
                                                 configurationUtil.getMessage("Unban.needreason.notify")
                                                         .replaceAll("%player%", Objects.requireNonNull(name))
                                                         .replaceAll("%sender%", user.getName())
-                                                        .replaceAll("%reason%", reason.toString()));
+                                                        .replaceAll("%reason%", reason.toString())
+                                                        .replaceAll("%id%", ban.getId()));
                                     } else {
-                                        banmanager.unBan(uuid, user.getName(), Type.NETWORK, reason.toString());
+                                        banmanager.unBan(ban, user.getName(), reason.toString());
                                     }
-                                } catch (IOException | SQLException e) {
+                                } catch (SQLException e) {
                                     e.printStackTrace();
                                     user.sendMessage(configurationUtil.getMessage("Unban.failed"));
                                     return;
@@ -114,14 +115,16 @@ public class CMDunban implements Command {
 
                                 user.sendMessage(configurationUtil.getMessage("Unban.needreason.success")
                                         .replaceAll("%player%", Objects.requireNonNull(name))
-                                        .replaceAll("%reason%", reason.toString()));
+                                        .replaceAll("%reason%", reason.toString())
+                                        .replaceAll("%id%", ban.getId()));
                                 for (User all : BanSystem.getInstance().getAllPlayers()) {
                                     if (all.hasPermission("bansys.notify") && all.getRawUser() != user) {
                                         all.sendMessage(configurationUtil.getMessage("Unban.needreason.notify")
                                                 .replaceAll("%player%", Objects.requireNonNull(name))
                                                 .replaceAll("%sender%", (user.getUniqueId() != null
                                                         ? user.getDisplayName() : user.getName()))
-                                                .replaceAll("%reason%", reason.toString()));
+                                                .replaceAll("%reason%", reason.toString())
+                                                .replaceAll("%id%", ban.getId()));
                                     }
                                 }
                                 if (user.getUniqueId() != null) {
@@ -130,25 +133,20 @@ public class CMDunban implements Command {
                                                     .replaceAll("%player%", Objects.requireNonNull(name))
                                                     .replaceAll("%sender%", (user.getUniqueId() != null
                                                             ? user.getDisplayName() : user.getName()))
-                                                    .replaceAll("%reason%", reason.toString()));
+                                                    .replaceAll("%reason%", reason.toString())
+                                                    .replaceAll("%id%", ban.getId()));
                                 }
                             } else {
                                 user.sendMessage(configurationUtil.getMessage("Unban.needreason.usage"));
                             }
                         } else {
                             if (args.length == 1) {
-                                try {
-                                    if (user.getUniqueId() != null) {
-                                        banmanager.unBan(uuid, user.getUniqueId(), Type.NETWORK);
-                                        banmanager.log("Unbanned Player", user.getUniqueId().toString(), uuid.toString(), "");
-                                    } else {
-                                        banmanager.unBan(uuid, user.getName(), Type.NETWORK);
-                                        banmanager.log("Unbanned Player", user.getName(), uuid.toString(), "");
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                    user.sendMessage(configurationUtil.getMessage("Unban.failed"));
-                                    return;
+                                if (user.getUniqueId() != null) {
+                                    banmanager.unBan(ban, user.getUniqueId());
+                                    banmanager.log("Unbanned Player", user.getUniqueId().toString(), uuid.toString(), "");
+                                } else {
+                                    banmanager.unBan(ban, user.getName());
+                                    banmanager.log("Unbanned Player", user.getName(), uuid.toString(), "");
                                 }
                                 user.sendMessage(
                                         configurationUtil.getMessage("Unban.success")
@@ -158,7 +156,8 @@ public class CMDunban implements Command {
                                         all.sendMessage(configurationUtil.getMessage("Unban.notify")
                                                 .replaceAll("%player%", Objects.requireNonNull(name))
                                                 .replaceAll("%sender%", (user.getUniqueId() != null
-                                                        ? user.getDisplayName() : user.getName())));
+                                                        ? user.getDisplayName() : user.getName()))
+                                                .replaceAll("%id%", ban.getId()));
                                     }
                                 }
                                 if (user.getUniqueId() != null) {
@@ -166,7 +165,8 @@ public class CMDunban implements Command {
                                             .sendMessage(configurationUtil.getMessage("Unban.notify")
                                                     .replaceAll("%player%", Objects.requireNonNull(name))
                                                     .replaceAll("%sender%", (user.getUniqueId() != null
-                                                            ? user.getDisplayName() : user.getName())));
+                                                            ? user.getDisplayName() : user.getName()))
+                                                    .replaceAll("%id%", ban.getId()));
                                 }
 
                             } else {
@@ -188,7 +188,7 @@ public class CMDunban implements Command {
                 }
             }
         } else {
-                user.sendMessage(configurationUtil.getMessage("NoDBConnection"));
-            }
+                user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
+        }
     }
 }

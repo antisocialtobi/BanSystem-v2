@@ -143,19 +143,15 @@ public class VelocityConfig implements Config {
     private void setParameterValue(String path, Object value) throws IOException {
         // Set parameter by path
         String[] keys = path.split("\\.");
-        System.out.println("path: " + path);
-        System.out.println("keys.length: " + keys.length);
         Map<String, Object> root = new LinkedHashMap<>();
         Map<String, Object> tmpYamlData1 = new LinkedHashMap<>();
         Map<String, Object> tmpYamlData2 = new LinkedHashMap<>();
         Map<String, Object> lastMap = new LinkedHashMap<>();
 
         if(keys.length == 1) {
-            System.out.println("key.length==1 lastMap:" + lastMap);
             root.put(path, lastMap);
         } else {
             for(String entry : yamldata.keySet()) {
-                System.out.println("entry: " + entry);
                 if(entry.equalsIgnoreCase(keys[0])) {
                     // path: VPN.autoban.ID value: 12
                     int i=1;

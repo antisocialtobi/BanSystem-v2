@@ -2,6 +2,7 @@ package net.coalcube.bansystem.spigot;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.ban.Ban;
 import net.coalcube.bansystem.core.ban.BanManager;
 import net.coalcube.bansystem.core.ban.BanManagerMySQL;
 import net.coalcube.bansystem.core.ban.BanManagerSQLite;
@@ -16,6 +17,7 @@ import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 import net.coalcube.bansystem.spigot.listener.AsyncPlayerChatListener;
 import net.coalcube.bansystem.spigot.listener.PlayerCommandPreprocessListener;
 import net.coalcube.bansystem.spigot.listener.PlayerConnectionListener;
+import net.coalcube.bansystem.spigot.listener.PlayerKickListener;
 import net.coalcube.bansystem.spigot.util.SpigotUser;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -314,7 +316,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     @Override
     public void disconnect(User u, String msg) {
         if (u.getRawUser() instanceof Player) {
-            ((Player) u.getRawUser()).kickPlayer(msg);
+            ((Player) u.getRawUser()).kickPlayer(msg.replaceAll("\\n", "\\\\n"));
         }
     }
 
@@ -343,6 +345,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         pluginManager.registerEvents(new AsyncPlayerChatListener(config, banManager, sql, blacklistUtil, configurationUtil), this);
         pluginManager.registerEvents(new PlayerCommandPreprocessListener(banManager, config, blockedCommands, configurationUtil), this);
         pluginManager.registerEvents(new PlayerConnectionListener(banManager, config, Banscreen, instance, urlUtil, configurationUtil), this);
+        pluginManager.registerEvents(new PlayerKickListener(this, banManager), this);
     }
 
     @Override

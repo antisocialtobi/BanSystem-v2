@@ -35,6 +35,7 @@ public class LoginEvent {
     private final Database sql;
     private final URLUtil urlUtil;
     private final ConfigurationUtil configurationUtil;
+    private Map<String, Boolean> vpnIpCache;
 
     public LoginEvent(BanSystemVelocity banSystemVelocity, BanManager banManager, YamlDocument config, Database sql, URLUtil urlUtil, ConfigurationUtil configurationUtil) {
         this.banSystemVelocity = banSystemVelocity;
@@ -43,12 +44,15 @@ public class LoginEvent {
         this.sql = sql;
         this.urlUtil = urlUtil;
         this.configurationUtil = configurationUtil;
+
+        vpnIpCache = new HashMap<>();
     }
 
     @Subscribe(order = PostOrder.EARLY)
     public void onPlayerChat(com.velocitypowered.api.event.connection.LoginEvent e) throws SQLException, IOException, ExecutionException, InterruptedException {
         Player player = e.getPlayer();
         UUID uuid = player.getUniqueId();
+        String ip = player.getRemoteAddress().getAddress().getHostAddress();
 
         if(!sql.isConnected()) {
             try {
@@ -137,7 +141,12 @@ public class LoginEvent {
                     }
                     if (config.getBoolean("VPN.enable")) {
                         try {
-                            if (urlUtil.isVPN(player.getRemoteAddress().getAddress().getHostAddress())) {
+
+                            if(!vpnIpCache.containsKey(ip)) {
+                                vpnIpCache.put(ip, urlUtil.isVPN(ip));
+                            }
+
+                            if (vpnIpCache.get(ip)) {
                                 if (config.getBoolean("VPN.autoban.enable")) {
                                     try {
                                         int id = config.getInt("VPN.autoban.ID");

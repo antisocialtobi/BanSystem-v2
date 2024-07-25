@@ -24,10 +24,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -38,6 +35,7 @@ public class LoginListener implements Listener {
     private final Database sql;
     private final URLUtil urlUtil;
     private final ConfigurationUtil configurationUtil;
+    private static Map<String, Boolean> vpnIpCache;
 
     public LoginListener(BanManager banManager, YamlDocument config, Database sql, URLUtil urlUtil, ConfigurationUtil configurationUtil) {
         this.banManager = banManager;
@@ -45,6 +43,8 @@ public class LoginListener implements Listener {
         this.sql = sql;
         this.urlUtil = urlUtil;
         this.configurationUtil = configurationUtil;
+
+        vpnIpCache = new HashMap<>();
     }
 
     @SuppressWarnings("deprecation")
@@ -52,7 +52,7 @@ public class LoginListener implements Listener {
     public void onLogin(LoginEvent e) {
         PendingConnection con = e.getConnection();
         UUID uuid = con.getUniqueId();
-
+        String ip = e.getConnection().getAddress().getAddress().getHostAddress();
         if(!sql.isConnected()) {
             try {
                 sql.connect();
@@ -141,7 +141,12 @@ public class LoginListener implements Listener {
                         }
                         if (config.getBoolean("VPN.enable")) {
                             try {
-                                if (urlUtil.isVPN(p.getAddress().getAddress().getHostAddress())) {
+
+                                if(!vpnIpCache.containsKey(ip)) {
+                                    vpnIpCache.put(ip, urlUtil.isVPN(ip));
+                                }
+
+                                if (vpnIpCache.get(ip)) {
                                     if (config.getBoolean("VPN.autoban.enable")) {
                                         try {
                                             int id = config.getInt("VPN.autoban.ID");

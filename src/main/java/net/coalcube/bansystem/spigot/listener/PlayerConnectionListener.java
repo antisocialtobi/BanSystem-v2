@@ -25,9 +25,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class PlayerConnectionListener implements Listener {
@@ -38,6 +36,7 @@ public class PlayerConnectionListener implements Listener {
     private final Plugin instance;
     private final URLUtil urlUtil;
     private final ConfigurationUtil configurationUtil;
+    private static Map<String, Boolean> vpnIpCache;
 
     public PlayerConnectionListener(BanManager banManager, YamlDocument config, String banScreen, Plugin instance, URLUtil urlUtil, ConfigurationUtil configurationUtil) {
         this.banManager = banManager;
@@ -46,12 +45,15 @@ public class PlayerConnectionListener implements Listener {
         this.instance = instance;
         this.urlUtil = urlUtil;
         this.configurationUtil = configurationUtil;
+
+        vpnIpCache = new HashMap<>();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPreLogin(AsyncPlayerPreLoginEvent e) {
         boolean isCancelled = false;
         UUID uuid = e.getUniqueId();
+        String ip = e.getAddress().getHostAddress();
         Database sql = BanSystem.getInstance().getSQL();
         if(!sql.isConnected()) {
             try {
@@ -119,7 +121,12 @@ public class PlayerConnectionListener implements Listener {
             if (!isCancelled) {
                 if (config.getBoolean("VPN.enable")) {
                     try {
-                        if (urlUtil.isVPN(e.getAddress().getHostAddress())) {
+
+                        if(!vpnIpCache.containsKey(ip)) {
+                            vpnIpCache.put(ip, urlUtil.isVPN(ip));
+                        }
+
+                        if (vpnIpCache.get(ip)) {
                             if (config.getBoolean("VPN.autoban.enable")) {
 
                                 int lvl = 0;

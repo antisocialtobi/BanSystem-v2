@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
+import net.coalcube.bansystem.core.ban.Ban;
 import net.coalcube.bansystem.core.ban.BanManager;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;

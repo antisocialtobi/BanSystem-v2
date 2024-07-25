@@ -235,9 +235,9 @@ public class CMDban implements Command {
                         }
                         // Kick or send mute message
                         if (type == Type.NETWORK) {
-                            String banScreen = BanSystem.getInstance().getBanScreen();
+                            String banScreen = configurationUtil.getMessage("Ban.Network.Screen");
 
-                            BanSystem.getInstance().disconnect(target, banScreen
+                            banScreen = banScreen
                                     .replaceAll("%P%", configurationUtil.getMessage("prefix"))
                                     .replaceAll("%reason%", reason)
                                     .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
@@ -246,7 +246,9 @@ public class CMDban implements Command {
                                     .replaceAll("%enddate%", formattedEndDate)
                                     .replaceAll("%lvl%", String.valueOf(lvl))
                                     .replaceAll("%id%", ban.getId())
-                                    .replaceAll("&", "§"));
+                                    .replaceAll("&", "§");
+
+                            BanSystem.getInstance().disconnect(target, banScreen);
                         } else {
                             target.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
                                     .replaceAll("%reason%", reason)

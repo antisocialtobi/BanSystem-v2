@@ -35,6 +35,7 @@ public class CMDhistory implements Command {
     @Override
     public void execute(User user, String[] args) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(configurationUtil.getMessage("DateTimePattern"));
+        TimeFormatUtil timeFormatUtil = BanSystem.getInstance().getTimeFormatUtil();
         if (user.hasPermission("bansys.history.show")) {
             if (!sql.isConnected()) {
                 try {
@@ -115,10 +116,12 @@ public class CMDhistory implements Command {
 
                             if (history.getHistoryType().equals(HistoryType.BAN)) {
                                 String id = "Not Found";
+                                String duration = timeFormatUtil.getFormattedRemainingTime(history.getDuration());
                                 for (Object ids : config.getSection("IDs").getKeys()) {
                                     if (config.getString("IDs." + ids + ".reason").equals(history.getReason()))
                                         id = ids.toString();
                                 }
+
                                 row = configurationUtil.getMessage("History.ban")
                                         .replaceAll("%reason%", history.getReason())
                                         .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
@@ -126,6 +129,7 @@ public class CMDhistory implements Command {
                                         .replaceAll("%creator%", history.getCreator())
                                         .replaceAll("%ip%", (history.getIp() == null ? "§cNicht vorhanden" : history.getIp().getHostName()))
                                         .replaceAll("%type%", history.getType().toString())
+                                        .replaceAll("%duration%", duration)
                                         .replaceAll("%ID%", history.getId())
                                         .replaceAll("%id%", history.getId());
                             } else if (history.getHistoryType().equals(HistoryType.CLEAR)) {

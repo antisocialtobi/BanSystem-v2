@@ -204,6 +204,7 @@ History:
   # %enddate% - date when the punishment ends
   # %type% - Type of punishment (mute/ban)
   # %creationdate% - creation date of the punishment
+  # %duration% - duration of punishment
   # %id% - Unique ban ID
   ban:
     - '%P%§7[%creationdate%] Wurde von §e%creator% §cgebannt§7.'
@@ -211,6 +212,7 @@ History:
     - '%P%§7├ Enddatum §8» §c%enddate%'
     - '%P%§7├ IP §8» §c%ip%'
     - '%P%§7├ Type §8» §c%type%'
+    - '%P%§7├ Dauer §8» §c%duration%'
     - '%P%§7└ ID §8» §c%id%'
   kick: '%P%§7[%creationdate%] Wurde von §e%creator% §cgekickt§7.'
   kickWithReason:

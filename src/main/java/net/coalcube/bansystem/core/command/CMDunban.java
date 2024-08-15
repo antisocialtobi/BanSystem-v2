@@ -11,8 +11,7 @@ import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class CMDunban implements Command {
@@ -190,5 +189,13 @@ public class CMDunban implements Command {
         } else {
                 user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
         }
+    }
+
+    @Override
+    public List<String> suggest(User user, String[] args) {
+        if (!user.hasPermission("bansys.unban")) {
+            return List.of();
+        }
+        return BanSystem.getInstance().getCachedBannedPlayerNames();
     }
 }

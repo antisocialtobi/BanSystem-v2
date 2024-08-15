@@ -14,9 +14,7 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.ban.BanManager;
-import net.coalcube.bansystem.core.ban.BanManagerMySQL;
-import net.coalcube.bansystem.core.ban.BanManagerSQLite;
+import net.coalcube.bansystem.core.ban.*;
 import net.coalcube.bansystem.core.command.*;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.sql.MySQL;
@@ -35,12 +33,13 @@ import org.slf4j.Logger;
 import java.io.*;
 import java.nio.file.Path;
 import java.sql.SQLException;
+import java.sql.SQLOutput;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-@Plugin(id = "bansystemwithids", name = "BanSystem", version = "2.9",
+@Plugin(id = "bansystem", name = "BanSystem", version = "2.9",
         url = "https://www.spigotmc.org/resources/bansystem-mit-ids-spigot-bungeecord.65863/",
         description = "Punishment System", authors = {"Tobi"})
 public class BanSystemVelocity implements BanSystem {
@@ -64,6 +63,9 @@ public class BanSystemVelocity implements BanSystem {
     private File sqlitedatabase, configFile, messagesFile, blacklistFile;
     private String hostname, database, user, pw;
     private int port;
+    private static List<String> cachedBannedPlayerNames;
+    private static List<String> cachedMutedPlayerNames;
+
     public static String prefix = "§8§l┃ §cBanSystem §8» §7";
 
     @Inject
@@ -81,6 +83,8 @@ public class BanSystemVelocity implements BanSystem {
         lcs = LegacyComponentSerializer.legacySection();
         configurationUtil = new ConfigurationUtil(config, messages, blacklist, this);
         timeFormatUtil = new TimeFormatUtil(configurationUtil);
+        cachedBannedPlayerNames = new ArrayList<>();
+        cachedMutedPlayerNames = new ArrayList<>();
 
         sendConsoleMessage("§c  ____                    ____                  _                      ");
         sendConsoleMessage("§c | __ )    __ _   _ __   / ___|   _   _   ___  | |_    ___   _ __ ___  ");
@@ -192,6 +196,12 @@ public class BanSystemVelocity implements BanSystem {
             } catch (SQLException | ExecutionException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        try {
+            initCachedBannedPlayerNames();
+        } catch (SQLException | ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
         idManager = new IDManager(config, sql, new File(dataDirectory.toFile(), "config.yml"));
@@ -401,6 +411,47 @@ public class BanSystemVelocity implements BanSystem {
     }
 
     @Override
+    public List<String> getCachedBannedPlayerNames() {
+        return cachedBannedPlayerNames;
+    }
+
+    @Override
+    public List<String> getCachedMutedPlayerNames() {
+        return cachedMutedPlayerNames;
+    }
+
+    @Override
+    public void addCachedMutedPlayerNames(String name) {
+        cachedMutedPlayerNames.add(name);
+    }
+
+    @Override
+    public void addCachedBannedPlayerNames(String name) {
+        cachedBannedPlayerNames.add(name);
+    }
+
+    @Override
+    public void removeCachedBannedPlayerNames(String name) {
+        cachedBannedPlayerNames.remove(name);
+    }
+
+    @Override
+    public void removeCachedMutedPlayerNames(String name) {
+        cachedMutedPlayerNames.remove(name);
+    }
+
+    private void initCachedBannedPlayerNames() throws SQLException, ExecutionException, InterruptedException {
+        for(Ban ban : banManager.getAllBans()) {
+            String name = UUIDFetcher.getName(ban.getPlayer());
+            if(ban.getType() == Type.NETWORK) {
+                cachedBannedPlayerNames.add(name);
+            } else {
+                cachedMutedPlayerNames.add(name);
+            }
+        }
+    }
+
+    @Override
     public List<User> getAllPlayers() {
         List<User> users = new ArrayList<>();
         for (Player p : server.getAllPlayers()) {
@@ -416,7 +467,7 @@ public class BanSystemVelocity implements BanSystem {
 
     @Override
     public String getVersion() {
-        PluginContainer pluginContainer = server.getPluginManager().getPlugin("bansystemwithids").orElse(null);
+        PluginContainer pluginContainer = server.getPluginManager().getPlugin("bansystem").orElse(null);
         if (pluginContainer != null) {
             return pluginContainer.getDescription().getVersion().orElse("Version not available");
         } else {

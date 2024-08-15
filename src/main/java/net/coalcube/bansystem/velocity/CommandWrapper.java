@@ -32,6 +32,7 @@ public class CommandWrapper implements SimpleCommand {
     // especially in cases where you make a more extensive logic to provide the suggestions
     @Override
     public CompletableFuture<List<String>> suggestAsync(final Invocation invocation) {
-        return CompletableFuture.completedFuture(List.of());
+        List<String> suggests = cmd.suggest(new VelocityUser(invocation.source()), invocation.arguments());
+        return CompletableFuture.completedFuture(suggests);
     }
 }

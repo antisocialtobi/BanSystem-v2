@@ -383,9 +383,13 @@ public class MySQL implements Database {
 
     @Override
     public void updateTables() throws SQLException, ExecutionException, InterruptedException {
+        BanSystem banSystem = BanSystem.getInstance();
+        String prefix = banSystem.getConfigurationUtil().getMessage("prefix");
+
         boolean banIDs = false;
         boolean banHistoryIDs = false;
         boolean unbansIDs = false;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         BanManager banManager = BanSystem.getInstance().getBanManager();
 
         ResultSet rs_bans = getResult("SHOW COLUMNS FROM `bans` LIKE 'id';");
@@ -403,8 +407,14 @@ public class MySQL implements Database {
             unbansIDs = true;
         }
 
+
+        if(!banHistoryIDs) {
+            update("ALTER TABLE `banhistories` ADD `id` VARCHAR(16) FIRST;");
+            banSystem.sendConsoleMessage(prefix + "§7Tabelle §ebanhistories §7wurde geupdated.");
+        }
+
         if(!banIDs) {
-            update("ALTER TABLE `bans` ADD `id` VARCHAR(16) NOT NULL FIRST;");
+            update("ALTER TABLE `bans` ADD `id` VARCHAR(16) FIRST;");
             ResultSet rs = getResult("SELECT * FROM `bans`;");
 
             while (rs.next()) {
@@ -414,10 +424,23 @@ public class MySQL implements Database {
 
                 update("UPDATE `bans` SET id='" + id + "' WHERE player='" + player + "' AND type='" + type + "';");
             }
-
+            banSystem.sendConsoleMessage(prefix + "§7Tabelle §ebans §7wurde geupdated.");
         }
+
+        if(!unbansIDs) {
+            update("ALTER TABLE `unbans` ADD `id` VARCHAR(16) FIRST;");
+            ResultSet rs = getResult("SELECT * FROM `unbans`;");
+
+            while (rs.next()) {
+                UUID player = UUID.fromString(rs.getString("player"));
+
+                update("UPDATE `bans` SET id='" + banManager.generateNewID() + "' WHERE player='" + player
+                        + "' AND creationdate='" + rs.getTimestamp("creationdate") + "';");
+            }
+            banSystem.sendConsoleMessage(prefix + "§7Tabelle §eunbans §7wurde geupdated.");
+        }
+
         if(!banHistoryIDs) {
-            update("ALTER TABLE `banhistories` ADD `id` VARCHAR(16) NOT NULL FIRST;");
             ResultSet rs = getResult("SELECT * FROM `banhistories`;");
 
             while (rs.next()) {
@@ -429,20 +452,9 @@ public class MySQL implements Database {
                 if(ban != null) {
                     update("UPDATE `bans` SET id='" + ban.getId() + "' WHERE player='" + player + "' AND type='" + type + "';");
                 } else {
-                    update("UPDATE `bans` SET id='" + id + "' WHERE player='" + player + "' AND type='" + type + "';");
+                    update("UPDATE `bans` SET id='" + id + "' WHERE player='" + player + "' AND type='" + type
+                            + "' AND creationdate='" + rs.getString("creationdate") + "';");
                 }
-            }
-        }
-
-        if(!unbansIDs) {
-            update("ALTER TABLE `unbans` ADD `id` VARCHAR(16) NOT NULL FIRST;");
-            ResultSet rs = getResult("SELECT * FROM `unbans`;");
-
-            while (rs.next()) {
-                UUID player = UUID.fromString(rs.getString("player"));
-
-                update("UPDATE `bans` SET id='" + banManager.generateNewID() + "' WHERE player='" + player
-                        + "' AND creationdate='" + rs.getTimestamp("creationdate") + "';");
             }
         }
     }

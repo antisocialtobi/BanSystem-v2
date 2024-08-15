@@ -77,6 +77,47 @@ public class BanManagerMySQL implements BanManager {
         return null;
     }
 
+    @Override
+    public List<Ban> getAllBans() throws SQLException, ExecutionException, InterruptedException {
+        List<Ban> bans = new ArrayList<>();
+        ResultSet rs = mysql.getResult("SELECT * FROM `bans`;");
+
+        long duration = 0;
+        String reason = "",
+                creator = "",
+                ip = "",
+                id = "";
+        Date creationDate = null;
+        UUID player = null;
+        Type type = null;
+
+        while(rs.next()) {
+            id = rs.getString("id");
+            duration = rs.getLong("duration");
+            reason = rs.getString("reason");
+            creator = rs.getString("creator");
+            ip = rs.getString("ip");
+            creationDate = rs.getTimestamp("creationdate");
+            player = UUID.fromString(rs.getString("player"));
+            type = Type.valueOf(rs.getString("type"));
+
+            bans.add(new Ban(id, player, type, reason, creator, ip, creationDate, duration));
+        }
+
+        return bans;
+    }
+
+    @Override
+    public List<Ban> getAllBans(Type type) throws SQLException, ExecutionException, InterruptedException {
+        List<Ban> bans = new ArrayList<>();
+        for(Ban ban : getAllBans()) {
+            if(ban.getType() == type) {
+                bans.add(ban);
+            }
+        }
+        return bans;
+    }
+
     public void log(String action, String creator, String target, String note) throws SQLException {
         mysql.update("INSERT INTO `logs` (`action`, `target`, `creator`, `note`, `creationdate`) " +
                 "VALUES ('" + action + "', '" + target + "','" + creator + "', '" + note + "', NOW());");
@@ -155,7 +196,10 @@ public class BanManagerMySQL implements BanManager {
 
     public Ban ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException, ExecutionException, InterruptedException {
         String id = generateNewID();
-
+        if(type == Type.NETWORK)
+            BanSystem.getInstance().addCachedBannedPlayerNames(UUIDFetcher.getName(player));
+        else
+            BanSystem.getInstance().addCachedMutedPlayerNames(UUIDFetcher.getName(player));
         mysql.update("INSERT INTO `bans` (`id`, `player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
                 "VALUES ('" + id + "', '" + player + "', '" + time + "', NOW(), '" + creator + "', '" + reason + "', '" + v4adress.getHostAddress() + "', '" + type + "');");
 
@@ -167,7 +211,10 @@ public class BanManagerMySQL implements BanManager {
 
     public Ban ban(UUID player, long time, String creator, Type type, String reason) throws IOException, SQLException, ExecutionException, InterruptedException {
         String id = generateNewID();
-
+        if(type == Type.NETWORK)
+            BanSystem.getInstance().addCachedBannedPlayerNames(UUIDFetcher.getName(player));
+        else
+            BanSystem.getInstance().addCachedMutedPlayerNames(UUIDFetcher.getName(player));
         mysql.update("INSERT INTO `bans` (`id`, `player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
                 "VALUES ('" + id + "', '" + player + "', '" + time + "', NOW()," +
                 " '" + creator + "', '" + reason + "', '','" + type + "');");
@@ -179,7 +226,10 @@ public class BanManagerMySQL implements BanManager {
 
     @Override
     public void unBan(Ban ban, String unBanner, String reason) throws SQLException, ExecutionException, InterruptedException {
-
+        if(ban.getType() == Type.NETWORK)
+            BanSystem.getInstance().removeCachedBannedPlayerNames(UUIDFetcher.getName(ban.getPlayer()));
+        else
+            BanSystem.getInstance().removeCachedMutedPlayerNames(UUIDFetcher.getName(ban.getPlayer()));
         mysql.update("DELETE FROM `bans` WHERE id = '" + ban.getId() + "';");
         mysql.update("INSERT INTO `unbans` (`id`, `player`, `unbanner`, `creationdate`, `reason`, `type`) " +
                 "VALUES ('" + ban.getId() + "', '" + ban.getPlayer() + "', '" + unBanner + "', NOW(), '" + reason + "','" + ban.getType() + "');");
@@ -231,6 +281,7 @@ public class BanManagerMySQL implements BanManager {
 
     public void setIP(UUID player, InetAddress address) throws SQLException {
         mysql.update("UPDATE `bans` SET ip='" + address.getHostAddress() + "' WHERE (ip IS NULL or ip = '') AND player = '" + player + "';");
+        mysql.update("UPDATE `banhistories` SET ip='" + address.getHostAddress() + "' WHERE (ip IS NULL or ip = '') AND player = '" + player + "';");
     }
 
     @Override
@@ -305,6 +356,12 @@ public class BanManagerMySQL implements BanManager {
         ResultSet resultSet = mysql.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "';");
         List<History> list = new ArrayList<>();
         while (resultSet.next()) {
+            InetAddress ip;
+            if(resultSet.getString("ip") == null || resultSet.getString("ip").isEmpty()) {
+                ip = null;
+            } else {
+                ip = InetAddress.getByName(resultSet.getString("ip"));
+            }
             list.add(new History(HistoryType.BAN,
                     UUID.fromString(resultSet.getString("player")),
                     resultSet.getString("creator"),
@@ -312,7 +369,7 @@ public class BanManagerMySQL implements BanManager {
                     resultSet.getTimestamp("creationdate").getTime(),
                     resultSet.getLong("duration"),
                     Type.valueOf(resultSet.getString("type")),
-                    (resultSet.getString("ip") == null ? null : InetAddress.getByName(resultSet.getString("ip"))),
+                    ip,
                     resultSet.getString("id")));
         }
 

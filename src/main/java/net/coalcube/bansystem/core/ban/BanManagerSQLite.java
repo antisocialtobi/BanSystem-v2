@@ -1,11 +1,13 @@
 package net.coalcube.bansystem.core.ban;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
+import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.sql.SQLite;
 import net.coalcube.bansystem.core.util.Config;
 import net.coalcube.bansystem.core.util.History;
 import net.coalcube.bansystem.core.util.HistoryType;
 import net.coalcube.bansystem.core.util.Log;
+import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -82,6 +84,47 @@ public class BanManagerSQLite implements BanManager {
             return new Ban(id, player, type, reason, creator, ip, creationDate, duration);
         }
         return null;
+    }
+
+    @Override
+    public List<Ban> getAllBans() throws SQLException, ExecutionException, InterruptedException {
+        List<Ban> bans = new ArrayList<>();
+        ResultSet rs = sqlite.getResult("SELECT * FROM `bans`;");
+
+        long duration = 0;
+        String reason = "",
+                creator = "",
+                ip = "",
+                id = "";
+        Date creationDate = null;
+        UUID player = null;
+        Type type = null;
+
+        while(rs.next()) {
+            id = rs.getString("id");
+            duration = rs.getLong("duration");
+            reason = rs.getString("reason");
+            creator = rs.getString("creator");
+            ip = rs.getString("ip");
+            creationDate = rs.getTimestamp("creationdate");
+            player = UUID.fromString(rs.getString("player"));
+            type = Type.valueOf(rs.getString("type"));
+
+            bans.add(new Ban(id, player, type, reason, creator, ip, creationDate, duration));
+        }
+
+        return bans;
+    }
+
+    @Override
+    public List<Ban> getAllBans(Type type) throws SQLException, ExecutionException, InterruptedException {
+        List<Ban> bans = new ArrayList<>();
+        for(Ban ban : getAllBans()) {
+            if(ban.getType() == type) {
+                bans.add(ban);
+            }
+        }
+        return bans;
     }
 
     public void log(String action, String creator, String target, String note) throws SQLException {
@@ -168,6 +211,11 @@ public class BanManagerSQLite implements BanManager {
         sqlite.update("INSERT INTO `banhistories` (`id`, `player`, `duration`, `creator`, `reason`, `ip`, `type`, `creationdate`) " +
                 "VALUES ('" + id + "', '" + player + "', '" + time + "', '" + creator + "', '" + reason + "', " +
                 "'" + v4adress.getHostName() + "', '" + type + "', datetime('now', 'localtime'));");
+
+        if(type == Type.NETWORK)
+            BanSystem.getInstance().addCachedBannedPlayerNames(UUIDFetcher.getName(player));
+        else
+            BanSystem.getInstance().addCachedMutedPlayerNames(UUIDFetcher.getName(player));
         return new Ban(id, player, type, reason, creator, v4adress.getHostAddress(), new Date(System.currentTimeMillis()), time);
     }
 
@@ -180,6 +228,10 @@ public class BanManagerSQLite implements BanManager {
 
         sqlite.update("INSERT INTO `banhistories` (`id`, `player`, `duration`, `creator`, `reason`, `type`, `ip`,`creationdate`) " +
                 "VALUES ('" + id + "', '" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + type + "', '', datetime('now', 'localtime'));");
+        if(type == Type.NETWORK)
+            BanSystem.getInstance().addCachedBannedPlayerNames(UUIDFetcher.getName(player));
+        else
+            BanSystem.getInstance().addCachedMutedPlayerNames(UUIDFetcher.getName(player));
         return new Ban(id, player, type, reason, creator, null, new Date(System.currentTimeMillis()), time);
     }
 
@@ -188,6 +240,10 @@ public class BanManagerSQLite implements BanManager {
         sqlite.update("DELETE FROM `bans` WHERE id = '" + ban.getId() + "';");
         sqlite.update("INSERT INTO `unbans` (`id`, `player`, `unbanner`, `creationdate`, `reason`, `type`) " +
                 "VALUES ('" + ban.getId() + "', '" + ban.getPlayer() + "', '" + unBanner + "', datetime('now', 'localtime'), '" + reason + "','" + ban.getType() +"');");
+        if(ban.getType() == Type.NETWORK)
+            BanSystem.getInstance().removeCachedBannedPlayerNames(UUIDFetcher.getName(ban.getPlayer()));
+        else
+            BanSystem.getInstance().removeCachedMutedPlayerNames(UUIDFetcher.getName(ban.getPlayer()));
     }
 
     @Override
@@ -215,6 +271,7 @@ public class BanManagerSQLite implements BanManager {
 
     public void setIP(UUID player, InetAddress address) throws SQLException {
         sqlite.update("UPDATE `bans` SET ip='" + address.getHostAddress() + "' WHERE (ip IS NULL or ip = '') AND player = '" + player + "';");
+        sqlite.update("UPDATE `banhistories` SET ip='" + address.getHostAddress() + "' WHERE (ip IS NULL or ip = '') AND player = '" + player + "';");
     }
 
     @Override
@@ -284,6 +341,13 @@ public class BanManagerSQLite implements BanManager {
         ResultSet resultSet = sqlite.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "';");
         List<History> list = new ArrayList<>();
         while (resultSet.next()) {
+            InetAddress ip;
+            if(resultSet.getString("ip") == null || resultSet.getString("ip").isEmpty()) {
+                ip = null;
+            } else {
+                ip = InetAddress.getByName(resultSet.getString("ip"));
+            }
+
             list.add(new History(HistoryType.BAN,
                     UUID.fromString(resultSet.getString("player")),
                     resultSet.getString("creator"),
@@ -291,7 +355,7 @@ public class BanManagerSQLite implements BanManager {
                     simpleDateFormat.parse(resultSet.getString("creationdate")).getTime(),
                     resultSet.getLong("duration"),
                     Type.valueOf(resultSet.getString("type")),
-                    (resultSet.getString("ip") == null ? null : InetAddress.getByName(resultSet.getString("ip"))),
+                    ip,
                     resultSet.getString("id")));
         }
 

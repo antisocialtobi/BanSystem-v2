@@ -70,6 +70,9 @@ public class History {
     }
 
     public Date getEndDate() {
+        if(getDuration() == -1) {
+            return null;
+        }
         return new Date(getCreateDate().getTime() + getDuration());
     }
 

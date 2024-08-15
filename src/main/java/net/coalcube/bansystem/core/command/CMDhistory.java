@@ -117,6 +117,13 @@ public class CMDhistory implements Command {
                             if (history.getHistoryType().equals(HistoryType.BAN)) {
                                 String id = "Not Found";
                                 String duration = timeFormatUtil.getFormattedRemainingTime(history.getDuration());
+                                String endDate;
+                                if(history.getEndDate() != null) {
+                                    endDate = simpleDateFormat.format(history.getEndDate());
+                                } else {
+                                    endDate = "§cNot available";
+                                }
+
                                 for (Object ids : config.getSection("IDs").getKeys()) {
                                     if (config.getString("IDs." + ids + ".reason").equals(history.getReason()))
                                         id = ids.toString();
@@ -125,9 +132,9 @@ public class CMDhistory implements Command {
                                 row = configurationUtil.getMessage("History.ban")
                                         .replaceAll("%reason%", history.getReason())
                                         .replaceAll("%creationdate%", simpleDateFormat.format(history.getCreateDate()))
-                                        .replaceAll("%enddate%", simpleDateFormat.format(history.getEndDate()))
+                                        .replaceAll("%enddate%", endDate)
                                         .replaceAll("%creator%", history.getCreator())
-                                        .replaceAll("%ip%", (history.getIp() == null ? "§cNicht vorhanden" : history.getIp().getHostName()))
+                                        .replaceAll("%ip%", (history.getIp() == null ? "§cNot available" : history.getIp().getHostAddress()))
                                         .replaceAll("%type%", history.getType().toString())
                                         .replaceAll("%duration%", duration)
                                         .replaceAll("%ID%", history.getId())
@@ -194,5 +201,26 @@ public class CMDhistory implements Command {
         } else {
                 user.sendMessage(configurationUtil.getMessage("NoDBConnection"));
             }
+    }
+
+    /*
+    /command        arg0+arg1  | permission
+    /history        <player>   | bansys.history.show
+    */
+
+    @Override
+    public List<String> suggest(User user, String[] args) {
+        if (!user.hasPermission("bansys.history.show")) {
+            return List.of();
+        }
+        List<String> suggests = new ArrayList<>();
+        List<User> players = BanSystem.getInstance().getAllPlayers();
+
+        if(args.length == 0 || args.length == 1) {
+            for (User player : players) {
+                suggests.add(player.getName());
+            }
+        }
+        return suggests;
     }
 }

@@ -8,6 +8,8 @@ import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -121,5 +123,27 @@ public class CMDdeletehistory implements Command {
         } else {
                 user.sendMessage(configurationUtil.getMessage("NoDBConnection"));
             }
+    }
+
+    /*
+    /command        arg0+arg1  | permission
+    /deletehistory  <player>   | bansys.history.delete
+    */
+
+
+    @Override
+    public List<String> suggest(User user, String[] args) {
+        if (!user.hasPermission("bansys.history.delete")) {
+            return List.of();
+        }
+        List<String> suggests = new ArrayList<>();
+        List<User> players = BanSystem.getInstance().getAllPlayers();
+
+        if(args.length == 0 || args.length == 1) {
+            for (User player : players) {
+                suggests.add(player.getName());
+            }
+        }
+        return suggests;
     }
 }

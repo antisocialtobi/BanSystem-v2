@@ -6,6 +6,8 @@ import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class CMDkick implements Command {
@@ -135,5 +137,27 @@ public class CMDkick implements Command {
         } else {
             p.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
         }
+    }
+
+    /*
+    /command        arg0+arg1  | permission
+    /kick           <player>   | bansys.kick
+    */
+
+
+    @Override
+    public List<String> suggest(User user, String[] args) {
+        if (!user.hasPermission("bansys.kick")) {
+            return List.of();
+        }
+        List<String> suggests = new ArrayList<>();
+        List<User> players = BanSystem.getInstance().getAllPlayers();
+
+        if(args.length == 0 || args.length == 1) {
+            for (User player : players) {
+                suggests.add(player.getName());
+            }
+        }
+        return suggests;
     }
 }

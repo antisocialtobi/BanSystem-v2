@@ -8,6 +8,10 @@ import net.coalcube.bansystem.core.ban.Type;
 
 import java.io.File;
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -29,7 +33,6 @@ public class SQLite implements Database {
             System.err.println("Fehler beim Laden des JDBC-Treibers");
             e.printStackTrace();
         }
-
 
     }
 
@@ -141,6 +144,8 @@ public class SQLite implements Database {
         boolean banIDs = false;
         boolean banHistoryIDs = false;
         boolean unbansIDs = false;
+        boolean unbanReason = false;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         BanManager banManager = BanSystem.getInstance().getBanManager();
 
         ResultSet rs_bans = getResult("select name from pragma_table_info('bans') WHERE name='id';");
@@ -158,8 +163,19 @@ public class SQLite implements Database {
             unbansIDs = true;
         }
 
+        ResultSet rs_unbansreason = getResult("select name from pragma_table_info('unbans') WHERE name='reason';");
+        while (rs_unbansreason.next()) {
+            unbanReason = true;
+        }
+
+
+        if(!banHistoryIDs) {
+            update("ALTER TABLE `banhistories` ADD COLUMN `id` VARCHAR(16);");
+            banSystem.sendConsoleMessage(prefix + "§7Tabelle §ebanhistories §7wurde geupdated.");
+        }
+
         if(!banIDs) {
-            update("ALTER TABLE `bans` ADD COLUMN `id` VARCHAR(16) NOT NULL;");
+            update("ALTER TABLE `bans` ADD COLUMN `id` VARCHAR(16);");
             ResultSet rs = getResult("SELECT * FROM `bans`;");
 
             while (rs.next()) {
@@ -170,24 +186,6 @@ public class SQLite implements Database {
                 update("UPDATE `bans` SET id='" + id + "' WHERE player='" + player + "' AND type='" + type + "';");
             }
             banSystem.sendConsoleMessage(prefix + "§7Tabelle §ebans §7wurde geupdated.");
-        }
-        if(!banHistoryIDs) {
-            update("ALTER TABLE `banhistories` ADD COLUMN `id` VARCHAR(16) NOT NULL;");
-            ResultSet rs = getResult("SELECT * FROM `banhistories`;");
-
-            while (rs.next()) {
-                UUID player = UUID.fromString(rs.getString("player"));
-                Type type = Type.valueOf(rs.getString("type"));
-                Ban ban = banManager.getBan(player, type);
-                String id = banManager.generateNewID();
-
-                if(ban != null) {
-                    update("UPDATE `bans` SET id='" + ban.getId() + "' WHERE player='" + player + "' AND type='" + type + "';");
-                } else {
-                    update("UPDATE `bans` SET id='" + id + "' WHERE player='" + player + "' AND type='" + type + "';");
-                }
-            }
-            banSystem.sendConsoleMessage(prefix + "§7Tabelle §ebanhistories §7wurde geupdated.");
         }
 
         if(!unbansIDs) {
@@ -201,6 +199,29 @@ public class SQLite implements Database {
                         + "' AND creationdate='" + rs.getTimestamp("creationdate") + "';");
             }
             banSystem.sendConsoleMessage(prefix + "§7Tabelle §eunbans §7wurde geupdated.");
+        }
+
+        if(!banHistoryIDs) {
+            ResultSet rs = getResult("SELECT * FROM `banhistories`;");
+
+            while (rs.next()) {
+                UUID player = UUID.fromString(rs.getString("player"));
+                Type type = Type.valueOf(rs.getString("type"));
+                String creationDate = rs.getString("creationDate");
+                Ban ban = banManager.getBan(player, type);
+                String id = banManager.generateNewID();
+
+                if(ban != null && Objects.equals(creationDate, dateFormat.format(ban.getCreationdate()))) {
+                    update("UPDATE `banhistories` SET id='" + ban.getId() + "' WHERE player='" + player
+                            + "' AND type='" + type + "';");
+                } else {
+                    update("UPDATE `banhistories` SET id='" + id + "' WHERE player='" + player
+                            + "' AND type='" + type + "' AND creationdate='" + rs.getString("creationdate") + "';");
+                }
+            }
+        }
+        if(!unbanReason) {
+            update("ALTER TABLE `unbans` ADD COLUMN `reason` VARCHAR(1000);");
         }
     }
 }

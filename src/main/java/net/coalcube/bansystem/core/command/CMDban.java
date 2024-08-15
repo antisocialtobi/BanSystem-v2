@@ -172,7 +172,7 @@ public class CMDban implements Command {
                 if (user.hasPermission("bansys.ban." + args[1]) || user.hasPermission("bansys.ban.all")
                         || user.hasPermission("bansys.ban.admin")) {
                     String formattedEndDate;
-                    if(endDate  != null) {
+                    if(endDate != null) {
                         formattedEndDate = simpleDateFormat.format(endDate);
                     } else
                         formattedEndDate = "§4§lPERMANENT";
@@ -285,6 +285,7 @@ public class CMDban implements Command {
                                 .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                         .getFormattedRemainingTime(duration))
                                 .replaceAll("%banner%", creatorName)
+                                .replaceAll("%enddate%", formattedEndDate)
                                 .replaceAll("%type%", type.toString())
                                 .replaceAll("%id%", ban.getId()));
                     }
@@ -296,6 +297,7 @@ public class CMDban implements Command {
                                     .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                             .getFormattedRemainingTime(duration))
                                     .replaceAll("%banner%", creatorName)
+                                    .replaceAll("%enddate%", formattedEndDate)
                                     .replaceAll("%type%", type.toString())
                                     .replaceAll("%id%", ban.getId()));
                         }
@@ -312,6 +314,31 @@ public class CMDban implements Command {
         if (args.length >= 3) {
             user.sendMessage(configurationUtil.getMessage("Ban.usage"));
         }
+    }
+
+    @Override
+    public List<String> suggest(User user, String[] args) {
+        if (!user.hasPermission("bansys.ban") &&
+                !user.hasPermission("bansys.ban.all") &&
+                !user.hasPermission("bansys.ban.admin") &&
+                !hasPermissionForAnyID(user)) {
+            return List.of();
+        }
+        List<String> suggests = new ArrayList<>();
+        List<User> players = BanSystem.getInstance().getAllPlayers();
+
+        if(args.length == 0 || args.length == 1) {
+            for(User player : players) {
+                suggests.add(player.getName());
+            }
+
+        } else if(args.length == 2) {
+            for (Object key : config.getSection("IDs").getKeys()) {
+                suggests.add(key.toString());
+            }
+        }
+
+        return suggests;
     }
 
     private boolean hasPermissionForAnyID(User user) {
@@ -366,9 +393,12 @@ public class CMDban implements Command {
 
 
         }
-
-        if(duration != -1)
+        if(duration != -1) {
             endDate = new Date(System.currentTimeMillis() + duration);
+        } else {
+            endDate = null;
+        }
+
 
     }
 }

@@ -14,10 +14,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class CMDbansystem implements Command {
@@ -188,7 +185,7 @@ public class CMDbansystem implements Command {
                         user.sendMessage(configurationUtil.getMessage("bansystem.usage.createid"));
                     }
                 } else if (args[1].equalsIgnoreCase("delete")) {
-                    if (!user.hasPermission("bansys.ids.deleteid")
+                    if (!user.hasPermission("bansys.ids.delete")
                             && !user.hasPermission("bansys.ids.*")) {
                         user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
                         return;
@@ -562,6 +559,11 @@ public class CMDbansystem implements Command {
                         sendHelp(user);
                     }
                 } else if (args[1].equalsIgnoreCase("show")) {
+                    if (!user.hasPermission("bansys.ids.show")
+                            && !user.hasPermission("bansys.ids.*")) {
+                        user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
+                        return;
+                    }
                     if (args.length == 3) {
 
                         String id = args[2];
@@ -733,6 +735,231 @@ public class CMDbansystem implements Command {
 
         }
     }
+
+    @Override
+    public List<String> suggest(User user, String[] args) {
+        if (!user.hasPermission("bansys.bansys")) {
+            return List.of();
+        }
+
+        List<String> suggests = new ArrayList<>();
+
+        if(args.length == 0 || args.length == 1) {
+            if(user.hasPermission("bansys.reload")) {
+                suggests.add("reload");
+            }
+            if(user.hasPermission("bansys.ids.create") ||
+                user.hasPermission("bansys.ids.delete") ||
+                user.hasPermission("bansys.ids.addlvl") ||
+                user.hasPermission("bansys.ids.removelvl") ||
+                user.hasPermission("bansys.ids.setduration") ||
+                user.hasPermission("bansys.ids.settype") ||
+                user.hasPermission("bansys.ids.setonlyadmins") ||
+                user.hasPermission("bansys.ids.setreason") ||
+                user.hasPermission("bansys.ids.show")) {
+                suggests.add("ids");
+            }
+            if(user.hasPermission("bansys.logs.show")
+                || user.hasPermission("bansys.logs.clear")) {
+                suggests.add("logs");
+            }
+            if(user.hasPermission("bansys.syncids")) {
+                suggests.add("syncids");
+            }
+            suggests.add("help");
+            suggests.add("version");
+            suggests.add("ver");
+        } else if(args.length == 2) {
+            if(args[0].equalsIgnoreCase("logs")) {
+                if(user.hasPermission("bansys.logs.show")) {
+                    suggests.add("show");
+                }
+                if(user.hasPermission("bansys.logs.clear")) {
+                    suggests.add("clear");
+                }
+            }
+            if(args[0].equalsIgnoreCase("ids")) {
+                if(user.hasPermission("bansys.ids.create")) {
+                    suggests.add("create");
+                }
+                if(user.hasPermission("bansys.ids.delete")) {
+                    suggests.add("delete");
+                }
+                if(user.hasPermission("bansys.ids.addlvl") ||
+                        user.hasPermission("bansys.ids.removelvl") ||
+                        user.hasPermission("bansys.ids.setduration") ||
+                        user.hasPermission("bansys.ids.settype") ||
+                        user.hasPermission("bansys.ids.setonlyadmins") ||
+                        user.hasPermission("bansys.ids.setreason")) {
+                    suggests.add("edit");
+                }
+                if(user.hasPermission("bansys.ids.show")) {
+                    suggests.add("show");
+                }
+            }
+        } else if(args.length == 3) {
+            if(args[1].equalsIgnoreCase("edit") ||
+                    args[1].equalsIgnoreCase("delete") ||
+                    args[1].equalsIgnoreCase("show")) {
+                if(user.hasPermission("bansys.ids.create") ||
+                        user.hasPermission("bansys.ids.delete") ||
+                        user.hasPermission("bansys.ids.addlvl") ||
+                        user.hasPermission("bansys.ids.removelvl") ||
+                        user.hasPermission("bansys.ids.setduration") ||
+                        user.hasPermission("bansys.ids.settype") ||
+                        user.hasPermission("bansys.ids.setonlyadmins") ||
+                        user.hasPermission("bansys.ids.setreason")) {
+                    for (Object key : config.getSection("IDs").getKeys()) {
+                        suggests.add(key.toString());
+                    }
+                }
+            }
+            if(args[0].equalsIgnoreCase("logs")) {
+                if(args[1].equalsIgnoreCase("show")) {
+                    if(user.hasPermission("bansys.logs.show")) {
+                        try {
+                            List<Log> allLogs = banManager.getAllLogs();
+                            int maxPage = (int) Math.ceil((double) allLogs.size() / 10);
+                            for (int i = 0; i < maxPage; i++) {
+                                suggests.add(String.valueOf(i));
+                            }
+                        } catch (SQLException | ExecutionException | InterruptedException | ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+            }
+
+        } else if(args.length == 4) {
+            if(args[0].equalsIgnoreCase("ids")) {
+                if(args[1].equalsIgnoreCase("edit")) {
+                    if(user.hasPermission("bansys.ids.addlvl")) {
+                        suggests.add("add");
+                    }
+                    if(user.hasPermission("bansys.ids.removelvl")) {
+                        suggests.add("remove");
+                    }
+                    if(user.hasPermission("bansys.ids.setduration") ||
+                            user.hasPermission("bansys.ids.settype") ||
+                            user.hasPermission("bansys.ids.setonlyadmins") ||
+                            user.hasPermission("bansys.ids.setreason")) {
+                        suggests.add("set");
+                    }
+                }
+            }
+        } else if(args.length == 5) {
+            if(args[0].equalsIgnoreCase("ids")) {
+                if (args[1].equalsIgnoreCase("create")) {
+                    if(user.hasPermission("bansys.ids.create")) {
+                        suggests.add("true");
+                        suggests.add("false");
+                    }
+                }
+                if (args[1].equalsIgnoreCase("edit")) {
+                    if(args[3].equalsIgnoreCase("add")) {
+                        if(user.hasPermission("bansys.ids.addlvl")) {
+                            suggests.add("lvl");
+                        }
+                    }
+                    if(args[3].equalsIgnoreCase("remove")) {
+                        if(user.hasPermission("bansys.ids.removelvl")) {
+                            suggests.add("lvl");
+                        }
+                    }
+                    if(args[3].equalsIgnoreCase("set")) {
+                        if(user.hasPermission("bansys.ids.setduration")) {
+                            suggests.add("lvlduration");
+                        }
+                        if(user.hasPermission("bansys.ids.settype")) {
+                            suggests.add("lvltype");
+                        }
+                        if(user.hasPermission("bansys.ids.setonlyadmins")) {
+                            suggests.add("onlyadmins");
+                        }
+                        if(user.hasPermission("bansys.ids.setreason")) {
+                            suggests.add("reason");
+                        }
+                    }
+                }
+            }
+        } else if(args.length == 6) {
+            if(args[0].equalsIgnoreCase("ids")) {
+                if(args[1].equalsIgnoreCase("edit")) {
+                    if(args[3].equalsIgnoreCase("remove")) {
+                        if(user.hasPermission("bansys.ids.removelvl")) {
+                            for (Object key : config.getSection("IDs." + args[2] + ".lvl").getKeys()) {
+                                suggests.add(key.toString());
+                            }
+                        }
+                    } else if(args[3].equalsIgnoreCase("set")) {
+                        if(args[4].equalsIgnoreCase("lvlduration")) {
+                            if(user.hasPermission("bansys.ids.setduration")) {
+                                for (Object key : config.getSection("IDs." + args[2] + ".lvl").getKeys()) {
+                                    suggests.add(key.toString());
+                                }
+                            }
+                        } else if(args[4].equalsIgnoreCase("lvltype")) {
+                            if(user.hasPermission("bansys.ids.settype")) {
+                                for (Object key : config.getSection("IDs." + args[2] + ".lvl").getKeys()) {
+                                    suggests.add(key.toString());
+                                }
+                            }
+                        } else if(args[4].equalsIgnoreCase("onlyadmins")) {
+                            if(user.hasPermission("bansys.ids.setonlyadmins")) {
+                                suggests.add("true");
+                                suggests.add("false");
+                            }
+                        }
+                    }
+                }
+            }
+        } else if(args.length == 7) {
+            if(args[0].equalsIgnoreCase("ids")) {
+                if(args[1].equalsIgnoreCase("create")) {
+                    if (user.hasPermission("bansys.ids.create")) {
+                        suggests.add("NETWORK");
+                        suggests.add("CHAT");
+                    }
+                } else if(args[1].equalsIgnoreCase("edit")) {
+                    if(args[3].equalsIgnoreCase("add")) {
+                        if(args[4].equalsIgnoreCase("lvl")) {
+                            if(user.hasPermission("bansys.ids.addlvl")) {
+                                suggests.add("NETWORK");
+                                suggests.add("CHAT");
+                            }
+                        }
+                    } else if(args[3].equalsIgnoreCase("set")) {
+                        if(args[4].equalsIgnoreCase("lvltype")) {
+                            if(user.hasPermission("bansys.ids.settype")) {
+                                suggests.add("NETWORK");
+                                suggests.add("CHAT");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return suggests;
+    }
+    /*
+    /command   arg0+arg1 | arg2   | arg3   | arg4    | arg5        | arg6       | arg7       | permission
+    /bansystem help      |        |        |         |             |            |            | -
+    /bansystem reload    |        |        |         |             |            |            | bansys.reload
+    /bansystem version   |        |        |         |             |            |            | -
+    /bansystem syncids   |        |        |         |             |            |            | bansys.syncids
+    /bansystem ids       | create | <ID>   | <Grund> | <onlyAdm>   | <duration> | <Type>     | bansys.ids.create
+    /bansystem ids       | delete | <ID>   |         |             |            |            | bansys.ids.delete
+    /bansystem ids       | edit   | <ID>   | add     | lvl         | <duration> | <Type>     | bansys.ids.setduration
+    /bansystem ids       | edit   | <ID>   | remove  | lvl         | <lvl>      |            | bansys.ids.removelvl
+    /bansystem ids       | edit   | <ID>   | set     | lvlduration | <lvl>      | <duration> | bansys.ids.setduration
+    /bansystem ids       | edit   | <ID>   | set     | lvltype     | <lvl>      | <type>     | bansys.ids.settype
+    /bansystem ids       | edit   | <ID>   | set     | reason      | <reason>   |            | bansys.ids.setreason
+    /bansystem ids       | edit   | <ID>   | set     | onlyadmins  | <bool>     |            | bansys.ids.setonlyadmins
+    /bansystem ids       | show   | <ID>   |         |             |            |            | bansys.ids.show
+    /bansystem logs      | show   | [site] |         |             |            |            | bansys.logs.show
+    /bansystem logs      | clear  |        |         |             |            |            | bansys.logs.clear
+     */
 
     private void sendHelp(User user) {
         Map<String, String> helpCommands = new TreeMap<>();

@@ -16,6 +16,8 @@ public interface BanManager {
 
     Ban getBan(UUID player, Type type) throws SQLException, ExecutionException, InterruptedException;
     Ban getBan(String id) throws SQLException, ExecutionException, InterruptedException;
+    List<Ban> getAllBans() throws SQLException, ExecutionException, InterruptedException;
+    List<Ban> getAllBans(Type type) throws SQLException, ExecutionException, InterruptedException;
     void log(String action, String creator, String target, String note) throws SQLException;
     Log getLog(int id) throws SQLException, ExecutionException, InterruptedException, ParseException;
     List<Log> getAllLogs() throws SQLException, ExecutionException, InterruptedException, ParseException;

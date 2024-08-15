@@ -5,9 +5,7 @@ import net.coalcube.bansystem.bungee.listener.ChatListener;
 import net.coalcube.bansystem.bungee.listener.LoginListener;
 import net.coalcube.bansystem.bungee.util.BungeeUser;
 import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.ban.BanManager;
-import net.coalcube.bansystem.core.ban.BanManagerMySQL;
-import net.coalcube.bansystem.core.ban.BanManagerSQLite;
+import net.coalcube.bansystem.core.ban.*;
 import net.coalcube.bansystem.core.command.*;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.sql.MySQL;
@@ -27,9 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -52,6 +48,9 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     private String hostname, database, user, pw;
     private int port;
     private CommandSender console;
+    private static List<String> cachedBannedPlayerNames;
+    private static List<String> cachedMutedPlayerNames;
+
     public static String prefix = "§8§l┃ §cBanSystem §8» §7";
 
     @Override
@@ -66,6 +65,8 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         UpdateChecker updatechecker = new UpdateChecker(65863);
         console = ProxyServer.getInstance().getConsole();
         configurationUtil = new ConfigurationUtil(config, messages, blacklist, this);
+        cachedBannedPlayerNames = new ArrayList<>();
+        cachedMutedPlayerNames = new ArrayList<>();
 
         console.sendMessage(new TextComponent("§c  ____                    ____                  _                      "));
         console.sendMessage(new TextComponent("§c | __ )    __ _   _ __   / ___|   _   _   ___  | |_    ___   _ __ ___  "));
@@ -178,6 +179,12 @@ public class BanSystemBungee extends Plugin implements BanSystem {
             } catch (SQLException | ExecutionException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        try {
+            initCachedBannedPlayerNames();
+        } catch (SQLException | ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
 
@@ -369,6 +376,47 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     @Override
     public InputStream getResourceAsInputStream(String path) {
         return this.getResourceAsStream(path);
+    }
+
+    @Override
+    public List<String> getCachedBannedPlayerNames() {
+        return cachedBannedPlayerNames;
+    }
+
+    @Override
+    public List<String> getCachedMutedPlayerNames() {
+        return cachedMutedPlayerNames;
+    }
+
+    @Override
+    public void addCachedMutedPlayerNames(String name) {
+        cachedMutedPlayerNames.add(name);
+    }
+
+    @Override
+    public void addCachedBannedPlayerNames(String name) {
+        cachedBannedPlayerNames.add(name);
+    }
+
+    @Override
+    public void removeCachedBannedPlayerNames(String name) {
+        cachedBannedPlayerNames.remove(name);
+    }
+
+    @Override
+    public void removeCachedMutedPlayerNames(String name) {
+        cachedMutedPlayerNames.remove(name);
+    }
+
+    private void initCachedBannedPlayerNames() throws SQLException, ExecutionException, InterruptedException {
+        for(Ban ban : banManager.getAllBans()) {
+            String name = UUIDFetcher.getName(ban.getPlayer());
+            if(ban.getType() == Type.NETWORK) {
+                cachedBannedPlayerNames.add(name);
+            } else {
+                cachedMutedPlayerNames.add(name);
+            }
+        }
     }
 
     @Override

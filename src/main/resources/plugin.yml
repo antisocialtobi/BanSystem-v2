@@ -10,6 +10,7 @@ commands:
   bansys:
   kick:
   history:
+    aliases: [hist]
   check:
   deletehistory:
   delhistory:

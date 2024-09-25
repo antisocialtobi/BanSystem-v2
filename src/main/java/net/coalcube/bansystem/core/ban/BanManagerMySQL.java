@@ -134,7 +134,9 @@ public class BanManagerMySQL implements BanManager {
             target = rs.getString("target");
             creator = rs.getString("creator");
             action = rs.getString("action");
-            note = rs.getString("note");
+            note = rs.getString("note")
+                    .replaceAll("\\{", "\u007B")
+                    .replaceAll("\\$", "\\\\\\$");
             date = rs.getTimestamp("creationdate");
 
             log = new Log(id, target, creator, action, note, date);
@@ -155,7 +157,9 @@ public class BanManagerMySQL implements BanManager {
             target = rs.getString("target");
             creator = rs.getString("creator");
             action = rs.getString("action");
-            note = rs.getString("note");
+            note = rs.getString("note")
+                    .replaceAll("\\{", "\u007B")
+                    .replaceAll("\\$", "\\\\\\$");
             date = rs.getTimestamp("creationdate");
 
             Log log = new Log(id, target, creator, action, note, date);

@@ -208,7 +208,8 @@ public class CMDban implements Command {
                         else
                             ban = banmanager.ban(uuid, duration, creator, type, reason);
 
-                        banmanager.log("Banned Player", creator, uuid.toString(), "reason: "+reason+", lvl: "+lvl);
+                        banmanager.log("Banned Player", creator, uuid.toString(), "banID: "  + ban.getId()
+                                + "; reason: "+reason+"; lvl: "+lvl);
                     } catch (ExecutionException | InterruptedException | IOException | SQLException e) {
                         user.sendMessage(configurationUtil.getMessage("Ban.failed"));
                         throw new RuntimeException(e);

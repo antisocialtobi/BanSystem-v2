@@ -2,12 +2,9 @@ package net.coalcube.bansystem.core;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-import net.coalcube.bansystem.core.ban.Ban;
 import net.coalcube.bansystem.core.ban.BanManager;
-import net.coalcube.bansystem.core.ban.Type;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 
@@ -25,6 +22,7 @@ public interface BanSystem {
     String getVersion();
     void onEnable();
     void onDisable();
+    String getEnvironment();
     User getUser(String name);
     User getUser(UUID uniqueId);
     void disconnect(User u, String msg);

@@ -75,7 +75,8 @@ public class PlayerCommandPreprocessListener implements Listener {
                         } else {
                             banManager.unBan(mute, Bukkit.getConsoleSender().getName());
                         }
-                        banManager.log("Unmuted Player", Bukkit.getConsoleSender().getName(), p.getUniqueId().toString(), "Autounmute");
+                        banManager.log("Unmuted Player", Bukkit.getConsoleSender().getName(), p.getUniqueId().toString(),
+                                "Autounmute; banID: " + mute.getId());
                         Bukkit.getConsoleSender().sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
                                 .replaceAll("%player%", p.getDisplayName()));
                         for(Player all : Bukkit.getOnlinePlayers()) {

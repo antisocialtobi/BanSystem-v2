@@ -23,8 +23,8 @@ import net.coalcube.bansystem.core.textcomponent.TextComponent;
 import net.coalcube.bansystem.core.textcomponent.TextComponentKyori;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
-import net.coalcube.bansystem.velocity.listener.LoginEvent;
-import net.coalcube.bansystem.velocity.listener.PlayerChatEvent;
+import net.coalcube.bansystem.velocity.listener.VelocityLoginEvent;
+import net.coalcube.bansystem.velocity.listener.VelocityChatEvent;
 import net.coalcube.bansystem.velocity.util.VelocityUser;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import java.io.*;
 import java.nio.file.Path;
 import java.sql.SQLException;
-import java.sql.SQLOutput;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -181,10 +180,12 @@ public class BanSystemVelocity implements BanSystem {
         sendConsoleMessage(prefix + "§7Das BanSystem wurde gestartet.");
 
         try {
-            if (updatechecker.checkForUpdates()) {
-                sendConsoleMessage(prefix + "§cEin neues Update ist verfügbar.");
-                sendConsoleMessage(prefix + "§7Lade es dir unter " +
-                        "§ehttps://www.spigotmc.org/resources/bansystem-mit-ids.65863/ §7runter um aktuell zu bleiben.");
+            if (config.getBoolean("updateCheck")) {
+                if (updatechecker.checkForUpdates()) {
+                    sendConsoleMessage(prefix + "§cEin neues Update ist verfügbar.");
+                    sendConsoleMessage(prefix + "§7Lade es dir unter " +
+                            "§ehttps://www.spigotmc.org/resources/bansystem-mit-ids.65863/ §7runter um aktuell zu bleiben.");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -219,6 +220,11 @@ public class BanSystemVelocity implements BanSystem {
         }
         logger.info(BanSystemVelocity.prefix + "§7Das BanSystem wurde gestoppt.");
 
+    }
+
+    @Override
+    public String getEnvironment() {
+        return server.getVersion().getName();
     }
 
 
@@ -383,9 +389,9 @@ public class BanSystemVelocity implements BanSystem {
         commandManager.register(commandUnMuteMeta, commandUnMute);
 
         server.getEventManager().register(this,
-                new PlayerChatEvent(server, banManager, config, sql, blacklistUtil, configurationUtil));
+                new VelocityChatEvent(this, server, banManager, config, sql, blacklistUtil, configurationUtil, idManager));
         server.getEventManager().register(this,
-                new LoginEvent(this, banManager, config, sql, urlUtil, configurationUtil));
+                new VelocityLoginEvent(this, banManager, config, sql, urlUtil, configurationUtil, idManager));
     }
 
     @Override

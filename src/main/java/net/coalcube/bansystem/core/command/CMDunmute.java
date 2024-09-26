@@ -133,10 +133,12 @@ public class CMDunmute implements Command {
                             if (args.length == 1) {
                                 if (user.getUniqueId() != null) {
                                     bm.unBan(mute, user.getUniqueId());
-                                    bm.log("Unmuted Player", user.getUniqueId().toString(), uuid.toString(), "");
+                                    bm.log("Unmuted Player", user.getUniqueId().toString(), uuid.toString(),
+                                            "banID: " + mute.getId());
                                 } else {
                                     bm.unBan(mute, user.getName());
-                                    bm.log("Unmuted Player", user.getName(), uuid.toString(), "");
+                                    bm.log("Unmuted Player", user.getName(), uuid.toString(),
+                                            "banID" + mute.getId());
                                 }
 
                                 user.sendMessage(

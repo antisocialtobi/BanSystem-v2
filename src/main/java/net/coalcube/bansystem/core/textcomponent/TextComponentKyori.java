@@ -5,6 +5,7 @@ import net.coalcube.bansystem.core.util.ConfigurationUtil;
 import net.coalcube.bansystem.core.util.User;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 
 public class TextComponentKyori implements TextComponent {
     private final ConfigurationUtil configurationUtil;
@@ -50,5 +51,22 @@ public class TextComponentKyori implements TextComponent {
             user.sendMessage(footer.toString());
         } else
             ((Player) user.getRawUser()).sendMessage(footer);
+    }
+
+    @Override
+    public void sendUpdateMessage(User user) {
+        net.kyori.adventure.text.TextComponent comp = Component.text(configurationUtil.getMessage("prefix")
+                + "§7Lade es dir unter §ehttps://www.spigotmc.org/resources/bansystem-mit-ids.65863/ §7runter um aktuell zu bleiben.");
+
+        user.sendMessage(configurationUtil.getMessage("prefix") + "§cEin neues Update ist verfügbar.");
+
+        comp = comp.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL,
+                "https://www.spigotmc.org/resources/bansystem-mit-ids.65863/"));
+        comp = comp.hoverEvent(HoverEvent.showText(Component.text("Klicke um zur Webseite zu gelangen")));
+
+        if(user.getUniqueId() == null) {
+            user.sendMessage(comp.toString());
+        } else
+            ((Player) user.getRawUser()).sendMessage(comp);
     }
 }

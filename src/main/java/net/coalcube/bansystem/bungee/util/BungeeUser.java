@@ -28,6 +28,12 @@ public class BungeeUser implements User {
     }
 
     @Override
+    public void disconnect(String message) {
+        if(sender instanceof ProxiedPlayer)
+            ((ProxiedPlayer) sender).disconnect(message);
+    }
+
+    @Override
     public boolean hasPermission(String perm) {
         return sender.hasPermission(perm);
     }

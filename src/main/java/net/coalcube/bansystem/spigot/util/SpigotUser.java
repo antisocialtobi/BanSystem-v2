@@ -32,6 +32,12 @@ public class SpigotUser implements User {
     }
 
     @Override
+    public void disconnect(String message) {
+        if(sender instanceof Player)
+            ((Player) sender).kickPlayer(message);
+    }
+
+    @Override
     public boolean hasPermission(String perm) {
         return sender.hasPermission(perm);
     }

@@ -11,6 +11,8 @@ public interface User {
 
     void sendMessage(TextComponent msg);
 
+    void disconnect(String message);
+
     boolean hasPermission(String perm);
 
     String getName();
@@ -22,5 +24,4 @@ public interface User {
     InetAddress getAddress();
 
     String getDisplayName();
-
 }

@@ -148,10 +148,10 @@ public class CMDbansystem implements Command {
                                 idManager.createID(id, reason, onlyAdmins, duration, type, creator);
                                 banManager.log("created BanID", creator, "",
                                         "id: "+ id
-                                        + ", reason: " + reason
-                                        + ", duration: " + duration
-                                        + ", type: " + type
-                                        + ", onlyAdmins: " + onlyAdmins);
+                                        + "; reason: " + reason
+                                        + "; duration: " + duration
+                                        + "; type: " + type
+                                        + "; onlyAdmins: " + onlyAdmins);
 
                                 String formattedDuration;
                                 if(duration == -1)

@@ -43,6 +43,14 @@ public class VelocityUser implements User {
     }
 
     @Override
+    public void disconnect(String message) {
+        if(sender instanceof Player) {
+            LegacyComponentSerializer lcs = LegacyComponentSerializer.legacySection();
+            ((Player) sender).disconnect(lcs.deserialize(message));
+        }
+    }
+
+    @Override
     public boolean hasPermission(String perm) {
         return sender.hasPermission(perm);
     }

@@ -1,126 +1,129 @@
-package net.coalcube.bansystem.bungee.listener;
+package net.coalcube.bansystem.core.listener;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
-import net.coalcube.bansystem.bungee.BanSystemBungee;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.Ban;
 import net.coalcube.bansystem.core.ban.BanManager;
 import net.coalcube.bansystem.core.ban.Type;
 import net.coalcube.bansystem.core.sql.Database;
-import net.coalcube.bansystem.core.util.*;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.ChatEvent;
-import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.api.scheduler.ScheduledTask;
-import net.md_5.bungee.event.EventHandler;
-import net.md_5.bungee.event.EventPriority;
+import net.coalcube.bansystem.core.util.BlacklistUtil;
+import net.coalcube.bansystem.core.util.ConfigurationUtil;
+import net.coalcube.bansystem.core.util.IDManager;
+import net.coalcube.bansystem.core.util.User;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
-public class ChatListener implements Listener {
+public class ChatListener {
 
-    private HashMap<UUID, ScheduledTask> cooldownTask = new HashMap<UUID, ScheduledTask>();
-    private HashMap<UUID, Long> reamingTime = new HashMap<>();
-
+    private final BanSystem bansystem;
     private final BanManager banManager;
-    private final YamlDocument config;
-    private final BlacklistUtil blacklistUtil;
-    private final Database sql;
     private final ConfigurationUtil configurationUtil;
+    private final YamlDocument config;
+    private final Database sql;
+    private final BlacklistUtil blacklistUtil;
+    private final IDManager idManager;
+    private final boolean chatDelayEnabled;
+    private final int chatDelay;
 
-    public ChatListener(BanManager banManager, YamlDocument config, Database sql, BlacklistUtil blacklistUtil, ConfigurationUtil configurationUtil) {
+    private List<String> blockedCommands;
+    private HashMap<UUID, Long> chatDelayedPlayer;
+
+
+    public ChatListener(BanSystem bansystem,
+                        BanManager banManager,
+                        ConfigurationUtil configurationUtil,
+                        Database sql,
+                        BlacklistUtil blacklistUtil,
+                        IDManager idManager) {
+        this.bansystem = bansystem;
         this.banManager = banManager;
-        this.config = config;
+        this.configurationUtil = configurationUtil;
         this.sql = sql;
         this.blacklistUtil = blacklistUtil;
-        this.configurationUtil = configurationUtil;
+        this.idManager = idManager;
+
+        config = configurationUtil.getConfig();
+        blockedCommands = new ArrayList<>();
+        chatDelayedPlayer = new HashMap<>();
+        chatDelay = config.getInt("chatdelay.delay");
+        chatDelayEnabled = config.getBoolean("chatdelay.enable");
+
+        blockedCommands.addAll(config.getStringList("mute.blockedCommands"));
     }
 
-    @SuppressWarnings("deprecation")
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onChat(ChatEvent e) throws SQLException, IOException, ExecutionException, InterruptedException {
+    public Event onChat(User sender, String message) throws SQLException, IOException, ExecutionException, InterruptedException {
+        Event event = new Event();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(configurationUtil.getMessage("DateTimePattern"));
-        ProxiedPlayer p = (ProxiedPlayer) e.getSender();
-        UUID uuid = p.getUniqueId();
-        String msg = e.getMessage();
+        UUID uuid = sender.getUniqueId();
         boolean startsWithBlockedCommnad = false;
 
-        if (config.getBoolean("mysql.enable") && !sql.isConnected() && !(e.isProxyCommand() || !e.isCommand())) {
-            try {
-                sql.connect();
-            } catch (SQLException ex) {
-                p.sendMessage(configurationUtil.getMessage("NoDBConnection"));
-                return;
-            }
+        // Check SQL connection
+        if (!sql.isConnected()) {
+            sender.sendMessage(configurationUtil.getMessage("NoDBConnection"));
+            return event;
         }
-        for (String s : config.getStringList("mute.blockedCommands")) {
-            if (msg.startsWith(s) || msg.contains(s) || msg.equalsIgnoreCase(s)) {
+
+        // Check if the message starts with a blocked command
+        for (String s : blockedCommands) {
+            if (message.startsWith(s) || message.contains(s) || message.equalsIgnoreCase(s)) {
                 startsWithBlockedCommnad = true;
                 break;
             }
         }
-        if (startsWithBlockedCommnad || !msg.startsWith("/")) {
-            try {
+
+
+        if (startsWithBlockedCommnad || !message.startsWith("/")) {
                 Ban ban = banManager.getBan(uuid, Type.CHAT);
                 if (ban != null) {
                     if (ban.getEnd() > System.currentTimeMillis()
                             || ban.getEnd() == -1) {
-                        e.setCancelled(true);
-                        p.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
+                        event.setCancelled(true);
+                        sender.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
                                 .replaceAll("%reason%", ban.getReason())
                                 .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                         .getFormattedRemainingTime(ban.getRemainingTime()))
                                 .replaceAll("%id%", ban.getId()));
+                        bansystem.getConsole().sendMessage("§8[§c§lMUTED§r§8] §f" + sender.getDisplayName() + "§f: " + message );
                     } else {
                         if (config.getBoolean("needReason.Unmute")) {
-                            banManager.unBan(ban, ProxyServer.getInstance().getConsole().getName(), "Strafe abgelaufen");
+                            banManager.unBan(ban, bansystem.getConsole().getName(), "Strafe abgelaufen");
                         } else {
-                            banManager.unBan(ban, ProxyServer.getInstance().getConsole().getName());
+                            banManager.unBan(ban, bansystem.getConsole().getName());
                         }
 
-                        banManager.log("Unmuted Player", ProxyServer.getInstance().getConsole().getName(), uuid.toString(), "Autounmute");
+                        banManager.log("Unmuted Player", bansystem.getConsole().getName(), uuid.toString(), "Autounmute; banID: " + ban.getId());
 
-                        ProxyServer.getInstance().getConsole().sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
-                                .replaceAll("%player%", p.getDisplayName()));
-                        for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
+                        bansystem.getConsole().sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
+                                .replaceAll("%player%", sender.getDisplayName()));
+                        for (User all : bansystem.getAllPlayers()) {
                             if (all.hasPermission("system.ban")) {
                                 all.sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
-                                        .replaceAll("%player%", p.getDisplayName()));
+                                        .replaceAll("%player%", sender.getDisplayName()));
                             }
                         }
                     }
                 }
-            } catch (SQLException | InterruptedException | ExecutionException throwables) {
-                throwables.printStackTrace();
-            }
         }
-        if(!p.hasPermission("bansys.bypasschatfilter") && !e.isCancelled()) {
+        if(!sender.hasPermission("bansys.bypasschatfilter") && !event.isCancelled()) {
             if (config.getBoolean("blacklist.words.enable")) {
-                if ((msg.startsWith("/") && config.getBoolean("blacklist.words.checkcommands.enable") &&
-                        blacklistUtil.hasBlockedWordsContains(msg)) || (!msg.startsWith("/") &&
-                        blacklistUtil.hasBlockedWordsContains(msg))) {
+                if ((message.startsWith("/") && config.getBoolean("blacklist.words.checkcommands.enable") &&
+                        blacklistUtil.hasBlockedWordsContains(message)) || (!message.startsWith("/") &&
+                        blacklistUtil.hasBlockedWordsContains(message))) {
 
-                    e.setCancelled(true);
+                    event.setCancelled(true);
 
                     if (config.getBoolean("blacklist.words.autoban.enable")) {
                         String id = String.valueOf(config.getInt("blacklist.words.autoban.id"));
                         String reason = config.getString("IDs." + id + ".reason");
                         int lvl;
-                        if (!isMaxBanLvl(id, banManager.getLevel(uuid, reason)))
+                        if (idManager.getLastLvl(id) < banManager.getLevel(uuid, reason))
                             lvl = banManager.getLevel(uuid, reason) + 1;
                         else
-                            lvl = getMaxLvl(id);
+                            lvl = idManager.getLastLvl(id);
                         Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
                         if(duration != -1) duration = duration * 1000;
                         Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
@@ -128,7 +131,12 @@ public class ChatListener implements Listener {
 
                         Ban ban = banManager.ban(uuid, duration, BanSystem.getInstance().getConsole().getName(), type, reason);
 
-                        banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(), uuid.toString(), "Autoban, Type: " + type + ", Chatmessage: " + msg);
+                        banManager.log("Banned Player", bansystem.getConsole().getName(), uuid.toString(),
+                                "Autoban; banID: " + ban.getId() + "; " +
+                                     "reason: " + ban.getReason() + "; " +
+                                     "Type: " + type + "; " +
+                                     "duration: " + ban.getDuration() + "; " +
+                                     "Chatmessage: " + message);
 
                         if (type.equals(Type.NETWORK)) {
                             String banscreen = BanSystem.getInstance().getBanScreen();
@@ -141,9 +149,9 @@ public class ChatListener implements Listener {
                             banscreen = banscreen.replaceAll("&", "§");
                             banscreen = banscreen.replaceAll("%id%", ban.getId());
 
-                            p.disconnect(banscreen);
+                            sender.disconnect(banscreen);
                         } else {
-                            p.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
+                            sender.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
                                     .replaceAll("%reason%", reason)
                                     .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration))
                                     .replaceAll("%creator%", BanSystem.getInstance().getConsole().getName())
@@ -154,18 +162,18 @@ public class ChatListener implements Listener {
 
                         BanSystem.getInstance().sendConsoleMessage(
                                 configurationUtil.getMessage("blacklist.notify.words.autoban")
-                                        .replaceAll("%player%", p.getDisplayName())
-                                        .replaceAll("%message%", msg)
+                                        .replaceAll("%player%", sender.getDisplayName())
+                                        .replaceAll("%message%", message)
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%reamingtime%", BanSystem.getInstance()
                                                 .getTimeFormatUtil().getFormattedRemainingTime(duration))
                                         .replaceAll("%id%", ban.getId()));
 
-                        for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
-                            if (all.hasPermission("bansys.notify") && (all != p)) {
+                        for (User all : bansystem.getAllPlayers()) {
+                            if (all.hasPermission("bansys.notify") && (all != sender)) {
                                 all.sendMessage(configurationUtil.getMessage("blacklist.notify.words.autoban")
-                                        .replaceAll("%player%", p.getDisplayName())
-                                        .replaceAll("%message%", msg)
+                                        .replaceAll("%player%", sender.getDisplayName())
+                                        .replaceAll("%message%", message)
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%reamingtime%", BanSystem.getInstance()
                                                 .getTimeFormatUtil().getFormattedRemainingTime(duration))
@@ -173,27 +181,27 @@ public class ChatListener implements Listener {
                             }
                         }
                     } else {
-                        for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
-                            if (all.hasPermission("bansys.notify") && (all != p)) {
+                        for (User all : bansystem.getAllPlayers()) {
+                            if (all.hasPermission("bansys.notify") && (all != sender)) {
                                 all.sendMessage(configurationUtil.getMessage("blacklist.notify.words.warning")
-                                        .replaceAll("%player%", p.getDisplayName())
-                                        .replaceAll("%message%", msg));
+                                        .replaceAll("%player%", sender.getDisplayName())
+                                        .replaceAll("%message%", message));
                             }
                         }
                     }
                 }
             }
             if (config.getBoolean("blacklist.ads.enable")) {
-                if (blacklistUtil.hasAdContains(msg)) {
-                    e.setCancelled(true);
+                if (blacklistUtil.hasAdContains(message)) {
+                    event.setCancelled(true);
                     if (config.getBoolean("blacklist.ads.autoban.enable")) {
                         String id = String.valueOf(config.getInt("blacklist.ads.autoban.id"));
                         String reason = config.getString("IDs." + id + ".reason");
                         int lvl;
-                        if (!isMaxBanLvl(id, banManager.getLevel(uuid, reason)))
+                        if (banManager.getLevel(uuid, reason) < idManager.getLastLvl(id))
                             lvl = banManager.getLevel(uuid, reason) + 1;
                         else
-                            lvl = getMaxLvl(id);
+                            lvl = idManager.getLastLvl(id);
                         Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
                         if(duration != -1) duration = duration * 1000;
                         Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
@@ -201,8 +209,12 @@ public class ChatListener implements Listener {
 
                         Ban ban = banManager.ban(uuid, duration, BanSystem.getInstance().getConsole().getName(), type, reason);
 
-                        banManager.log("Banned Player", ProxyServer.getInstance().getConsole().getName(),
-                                uuid.toString(), "Autoban, Type: " + type + ", Chatmessage: " + msg);
+                        banManager.log("Banned Player", bansystem.getConsole().getName(), uuid.toString(),
+                                "Autoban; banID: " + ban.getId() + "; " +
+                                        "reason: " + ban.getReason() + "; " +
+                                        "Type: " + type + "; " +
+                                        "duration: " + ban.getDuration() + "; " +
+                                        "Chatmessage: " + message);
 
                         if (type.equals(Type.NETWORK)) {
                             String banscreen = BanSystem.getInstance().getBanScreen();
@@ -216,9 +228,9 @@ public class ChatListener implements Listener {
                             banscreen = banscreen.replaceAll("&", "§");
                             banscreen = banscreen.replaceAll("%id%", ban.getId());
 
-                            p.disconnect(banscreen);
+                            sender.disconnect(banscreen);
                         } else {
-                            p.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
+                            sender.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
                                     .replaceAll("%reason%", reason)
                                     .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                             .getFormattedRemainingTime(duration))
@@ -229,17 +241,17 @@ public class ChatListener implements Listener {
                         }
                         BanSystem.getInstance().sendConsoleMessage(
                                 configurationUtil.getMessage("blacklist.notify.ads.autoban")
-                                        .replaceAll("%player%", p.getDisplayName())
-                                        .replaceAll("%message%", msg)
+                                        .replaceAll("%player%", sender.getDisplayName())
+                                        .replaceAll("%message%", message)
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                                 .getFormattedRemainingTime(duration))
                                         .replaceAll("%id%", ban.getId()));
-                        for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
-                            if (all.hasPermission("bansys.notify") && (all != p)) {
+                        for (User all : bansystem.getAllPlayers()) {
+                            if (all.hasPermission("bansys.notify") && (all != sender)) {
                                 all.sendMessage(configurationUtil.getMessage("blacklist.notify.ads.autoban")
-                                        .replaceAll("%player%", p.getDisplayName())
-                                        .replaceAll("%message%", msg)
+                                        .replaceAll("%player%", sender.getDisplayName())
+                                        .replaceAll("%message%", message)
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                                 .getFormattedRemainingTime(duration))
@@ -247,73 +259,40 @@ public class ChatListener implements Listener {
                             }
                         }
                     } else {
-                        for (ProxiedPlayer all : ProxyServer.getInstance().getPlayers()) {
-                            if (all.hasPermission("bansys.notify") && (all != p)) {
+                        for (User all : bansystem.getAllPlayers()) {
+                            if (all.hasPermission("bansys.notify") && (all != sender)) {
                                 all.sendMessage(configurationUtil.getMessage("blacklist.notify.ads.warning")
-                                        .replaceAll("%player%", p.getDisplayName())
-                                        .replaceAll("%message%", msg));
+                                        .replaceAll("%player%", sender.getDisplayName())
+                                        .replaceAll("%message%", message));
                             }
                         }
                     }
                 }
             }
         }
-        if(!e.isCancelled() && config.getBoolean("chatdelay.enable")
-                && !p.hasPermission("bansys.bypasschatdelay")
-                && !msg.startsWith("/")) {
-            if(cooldownTask.containsKey(uuid)) {
-                long tmpReamingTime = reamingTime.get(uuid);
-                tmpReamingTime = tmpReamingTime - System.currentTimeMillis();
-                if(tmpReamingTime < 0) {
-                    tmpReamingTime = 0;
-                }
-                String humanReadableReamingTime = BanSystem.getInstance().getTimeFormatUtil()
-                        .getFormattedRemainingTime(tmpReamingTime);
 
-                e.setCancelled(true);
-                p.sendMessage(configurationUtil.getMessage("chatdelay")
-                        .replaceAll("%reamingtime%", humanReadableReamingTime));
+        // Chat cooldown
+        if(!event.isCancelled() && chatDelayEnabled
+                && !sender.hasPermission("bansys.bypasschatdelay")
+                && !message.startsWith("/")) {
+            if(chatDelayedPlayer.containsKey(uuid)) {
+                long tmpReamingTime = chatDelayedPlayer.get(uuid);
+                tmpReamingTime = tmpReamingTime - System.currentTimeMillis();
+                if(tmpReamingTime <= 0) {
+                    chatDelayedPlayer.remove(uuid);
+
+                } else {
+                    String humanReadableReamingTime = BanSystem.getInstance().getTimeFormatUtil()
+                            .getFormattedRemainingTime(tmpReamingTime);
+
+                    event.setCancelled(true);
+                    sender.sendMessage(configurationUtil.getMessage("chatdelay")
+                            .replaceAll("%reamingtime%", humanReadableReamingTime));
+                }
             } else {
-                reamingTime.put(uuid, System.currentTimeMillis() + config.getInt("chatdelay.delay") * 1000);
-                cooldownTask.put(uuid, ProxyServer.getInstance().getScheduler().schedule(BanSystemBungee.getInstance(), () -> {
-                    cooldownTask.remove(uuid);
-                    reamingTime.remove(uuid);
-                }, config.getInt("chatdelay.delay"), TimeUnit.SECONDS));
+                chatDelayedPlayer.put(uuid, System.currentTimeMillis() + chatDelay * 1000L);
             }
         }
-
-        // send message to Spigot server.
-        if(e.isCommand() || e.isCancelled() || e.isProxyCommand()) return;
-
-        if(p.getPendingConnection().getVersion() < 759)
-            return;
-
-        e.setCancelled(true);
-        ByteArrayOutputStream b = new ByteArrayOutputStream();
-        try (DataOutputStream out = new DataOutputStream(b)) {
-            out.writeUTF(e.getMessage());
-            p.getServer().sendData("bansys:chatsign", b.toByteArray());
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
+        return event;
     }
-
-    private boolean isMaxBanLvl(String id, int lvl) {
-        int maxLvl = 0;
-
-        for (Object key : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if (Integer.parseInt(key.toString()) > maxLvl) maxLvl = Integer.parseInt(key.toString());
-        }
-        return lvl >= maxLvl;
-    }
-
-    private int getMaxLvl(String id) {
-        int maxLvl = 0;
-
-        for (Object key : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if (Integer.parseInt(key.toString()) > maxLvl) maxLvl = Integer.parseInt(key.toString());
-        }
-        return maxLvl;
-    }
-
 }

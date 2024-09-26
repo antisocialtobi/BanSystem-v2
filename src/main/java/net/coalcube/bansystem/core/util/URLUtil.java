@@ -41,12 +41,10 @@ public class URLUtil {
             JSONObject jsonObject;
 
             if(config.getString("VPN.apikey").isEmpty()) {
-
                 jsonObject = readJsonFromUrl("https://vpnapi.io/api/" + ip);
             } else {
                 jsonObject = readJsonFromUrl("https://vpnapi.io/api/" + ip + "?key=" + config.getString("VPN.apikey"));
             }
-
             if(jsonObject.has("security")) {
                 JSONObject structure = (JSONObject) jsonObject.get("security");
                 if(structure.get("vpn").toString().equals("true"))

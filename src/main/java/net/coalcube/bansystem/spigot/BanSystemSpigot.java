@@ -11,10 +11,10 @@ import net.coalcube.bansystem.core.textcomponent.TextComponent;
 import net.coalcube.bansystem.core.textcomponent.TextComponentmd5;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
-import net.coalcube.bansystem.spigot.listener.AsyncPlayerChatListener;
+import net.coalcube.bansystem.spigot.listener.SpigotAsyncPlayerChatListener;
 import net.coalcube.bansystem.spigot.listener.PlayerCommandPreprocessListener;
-import net.coalcube.bansystem.spigot.listener.PlayerConnectionListener;
-import net.coalcube.bansystem.spigot.listener.PlayerKickListener;
+import net.coalcube.bansystem.spigot.listener.SpigotPlayerConnectionListener;
+import net.coalcube.bansystem.spigot.listener.SpigotPlayerKickListener;
 import net.coalcube.bansystem.spigot.util.SpigotUser;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -174,10 +174,12 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         console.sendMessage(prefix + "§7Das BanSystem wurde gestartet.");
 
         try {
-            if (updatechecker.checkForUpdates()) {
-                console.sendMessage(prefix + "§cEin neues Update ist verfügbar.");
-                console.sendMessage(prefix + "§7Lade es dir unter " +
-                        "§ehttps://www.spigotmc.org/resources/bansystem-mit-ids.65863/ §7runter um aktuell zu bleiben.");
+            if (config.getBoolean("updateCheck")) {
+                if (updatechecker.checkForUpdates()) {
+                    console.sendMessage(prefix + "§cEin neues Update ist verfügbar.");
+                    console.sendMessage(prefix + "§7Lade es dir unter " +
+                            "§ehttps://www.spigotmc.org/resources/bansystem-mit-ids.65863/ §7runter um aktuell zu bleiben.");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -218,6 +220,11 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
         console.sendMessage(BanSystemSpigot.prefix + "§7Das BanSystem wurde gestoppt.");
 
+    }
+
+    @Override
+    public String getEnvironment() {
+        return Bukkit.getName();
     }
 
 
@@ -348,10 +355,10 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         getCommand("bansys").setExecutor(new CommandWrapper(
                 new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil, textComponent), false));
 
-        pluginManager.registerEvents(new AsyncPlayerChatListener(config, banManager, sql, blacklistUtil, configurationUtil), this);
+        pluginManager.registerEvents(new SpigotAsyncPlayerChatListener(this, config, banManager, sql, blacklistUtil, configurationUtil, idManager), this);
         pluginManager.registerEvents(new PlayerCommandPreprocessListener(banManager, config, blockedCommands, configurationUtil), this);
-        pluginManager.registerEvents(new PlayerConnectionListener(banManager, config, Banscreen, instance, urlUtil, configurationUtil), this);
-        pluginManager.registerEvents(new PlayerKickListener(this, banManager), this);
+        pluginManager.registerEvents(new SpigotPlayerConnectionListener(this, banManager, config, Banscreen, instance, urlUtil, configurationUtil, sql, idManager), this);
+        pluginManager.registerEvents(new SpigotPlayerKickListener(this, banManager), this);
     }
 
     @Override

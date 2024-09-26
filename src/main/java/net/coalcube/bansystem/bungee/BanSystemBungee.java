@@ -1,8 +1,8 @@
 package net.coalcube.bansystem.bungee;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
-import net.coalcube.bansystem.bungee.listener.ChatListener;
-import net.coalcube.bansystem.bungee.listener.LoginListener;
+import net.coalcube.bansystem.bungee.listener.BungeeChatListener;
+import net.coalcube.bansystem.bungee.listener.BungeeLoginListener;
 import net.coalcube.bansystem.bungee.util.BungeeUser;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.*;
@@ -13,7 +13,7 @@ import net.coalcube.bansystem.core.sql.SQLite;
 import net.coalcube.bansystem.core.textcomponent.TextComponentmd5;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
-import net.coalcube.bansystem.bungee.listener.PluginMessageListener;
+import net.coalcube.bansystem.bungee.listener.BungeePluginMessageListener;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -191,10 +191,12 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         console.sendMessage(new TextComponent(BanSystemBungee.prefix + "§7Das BanSystem wurde gestartet."));
 
         try {
-            if (updatechecker.checkForUpdates()) {
-                console.sendMessage(new TextComponent(prefix + "§cEin neues Update ist verfügbar."));
-                console.sendMessage(new TextComponent(prefix + "§7Lade es dir unter " +
-                        "§ehttps://www.spigotmc.org/resources/bansystem-mit-ids.65863/ §7runter um aktuell zu bleiben."));
+            if (config.getBoolean("updateCheck")) {
+                if (updatechecker.checkForUpdates()) {
+                    console.sendMessage(new TextComponent(prefix + "§cEin neues Update ist verfügbar."));
+                    console.sendMessage(new TextComponent(prefix + "§7Lade es dir unter " +
+                            "§ehttps://www.spigotmc.org/resources/bansystem-mit-ids.65863/ §7runter um aktuell zu bleiben."));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -250,6 +252,11 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         ProxyServer.getInstance().getConsole()
                 .sendMessage(new TextComponent(prefix + "§7Das BanSystem wurde gestoppt."));
 
+    }
+
+    @Override
+    public String getEnvironment() {
+        return ProxyServer.getInstance().getName();
     }
 
     private void createFileDatabase() {
@@ -337,9 +344,9 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         pluginManager.registerCommand(this, new CommandWrapper("bansys",
                 new CMDbansystem(config, sql, mysql, idManager, timeFormatUtil, banManager, configurationUtil, textComponent), false));
 
-        pluginManager.registerListener(this, new LoginListener(banManager, config, sql, urlUtil, configurationUtil));
-        pluginManager.registerListener(this, new ChatListener(banManager, config, sql, blacklistUtil, configurationUtil));
-        pluginManager.registerListener(this, new PluginMessageListener());
+        pluginManager.registerListener(this, new BungeeLoginListener(this, banManager, config, sql, urlUtil, configurationUtil, idManager));
+        pluginManager.registerListener(this, new BungeeChatListener(this, banManager, config, sql, blacklistUtil, configurationUtil, idManager));
+        pluginManager.registerListener(this, new BungeePluginMessageListener());
     }
 
     public Database getSQL() {

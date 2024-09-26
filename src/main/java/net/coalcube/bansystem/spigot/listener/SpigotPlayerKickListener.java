@@ -7,15 +7,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerKickEvent;
 
-import java.sql.SQLException;
-import java.util.concurrent.ExecutionException;
-
-public class PlayerKickListener implements Listener {
+public class SpigotPlayerKickListener implements Listener {
 
     BanSystem banSystem;
     BanManager banManager;
 
-    public PlayerKickListener(BanSystem banSystem, BanManager banManager) {
+    public SpigotPlayerKickListener(BanSystem banSystem, BanManager banManager) {
         this.banSystem = banSystem;
         this.banManager = banManager;
     }

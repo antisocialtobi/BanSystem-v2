@@ -142,10 +142,12 @@ public class CMDunban implements Command {
                             if (args.length == 1) {
                                 if (user.getUniqueId() != null) {
                                     banmanager.unBan(ban, user.getUniqueId());
-                                    banmanager.log("Unbanned Player", user.getUniqueId().toString(), uuid.toString(), "");
+                                    banmanager.log("Unbanned Player", user.getUniqueId().toString(), uuid.toString(),
+                                            "banID: " + ban.getId());
                                 } else {
                                     banmanager.unBan(ban, user.getName());
-                                    banmanager.log("Unbanned Player", user.getName(), uuid.toString(), "");
+                                    banmanager.log("Unbanned Player", user.getName(), uuid.toString(),
+                                            "banID: " + ban.getId());
                                 }
                                 user.sendMessage(
                                         configurationUtil.getMessage("Unban.success")

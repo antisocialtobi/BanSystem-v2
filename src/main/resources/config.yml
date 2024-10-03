@@ -77,6 +77,7 @@ chatdelay:
   delay: 3
 
 # When your spigot server version is greater than 1.19.1 then you have to use the chat bypass.
+# This option does not affect Velocity.
 # How to use it:
 # - when you are using Bungeecord install the Bansystem-SpigotChatAdapter jar that is delivered with the Bansystem
 # - when you are using Velocity install SignedVelocity (https://modrinth.com/plugin/signedvelocity) on the proxy and backend servers

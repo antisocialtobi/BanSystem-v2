@@ -34,7 +34,7 @@ public class CMDcheck implements Command {
     @Override
     public void execute(User user, String[] args) {
         if (user.hasPermission("bansys.check")) {
-            if (sql.isConnected()) {
+            if (!sql.isConnected()) {
                 try {
                     sql.connect();
                 } catch (SQLException ex) {

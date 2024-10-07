@@ -176,6 +176,18 @@ public class BanSystemVelocity implements BanSystem {
             sendConsoleMessage(
                     prefix + "§cBitte trage die IP des Servers in der config.yml ein.");
 
+        if(sql.isConnected()) {
+            try {
+                sql.updateTables();
+            } catch (SQLException | ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        try {
+            initCachedBannedPlayerNames();
+        } catch (SQLException | ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         sendConsoleMessage(prefix + "§7Das BanSystem wurde gestartet.");
 
@@ -189,20 +201,6 @@ public class BanSystemVelocity implements BanSystem {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-
-        if(sql.isConnected()) {
-            try {
-                sql.updateTables();
-            } catch (SQLException | ExecutionException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        try {
-            initCachedBannedPlayerNames();
-        } catch (SQLException | ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
         }
 
         idManager = new IDManager(config, sql, new File(dataDirectory.toFile(), "config.yml"));
@@ -447,14 +445,20 @@ public class BanSystemVelocity implements BanSystem {
     }
 
     private void initCachedBannedPlayerNames() throws SQLException, ExecutionException, InterruptedException {
-        for(Ban ban : banManager.getAllBans()) {
-            String name = UUIDFetcher.getName(ban.getPlayer());
-            if(ban.getType() == Type.NETWORK) {
-                cachedBannedPlayerNames.add(name);
-            } else {
-                cachedMutedPlayerNames.add(name);
+        new Thread(() -> {
+            try {
+                for(Ban ban : banManager.getAllBans()) {
+                    String name = UUIDFetcher.getName(ban.getPlayer());
+                    if(ban.getType() == Type.NETWORK) {
+                        cachedBannedPlayerNames.add(name);
+                    } else {
+                        cachedMutedPlayerNames.add(name);
+                    }
+                }
+            } catch (SQLException | ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
             }
-        }
+        }).start();
     }
 
     @Override

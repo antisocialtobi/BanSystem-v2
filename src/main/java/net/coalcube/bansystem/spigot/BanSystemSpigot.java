@@ -414,14 +414,20 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     }
 
     private void initCachedBannedPlayerNames() throws SQLException, ExecutionException, InterruptedException {
-        for(Ban ban : banManager.getAllBans()) {
-            String name = UUIDFetcher.getName(ban.getPlayer());
-            if(ban.getType() == Type.NETWORK) {
-                cachedBannedPlayerNames.add(name);
-            } else {
-                cachedMutedPlayerNames.add(name);
+        new Thread(() -> {
+            try {
+                for(Ban ban : banManager.getAllBans()) {
+                    String name = UUIDFetcher.getName(ban.getPlayer());
+                    if(ban.getType() == Type.NETWORK) {
+                        cachedBannedPlayerNames.add(name);
+                    } else {
+                        cachedMutedPlayerNames.add(name);
+                    }
+                }
+            } catch (SQLException | ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
             }
-        }
+        }).start();
     }
 
     @Override

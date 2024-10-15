@@ -8,6 +8,7 @@ import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -111,10 +112,8 @@ public class CMDdeletehistory implements Command {
                     } else {
                         user.sendMessage(configurationUtil.getMessage("History.historynotfound"));
                     }
-                } catch (UnknownHostException | SQLException e) {
+                } catch (UnknownHostException | SQLException | InterruptedException | ExecutionException | ParseException e) {
                     user.sendMessage(configurationUtil.getMessage("Deletehistory.failed"));
-                    e.printStackTrace();
-                } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
             } else {

@@ -446,12 +446,8 @@ public class BanManagerSQLite implements BanManager {
         return null;
     }
 
-    public boolean hasHistory(UUID player) throws UnknownHostException, SQLException {
-        ResultSet resultSet = sqlite.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "';");
-        while (resultSet.next()) {
-            return true;
-        }
-        return false;
+    public boolean hasHistory(UUID player) throws UnknownHostException, SQLException, ParseException, ExecutionException, InterruptedException {
+        return !getHistory(player).isEmpty();
     }
 
     public boolean hasHistory(UUID player, String reason) throws UnknownHostException, SQLException {

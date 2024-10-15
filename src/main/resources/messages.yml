@@ -429,7 +429,7 @@ blacklist:
         - '%P%§7Grund §8» §c%reason%'
         - '%P%§7Nachricht §8» §c%message%'
         - '%P%§7Verbleibende Zeit §8» §e%reamingtime%'
-        - '%P%$7ID §8» §c%id%'
+        - '%P%§7ID §8» §c%id%'
         - '%P%§8§m------------------------------'
       warning:
         - '%P%§8§m------------------------------'
@@ -444,7 +444,7 @@ blacklist:
         - '%P%§7automatisch §cgebannt/gemuted§7.'
         - '%P%§7Grund §8» §c%reason%'
         - '%P%§7Nachricht §8» §e%message%'
-        - '%P%$7ID §8» §c%id%'
+        - '%P%§7ID §8» §c%id%'
         - '%P%§8§m------------------------------'
       warning:
         - '%P%§8§m------------------------------'

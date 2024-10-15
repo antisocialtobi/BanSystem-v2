@@ -56,11 +56,28 @@ public class VelocityLoginEvent {
         User user = banSystem.getUser(uuid);
         InetAddress ip = player.getRemoteAddress().getAddress();
 
-        Event event = loginListener.onJoin(uuid, player.getUsername(), ip);
-        if(event.isCancelled()) {
-            Component component = Component.text(event.getCancelReason());
+        Event loginEvent = loginListener.onJoin(uuid, player.getUsername(), ip);
+        if(loginEvent.isCancelled()) {
+            Component component = Component.text(loginEvent.getCancelReason());
 
             e.setResult(ResultedEvent.ComponentResult.denied(component));
+        }
+    }
+    @Subscribe(order = PostOrder.EARLY)
+    public void onPostPlayerLogin(com.velocitypowered.api.event.connection.PostLoginEvent e) {
+        Player player = e.getPlayer();
+        UUID uuid = player.getUniqueId();
+        User user = banSystem.getUser(uuid);
+        InetAddress ip = player.getRemoteAddress().getAddress();
+
+        Event event = null;
+        try {
+            event = loginListener.onPostJoin(user, ip);
+        } catch (SQLException | ExecutionException | InterruptedException ex) {
+            throw new RuntimeException(ex);
+        }
+        if(event.isCancelled()) {
+            user.disconnect(event.getCancelReason());
         }
     }
 }

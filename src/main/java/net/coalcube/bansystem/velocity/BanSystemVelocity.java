@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-@Plugin(id = "bansystem", name = "BanSystem", version = "2.9",
+@Plugin(id = "bansystem", name = "BanSystem", version = "3.0",
         url = "https://www.spigotmc.org/resources/bansystem-mit-ids-spigot-bungeecord.65863/",
         description = "Punishment System", authors = {"Tobi"})
 public class BanSystemVelocity implements BanSystem {

@@ -43,7 +43,16 @@ public class ConfigurationUtil {
                 UpdaterSettings.builder()
                         .setVersioning(new BasicVersioning("file-version"))
                         .setOptionSorting(UpdaterSettings.OptionSorting.SORT_BY_DEFAULTS)
-                        .addIgnoredRoute("1", "IDs", '.').build());
+                        .addIgnoredRoute("1", "IDs", '.')
+                        .addIgnoredRoute("2", "IDs", '.')
+                        .addIgnoredRoute("3", "IDs", '.')
+                        .addIgnoredRoute("4", "IDs", '.')
+                        .addIgnoredRoute("5", "IDs", '.')
+                        .addIgnoredRoute("6", "IDs", '.')
+                        .addIgnoredRoute("7", "IDs", '.')
+                        .addIgnoredRoute("8", "IDs", '.')
+                        .addIgnoredRoute("9", "IDs", '.')
+                        .addIgnoredRoute("10", "IDs", '.').build());
 
         messages = YamlDocument.create(
                 messagesFile,

@@ -1,8 +1,13 @@
 package net.coalcube.bansystem.core.command;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.ban.Ban;
+import net.coalcube.bansystem.core.ban.BanManager;
+import net.coalcube.bansystem.core.ban.Type;
+import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
-import net.md_5.bungee.api.ChatColor;
+import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -15,12 +20,13 @@ import java.util.concurrent.ExecutionException;
 public class CMDban implements Command {
 
     private final BanManager banmanager;
-    private final Config config;
-    private final Config messages;
+    private final YamlDocument config;
+    private final YamlDocument messages;
     private final Database sql;
     private final ConfigurationUtil configurationUtil;
 
     private SimpleDateFormat simpleDateFormat;
+    private Ban ban;
     private Type type;
     private String reason;
     private String creator;
@@ -34,7 +40,7 @@ public class CMDban implements Command {
     private ArrayList<Integer> ids;
 
 
-    public CMDban(BanManager banmanager, Config config, Config messages, Database sql, ConfigurationUtil configurationUtil) {
+    public CMDban(BanManager banmanager, YamlDocument config, YamlDocument messages, Database sql, ConfigurationUtil configurationUtil) {
         this.banmanager = banmanager;
         this.config = config;
         this.messages = messages;
@@ -57,15 +63,19 @@ public class CMDban implements Command {
             return;
         }
 
-        for (String key : config.getSection("IDs").getKeys()) {
-            ids.add(Integer.valueOf(key));
+        for (Object key : config.getSection("IDs").getKeys()) {
+            ids.add(Integer.valueOf(key.toString()));
         }
 
         Collections.sort(ids);
 
-        if (config.getBoolean("mysql.enable") && !sql.isConnected()) {
-            user.sendMessage(configurationUtil.getMessage("NoDBConnection"));
-            return;
+        if (!sql.isConnected()) {
+            try {
+                sql.connect();
+            } catch (SQLException ex) {
+                user.sendMessage(configurationUtil.getMessage("NoDBConnection"));
+                return;
+            }
         }
 
         if (args.length <= 1) {
@@ -74,11 +84,14 @@ public class CMDban implements Command {
                 if (config.getBoolean("IDs." + key + ".onlyAdmins")) {
                     user.sendMessage(
                             configurationUtil.getMessage("Ban.ID.Listlayout.IDs.onlyadmins")
+                                    .replaceAll("%id%", key.toString())
                                     .replaceAll("%ID%", key.toString())
                                     .replaceAll("%reason%", config.getString("IDs." + key + ".reason")));
                 } else
                     user.sendMessage(
-                            configurationUtil.getMessage("Ban.ID.Listlayout.IDs.general").replaceAll("%ID%", key.toString())
+                            configurationUtil.getMessage("Ban.ID.Listlayout.IDs.general")
+                                    .replaceAll("%id%", key.toString())
+                                    .replaceAll("%ID%", key.toString())
                                     .replaceAll("%reason%", config.getString("IDs." + key + ".reason")));
             }
             user.sendMessage(configurationUtil.getMessage("Ban.usage"));
@@ -86,8 +99,6 @@ public class CMDban implements Command {
         }
 
         if (args.length == 2) {
-
-
             // Set name and uuid
             if(BanSystem.getInstance().getUser(args[0]).getUniqueId() != null) {
                 uuid = BanSystem.getInstance().getUser(args[0]).getUniqueId();
@@ -140,12 +151,19 @@ public class CMDban implements Command {
                 return;
             }
 
+            // check Admin permissions
+            if (config.getBoolean("IDs." + args[1] + ".onlyAdmins")) {
+                if (!user.hasPermission("bansys.ban.admin")) {
+                    user.sendMessage(configurationUtil.getMessage("Ban.onlyadmins"));
+                    return;
+                }
+            }
 
             // Set Parameters
             try {
                 setParameters(user, args);
             } catch (UnknownHostException e) {
-                user.sendMessage(configurationUtil.getMessage("Ban.faild"));
+                user.sendMessage(configurationUtil.getMessage("Ban.failed"));
                 e.printStackTrace();
                 return;
             }
@@ -154,27 +172,26 @@ public class CMDban implements Command {
                 if (user.hasPermission("bansys.ban." + args[1]) || user.hasPermission("bansys.ban.all")
                         || user.hasPermission("bansys.ban.admin")) {
                     String formattedEndDate;
-                    if(endDate  != null) {
+                    if(endDate != null) {
                         formattedEndDate = simpleDateFormat.format(endDate);
                     } else
                         formattedEndDate = "§4§lPERMANENT";
 
 
                     try {
-                        if (!(type == Type.CHAT && !banmanager.isBanned(uuid, Type.CHAT)
-                                || (type == Type.NETWORK && !banmanager.isBanned(uuid, Type.NETWORK)))) {
+                        if (!(type == Type.CHAT && banmanager.getBan(uuid, Type.CHAT) == null
+                                || (type == Type.NETWORK && banmanager.getBan(uuid, Type.NETWORK) == null))) {
                             user.sendMessage(configurationUtil.getMessage("Ban.alreadybanned")
                                     .replaceAll("%player%", Objects.requireNonNull(name)));
                             return;
                         }
                     } catch (SQLException throwables) {
-                        user.sendMessage(configurationUtil.getMessage("Ban.faild"));
+                        user.sendMessage(configurationUtil.getMessage("Ban.failed"));
                         throwables.printStackTrace();
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
 
-                    // if target is online
                     if (BanSystem.getInstance().getUser(name).getUniqueId() != null) {
                         User target = BanSystem.getInstance().getUser(name.replaceAll("&", "§"));
                         address = target.getAddress();
@@ -182,6 +199,25 @@ public class CMDban implements Command {
                             user.sendMessage(configurationUtil.getMessage("Ban.cannotban.yourself"));
                             return;
                         }
+                    }
+
+                    // Ban Player
+                    try {
+                        if (address != null)
+                            ban = banmanager.ban(uuid, duration, creator, type, reason, address);
+                        else
+                            ban = banmanager.ban(uuid, duration, creator, type, reason);
+
+                        banmanager.log("Banned Player", creator, uuid.toString(), "banID: "  + ban.getId()
+                                + "; reason: "+reason+"; lvl: "+lvl);
+                    } catch (ExecutionException | InterruptedException | IOException | SQLException e) {
+                        user.sendMessage(configurationUtil.getMessage("Ban.failed"));
+                        throw new RuntimeException(e);
+                    }
+
+                    // if target is online
+                    if (BanSystem.getInstance().getUser(name).getUniqueId() != null) {
+                        User target = BanSystem.getInstance().getUser(name.replaceAll("&", "§"));
 
                         if((target.hasPermission("bansys.ban") || target.hasPermission("bansys.ban.all") || hasPermissionForAnyID(target))
                                 && !user.hasPermission("bansys.ban.admin")) {
@@ -200,9 +236,9 @@ public class CMDban implements Command {
                         }
                         // Kick or send mute message
                         if (type == Type.NETWORK) {
-                            String banScreen = BanSystem.getInstance().getBanScreen();
+                            String banScreen = configurationUtil.getMessage("Ban.Network.Screen");
 
-                            BanSystem.getInstance().disconnect(target, banScreen
+                            banScreen = banScreen
                                     .replaceAll("%P%", configurationUtil.getMessage("prefix"))
                                     .replaceAll("%reason%", reason)
                                     .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
@@ -210,7 +246,10 @@ public class CMDban implements Command {
                                     .replaceAll("%creator%", creatorName)
                                     .replaceAll("%enddate%", formattedEndDate)
                                     .replaceAll("%lvl%", String.valueOf(lvl))
-                                    .replaceAll("&", "§"));
+                                    .replaceAll("%id%", ban.getId())
+                                    .replaceAll("&", "§");
+
+                            BanSystem.getInstance().disconnect(target, banScreen);
                         } else {
                             target.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
                                     .replaceAll("%reason%", reason)
@@ -219,21 +258,11 @@ public class CMDban implements Command {
                                             .getFormattedRemainingTime(duration))
                                     .replaceAll("%creator%", creatorName)
                                     .replaceAll("%enddate%", formattedEndDate)
-                                    .replaceAll("%lvl%", String.valueOf(lvl)));
+                                    .replaceAll("%lvl%", String.valueOf(lvl))
+                                    .replaceAll("%id%", ban.getId()));
                         }
                     }
-                    // Ban Player
-                    try {
-                        if (address != null)
-                            banmanager.ban(uuid, duration, creator, type, reason, address);
-                        else
-                            banmanager.ban(uuid, duration, creator, type, reason);
 
-                        banmanager.log("Banned Player", creator, uuid.toString(), "reason: "+reason+", lvl: "+lvl);
-                    } catch (IOException | SQLException e) {
-                        user.sendMessage(configurationUtil.getMessage("Ban.faild"));
-                        e.printStackTrace();
-                    }
 
                     String banSuccess = configurationUtil.getMessage("Ban.success")
                             .replaceAll("%Player%", Objects.requireNonNull(name))
@@ -242,7 +271,8 @@ public class CMDban implements Command {
                                     .getFormattedRemainingTime(duration))
                             .replaceAll("%banner%", creatorName)
                             .replaceAll("%type%", type.toString())
-                            .replaceAll("%enddate%", formattedEndDate);
+                            .replaceAll("%enddate%", formattedEndDate)
+                            .replaceAll("%id%", ban.getId());
 
                     if(user.getUniqueId() != null)
                         user.sendMessage(banSuccess);
@@ -256,7 +286,9 @@ public class CMDban implements Command {
                                 .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                         .getFormattedRemainingTime(duration))
                                 .replaceAll("%banner%", creatorName)
-                                .replaceAll("%type%", type.toString()));
+                                .replaceAll("%enddate%", formattedEndDate)
+                                .replaceAll("%type%", type.toString())
+                                .replaceAll("%id%", ban.getId()));
                     }
                     for (User all : BanSystem.getInstance().getAllPlayers()) {
                         if (all.hasPermission("bansys.notify") && (all.getUniqueId() != user.getUniqueId())) {
@@ -266,7 +298,9 @@ public class CMDban implements Command {
                                     .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
                                             .getFormattedRemainingTime(duration))
                                     .replaceAll("%banner%", creatorName)
-                                    .replaceAll("%type%", type.toString()));
+                                    .replaceAll("%enddate%", formattedEndDate)
+                                    .replaceAll("%type%", type.toString())
+                                    .replaceAll("%id%", ban.getId()));
                         }
                     }
                 } else
@@ -281,6 +315,31 @@ public class CMDban implements Command {
         if (args.length >= 3) {
             user.sendMessage(configurationUtil.getMessage("Ban.usage"));
         }
+    }
+
+    @Override
+    public List<String> suggest(User user, String[] args) {
+        if (!user.hasPermission("bansys.ban") &&
+                !user.hasPermission("bansys.ban.all") &&
+                !user.hasPermission("bansys.ban.admin") &&
+                !hasPermissionForAnyID(user)) {
+            return List.of();
+        }
+        List<String> suggests = new ArrayList<>();
+        List<User> players = BanSystem.getInstance().getAllPlayers();
+
+        if(args.length == 0 || args.length == 1) {
+            for(User player : players) {
+                suggests.add(player.getName());
+            }
+
+        } else if(args.length == 2) {
+            for (Object key : config.getSection("IDs").getKeys()) {
+                suggests.add(key.toString());
+            }
+        }
+
+        return suggests;
     }
 
     private boolean hasPermissionForAnyID(User user) {
@@ -310,20 +369,20 @@ public class CMDban implements Command {
 
             // set lvl
             try {
-                if (!isMaxBanLvl(args[1], banmanager.getLevel(uuid, reason))) {
+                if (!banmanager.isMaxBanLvl(args[1], banmanager.getLevel(uuid, reason))) {
                     lvl = banmanager.getLevel(uuid, reason)+1;
                 } else {
-                    lvl = getMaxLvl(args[1]);
+                    lvl = banmanager.getMaxLvl(args[1]);
                 }
             } catch (SQLException | ExecutionException | InterruptedException throwables) {
-                user.sendMessage(configurationUtil.getMessage("Ban.faild"));
+                user.sendMessage(configurationUtil.getMessage("Ban.failed"));
                 throwables.printStackTrace();
             }
 
 
             //set duration
-            for (String lvlkey : config.getSection("IDs." + id + ".lvl").getKeys()) {
-                if (Integer.parseInt(lvlkey) == lvl) {
+            for (Object lvlkey : config.getSection("IDs." + id + ".lvl").getKeys()) {
+                if (Integer.parseInt(lvlkey.toString()) == lvl) {
                     duration = config.getLong("IDs." + id + ".lvl." + lvlkey + ".duration");
                     duration = (duration == -1) ? duration : duration * 1000;
                     type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvlkey + ".type"));
@@ -333,30 +392,14 @@ public class CMDban implements Command {
                 duration = -1;
             }
 
-            // check Admin permissions
-            if (config.getBoolean("IDs." + id + ".onlyAdmins")) {
-                if (!user.hasPermission("bansys.ban.admin")) {
-                    user.sendMessage(configurationUtil.getMessage("Ban.onlyadmins"));
-                    return;
-                }
-            }
-        }
 
-        if(duration != -1)
+        }
+        if(duration != -1) {
             endDate = new Date(System.currentTimeMillis() + duration);
-
-    }
-
-    private boolean isMaxBanLvl(String id, int lvl) {
-        int maxLvl = 0;
-
-        for (String key : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if (Integer.parseInt(key) > maxLvl) maxLvl = Integer.parseInt(key);
+        } else {
+            endDate = null;
         }
-        return lvl >= maxLvl;
-    }
 
-    private int getMaxLvl(String id) {
-        return config.getSection("IDs." + id + ".lvl").getKeys().size();
+
     }
 }

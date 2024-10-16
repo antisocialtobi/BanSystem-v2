@@ -1,10 +1,14 @@
+# File version (do NOT edit):
+file-version: 2
+
+# Write every ä, ö, ü like ae, oe, ue
+
 Words:
   - Arsch
   - Nutte
   - Hure
   - Tits
   - Pussy
-  - ez
   - Fick
   - Basdard
   - Muschi
@@ -28,6 +32,7 @@ Ads:
   - .eu
   - .shop
   - .it
+  - .org
   - www.
   - de.
   - shop.

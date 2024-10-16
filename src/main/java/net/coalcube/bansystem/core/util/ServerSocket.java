@@ -22,18 +22,14 @@ public class ServerSocket {
 
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String line;
-            System.out.println("0");
             while ((line = br.readLine()) != null) {
-                System.out.println("Client response: " + line);
                 pw.println(line);
                 pw.flush();
                 if(line.equals("quit")) {
-                    System.out.println("quit");
                     break;
                 }
 
             }
-            System.out.println("1");
             pw.close();
             br.close();
             os.close();

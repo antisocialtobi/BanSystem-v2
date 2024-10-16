@@ -1,3 +1,10 @@
+# File version (do NOT edit):
+file-version: 2
+
+# Plugin by Tobias Herzig
+
+# Here you can configure the database connection.
+# If you set enable to false the plugin will create a local SQLite file.
 mysql:
   enable: false
   user: root
@@ -35,30 +42,59 @@ needReason:
   Unban: false
   Unmute: false
 
+# If autoban is disabled, all players with the permission "bansys.notify" are receiving a warning message.
 blacklist:
   words:
     enable: true
+    checkcommands:
+      enable: true
+      commands:
+        - /msg
+        - /tell
+        - /me
+        - /whisper
+        - /say
     autoban:
       enable: true
       id: 6
   ads:
     enable: true
+    checkcommands:
+      enable: true
+      commands:
+        - /msg
+        - /tell
+        - /me
+        - /whisper
+        - /say
     autoban:
       enable: true
       id: 7
 
 # If you have the permission bansys.bypasschatdelay you are not affected.
 chatdelay:
-  enable: true
+  enable: false
   delay: 3
 
-# to add an ID simple use the command "/bansys ids create" or just copy an ID and change the attributes.
+# When your spigot server version is greater than 1.19.1 then you have to use the chat bypass.
+# This option does not affect Velocity.
+# How to use it:
+# - when you are using Bungeecord install the Bansystem-SpigotChatAdapter jar that is delivered with the Bansystem
+# - when you are using Velocity install SignedVelocity (https://modrinth.com/plugin/signedvelocity) on the proxy and backend servers
+signdChatBypass:
+  enable: false
+
+# If you don´t want to get a notification if an update is available you can disable this option.
+# You can manually check for updates at https://www.spigotmc.org/resources/bansystem-mit-ids-spigot-bungeecord.65863/
+updateCheck: true
+
+# To add an ID simple use the command "/bansys ids create" or just copy an ID and change the attributes.
 # Possible Types are: NETWORK, CHAT (please note that it is case-sensitive)
 # The duration is calculated in seconds that means 1 day is 86400 duration.
-# If onlyAdmins is enabled you need to have the permission bansys.ban.admin
+# If onlyAdmins is enabled you need to have the permission bansys.ban.admin to perform the punishment.
 IDs:
   '1':
-    reason: Unerlaubte Clientmodification/Hackclient
+    reason: Unerlaubte Clientmodifikation/Hackclient
     onlyAdmins: false
     lvl:
       '1':

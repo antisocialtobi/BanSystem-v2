@@ -1,3 +1,14 @@
+# created by Tobias Herzig
+
+# Here you can edit every single message from the plugin.
+# You can use %P% as the pattern for the prefix in every message.
+# Every message can be changed in a multi line message. For example:
+# From: test: 'Test message 123'
+# To:   test:
+#       - 'Test message 1'
+#       - 'Test message 2'
+
+# You can also use & for colorcodes instead of §.
 prefix: '§8§l┃ §cBanSystem §8» §7'
 NoPermissionMessage: '%P%§cDafür hast du keine Rechte!'
 NoPlayerMessage: '%P%§cDu bist kein Spieler!'
@@ -17,35 +28,69 @@ TimeFormat:
   days: '§e%day% §cTag(e)'
 Ban:
   Network:
+    # %reason% - reason of the punishment
+    # %reamingtime% - remaining time of the punishment
+    # %creator% - creator of the punishment
+    # %enddate% - date when the punishment ends
+    # %lvl% - lvl of the punishment
+    # %id% - Unique ban ID
     Screen:
       - '§8§m----------------------§r'
       - ' '
       - '§4Du wurdest §lGebannt!'
       - '§7Grund §8» §c%reason%'
       - '§7Verbleibende Zeit §8» §3%reamingtime%'
+      - '§7ID §8» §c%id%'
       - ' '
       - '§8§m----------------------'
     autounban: '%P%§e%player% §7wurde §eautomatisch §7entbannt.'
   Chat:
+    # %reason% - reason of the punishment
+    # %reamingtime% - remaining time of the punishment
+    # %creator% - creator of the punishment
+    # %enddate% - date when the punishment ends
+    # %lvl% - lvl of the punishment
+    # %id% - Unique ban ID
     Screen:
       - '§8§m----------------------------'
       - '§4Du bist aus dem chat gebannt!'
       - '§7Grund §8» §c%reason%'
+      - '§7ID §8» §c%id%'
       - '§7Verbleibende Zeit §8» §c%reamingtime%'
       - '§8§m----------------------------'
     autounmute:
+      # %player% - Spieler
       success: '%P%§e%player% §7wurde §eautomatisch §7entmuted.'
-      faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+      failed: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+
+  # %player% - player
+  # %reason% - reason of the punishment
+  # %reamingtime% - remaining time of the punishment
+  # %banner% - creator of the punishment
+  # %enddate% - date when the punishment ends
+  # %type% - Type of punishment (mute/ban)
+  # %lvl% - lvl of the punishment
+  # %id% - Unique ban ID
   success:
-    - '§8§m----------------------------'
+    - '%P%§8§m-------------------'
     - '%P%§7Du hast §e%Player% §7erfolgreich §cgebannt/gemuted.'
     - '%P%Grund §8» §c%reason%'
     - '%P%Type §8» §c%type%'
+    - '%P%ID §8» §c%id%'
     - '%P%Verbleibende Zeit §8» §c%reamingtime%'
     - '%P%Entbannungszeitpunkt §8» §c%enddate%'
-    - '§8§m----------------------------'
-  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+    - '%P%§8§m-------------------'
+  failed: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
   bypass: '%P%§cDu kannst Spieler, die eine Bypass Permission haben, nicht bannen.'
+
+  # %player% - player
+  # %reason% - reason of the punishment
+  # %reamingtime% - remaining time of the punishment
+  # %banner% - creator of the punishment
+  # %enddate% - date when the punishment ends
+  # %type% - Type of punishment (mute/ban)
+  # %lvl% - lvl of the punishment
+  # %id% - Unique ban ID
   notify:
     - '%P%§8§m-------------------'
     - '%P%§e%player% §7wurde Gebannt.'
@@ -53,6 +98,7 @@ Ban:
     - '%P%Verbleibende Zeit §8» §c%reamingtime%'
     - '%P%Von §8» §c%banner%'
     - '%P%Type §8» §c%type%'
+    - '%P%ID §8» §c%id%'
     - '%P%§8§m-------------------'
   cannotban:
     teammembers: '%P%§cDu kannst keine Teammitglieder bannen.'
@@ -67,12 +113,23 @@ Ban:
     Listlayout:
       heading: '§8§m------------§8» §4Bann IDs §8«§m------------'
       IDs:
-        general: ' §e%ID% §8» §c%reason%'
-        onlyadmins: ' §e%ID% §8» §c%reason% §8» §4nur für Admins und Owner'
+        # %id% - ID
+        # %reason% - reason of the punishment
+        general: ' §e%id% §8» §c%reason%'
+        onlyadmins: ' §e%id% §8» §c%reason% §8» §4nur für Admins und Owner'
     NoPermission: '%P%§cFür diese ID hast du keine Berechtigung!'
 Check:
   usage: '%P%§cBenutze §8» §e/check §8<§7Spieler§8>'
-  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  failed: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+
+  # %player% - player
+  # %reason% - reason of the punishment
+  # %reamingtime% - remaining time of the punishment
+  # %banner% - creator of the punishment
+  # %enddate% - date when the punishment ends
+  # %type% - Type of punishment (mute/ban)
+  # %lvl% - lvl of the punishment
+  # %id% - Unique ban ID
   chat:
     - '%P%§8§m------§8» §e%player% §8«§m------'
     - '%P%§7Von §8» §c%banner%'
@@ -80,7 +137,17 @@ Check:
     - '%P%§7Verbleibende Zeit §8» §c%reamingtime%'
     - '%P%§7Type §8» §cChat'
     - '%P%§7Level §8» §c%level%'
+    - '%P%§7ID §8» §c%id%'
     - '%P%§8§m-----------------'
+
+  # %player% - player
+  # %reason% - reason of the punishment
+  # %reamingtime% - reaming time
+  # %banner% - creator of the punishment
+  # %enddate% - date when the punishment ends
+  # %type% - Type of punishment (mute/ban)
+  # %lvl% - lvl of the punishment
+  # %id% - Unique ban ID
   network:
     - '%P%§8§m------§8» §e%player% §8«§m------'
     - '%P%§7Von §8» §c%banner%'
@@ -88,7 +155,22 @@ Check:
     - '%P%§7Verbleibende Zeit §8» §c%reamingtime%'
     - '%P%§7Type §8» §cNetzwerk'
     - '%P%§7Level §8» §c%level%'
+    - '%P%§7ID §8» §c%id%'
     - '%P%§8§m-----------------'
+
+  # %player% - player
+  # %reasonchat% - reason of the mute
+  # %reamingtimechat% - remaining time of the mute
+  # %bannerchat% - creator of the mute
+  # %enddatechat% - date when the mute ends
+  # %levelchat% - lvl of the mute
+  # %idchat% - Unique mute ID
+  # %reasonnetwork% - reason of the ban
+  # %reamingtimenetwork% - remaining time of the ban
+  # %bannernetwork% - creator of the ban
+  # %enddatenetwork% - date when the ban ends
+  # %levelnetwork% - lvl of the punishment
+  # %idnetwork% - Unique ban ID
   networkandchat:
     - '%P%§8§m------§8» §e%player% §8«§m------'
     - '%P%§7Von §8» §c%bannernetwork%'
@@ -96,33 +178,57 @@ Check:
     - '%P%§7Verbleibende Zeit §8» §c%reamingtimenetwork%'
     - '%P%§7Type §8» §cNetzwerk'
     - '%P%§7Level §8» §c%levelnetwork%'
+    - '%P%§7ID §8» §c%idnetwork%'
     - '%P%'
     - '%P%§7Von §8» §c%bannerchat%'
     - '%P%§7Grund §8» §c%reasonchat%'
     - '%P%§7Verbleibende Zeit §8» §c%reamingtimechat%'
     - '%P%§7Type §8» §cChat'
     - '%P%§7Level §8» §c%levelchat%'
+    - '%P%§7id §8» §c%idchat%'
     - '%P%§8§m-----------------'
 Deletehistory:
   notify: '%P%§7Die History von §e%player% §7wurde von §e%sender% §7gelöscht.'
   success: '%P%§7Die History von §e%player% §7wurde gelöscht.'
   usage: '%P%§cBenutze §8» §e/deletehistory §8<§7Spieler§8>'
-Deletehistroy:
-  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  failed: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
 History:
   historynotfound: '%P%§cDieser Spieler hat keine History'
   usage: '%P%§cBenutze §8» §e/history §8<§7Spieler§8>'
-  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  failed: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
   header: '%P%§8§m-------§8» §e%player% §8«§m-------'
-  body:
-    - '%P%§7Grund §8» §c%reason%'
-    - '%P%§7Erstelldatum §8» §c%creationdate%'
-    - '%P%§7Enddatum §8» §c%enddate%'
-    - '%P%§7Ersteller §8» §c%creator%'
-    - '%P%§7IP §8» §c%ip%'
-    - '%P%§7Type §8» §c%type%'
-    - '%P%§7ID §8» §c%ID%'
-    - '%P%'
+
+  # %reason% - reason of the punishment
+  # %ip% - IP address of the player
+  # %creator% - creator of the punishment
+  # %enddate% - date when the punishment ends
+  # %type% - Type of punishment (mute/ban)
+  # %creationdate% - creation date of the punishment
+  # %duration% - duration of punishment
+  # %id% - Unique ban ID
+  ban:
+    - '%P%§7[%creationdate%] Wurde von §e%creator% §cgebannt§7.'
+    - '%P%§7├ Grund §8» §c%reason%'
+    - '%P%§7├ Enddatum §8» §c%enddate%'
+    - '%P%§7├ IP §8» §c%ip%'
+    - '%P%§7├ Type §8» §c%type%'
+    - '%P%§7├ Dauer §8» §c%duration%'
+    - '%P%§7└ ID §8» §c%id%'
+  kick: '%P%§7[%creationdate%] Wurde von §e%creator% §cgekickt§7.'
+  kickWithReason:
+    - '%P%§7[%creationdate%] Wurde von §e%creator% §cgekickt§7.'
+    - '%P%§7└ Grund §8» §c%reason%'
+  unmute: '%P%§7[%creationdate%] Wurde von §e%creator% §centmuted§7. §8[§c%id%§8]'
+  unmuteWithReason:
+    - '%P%§7[%creationdate%] Wurde von §e%creator% §centmuted§7.'
+    - '%P%§7├ Grund §8» §c%reason%'
+    - '%P%§7└ ID §8» §c%id%'
+  unban: '%P%§7[%creationdate%] Wurde von §e%creator% §centbannt§7. §8[§c%id%§8]'
+  unbanWithReason:
+    - '%P%§7[%creationdate%] Wurde von §e%creator% §centbannt§7.'
+    - '%P%§7├ Grund §8» §c%reason%'
+    - '%P%§7└ ID §8» §c%id%'
+  clearedHistory: '%P%§7[%creationdate%] History wurde von §e%creator% §cgeleert§7.'
   footer: '%P%§8§m------------------------'
 Kick:
   usage: '%P%§cBenutze §8» §e/kick §8<§7Spieler§8> §8[§7Grund§8]'
@@ -149,31 +255,41 @@ Kick:
   success: '%P%§7Der Spieler §e%player% §7wurde gekickt.'
 Unban:
   success: '%P%§e%player% §7wurde §2erfolgeich §7entbannt.'
-  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  failed: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
   notify: '%P%§e%player% §7wurde von §e%sender% §7entbannt.'
   notbanned: '%P%§e%player% §cist nicht gebannt.'
   usage: '%P%§cBenutze §8» §e/unban §8<§7Spieler§8>'
   needreason:
     usage: '%P%§cBenutze §8» §e/unban §8<§7Spieler§8> §8<§7Grund§8>'
     success: '%P%§e%player% §7wurde §2erfolgeich §7entbannt.'
+    # %player% - banned player
+    # %reason% - reason of the unban
+    # %sender% - creator of the unban
+    # %id% - Unique ban ID
     notify:
       - '%P%§8§m------------------------------'
-      - '%P%§e%player% §7wurde von §e%sender% §7entbannt.'
+      - '%P%§e%player% §7wurde von §e%sender% §7entbannt. '
       - '%P%§7Grund §8» §e%reason%'
+      - '%P%§7ID §8» §e%id%'
       - '%P%§8§m------------------------------'
 Unmute:
   usage: '%P%§cBenutze §8» §e/unmute §8<§7Spieler§8>'
   success: '%P%§7Die Schweigepflicht von §e%player% §7wurde §2aufgehoben!'
-  faild: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
+  failed: '%P%§cEs ist ein Fehler aufgetreten. In der Konsole findest du mehr Informationen.'
   notmuted: '%P%§e%player% §cist nicht gemuted.'
   notify: '%P%§e%player% §7wurde von §e%sender% §7entmuted.'
   needreason:
     usage: '%P%§cBenutze §8» §e/unmute §8<§7Spieler§8> §8<§7Grund§8>'
     success: '%P%§7Die Schweigepflicht von §e%player% §7wurde §2aufgehoben!'
+    # %player% - muted player
+    # %reason% - reason of the unmute
+    # %sender% - creator of the unmute
+    # %id% - Unique ban ID
     notify:
       - '%P%§8§m------------------------------'
       - '%P%§e%player% §7wurde von §e%sender% §7entmuted.'
       - '%P%§7Grund §8» §e%reason%'
+      - '%P%§7ID §8» §e%id%'
       - '%P%§8§m------------------------------'
 VPN:
   warning: '%P%§e%player% §chat sich mit einer VPN verbunden!'
@@ -197,6 +313,8 @@ bansystem:
     setonlyadmins: '%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eset onlyadmins
       §8<§7True§8/§7False§8>'
     showid: '%P%§7Benutze §e/bansystem ids show §8<§7id§8>'
+    showlogs: '%P%§7Benutze §e/bansystem logs show'
+    clearlogs: '%P%§7Benutze §e/bansystem logs clear'
   help:
     header: '§8§m--------§8[ §cBanSystem §8]§m--------'
     entry: '§e/%command% §8» §7%description%'
@@ -209,7 +327,7 @@ bansystem:
     sync:
       MySQLdisabled: '%P%§cDu kannst diese Funktion nicht verwenden, wenn du keine
         MySQL Datenbank verwendest.'
-      faild: '%P%§cDie synchronisation ist fehlgeschlagen. Um mehr Informationen zu
+      failed: '%P%§cDie synchronisation ist fehlgeschlagen. Um mehr Informationen zu
         bekommen schau in die Konsole.'
       success: '%P%§7Die BanIDs wurden §2synchronisiert§7.'
     alreadyexists: '%P%§cDie BanID ist bereits vorhanden.'
@@ -278,6 +396,29 @@ bansystem:
           - '%P%Lvl §e%lvl%§7:'
           - '%P%  Dauer §8» §e%duration%'
           - '%P%  Type §8» §e%type%'
+  logs:
+    clear:
+      success: '%P%§7Die Logs wurden §2erfolgreich §7gelöscht.'
+      failed: '%P%§cDie Logs konnten nicht gelöscht werden.'
+    show:
+      empty: '%P%§cEs sind keine Logs vorhanden.'
+      header:
+        - '%P%§8§m---------------§7» §cLogs §7«§8§m---------------'
+        - '§fDatum     §7-     §eErsteller §7- §7Aktion - §eSpieler §7- §bNotiz'
+      # Possible patterns for body:
+      # %id% - log ID
+      # %date% - timestamp of the log
+      # %creator% - creator of the log
+      # %action% - Action that was carried out
+      # %target% - targeted player of the action
+      # %note% - some other information e.g. ban or kick reason
+      body: '§f%date% §e%creator% §7%action% §e%target% §b%note%'
+      footer: '%P%%previous% §8§m-------§r %next% §8[§7Seite %curpage%/%maxpage% §8]'
+      buttons:
+        next: '§2§lWeiter §2»'
+        previous: '§c« §c§lZurück'
+      pageNotFound: '%P%§cDie angegebene Seite wurde nicht gefunden. Die Maximale Seitenanzahl beträgt §e%maxpage%§7.'
+      invalidInput: '%P%§cUngültige Eingabe. Bitte geben Sie eine Seitenzahl als Zahl an. 1-%maxpage%'
 blacklist:
   notify:
     words:
@@ -288,6 +429,7 @@ blacklist:
         - '%P%§7Grund §8» §c%reason%'
         - '%P%§7Nachricht §8» §c%message%'
         - '%P%§7Verbleibende Zeit §8» §e%reamingtime%'
+        - '%P%§7ID §8» §c%id%'
         - '%P%§8§m------------------------------'
       warning:
         - '%P%§8§m------------------------------'
@@ -302,6 +444,7 @@ blacklist:
         - '%P%§7automatisch §cgebannt/gemuted§7.'
         - '%P%§7Grund §8» §c%reason%'
         - '%P%§7Nachricht §8» §e%message%'
+        - '%P%§7ID §8» §c%id%'
         - '%P%§8§m------------------------------'
       warning:
         - '%P%§8§m------------------------------'
@@ -317,3 +460,6 @@ ip:
     - '%P%§e§l§nWARNUNG'
     - '%P%§e%player% §7ist womöglich ein 2. Account von §e%bannedaccount%§7.'
     - '%P%§8§m------------------------------'
+
+# File version (do NOT edit):
+file-version: 2

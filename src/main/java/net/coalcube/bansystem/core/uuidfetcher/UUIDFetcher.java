@@ -1,18 +1,22 @@
-package net.coalcube.bansystem.core.util;
+package net.coalcube.bansystem.core.uuidfetcher;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.ban.BanManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -83,6 +87,15 @@ public class UUIDFetcher {
             return UUIDFetcher.uuidCache.get(name);
         }
         try {
+            if(BanSystem.getInstance().getBanManager().isSavedBedrockPlayer(name)) {
+                UUID uuid = BanSystem.getInstance().getBanManager().getSavedBedrockUUID(name);
+                uuidCache.put(name, uuid);
+                return uuid;
+            }
+        } catch (SQLException | ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        try {
             final HttpURLConnection connection = (HttpURLConnection) new URL(
                     String.format(UUIDFetcher.UUID_URL, name, timestamp / 1000)).openConnection();
             connection.setReadTimeout(5000);
@@ -120,6 +133,16 @@ public class UUIDFetcher {
 
         if(nameCache.containsKey(uuid)) {
             return nameCache.get(uuid);
+        }
+
+        try {
+            if(BanSystem.getInstance().getBanManager().isSavedBedrockPlayer(uuid)) {
+                String name = BanSystem.getInstance().getBanManager().getSavedBedrockUsername(uuid);
+                nameCache.put(uuid, name);
+                return name;
+            }
+        } catch (SQLException | ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
         JSONObject jsonObject = null;

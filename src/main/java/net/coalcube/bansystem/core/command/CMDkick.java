@@ -1,9 +1,13 @@
 package net.coalcube.bansystem.core.command;
 
 import net.coalcube.bansystem.core.BanSystem;
+import net.coalcube.bansystem.core.ban.BanManager;
+import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.util.*;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class CMDkick implements Command {
@@ -26,16 +30,21 @@ public class CMDkick implements Command {
         BanSystem.getInstance().disconnect(target, configurationUtil.getMessage("Kick.noreason.screen"));
         p.sendMessage(configurationUtil.getMessage("Kick.success")
                 .replaceAll("%player%", target.getDisplayName()).replaceAll("&", "§"));
-        if (sql.isConnected()) {
-            if (p.getUniqueId() == null) {
-                banManager.kick(target.getUniqueId(), p.getName());
-                banManager.log("Kicked Player", p.getName(), target.getUniqueId().toString(), "");
-            } else {
-                banManager.kick(target.getUniqueId(), p.getUniqueId());
-                banManager.log("Kicked Player", p.getUniqueId().toString(), target.getUniqueId().toString(), "");
+
+        if (!sql.isConnected()) {
+            try {
+                sql.connect();
+            } catch (SQLException ex) {
+                p.sendMessage(configurationUtil.getMessage("NoDBConnection"));
+                return;
             }
+        }
+        if (p.getUniqueId() == null) {
+            banManager.kick(target.getUniqueId(), p.getName());
+            banManager.log("Kicked Player", p.getName(), target.getUniqueId().toString(), "");
         } else {
-            p.sendMessage(configurationUtil.getMessage("NoDBConnection"));
+            banManager.kick(target.getUniqueId(), p.getUniqueId());
+            banManager.log("Kicked Player", p.getUniqueId().toString(), target.getUniqueId().toString(), "");
         }
         for (User all : BanSystem.getInstance().getAllPlayers()) {
             if (all.hasPermission("bansys.notify") && all.getUniqueId() != p.getUniqueId()) {
@@ -128,5 +137,27 @@ public class CMDkick implements Command {
         } else {
             p.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
         }
+    }
+
+    /*
+    /command        arg0+arg1  | permission
+    /kick           <player>   | bansys.kick
+    */
+
+
+    @Override
+    public List<String> suggest(User user, String[] args) {
+        if (!user.hasPermission("bansys.kick")) {
+            return List.of();
+        }
+        List<String> suggests = new ArrayList<>();
+        List<User> players = BanSystem.getInstance().getAllPlayers();
+
+        if(args.length == 0 || args.length == 1) {
+            for (User player : players) {
+                suggests.add(player.getName());
+            }
+        }
+        return suggests;
     }
 }

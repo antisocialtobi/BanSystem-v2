@@ -199,7 +199,7 @@ public class CMDhistory implements Command {
                 user.sendMessage(configurationUtil.getMessage("History.usage"));
             }
         } else {
-                user.sendMessage(configurationUtil.getMessage("NoDBConnection"));
+                user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
             }
     }
 

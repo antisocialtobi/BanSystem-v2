@@ -181,7 +181,7 @@ public class CMDunmute implements Command {
                 }
             }
         } else {
-            user.sendMessage(configurationUtil.getMessage("NoDBConnection"));
+            user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
         }
     }
 

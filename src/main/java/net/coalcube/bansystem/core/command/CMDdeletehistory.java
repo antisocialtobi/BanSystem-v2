@@ -120,7 +120,7 @@ public class CMDdeletehistory implements Command {
                 user.sendMessage(configurationUtil.getMessage("Deletehistory.usage"));
             }
         } else {
-                user.sendMessage(configurationUtil.getMessage("NoDBConnection"));
+                user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
             }
     }
 

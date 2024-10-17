@@ -3,11 +3,9 @@ package net.coalcube.bansystem.core.ban;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.sql.MySQL;
-import net.coalcube.bansystem.core.util.Config;
-import net.coalcube.bansystem.core.util.History;
-import net.coalcube.bansystem.core.util.HistoryType;
-import net.coalcube.bansystem.core.util.Log;
+import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
+import org.bstats.charts.SimplePie;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -21,10 +19,12 @@ public class BanManagerMySQL implements BanManager {
 
     private final MySQL mysql;
     private final YamlDocument config;
+    private final MetricsAdapter metricsAdapter;
 
     public BanManagerMySQL(MySQL mysql, YamlDocument config) {
         this.mysql = mysql;
         this.config = config;
+        this.metricsAdapter = BanSystem.getInstance().getMetricsAdapter();
     }
 
     @Override
@@ -184,6 +184,11 @@ public class BanManagerMySQL implements BanManager {
     public void kick(UUID player, String creator, String reason) throws SQLException {
         mysql.update("INSERT INTO `kicks` (`player`, `creator`, `reason`, `creationdate`) " +
                 "VALUES ('" + player + "', '" + creator + "', '" + reason + "', NOW());");
+
+        metricsAdapter.addCustomChart(new SimplePie("punishments", () -> {
+            return "Kick";
+        }));
+
     }
 
     public void kick(UUID player, UUID creator, String reason) throws SQLException {
@@ -210,6 +215,15 @@ public class BanManagerMySQL implements BanManager {
         mysql.update("INSERT INTO `banhistories` (`id`, `player`, `duration`, `creator`, `reason`, `ip`, `type`, `creationdate`) " +
                 "VALUES ('" + id + "', '" + player + "', '" + time + "', '" + creator + "', '" + reason + "', " +
                 "'" + v4adress.getHostName() + "', '" + type + "', NOW());");
+        if(type == Type.CHAT) {
+            metricsAdapter.addCustomChart(new SimplePie("punishments", () -> {
+                return "Mute";
+            }));
+        } else {
+            metricsAdapter.addCustomChart(new SimplePie("punishments", () -> {
+                return "Ban";
+            }));
+        }
         return new Ban(id, player, type, reason, creator, v4adress.getHostAddress(), new Date(System.currentTimeMillis()), time);
     }
 
@@ -225,6 +239,18 @@ public class BanManagerMySQL implements BanManager {
 
         mysql.update("INSERT INTO `banhistories` (`id`, `player`, `duration`, `creator`, `reason`, `type`, `ip`,`creationdate`) " +
                 "VALUES ('" + id + "', '" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + type + "', '', NOW());");
+
+        if(type == Type.CHAT) {
+            BanSystem.getInstance().addCachedMutedPlayerNames(UUIDFetcher.getName(player));
+            metricsAdapter.addCustomChart(new SimplePie("punishments", () -> {
+                return "Mute";
+            }));
+        } else {
+            BanSystem.getInstance().addCachedBannedPlayerNames(UUIDFetcher.getName(player));
+            metricsAdapter.addCustomChart(new SimplePie("punishments", () -> {
+                return "Ban";
+            }));
+        }
         return new Ban(id, player, type, reason, creator, null, new Date(System.currentTimeMillis()), time);
     }
 

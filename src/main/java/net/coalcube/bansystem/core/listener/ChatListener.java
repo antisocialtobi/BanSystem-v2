@@ -6,10 +6,8 @@ import net.coalcube.bansystem.core.ban.Ban;
 import net.coalcube.bansystem.core.ban.BanManager;
 import net.coalcube.bansystem.core.ban.Type;
 import net.coalcube.bansystem.core.sql.Database;
-import net.coalcube.bansystem.core.util.BlacklistUtil;
-import net.coalcube.bansystem.core.util.ConfigurationUtil;
-import net.coalcube.bansystem.core.util.IDManager;
-import net.coalcube.bansystem.core.util.User;
+import net.coalcube.bansystem.core.util.*;
+import org.bstats.charts.SimplePie;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -26,6 +24,7 @@ public class ChatListener {
     private final Database sql;
     private final BlacklistUtil blacklistUtil;
     private final IDManager idManager;
+    private final MetricsAdapter metricsAdapter;
     private final boolean chatDelayEnabled;
     private final int chatDelay;
 
@@ -45,6 +44,7 @@ public class ChatListener {
         this.sql = sql;
         this.blacklistUtil = blacklistUtil;
         this.idManager = idManager;
+        this.metricsAdapter = bansystem.getMetricsAdapter();
 
         config = configurationUtil.getConfig();
         blockedCommands = new ArrayList<>();
@@ -138,6 +138,10 @@ public class ChatListener {
                                      "duration: " + ban.getDuration() + "; " +
                                      "Chatmessage: " + message);
 
+                        metricsAdapter.addCustomChart(new SimplePie("automations", () -> {
+                            return "Blacklist mute word";
+                        }));
+
                         if (type.equals(Type.NETWORK)) {
                             String banscreen = BanSystem.getInstance().getBanScreen();
                             banscreen = banscreen.replaceAll("%P%", configurationUtil.getMessage("prefix"));
@@ -215,6 +219,10 @@ public class ChatListener {
                                         "Type: " + type + "; " +
                                         "duration: " + ban.getDuration() + "; " +
                                         "Chatmessage: " + message);
+
+                        metricsAdapter.addCustomChart(new SimplePie("automations", () -> {
+                            return "Blacklist mute ad";
+                        }));
 
                         if (type.equals(Type.NETWORK)) {
                             String banscreen = BanSystem.getInstance().getBanScreen();

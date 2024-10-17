@@ -3,6 +3,7 @@ package net.coalcube.bansystem.bungee;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.bungee.listener.BungeeChatListener;
 import net.coalcube.bansystem.bungee.listener.BungeeLoginListener;
+import net.coalcube.bansystem.bungee.util.BungeeMetrics;
 import net.coalcube.bansystem.bungee.util.BungeeUser;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.*;
@@ -20,6 +21,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
+import org.bstats.bungeecord.Metrics;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +52,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     private CommandSender console;
     private static List<String> cachedBannedPlayerNames;
     private static List<String> cachedMutedPlayerNames;
+    private MetricsAdapter metricsAdapter;
 
     public static String prefix = "§8§l┃ §cBanSystem §8» §7";
 
@@ -60,6 +63,10 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         instance = this;
         BanSystem.setInstance(this);
 
+        int pluginId = 23651; // <-- Replace with the id of your plugin!
+        Metrics metrics = new Metrics(this, pluginId);
+
+        metricsAdapter = new BungeeMetrics(metrics);
         ProxyServer proxy = ProxyServer.getInstance();
         PluginManager pluginmanager = ProxyServer.getInstance().getPluginManager();
         UpdateChecker updatechecker = new UpdateChecker(65863);
@@ -201,15 +208,6 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        new Thread(() -> {
-            StatisticServerSocket statisticServerSocket = new StatisticServerSocket(banManager);
-
-            String enviroment = "Bungeecord";
-            String serverVersion = proxy.getVersion();
-
-            //statisticServerSocket.register(enviroment, serverVersion, this.getVersion());
-        }).start();
 
         /*
         WebHook webhook = new WebHook("https://discord.com/api/webhooks/1243098087862304788/4zAzjFPGPoHSIxoPbhcAFZIc-0oLHtwplZFD3klX4NSxdIL06HLBxg8r1Fo31XeO4NvC");
@@ -413,6 +411,11 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     @Override
     public void removeCachedMutedPlayerNames(String name) {
         cachedMutedPlayerNames.remove(name);
+    }
+
+    @Override
+    public MetricsAdapter getMetricsAdapter() {
+        return metricsAdapter;
     }
 
     private void initCachedBannedPlayerNames() throws SQLException, ExecutionException, InterruptedException {

@@ -15,7 +15,9 @@ import net.coalcube.bansystem.spigot.listener.SpigotAsyncPlayerChatListener;
 import net.coalcube.bansystem.spigot.listener.PlayerCommandPreprocessListener;
 import net.coalcube.bansystem.spigot.listener.SpigotPlayerConnectionListener;
 import net.coalcube.bansystem.spigot.listener.SpigotPlayerKickListener;
+import net.coalcube.bansystem.spigot.util.SpigotMetrics;
 import net.coalcube.bansystem.spigot.util.SpigotUser;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -52,6 +54,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     private CommandSender console;
     private static List<String> cachedBannedPlayerNames;
     private static List<String> cachedMutedPlayerNames;
+    private MetricsAdapter metricsAdapter;
 
     public static String prefix = "§8§l┃ §cBanSystem §8» §7";
 
@@ -61,6 +64,10 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
         BanSystem.setInstance(this);
 
+        int pluginId = 23652; // <-- Replace with the id of your plugin!
+        Metrics metrics = new Metrics(this, pluginId);
+
+        metricsAdapter = new SpigotMetrics(metrics);
         instance = this;
         console = Bukkit.getConsoleSender();
         PluginManager pluginmanager = Bukkit.getPluginManager();
@@ -411,6 +418,11 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     @Override
     public void removeCachedMutedPlayerNames(String name) {
         cachedMutedPlayerNames.remove(name);
+    }
+
+    @Override
+    public MetricsAdapter getMetricsAdapter() {
+        return metricsAdapter;
     }
 
     private void initCachedBannedPlayerNames() throws SQLException, ExecutionException, InterruptedException {

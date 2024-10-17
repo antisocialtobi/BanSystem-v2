@@ -9,6 +9,7 @@ import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.textcomponent.TextComponent;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
+import org.bstats.charts.SimplePie;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -29,6 +30,7 @@ public class LoginListener {
     private final URLUtil urlUtil;
     private final TextComponent textComponent;
     private final SimpleDateFormat simpleDateFormat;
+    private final MetricsAdapter metricsAdapter;
     private Map<String, Boolean> vpnIpCache;
 
     public LoginListener(BanSystem bansystem,
@@ -45,6 +47,7 @@ public class LoginListener {
         this.idManager = idManager;
         this.urlUtil = urlUtil;
         this.textComponent = textComponent;
+        this.metricsAdapter = bansystem.getMetricsAdapter();
 
         this.simpleDateFormat = new SimpleDateFormat(configurationUtil.getMessage("DateTimePattern"));
         this.config = configurationUtil.getConfig();
@@ -148,6 +151,9 @@ public class LoginListener {
                     vpnIpCache.put(ip, isVPN);
                 }
                 if (vpnIpCache.get(ip)) {
+                    metricsAdapter.addCustomChart(new SimplePie("automations", () -> {
+                        return "VPN detected";
+                    }));
                     if (config.getBoolean("VPN.autoban.enable")) {
                         try {
                             int id = config.getInt("VPN.autoban.ID");
@@ -276,6 +282,9 @@ public class LoginListener {
                 if (!rightType && config.getBoolean("IPautoban.onlyNetworkBans")) {
                     return event;
                 }
+                metricsAdapter.addCustomChart(new SimplePie("automations", () -> {
+                    return "Alt account detected";
+                }));
                 if (config.getBoolean("IPautoban.enable")) {
                     try {
                         ban = banManager.ban(uuid, ipAutoBanDuration, BanSystem.getInstance().getConsole().getName(), ipAutoBanType, ipAutoBanReason, user.getAddress());

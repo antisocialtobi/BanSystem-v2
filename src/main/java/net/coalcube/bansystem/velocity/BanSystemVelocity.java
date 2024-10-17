@@ -25,9 +25,13 @@ import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 import net.coalcube.bansystem.velocity.listener.VelocityLoginEvent;
 import net.coalcube.bansystem.velocity.listener.VelocityChatEvent;
+import net.coalcube.bansystem.velocity.util.VelocityMetrics;
 import net.coalcube.bansystem.velocity.util.VelocityUser;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bstats.charts.AdvancedBarChart;
+import org.bstats.charts.SimplePie;
+import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -38,7 +42,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-@Plugin(id = "bansystem", name = "BanSystem", version = "3.0",
+@Plugin(id = "bansystem", name = "BanSystem", version = "3.1",
         url = "https://www.spigotmc.org/resources/bansystem-mit-ids-spigot-bungeecord.65863/",
         description = "Punishment System", authors = {"Tobi"})
 public class BanSystemVelocity implements BanSystem {
@@ -46,6 +50,7 @@ public class BanSystemVelocity implements BanSystem {
     private final ProxyServer server;
     private final Logger logger;
     private final Path dataDirectory;
+    private final Metrics.Factory metricsFactory;
     private LegacyComponentSerializer lcs;
     private static BanManager banManager;
     private static IDManager idManager;
@@ -64,19 +69,25 @@ public class BanSystemVelocity implements BanSystem {
     private int port;
     private static List<String> cachedBannedPlayerNames;
     private static List<String> cachedMutedPlayerNames;
+    private MetricsAdapter metricsAdapter;
 
     public static String prefix = "§8§l┃ §cBanSystem §8» §7";
 
     @Inject
-    public BanSystemVelocity(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
+    public BanSystemVelocity(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory, Metrics.Factory metricsFactory) {
         this.server = server;
         this.logger = logger;
         this.dataDirectory = dataDirectory;
+        this.metricsFactory = metricsFactory;
     }
 
     public void onEnable() {
         BanSystem.setInstance(this);
 
+        int pluginId = 23650; // bstats Plugin ID
+        Metrics metrics = metricsFactory.make(this, pluginId);
+
+        metricsAdapter = new VelocityMetrics(metrics);
         PluginManager pluginmanager = server.getPluginManager();
         UpdateChecker updatechecker = new UpdateChecker(65863);
         lcs = LegacyComponentSerializer.legacySection();
@@ -442,6 +453,11 @@ public class BanSystemVelocity implements BanSystem {
     @Override
     public void removeCachedMutedPlayerNames(String name) {
         cachedMutedPlayerNames.remove(name);
+    }
+
+    @Override
+    public MetricsAdapter getMetricsAdapter() {
+        return metricsAdapter;
     }
 
     private void initCachedBannedPlayerNames() throws SQLException, ExecutionException, InterruptedException {

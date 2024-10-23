@@ -179,7 +179,7 @@ public class BanManagerSQLite implements BanManager {
 
     @Override
     public void clearLogs() throws SQLException {
-        sqlite.update("TRUNCATE TABLE logs;");
+        sqlite.update("DELETE FROM logs;");
     }
     public void kick(UUID player, String creator) throws SQLException {
         kick(player, creator, "");

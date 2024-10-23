@@ -170,7 +170,7 @@ public class BanManagerMySQL implements BanManager {
 
     @Override
     public void clearLogs() throws SQLException {
-        mysql.update("TRUNCATE TABLE logs;");
+        mysql.update("DELETE FROM logs;");
     }
 
     public void kick(UUID player, String creator) throws SQLException {

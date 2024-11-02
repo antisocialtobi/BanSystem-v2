@@ -89,8 +89,8 @@ public class SpigotPlayerConnectionListener implements Listener {
 
         try {
             Event event = loginListener.onPostJoin(user, ip);
-            e.setJoinMessage("");
             if(event.isCancelled()) {
+                e.setJoinMessage("");
                 new BukkitRunnable() {
                     @Override
                     public void run() {

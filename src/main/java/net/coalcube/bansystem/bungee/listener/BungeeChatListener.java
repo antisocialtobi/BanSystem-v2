@@ -22,50 +22,38 @@ import java.util.concurrent.ExecutionException;
 public class BungeeChatListener implements Listener {
 
     private final BanSystem banSystem;
-    private final BanManager banManager;
-    private final YamlDocument config;
-    private final BlacklistUtil blacklistUtil;
-    private final Database sql;
-    private final ConfigurationUtil configurationUtil;
     private final ChatListener chatListener;
-    private final boolean signdChatBypass;
+    private final boolean signedChatBypass;
 
     public BungeeChatListener(BanSystem banSystem, BanManager banManager, YamlDocument config, Database sql, BlacklistUtil blacklistUtil, ConfigurationUtil configurationUtil, IDManager idManager) {
         this.banSystem = banSystem;
-        this.banManager = banManager;
-        this.config = config;
-        this.sql = sql;
-        this.blacklistUtil = blacklistUtil;
-        this.configurationUtil = configurationUtil;
         this.chatListener = new ChatListener(banSystem, banManager, configurationUtil, sql, blacklistUtil, idManager);
 
-        signdChatBypass = config.getBoolean("signdChatBypass.enable");
+        signedChatBypass = config.getBoolean("signdChatBypass.enable");
     }
 
-    @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onChat(ChatEvent e) throws SQLException, IOException, ExecutionException, InterruptedException {
-        ProxiedPlayer p = (ProxiedPlayer) e.getSender();
-        User user = banSystem.getUser(p.getUniqueId());
-        String msg = e.getMessage();
+    public void onChat(ChatEvent event) throws SQLException, IOException, ExecutionException, InterruptedException {
+        ProxiedPlayer player = (ProxiedPlayer) event.getSender();
+        User user = banSystem.getUser(player.getUniqueId());
+        String message = event.getMessage();
 
-        Event event = chatListener.onChat(user, msg);
+        Event chatEvent = chatListener.onChat(user, message);
 
-        e.setCancelled(event.isCancelled());
+        event.setCancelled(chatEvent.isCancelled());
 
-        // send message to Spigot server.
+        // send message to Spigot server to bypass the problem with chat signing.
 
-        if(!signdChatBypass) return;
-        if(e.isCommand() || e.isCancelled() || e.isProxyCommand()) return;
+        if(!signedChatBypass) return;
+        if(event.isCommand() || event.isCancelled() || event.isProxyCommand()) return;
+        // experimental checking client version
+        // if(player.getPendingConnection().getVersion() < 767) return;
 
-        if(p.getPendingConnection().getVersion() < 767)
-            return;
-
-        e.setCancelled(true);
+        event.setCancelled(true);
         ByteArrayOutputStream b = new ByteArrayOutputStream();
         try (DataOutputStream out = new DataOutputStream(b)) {
-            out.writeUTF(e.getMessage());
-            p.getServer().sendData("bansys:chatsign", b.toByteArray());
+            out.writeUTF(event.getMessage());
+            player.getServer().sendData("bansys:chatsign", b.toByteArray());
         } catch (Exception exception) {
             exception.printStackTrace();
         }

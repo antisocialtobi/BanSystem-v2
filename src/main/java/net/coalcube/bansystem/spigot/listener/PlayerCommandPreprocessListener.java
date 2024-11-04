@@ -4,7 +4,6 @@ import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.Ban;
 import net.coalcube.bansystem.core.ban.BanManager;
-import net.coalcube.bansystem.core.util.Config;
 import net.coalcube.bansystem.core.util.ConfigurationUtil;
 import net.coalcube.bansystem.core.ban.Type;
 import org.bukkit.Bukkit;
@@ -14,24 +13,22 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-import java.io.IOException;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class PlayerCommandPreprocessListener implements Listener {
 
-    private static BanManager banManager;
-    private static YamlDocument config;
-    private static List<String> blockedCommands;
-    private static ConfigurationUtil configurationUtil;
+    private final BanManager banManager;
+    private final YamlDocument config;
+    private final List<String> blockedCommands;
+    private final ConfigurationUtil configurationUtil;
 
     public PlayerCommandPreprocessListener(BanManager banManager, YamlDocument config, List<String> blockedCommands, ConfigurationUtil configurationUtil) {
-        PlayerCommandPreprocessListener.banManager = banManager;
-        PlayerCommandPreprocessListener.config = config;
-        PlayerCommandPreprocessListener.blockedCommands = blockedCommands;
-        PlayerCommandPreprocessListener.configurationUtil = configurationUtil;
+        this.banManager = banManager;
+        this.config = config;
+        this.blockedCommands = blockedCommands;
+        this.configurationUtil = configurationUtil;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

@@ -31,7 +31,7 @@ public class LoginListener {
     private final TextComponent textComponent;
     private final SimpleDateFormat simpleDateFormat;
     private final MetricsAdapter metricsAdapter;
-    private Map<String, Boolean> vpnIpCache;
+    private final Map<String, Boolean> vpnIpCache;
 
     public LoginListener(BanSystem bansystem,
                          BanManager banManager,

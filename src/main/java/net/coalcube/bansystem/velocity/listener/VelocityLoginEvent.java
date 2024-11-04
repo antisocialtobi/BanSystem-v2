@@ -24,12 +24,7 @@ import java.util.concurrent.ExecutionException;
 public class VelocityLoginEvent {
 
     private final BanSystem banSystem;
-    private final BanManager banManager;
-    private final YamlDocument config;
-    private final Database sql;
-    private final URLUtil urlUtil;
     private final LoginListener loginListener;
-    private final ConfigurationUtil configurationUtil;
 
     public VelocityLoginEvent(BanSystem banSystem,
                               BanManager banManager,
@@ -39,11 +34,6 @@ public class VelocityLoginEvent {
                               ConfigurationUtil configurationUtil,
                               IDManager idManager) {
         this.banSystem = banSystem;
-        this.banManager = banManager;
-        this.config = config;
-        this.sql = sql;
-        this.urlUtil = urlUtil;
-        this.configurationUtil = configurationUtil;
         TextComponent textComponent = new TextComponentKyori(configurationUtil);
 
         this.loginListener = new LoginListener(banSystem, banManager, configurationUtil, sql, idManager, urlUtil, textComponent);

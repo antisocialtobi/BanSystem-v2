@@ -29,28 +29,13 @@ import java.util.concurrent.ExecutionException;
 
 public class SpigotPlayerConnectionListener implements Listener {
 
-    private final BanSystem banSystem;
     private final BanManager banManager;
-    private final YamlDocument config;
-    private final String banScreenRow;
-    private final Plugin instance;
-    private final URLUtil urlUtil;
-    private final ConfigurationUtil configurationUtil;
-    private static Map<String, Boolean> vpnIpCache;
     private final LoginListener loginListener;
 
     public SpigotPlayerConnectionListener(BanSystem banSystem, BanManager banManager, YamlDocument config, String banScreen, Plugin instance, URLUtil urlUtil, ConfigurationUtil configurationUtil, Database sql, IDManager idManager) {
-        this.banSystem = banSystem;
         this.banManager = banManager;
-        this.config = config;
-        this.banScreenRow = banScreen;
-        this.instance = instance;
-        this.urlUtil = urlUtil;
-        this.configurationUtil = configurationUtil;
-
         net.coalcube.bansystem.core.textcomponent.TextComponent textComponent = new TextComponentmd5(configurationUtil);
         this.loginListener = new LoginListener(banSystem, banManager, configurationUtil, sql, idManager, urlUtil, textComponent);
-        vpnIpCache = new HashMap<>();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

@@ -19,6 +19,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
+import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
@@ -72,19 +73,23 @@ public class BungeeLoginListener implements Listener {
             e.setCancelled(event.isCancelled());
             e.setReason(new TextComponent(event.getCancelReason()));
 
-            if (!e.isCancelled()) {
-                ProxyServer.getInstance().getScheduler().schedule(BanSystemBungee.getInstance(), () -> {
-                    User user = banSystem.getUser(uuid);
-                    try {
-                        Event postEvent = loginListener.onPostJoin(user, ip);
-                        e.setCancelled(postEvent.isCancelled());
-                        e.setReason(new TextComponent(postEvent.getCancelReason()));
-                    } catch (SQLException | ExecutionException | InterruptedException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }, 1, TimeUnit.SECONDS);
-            }
             e.completeIntent(BanSystemBungee.getInstance());
         }).start();
+    }
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onLogin(PostLoginEvent e) {
+        UUID uuid = e.getPlayer().getUniqueId();
+        User user = banSystem.getUser(uuid);
+
+        try {
+            Event postEvent = loginListener.onPostJoin(user, user.getAddress());
+            if(postEvent.isCancelled()) {
+                user.disconnect(postEvent.getCancelReason());
+            }
+        } catch (SQLException | ExecutionException | InterruptedException ex) {
+            throw new RuntimeException(ex);
+        }
+
+
     }
 }

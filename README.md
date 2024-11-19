@@ -54,7 +54,7 @@ Bei dem Apikey musst du nicht zwingend etwas eintragen, jedoch kannst du dir bei
 
 - /bansystem - `bansys.bansys`
 - /bansystem reload - `bansys.reload`
-- /bansystem ids create <ID> <reason> <OnlyAdmins> <duration> <Type> - `bansys.ids.create`
+- /bansystem ids create <ID> <Type> <OnlyAdmins> <duration> <reason> - `bansys.ids.create`
 - /bansystem ids delete <ID> - `bansys.ids.delete`
 - /bansystem ids edit <ID> add lvl <Duration> <Type> - `bansys.ids.addlvl`
 - /bansystem ids edit <ID> remove lvl <lvl> - bansys.ids.removelvl

@@ -41,4 +41,5 @@ public interface BanSystem {
     void removeCachedBannedPlayerNames(String name);
     void removeCachedMutedPlayerNames(String name);
     MetricsAdapter getMetricsAdapter();
+    boolean isUpdateAvailable();
 }

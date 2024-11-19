@@ -72,6 +72,7 @@ public class BanSystemVelocity implements BanSystem {
     private MetricsAdapter metricsAdapter;
 
     public static String prefix = "§8§l┃ §cBanSystem §8» §7";
+    private boolean isUpdateAvailable;
 
     @Inject
     public BanSystemVelocity(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory, Metrics.Factory metricsFactory) {
@@ -179,7 +180,14 @@ public class BanSystemVelocity implements BanSystem {
 
 
         server.getScheduler()
-                .buildTask(this, UUIDFetcher::clearCache)
+                .buildTask(this, () -> {
+                    UUIDFetcher.clearCache();
+                    try {
+                        isUpdateAvailable = updatechecker.checkForUpdates();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
                 .delay(1, TimeUnit.HOURS)
                 .schedule();
 
@@ -203,8 +211,9 @@ public class BanSystemVelocity implements BanSystem {
         sendConsoleMessage(prefix + "§7Das BanSystem wurde gestartet.");
 
         try {
+            isUpdateAvailable = updatechecker.checkForUpdates();
             if (config.getBoolean("updateCheck")) {
-                if (updatechecker.checkForUpdates()) {
+                if (isUpdateAvailable) {
                     sendConsoleMessage(prefix + "§cEin neues Update ist verfügbar.");
                     sendConsoleMessage(prefix + "§7Lade es dir unter " +
                             "§ehttps://www.spigotmc.org/resources/bansystem-mit-ids.65863/ §7runter um aktuell zu bleiben.");
@@ -458,6 +467,11 @@ public class BanSystemVelocity implements BanSystem {
     @Override
     public MetricsAdapter getMetricsAdapter() {
         return metricsAdapter;
+    }
+
+    @Override
+    public boolean isUpdateAvailable() {
+        return isUpdateAvailable;
     }
 
     private void initCachedBannedPlayerNames() throws SQLException, ExecutionException, InterruptedException {

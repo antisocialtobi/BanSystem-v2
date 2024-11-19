@@ -97,7 +97,7 @@ public class LoginListener {
                         banManager.setIP(uuid, inetAddress);
                     }
                 } else {
-                    if (config.getBoolean("needReason.Unmute")) {
+                    if (config.getBoolean("needReason.Unban")) {
                         banManager.unBan(ban, bansystem.getConsole().getName(), "Strafe abgelaufen");
                     } else {
                         banManager.unBan(ban, bansystem.getConsole().getName());
@@ -236,14 +236,13 @@ public class LoginListener {
         if (user.hasPermission("bansys.ban.admin")) {
             try {
                 if (config.getBoolean("updateCheck")) {
-                    if (new UpdateChecker(65863).checkForUpdates()) {
+                    if (bansystem.isUpdateAvailable()) {
                         textComponent.sendUpdateMessage(user);
                     }
                 }
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
-
         }
 
         try {

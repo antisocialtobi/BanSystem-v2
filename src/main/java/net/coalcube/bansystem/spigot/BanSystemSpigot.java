@@ -57,6 +57,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     private MetricsAdapter metricsAdapter;
 
     public static String prefix = "§8§l┃ §cBanSystem §8» §7";
+    private boolean isUpdateAvailable;
 
     @Override
     public void onEnable() {
@@ -64,7 +65,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
         BanSystem.setInstance(this);
 
-        int pluginId = 23652; // <-- Replace with the id of your plugin!
+        int pluginId = 23652;
         Metrics metrics = new Metrics(this, pluginId);
 
         metricsAdapter = new SpigotMetrics(metrics);
@@ -165,7 +166,14 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         }
 
 
-        Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, UUIDFetcher::clearCache, 72000, 72000);
+        Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, () -> {
+            UUIDFetcher.clearCache();
+            try {
+                isUpdateAvailable = updatechecker.checkForUpdates();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, 72000, 72000);
 
         if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.enable"))
             console.sendMessage(
@@ -181,8 +189,9 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         console.sendMessage(prefix + "§7Das BanSystem wurde gestartet.");
 
         try {
+            isUpdateAvailable = updatechecker.checkForUpdates();
             if (config.getBoolean("updateCheck")) {
-                if (updatechecker.checkForUpdates()) {
+                if (isUpdateAvailable) {
                     console.sendMessage(prefix + "§cEin neues Update ist verfügbar.");
                     console.sendMessage(prefix + "§7Lade es dir unter " +
                             "§ehttps://www.spigotmc.org/resources/bansystem-mit-ids.65863/ §7runter um aktuell zu bleiben.");
@@ -423,6 +432,11 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     @Override
     public MetricsAdapter getMetricsAdapter() {
         return metricsAdapter;
+    }
+
+    @Override
+    public boolean isUpdateAvailable() {
+        return isUpdateAvailable;
     }
 
     private void initCachedBannedPlayerNames() throws SQLException, ExecutionException, InterruptedException {

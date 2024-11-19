@@ -117,10 +117,10 @@ public class CMDbansystem implements Command {
                         user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
                         return;
                     }
-                    if (args.length == 7) {
-
+                    if (args.length >= 7) {
+                        // /bansys ids create <ID> <type> <onlyadmins> <duration> <reason>
                         String id = args[2];
-                        String reason = args[3].replaceAll("&", "§");
+                        StringBuilder reason = new StringBuilder();
                         boolean onlyAdmins = Boolean.parseBoolean(args[4]);
                         long duration;
                         Type type;
@@ -134,18 +134,22 @@ public class CMDbansystem implements Command {
                         }
 
                         try {
-                            type = Type.valueOf(args[6]);
+                            type = Type.valueOf(args[3]);
                         } catch (IllegalArgumentException exception) {
                             user.sendMessage(configurationUtil.getMessage("bansystem.ids.create.invalidType")
                                     .replaceAll("%ID%", id));
                             return;
                         }
 
+                        for(int i=6; i<args.length; i++) {
+                            reason.append(args[i].replaceAll("&", "§")).append(" ");
+                        }
+
                         String creator = user.getUniqueId() != null ? user.getUniqueId().toString() : user.getName();
 
                         if (!idManager.existsID(id)) {
                             try {
-                                idManager.createID(id, reason, onlyAdmins, duration, type, creator);
+                                idManager.createID(id, reason.toString(), onlyAdmins, duration, type, creator);
                                 banManager.log("created BanID", creator, "",
                                         "id: "+ id
                                         + "; reason: " + reason
@@ -161,7 +165,7 @@ public class CMDbansystem implements Command {
 
                                 String createSuccess = configurationUtil.getMessage("bansystem.ids.create.success")
                                         .replaceAll("%ID%", id)
-                                        .replaceAll("%reason%", reason)
+                                        .replaceAll("%reason%", reason.toString())
                                         .replaceAll("%onlyadmins%", onlyAdmins ? configurationUtil.getMessage("true")
                                                 : configurationUtil.getMessage("false"))
                                         .replaceAll("%duration%", formattedDuration)
@@ -832,7 +836,12 @@ public class CMDbansystem implements Command {
 
         } else if(args.length == 4) {
             if(args[0].equalsIgnoreCase("ids")) {
-                if(args[1].equalsIgnoreCase("edit")) {
+                if(args[1].equalsIgnoreCase("create")) {
+                    if (user.hasPermission("bansys.ids.create")) {
+                        suggests.add("NETWORK");
+                        suggests.add("CHAT");
+                    }
+                } else if(args[1].equalsIgnoreCase("edit")) {
                     if(user.hasPermission("bansys.ids.addlvl")) {
                         suggests.add("add");
                     }
@@ -915,12 +924,7 @@ public class CMDbansystem implements Command {
             }
         } else if(args.length == 7) {
             if(args[0].equalsIgnoreCase("ids")) {
-                if(args[1].equalsIgnoreCase("create")) {
-                    if (user.hasPermission("bansys.ids.create")) {
-                        suggests.add("NETWORK");
-                        suggests.add("CHAT");
-                    }
-                } else if(args[1].equalsIgnoreCase("edit")) {
+                if(args[1].equalsIgnoreCase("edit")) {
                     if(args[3].equalsIgnoreCase("add")) {
                         if(args[4].equalsIgnoreCase("lvl")) {
                             if(user.hasPermission("bansys.ids.addlvl")) {
@@ -948,7 +952,7 @@ public class CMDbansystem implements Command {
     /bansystem reload    |        |        |         |             |            |            | bansys.reload
     /bansystem version   |        |        |         |             |            |            | -
     /bansystem syncids   |        |        |         |             |            |            | bansys.syncids
-    /bansystem ids       | create | <ID>   | <Grund> | <onlyAdm>   | <duration> | <Type>     | bansys.ids.create
+    /bansystem ids       | create | <ID>   | <type>  | <onlyAdmins>| <duration> | <reason>   | bansys.ids.create
     /bansystem ids       | delete | <ID>   |         |             |            |            | bansys.ids.delete
     /bansystem ids       | edit   | <ID>   | add     | lvl         | <duration> | <Type>     | bansys.ids.setduration
     /bansystem ids       | edit   | <ID>   | remove  | lvl         | <lvl>      |            | bansys.ids.removelvl
@@ -968,7 +972,7 @@ public class CMDbansystem implements Command {
         helpCommands.put("bansystem reload", "Lädt das Plugin neu");
         helpCommands.put("bansystem version", "Zeigt dir die Version des Plugins");
         helpCommands.put("bansystem syncids", "Synchronisiere die BanIDs");
-        helpCommands.put("bansystem ids create §8<§7ID§8> §8<§7Grund§8> §8<§7onlyAdmins§8> §8<§7Dauer§8> §8<§7Type§8>", "Erstellt eine neue Ban-ID");
+        helpCommands.put("bansystem ids create §8<§7ID§8> §8<§7Type§8> §8<§7onlyAdmins§8> §8<§7Dauer§8> §8<§7Grund§8>", "Erstellt eine neue Ban-ID");
         helpCommands.put("bansystem ids delete §8<§7ID§8>", "Löscht eine vorhandene Ban-ID");
         helpCommands.put("bansystem ids edit §8<§7ID§8> §eadd lvl §8<§7duration§8> §8<§7type§8>", "Füge ein Ban-lvl einer Ban-ID hinzu");
         helpCommands.put("bansystem ids edit §8<§7ID§8> §eremove lvl §8<§7lvl§8>", "Lösche eine vorhandene Ban-lvl");

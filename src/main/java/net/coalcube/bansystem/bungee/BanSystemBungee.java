@@ -44,17 +44,18 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     private TimeFormatUtil timeFormatUtil;
     private YamlDocument config, messages, blacklist;
     private net.coalcube.bansystem.core.textcomponent.TextComponent textComponent;
-    private String banScreen;
-    private List<String> blockedCommands, ads, blockedWords, whitelist;
-    private File sqlitedatabase;
-    private String hostname, database, user, pw;
-    private int port;
     private CommandSender console;
-    private static List<String> cachedBannedPlayerNames;
-    private static List<String> cachedMutedPlayerNames;
     private MetricsAdapter metricsAdapter;
 
+    private static List<String> cachedBannedPlayerNames;
+    private static List<String> cachedMutedPlayerNames;
+    private String hostname, database, user, pw;
+    private int port;
     public static String prefix = "§8§l┃ §cBanSystem §8» §7";
+    private String banScreen;
+    private List<String> blockedCommands, ads, blockedWords, whitelist;
+    private File sqliteDatabase;
+    private boolean isUpdateAvailable;
 
     @Override
     public void onEnable() {
@@ -63,7 +64,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         instance = this;
         BanSystem.setInstance(this);
 
-        int pluginId = 23651; // <-- Replace with the id of your plugin!
+        int pluginId = 23651;
         Metrics metrics = new Metrics(this, pluginId);
 
         metricsAdapter = new BungeeMetrics(metrics);
@@ -138,7 +139,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
         } else {
             createFileDatabase();
-            SQLite sqlite = new SQLite(sqlitedatabase);
+            SQLite sqlite = new SQLite(sqliteDatabase);
             banManager = new BanManagerSQLite(sqlite, config);
             sql = sqlite;
             try {
@@ -162,7 +163,14 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         }
 
         // Clear UUID Fetcher Cache
-        ProxyServer.getInstance().getScheduler().schedule(this, UUIDFetcher::clearCache, 1, 1, TimeUnit.HOURS);
+        ProxyServer.getInstance().getScheduler().schedule(this, () -> {
+            UUIDFetcher.clearCache();
+            try {
+                isUpdateAvailable = updatechecker.checkForUpdates();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, 1, 1, TimeUnit.HOURS);
 
         if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.enable"))
             console.sendMessage(new TextComponent(
@@ -198,8 +206,9 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         console.sendMessage(new TextComponent(BanSystemBungee.prefix + "§7Das BanSystem wurde gestartet."));
 
         try {
+            isUpdateAvailable = updatechecker.checkForUpdates();
             if (config.getBoolean("updateCheck")) {
-                if (updatechecker.checkForUpdates()) {
+                if (isUpdateAvailable) {
                     console.sendMessage(new TextComponent(prefix + "§cEin neues Update ist verfügbar."));
                     console.sendMessage(new TextComponent(prefix + "§7Lade es dir unter " +
                             "§ehttps://www.spigotmc.org/resources/bansystem-mit-ids.65863/ §7runter um aktuell zu bleiben."));
@@ -259,10 +268,10 @@ public class BanSystemBungee extends Plugin implements BanSystem {
 
     private void createFileDatabase() {
         try {
-            sqlitedatabase = new File(this.getDataFolder(), "database.db");
+            sqliteDatabase = new File(this.getDataFolder(), "database.db");
 
-            if (!sqlitedatabase.exists()) {
-                sqlitedatabase.createNewFile();
+            if (!sqliteDatabase.exists()) {
+                sqliteDatabase.createNewFile();
             }
         } catch (IOException e) {
             console.sendMessage(new TextComponent(prefix + "Die SQLite datenbank konnten nicht erstellt werden."));
@@ -416,6 +425,11 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     @Override
     public MetricsAdapter getMetricsAdapter() {
         return metricsAdapter;
+    }
+
+    @Override
+    public boolean isUpdateAvailable() {
+        return isUpdateAvailable;
     }
 
     private void initCachedBannedPlayerNames() throws SQLException, ExecutionException, InterruptedException {

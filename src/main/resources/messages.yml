@@ -299,8 +299,8 @@ bansystem:
     reload: '%P%§7Benutze §e/bansystem reload'
     version: '%P%§7Benutze §e/bansystem version'
     syncids: '%P%§7Benutze §e/bansystem syncids'
-    createid: '%P%§7Benutze §e/bansystem ids create §8<§7id§8> §8<§7Grund§8> §8<§7onlyadmins§8>
-      §8<§7Dauer§8>  §8<§7Type§8>'
+    createid: '%P%§7Benutze §e/bansystem ids create §8<§7id§8> §8<§7Type§8> §8<§7onlyadmins§8>
+      §8<§7Dauer§8> §8<§7Grund§8>'
     removeid: '%P%§7Benutze §e/bansystem ids delete §8<§7ID§8>'
     addlvl: '%P%§7Benutze §e/bansystem ids edit §8<§7id§8> §eadd lvl §8<§7duration§8>
       §8<§7type§8>'

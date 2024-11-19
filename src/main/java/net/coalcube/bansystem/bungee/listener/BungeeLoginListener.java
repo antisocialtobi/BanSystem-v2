@@ -44,9 +44,10 @@ public class BungeeLoginListener implements Listener {
         event.registerIntent(BanSystemBungee.getInstance());
         new Thread(() -> {
             Event loginEvent = loginListener.onJoin(uuid, username, ip);
-            event.setCancelled(loginEvent.isCancelled());
-            event.setReason(new TextComponent(loginEvent.getCancelReason()));
-
+            if(loginEvent.isCancelled()) {
+                event.setCancelled(loginEvent.isCancelled());
+                event.setReason(new TextComponent(loginEvent.getCancelReason()));
+            }
             event.completeIntent(BanSystemBungee.getInstance());
         }).start();
     }

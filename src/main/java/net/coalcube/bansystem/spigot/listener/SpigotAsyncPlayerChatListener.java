@@ -38,7 +38,8 @@ public class SpigotAsyncPlayerChatListener implements Listener {
         String msg = e.getMessage();
 
         Event event = chatListener.onChat(user, msg);
-
-        e.setCancelled(event.isCancelled());
+        if(event.isCancelled()) {
+            e.setCancelled(true);
+        }
     }
 }

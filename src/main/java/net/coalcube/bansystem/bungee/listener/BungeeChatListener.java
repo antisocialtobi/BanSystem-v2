@@ -40,7 +40,8 @@ public class BungeeChatListener implements Listener {
 
         Event chatEvent = chatListener.onChat(user, message);
 
-        event.setCancelled(chatEvent.isCancelled());
+        if(chatEvent.isCancelled())
+            chatEvent.setCancelled(true);
 
         // send message to Spigot server to bypass the problem with chat signing.
 

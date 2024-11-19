@@ -2,7 +2,7 @@
 Umfangreiches Bestrafungssystem für Minecraft Server. Es umfasst viele Funktionen und ist einfach zu bedienen.
 
 ## Anforderungen
-- **Mindestens Java 9**
+- **mindestens Java 8**
 - **BungeeCord, Spigot & Velocity Server**
 - MySQL Datenbank (nicht notwendig)
 

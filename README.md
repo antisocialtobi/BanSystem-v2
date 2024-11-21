@@ -58,7 +58,7 @@ Bei dem API-Key musst du nicht zwingend etwas eintragen, jedoch kann man sich be
 |--------|--------------|
 | `/bansystem` | `bansys.bansys` |
 | `/bansystem reload` | `bansys.reload` |
-| `/bansystem ids create <ID> <reason> <OnlyAdmins> <duration> <Type>` | `bansys.ids.create` |
+| `/bansystem ids create <ID> <OnlyAdmins> <duration> <Type> <reason>` | `bansys.ids.create` |
 | `/bansystem ids delete <ID>` | `bansys.ids.delete` |
 | `/bansystem ids edit <ID> add lvl <Duration> <Type>` | `bansys.ids.addlvl` |
 | `/bansystem ids edit <ID> remove lvl <lvl>` | `bansys.ids.removelvl` |
@@ -77,7 +77,7 @@ Bei dem API-Key musst du nicht zwingend etwas eintragen, jedoch kann man sich be
 | `/history <Spieler>` | `bansys.history.show` |
 | `/kick <Spieler> [Grund]` | `bansys.kick(.admin)` |
 
-### Benachrichtungsberechtigungen
+### Sonstige Berechtigungen
 
 | Aktion | Berechtigung |
 |--------|--------------|

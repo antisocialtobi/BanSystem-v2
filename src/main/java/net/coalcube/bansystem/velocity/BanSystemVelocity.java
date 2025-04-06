@@ -97,12 +97,17 @@ public class BanSystemVelocity implements BanSystem {
         cachedBannedPlayerNames = new ArrayList<>();
         cachedMutedPlayerNames = new ArrayList<>();
 
-        sendConsoleMessage("§c  ____                    ____                  _                      ");
-        sendConsoleMessage("§c | __ )    __ _   _ __   / ___|   _   _   ___  | |_    ___   _ __ ___  ");
-        sendConsoleMessage("§c |  _ \\   / _` | | '_ \\  \\___ \\  | | | | / __| | __|  / _ \\ | '_ ` _ \\ ");
-        sendConsoleMessage("§c | |_) | | (_| | | | | |  ___) | | |_| | \\__ \\ | |_  |  __/ | | | | | |");
-        sendConsoleMessage("§c |____/   \\__,_| |_| |_| |____/   \\__, | |___/  \\__|  \\___| |_| |_| |_|");
-        sendConsoleMessage("§c                                  |___/                           §7v" + this.getVersion());
+        File smallSplash = new File(dataDirectory.toFile(), ".smallsplash");
+        if (!smallSplash.exists()) {
+            sendConsoleMessage("§c  ____                    ____                  _                      ");
+            sendConsoleMessage("§c | __ )    __ _   _ __   / ___|   _   _   ___  | |_    ___   _ __ ___  ");
+            sendConsoleMessage("§c |  _ \\   / _` | | '_ \\  \\___ \\  | | | | / __| | __|  / _ \\ | '_ ` _ \\ ");
+            sendConsoleMessage("§c | |_) | | (_| | | | | |  ___) | | |_| | \\__ \\ | |_  |  __/ | | | | | |");
+            sendConsoleMessage("§c |____/   \\__,_| |_| |_| |____/   \\__, | |___/  \\__|  \\___| |_| |_| |_|");
+            sendConsoleMessage("§c                                  |___/                           §7v" + this.getVersion());
+        } else {
+            sendConsoleMessage(prefix + "BanSystem v" + this.getVersion() + " wird gestartet...");
+        }
 
         try {
             configurationUtil.createConfigs(dataDirectory.toFile());

@@ -77,12 +77,17 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
         cachedBannedPlayerNames = new ArrayList<>();
         cachedMutedPlayerNames = new ArrayList<>();
 
-        console.sendMessage("§c  ____                    ____                  _                      ");
-        console.sendMessage("§c | __ )    __ _   _ __   / ___|   _   _   ___  | |_    ___   _ __ ___  ");
-        console.sendMessage("§c |  _ \\   / _` | | '_ \\  \\___ \\  | | | | / __| | __|  / _ \\ | '_ ` _ \\ ");
-        console.sendMessage("§c | |_) | | (_| | | | | |  ___) | | |_| | \\__ \\ | |_  |  __/ | | | | | |");
-        console.sendMessage("§c |____/   \\__,_| |_| |_| |____/   \\__, | |___/  \\__|  \\___| |_| |_| |_|");
-        console.sendMessage("§c                                  |___/                           §7v" + this.getVersion());
+        File smallSplash = new File(getDataFolder(), ".smallsplash");
+        if (!smallSplash.exists()) {
+            console.sendMessage("§c  ____                    ____                  _                      ");
+            console.sendMessage("§c | __ )    __ _   _ __   / ___|   _   _   ___  | |_    ___   _ __ ___  ");
+            console.sendMessage("§c |  _ \\   / _` | | '_ \\  \\___ \\  | | | | / __| | __|  / _ \\ | '_ ` _ \\ ");
+            console.sendMessage("§c | |_) | | (_| | | | | |  ___) | | |_| | \\__ \\ | |_  |  __/ | | | | | |");
+            console.sendMessage("§c |____/   \\__,_| |_| |_| |____/   \\__, | |___/  \\__|  \\___| |_| |_| |_|");
+            console.sendMessage("§c                                  |___/                           §7v" + this.getVersion());
+        } else {
+            console.sendMessage(prefix + "BanSystem v" + this.getVersion() + " wird gestartet...");
+        }
 
         try {
             configurationUtil.createConfigs(getDataFolder());

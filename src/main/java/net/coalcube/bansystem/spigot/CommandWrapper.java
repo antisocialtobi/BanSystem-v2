@@ -1,15 +1,14 @@
 package net.coalcube.bansystem.spigot;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import net.coalcube.bansystem.core.command.Command;
+import net.coalcube.bansystem.spigot.util.SpigotUser;
+import net.coalcube.bansystem.spigot.util.TabCompleteUtil;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 
-import net.coalcube.bansystem.core.command.Command;
-import net.coalcube.bansystem.spigot.util.SpigotUser;
-import net.coalcube.bansystem.spigot.util.TabCompleteUtil;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CommandWrapper implements CommandExecutor, TabExecutor {
 

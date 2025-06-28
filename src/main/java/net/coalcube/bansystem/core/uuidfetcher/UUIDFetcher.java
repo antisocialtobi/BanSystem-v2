@@ -1,5 +1,11 @@
 package net.coalcube.bansystem.core.uuidfetcher;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import net.coalcube.bansystem.core.BanSystem;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -12,13 +18,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import net.coalcube.bansystem.core.BanSystem;
-import net.coalcube.bansystem.core.ban.BanManager;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class UUIDFetcher {
 

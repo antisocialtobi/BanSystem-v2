@@ -6,12 +6,14 @@ import net.coalcube.bansystem.core.ban.Ban;
 import net.coalcube.bansystem.core.ban.BanManager;
 import net.coalcube.bansystem.core.ban.Type;
 import net.coalcube.bansystem.core.sql.Database;
-import net.coalcube.bansystem.core.util.*;
+import net.coalcube.bansystem.core.util.ConfigurationUtil;
+import net.coalcube.bansystem.core.util.User;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 
-import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class CMDunban implements Command {

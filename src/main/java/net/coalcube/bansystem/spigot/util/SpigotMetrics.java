@@ -1,8 +1,8 @@
 package net.coalcube.bansystem.spigot.util;
 
 import net.coalcube.bansystem.core.util.MetricsAdapter;
-import org.bstats.charts.CustomChart;
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.CustomChart;
 
 public class SpigotMetrics implements MetricsAdapter {
 

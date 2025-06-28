@@ -23,22 +23,23 @@ import net.coalcube.bansystem.core.textcomponent.TextComponent;
 import net.coalcube.bansystem.core.textcomponent.TextComponentKyori;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
-import net.coalcube.bansystem.velocity.listener.VelocityLoginEvent;
 import net.coalcube.bansystem.velocity.listener.VelocityChatEvent;
+import net.coalcube.bansystem.velocity.listener.VelocityLoginEvent;
 import net.coalcube.bansystem.velocity.util.VelocityMetrics;
 import net.coalcube.bansystem.velocity.util.VelocityUser;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bstats.charts.AdvancedBarChart;
-import org.bstats.charts.SimplePie;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 

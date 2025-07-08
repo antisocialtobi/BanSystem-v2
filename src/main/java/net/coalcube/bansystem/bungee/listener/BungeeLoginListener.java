@@ -8,7 +8,10 @@ import net.coalcube.bansystem.core.listener.Event;
 import net.coalcube.bansystem.core.listener.LoginListener;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.textcomponent.TextComponentmd5;
-import net.coalcube.bansystem.core.util.*;
+import net.coalcube.bansystem.core.util.ConfigurationUtil;
+import net.coalcube.bansystem.core.util.IDManager;
+import net.coalcube.bansystem.core.util.URLUtil;
+import net.coalcube.bansystem.core.util.User;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.event.LoginEvent;
@@ -19,7 +22,7 @@ import net.md_5.bungee.event.EventPriority;
 
 import java.net.InetAddress;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class BungeeLoginListener implements Listener {

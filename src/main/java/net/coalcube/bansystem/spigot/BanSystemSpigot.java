@@ -11,8 +11,8 @@ import net.coalcube.bansystem.core.textcomponent.TextComponent;
 import net.coalcube.bansystem.core.textcomponent.TextComponentmd5;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
-import net.coalcube.bansystem.spigot.listener.SpigotAsyncPlayerChatListener;
 import net.coalcube.bansystem.spigot.listener.PlayerCommandPreprocessListener;
+import net.coalcube.bansystem.spigot.listener.SpigotAsyncPlayerChatListener;
 import net.coalcube.bansystem.spigot.listener.SpigotPlayerConnectionListener;
 import net.coalcube.bansystem.spigot.listener.SpigotPlayerKickListener;
 import net.coalcube.bansystem.spigot.util.SpigotMetrics;
@@ -30,7 +30,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class BanSystemSpigot extends JavaPlugin implements BanSystem {

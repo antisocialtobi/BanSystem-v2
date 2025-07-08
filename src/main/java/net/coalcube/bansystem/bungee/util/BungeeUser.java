@@ -1,12 +1,12 @@
 package net.coalcube.bansystem.bungee.util;
 
-import java.net.InetAddress;
-import java.util.UUID;
-
 import net.coalcube.bansystem.core.util.User;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+import java.net.InetAddress;
+import java.util.UUID;
 
 public class BungeeUser implements User {
 

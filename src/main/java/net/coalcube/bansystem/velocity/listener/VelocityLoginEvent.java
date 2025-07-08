@@ -12,13 +12,16 @@ import net.coalcube.bansystem.core.listener.LoginListener;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.textcomponent.TextComponent;
 import net.coalcube.bansystem.core.textcomponent.TextComponentKyori;
-import net.coalcube.bansystem.core.util.*;
+import net.coalcube.bansystem.core.util.ConfigurationUtil;
+import net.coalcube.bansystem.core.util.IDManager;
+import net.coalcube.bansystem.core.util.URLUtil;
+import net.coalcube.bansystem.core.util.User;
 import net.kyori.adventure.text.Component;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class VelocityLoginEvent {

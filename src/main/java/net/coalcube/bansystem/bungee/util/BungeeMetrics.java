@@ -1,8 +1,8 @@
 package net.coalcube.bansystem.bungee.util;
 
 import net.coalcube.bansystem.core.util.MetricsAdapter;
-import org.bstats.charts.CustomChart;
 import org.bstats.bungeecord.Metrics;
+import org.bstats.charts.CustomChart;
 
 public class BungeeMetrics implements MetricsAdapter {
 

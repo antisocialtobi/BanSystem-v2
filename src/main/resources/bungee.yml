@@ -1,5 +1,5 @@
 name: BanSystem
-version: 3.1
+version: 3.2
 author: Tobias Herzig
 main: net.coalcube.bansystem.bungee.BanSystemBungee
 commands:

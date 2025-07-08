@@ -1,11 +1,11 @@
 package net.coalcube.bansystem.velocity;
 
 import com.velocitypowered.api.command.SimpleCommand;
-import java.util.concurrent.CompletableFuture;
-import java.util.List;
-
 import net.coalcube.bansystem.core.command.Command;
 import net.coalcube.bansystem.velocity.util.VelocityUser;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class CommandWrapper implements SimpleCommand {
 

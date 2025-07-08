@@ -3,7 +3,10 @@ package net.coalcube.bansystem.core.ban;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.sql.MySQL;
-import net.coalcube.bansystem.core.util.*;
+import net.coalcube.bansystem.core.util.History;
+import net.coalcube.bansystem.core.util.HistoryType;
+import net.coalcube.bansystem.core.util.Log;
+import net.coalcube.bansystem.core.util.MetricsAdapter;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 import org.bstats.charts.SimplePie;
 
@@ -12,7 +15,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class BanManagerMySQL implements BanManager {

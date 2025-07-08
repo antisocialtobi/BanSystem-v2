@@ -1,12 +1,12 @@
 package net.coalcube.bansystem.core.util;
 
+import net.coalcube.bansystem.core.BanSystem;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-
-import net.coalcube.bansystem.core.BanSystem;
 
 public class UpdateChecker {
     private int project;

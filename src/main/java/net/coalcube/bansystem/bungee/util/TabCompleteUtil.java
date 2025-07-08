@@ -1,11 +1,11 @@
 package net.coalcube.bansystem.bungee.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TabCompleteUtil {
 

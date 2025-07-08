@@ -4,7 +4,6 @@ import dev.dejvokep.boostedyaml.YamlDocument;
 import net.coalcube.bansystem.core.BanSystem;
 import net.coalcube.bansystem.core.ban.Ban;
 import net.coalcube.bansystem.core.ban.BanManager;
-import net.coalcube.bansystem.core.util.Config;
 import net.coalcube.bansystem.core.ban.Type;
 
 import java.sql.*;

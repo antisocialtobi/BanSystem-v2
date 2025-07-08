@@ -1,12 +1,11 @@
 package net.coalcube.bansystem.spigot.util;
 
+import net.coalcube.bansystem.core.util.Config;
+import org.bukkit.configuration.ConfigurationSection;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.bukkit.configuration.ConfigurationSection;
-
-import net.coalcube.bansystem.core.util.Config;
 
 public class SpigotConfigurationSection implements Config {
 

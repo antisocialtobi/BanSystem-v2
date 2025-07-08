@@ -9,7 +9,10 @@ import net.coalcube.bansystem.core.listener.Event;
 import net.coalcube.bansystem.core.listener.LoginListener;
 import net.coalcube.bansystem.core.sql.Database;
 import net.coalcube.bansystem.core.textcomponent.TextComponentmd5;
-import net.coalcube.bansystem.core.util.*;
+import net.coalcube.bansystem.core.util.ConfigurationUtil;
+import net.coalcube.bansystem.core.util.IDManager;
+import net.coalcube.bansystem.core.util.URLUtil;
+import net.coalcube.bansystem.core.util.User;
 import net.coalcube.bansystem.spigot.BanSystemSpigot;
 import net.coalcube.bansystem.spigot.util.SpigotUser;
 import org.bukkit.entity.Player;
@@ -24,7 +27,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.net.InetAddress;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class SpigotPlayerConnectionListener implements Listener {

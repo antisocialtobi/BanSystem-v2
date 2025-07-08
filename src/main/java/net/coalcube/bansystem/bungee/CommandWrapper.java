@@ -1,12 +1,12 @@
 package net.coalcube.bansystem.bungee;
 
-import java.util.ArrayList;
-
 import net.coalcube.bansystem.bungee.util.BungeeUser;
-import net.coalcube.bansystem.core.command.Command;
 import net.coalcube.bansystem.bungee.util.TabCompleteUtil;
+import net.coalcube.bansystem.core.command.Command;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.TabExecutor;
+
+import java.util.ArrayList;
 
 public class CommandWrapper extends net.md_5.bungee.api.plugin.Command implements TabExecutor {
 

@@ -8,9 +8,7 @@ import net.coalcube.bansystem.core.ban.Type;
 
 import java.io.File;
 import java.sql.*;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;

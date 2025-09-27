@@ -1,21 +1,21 @@
-## Beschreibung
-Umfangreiches Bestrafungssystem für Minecraft Server. Es umfasst viele Funktionen und ist einfach zu bedienen.
+# BanSystem
+Ein umfangreiches Bestrafungssystem für Minecraft Server. Umfasst viele Funktionen und ist einfach zu bedienen.
 
 ## Anforderungen
 - **mindestens Java 8**
-- **BungeeCord, Spigot & Velocity Server**
-- MySQL Datenbank (nicht notwendig)
+- **BungeeCord, Spigot oder Velocity Server**
+- MySQL Datenbank (optional)
 
 ## Funktionen
-- **Ban + Mute + Kick System**
+- **Ban, Mute & Kick**
 - **Chatfilter**
-- **Chatdelay**
+- **Chatverzögerung**
 - Fast alles einstellbar
 - Fast alle Nachrichten anpassbar
 - **IP Autoban**
 - **ID System**
 - **History System**
-- MySQL/SQLite
+- MySQL & SQLite
 - **VPN-Check**
 - **Geyser Support**
 
@@ -38,7 +38,7 @@ Wegen der **Chat-Signatur** ab dieser Version müssen zusätzliche Schritte gema
 ## Support
 Discord Server: https://discord.gg/PfQTqhfjgA
 
-# IP Handling
+## IP Handling
 Wenn ein Spieler gebannt wird, dann wird die IP in der Datenbank gespeichert. Falls ein Spieler mit derselben IP den Server betritt, werden alle berechtigten Teammitglieder benachrichtigt, dass ein Spieler die gleiche IP wie ein gebannter Spieler hat.
 Ob der Spieler gebannt werden soll oder nicht, wird selbst entschieden. Man kann allerdings auch einstellen, dass diese automatisch gebannt werden.
 

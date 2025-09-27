@@ -15,9 +15,9 @@ public class TimeFormatUtil {
         long millis = remainingTime;
 
         if(millis == 0)
-            return "§e0 §cSekunde(n)";
+            return configurationUtil.getMessage("TimeFormat.seconds").replaceAll("%sec%", "0");
         if(millis == -1)
-            return "§4§lPERMANENT";
+            return configurationUtil.getMessage("TimeFormat.never");
 
         List<String> array = new ArrayList<>();
 
@@ -55,14 +55,14 @@ public class TimeFormatUtil {
             if(size == 1)
                 formattedRemainingTime = array.get(0);
             if(size == 2)
-                formattedRemainingTime = array.get(1) + " und " + array.get(0);
+                formattedRemainingTime = array.get(1) + " " + configurationUtil.getMessage("'and'") + " " + array.get(0);
             if(size == 3)
-                formattedRemainingTime = array.get(2) + ", " + array.get(1) + " und " + array.get(0);
+                formattedRemainingTime = array.get(2) + ", " + array.get(1) + " " + configurationUtil.getMessage("'and'") + " " + array.get(0);
             if(size == 4)
-                formattedRemainingTime = array.get(3) + ", " + array.get(2) + ", " + array.get(1) + " und " + array.get(0);
+                formattedRemainingTime = array.get(3) + ", " + array.get(2) + ", " + array.get(1) + " " + configurationUtil.getMessage("'and'") + " " + array.get(0);
 
         } else {
-            return "§e0 §cSekunde(n)";
+            return configurationUtil.getMessage("TimeFormat.seconds").replaceAll("%sec%", "0");
         }
 
         return formattedRemainingTime;

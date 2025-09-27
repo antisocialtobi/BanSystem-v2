@@ -14,3 +14,4 @@ commands:
   check:
   deletehistory:
   delhistory:
+api-version: '1.13'

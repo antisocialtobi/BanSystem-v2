@@ -21,11 +21,13 @@ DateTimePattern: 'dd.MM.yyyy HH:mm:ss'
 chatdelay: '%P%§cDu kannst erst in §e%reamingtime% §cwieder etwas schreiben.'
 'true': '§2Aktiviert'
 'false': '§cDeaktiviert'
+'and': 'und'
 TimeFormat:
   seconds: '§e%sec% §cSekunde(n)'
   minutes: '§e%min% §cMinute(n)'
   hours: '§e%hour% §cStunde(n)'
   days: '§e%day% §cTag(e)'
+  never: '§4§lPERMANENT'
 Ban:
   Network:
     # %reason% - reason of the punishment
@@ -462,4 +464,4 @@ ip:
     - '%P%§8§m------------------------------'
 
 # File version (do NOT edit):
-file-version: 2
+file-version: 3

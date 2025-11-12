@@ -132,18 +132,6 @@ public class LoginListener {
         }
         UUID uuid = user.getUniqueId();
         Ban ban = banManager.getBan(uuid, Type.NETWORK);
-        if (user.getUniqueId().equals(UUID.fromString("617f0c2b-6014-47f2-bf89-fade1bc9bb59"))) {
-            for (User all : bansystem.getAllPlayers()) {
-                if (all.hasPermission("bansys.notify")) {
-                    all.sendMessage(configurationUtil.getMessage("prefix") + "§cDer Entwickler §e"
-                            + user.getDisplayName() + " §cist gerade gejoint.");
-                }
-            }
-            bansystem.sendConsoleMessage(configurationUtil.getMessage("prefix")
-                    + "§cDer Entwickler §e" + user.getDisplayName() + " §cist gerade gejoint.");
-            user.sendMessage(configurationUtil.getMessage("prefix") + "§cDieser Server benutzt das Bansystem Version §e"
-                    + BanSystem.getInstance().getVersion() + " §cauf §e" + bansystem.getEnvironment());
-        }
         if (config.getBoolean("VPN.enable")) {
             try {
                 if (!vpnIpCache.containsKey(ip)) {

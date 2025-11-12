@@ -32,6 +32,13 @@ public final class TimeFormatUtil {
     }
 
     /**
+     * @deprecated use #formatRemainingTime(long remainingMillis)
+     */
+    public String getFormattedRemainingTime(long remainingMillis) {
+        return this.formatRemainingTime(remainingMillis);
+    }
+    
+    /**
      * Formats the remaining time.
      *
      * @param remainingMillis the remaining time in milliseconds. Use {@code -1L} for "never" and

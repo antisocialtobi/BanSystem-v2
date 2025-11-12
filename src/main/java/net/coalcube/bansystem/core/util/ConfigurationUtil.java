@@ -85,33 +85,29 @@ public class ConfigurationUtil {
     }
 
     public String getMessage(String path) {
-        String msg = "";
-
-        if(messages.get(path) instanceof List) {
-            int count = 0;
-            for(String line : messages.getStringList(path)) {
-                if(messages.getStringList(path).size()-1 == count) {
-                    msg = msg + line;
-                } else {
-                    msg = msg + line + "\n";
-                }
-                count ++;
-            }
-        } else
+        String msg;
+        if (messages.isList(path)) {
+            msg = String.join("\n", messages.getStringList(path));
+        } else {
             msg = messages.getString(path);
+        }
 
-        if(msg.contains("&"))
-            msg = msg.replaceAll("&", "§");
+        if (msg == null) {
+            BanSystem.getInstance().getConsole().sendMessage("Missing message: " + path);
+            return "Missing message: " + path;
+        }
 
-        if(msg.contains("%P%"))
-            msg = msg.replaceAll("%P%", messages.getString("prefix").replaceAll("&", "§"));
-
+        if (msg.contains("%P%")) {
+            msg = msg.replace("%P%", messages.getString("prefix"));
+        }
+        
+        if (msg.contains("&")) {
+            msg = msg.replace("&", "§");
+        }
         return msg;
     }
 
     public void update() throws IOException {
-
-
         // Messages
         if(messages.get("History.body") != null)
             messages.set("History.body", null);

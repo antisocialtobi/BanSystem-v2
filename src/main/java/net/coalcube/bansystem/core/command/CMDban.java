@@ -243,7 +243,7 @@ public class CMDban implements Command {
                                     .replaceAll("%P%", configurationUtil.getMessage("prefix"))
                                     .replaceAll("%reason%", reason)
                                     .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                            .getFormattedRemainingTime(duration))
+                                            .formatRemainingTime(duration))
                                     .replaceAll("%creator%", creatorName)
                                     .replaceAll("%enddate%", formattedEndDate)
                                     .replaceAll("%lvl%", String.valueOf(lvl))
@@ -256,7 +256,7 @@ public class CMDban implements Command {
                                     .replaceAll("%reason%", reason)
                                     .replaceAll("%player%", target.getDisplayName())
                                     .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                            .getFormattedRemainingTime(duration))
+                                            .formatRemainingTime(duration))
                                     .replaceAll("%creator%", creatorName)
                                     .replaceAll("%enddate%", formattedEndDate)
                                     .replaceAll("%lvl%", String.valueOf(lvl))
@@ -264,12 +264,11 @@ public class CMDban implements Command {
                         }
                     }
 
-
                     String banSuccess = configurationUtil.getMessage("Ban.success")
                             .replaceAll("%Player%", Objects.requireNonNull(name))
                             .replaceAll("%reason%", reason)
                             .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                    .getFormattedRemainingTime(duration))
+                                    .formatRemainingTime(duration))
                             .replaceAll("%banner%", creatorName)
                             .replaceAll("%type%", type.toString())
                             .replaceAll("%enddate%", formattedEndDate)
@@ -285,7 +284,7 @@ public class CMDban implements Command {
                                 .replaceAll("%player%", Objects.requireNonNull(name))
                                 .replaceAll("%reason%", reason)
                                 .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                        .getFormattedRemainingTime(duration))
+                                        .formatRemainingTime(duration))
                                 .replaceAll("%banner%", creatorName)
                                 .replaceAll("%enddate%", formattedEndDate)
                                 .replaceAll("%type%", type.toString())
@@ -297,7 +296,7 @@ public class CMDban implements Command {
                                     .replaceAll("%player%", Objects.requireNonNull(name))
                                     .replaceAll("%reason%", reason)
                                     .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                            .getFormattedRemainingTime(duration))
+                                            .formatRemainingTime(duration))
                                     .replaceAll("%banner%", creatorName)
                                     .replaceAll("%enddate%", formattedEndDate)
                                     .replaceAll("%type%", type.toString())
@@ -344,11 +343,10 @@ public class CMDban implements Command {
     }
 
     private boolean hasPermissionForAnyID(User user) {
-        for (Integer key : ids) {
-            if (user.hasPermission("bansys.ban." + key))
-                return true;
-        }
-        return false;
+        if (ids == null || ids.isEmpty()) return false;
+        return ids.stream()
+                .map(String::valueOf)
+                .anyMatch(id -> user.hasPermission("bansys.ban." + id));
     }
 
     private void setParameters(User user, String[] args) throws UnknownHostException {

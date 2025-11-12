@@ -85,7 +85,7 @@ public class ChatListener {
                     sender.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
                             .replaceAll("%reason%", ban.getReason())
                             .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                    .getFormattedRemainingTime(ban.getRemainingTime()))
+                                    .formatRemainingTime(ban.getRemainingTime()))
                             .replaceAll("%id%", ban.getId()));
                     bansystem.getConsole().sendMessage("§8[§c§lMUTED§r§8] §f" + sender.getDisplayName() + "§f: " + message);
                 } else {
@@ -146,7 +146,7 @@ public class ChatListener {
                             String banscreen = BanSystem.getInstance().getBanScreen();
                             banscreen = banscreen.replaceAll("%P%", configurationUtil.getMessage("prefix"));
                             banscreen = banscreen.replaceAll("%reason%", reason);
-                            banscreen = banscreen.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration));
+                            banscreen = banscreen.replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().formatRemainingTime(duration));
                             banscreen = banscreen.replaceAll("%creator%", BanSystem.getInstance().getConsole().getName());
                             banscreen = banscreen.replaceAll("%enddate%", enddate);
                             banscreen = banscreen.replaceAll("%lvl%", String.valueOf(lvl));
@@ -157,7 +157,7 @@ public class ChatListener {
                         } else {
                             sender.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
                                     .replaceAll("%reason%", reason)
-                                    .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(duration))
+                                    .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil().formatRemainingTime(duration))
                                     .replaceAll("%creator%", BanSystem.getInstance().getConsole().getName())
                                     .replaceAll("%enddate%", enddate)
                                     .replaceAll("%lvl%", String.valueOf(lvl))
@@ -170,7 +170,7 @@ public class ChatListener {
                                         .replaceAll("%message%", message)
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%reamingtime%", BanSystem.getInstance()
-                                                .getTimeFormatUtil().getFormattedRemainingTime(duration))
+                                                .getTimeFormatUtil().formatRemainingTime(duration))
                                         .replaceAll("%id%", ban.getId()));
 
                         for (User all : bansystem.getAllPlayers()) {
@@ -180,7 +180,7 @@ public class ChatListener {
                                         .replaceAll("%message%", message)
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%reamingtime%", BanSystem.getInstance()
-                                                .getTimeFormatUtil().getFormattedRemainingTime(duration))
+                                                .getTimeFormatUtil().formatRemainingTime(duration))
                                         .replaceAll("%id%", ban.getId()));
                             }
                         }
@@ -229,7 +229,7 @@ public class ChatListener {
                             banscreen = banscreen.replaceAll("%P%", configurationUtil.getMessage("prefix"));
                             banscreen = banscreen.replaceAll("%reason%", reason);
                             banscreen = banscreen.replaceAll("%reamingtime%", BanSystem.getInstance()
-                                    .getTimeFormatUtil().getFormattedRemainingTime(duration));
+                                    .getTimeFormatUtil().formatRemainingTime(duration));
                             banscreen = banscreen.replaceAll("%creator%", BanSystem.getInstance().getConsole().getName());
                             banscreen = banscreen.replaceAll("%enddate%", enddate);
                             banscreen = banscreen.replaceAll("%lvl%", String.valueOf(lvl));
@@ -241,7 +241,7 @@ public class ChatListener {
                             sender.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
                                     .replaceAll("%reason%", reason)
                                     .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                            .getFormattedRemainingTime(duration))
+                                            .formatRemainingTime(duration))
                                     .replaceAll("%creator%", BanSystem.getInstance().getConsole().getName())
                                     .replaceAll("%enddate%", enddate)
                                     .replaceAll("%lvl%", String.valueOf(lvl))
@@ -253,7 +253,7 @@ public class ChatListener {
                                         .replaceAll("%message%", message)
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                                .getFormattedRemainingTime(duration))
+                                                .formatRemainingTime(duration))
                                         .replaceAll("%id%", ban.getId()));
                         for (User all : bansystem.getAllPlayers()) {
                             if (all.hasPermission("bansys.notify") && (all != sender)) {
@@ -262,7 +262,7 @@ public class ChatListener {
                                         .replaceAll("%message%", message)
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                                .getFormattedRemainingTime(duration))
+                                                .formatRemainingTime(duration))
                                         .replaceAll("%id%", ban.getId()));
                             }
                         }
@@ -291,7 +291,7 @@ public class ChatListener {
 
                 } else {
                     String humanReadableReamingTime = BanSystem.getInstance().getTimeFormatUtil()
-                            .getFormattedRemainingTime(tmpReamingTime);
+                            .formatRemainingTime(tmpReamingTime);
 
                     event.setCancelled(true);
                     sender.sendMessage(configurationUtil.getMessage("chatdelay")

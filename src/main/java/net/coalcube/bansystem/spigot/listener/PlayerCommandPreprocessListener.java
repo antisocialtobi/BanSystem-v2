@@ -58,7 +58,7 @@ public class PlayerCommandPreprocessListener implements Listener {
                         if (startsWithBlockedCommnad) {
                             e.setCancelled(true);
 
-                            String reamingTime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
+                            String reamingTime = BanSystem.getInstance().getTimeFormatUtil().formatRemainingTime(
                                     mute.getRemainingTime());
 
                             p.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")

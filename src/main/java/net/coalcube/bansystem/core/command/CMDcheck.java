@@ -94,8 +94,8 @@ public class CMDcheck implements Command {
                         String bannernetwork = ban.getCreator();
                         String reasonchat = mute.getReason();
                         String reasonnetwork = ban.getReason();
-                        String reamingtimechat = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(mute.getRemainingTime());
-                        String reamingtimenetwork = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(ban.getRemainingTime());
+                        String reamingtimechat = BanSystem.getInstance().getTimeFormatUtil().formatRemainingTime(mute.getRemainingTime());
+                        String reamingtimenetwork = BanSystem.getInstance().getTimeFormatUtil().formatRemainingTime(ban.getRemainingTime());
                         String lvlchat = String.valueOf(bm.getLevel(uuid, mute.getReason()));
                         String lvlnetwork = String.valueOf(bm.getLevel(uuid, ban.getReason()));
                         String idchat = mute.getId();
@@ -144,7 +144,7 @@ public class CMDcheck implements Command {
                         String player = name;
                         String banner = mute.getCreator();
                         String reason = mute.getReason();
-                        String reamingtime = BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(mute.getRemainingTime());
+                        String reamingtime = BanSystem.getInstance().getTimeFormatUtil().formatRemainingTime(mute.getRemainingTime());
                         String lvl = String.valueOf(bm.getLevel(uuid, mute.getReason()));
 
                         try {
@@ -179,7 +179,7 @@ public class CMDcheck implements Command {
                         String banner = ban.getCreator();
                         String reason = ban.getReason();
                         String reamingtime = BanSystem.getInstance().getTimeFormatUtil()
-                                .getFormattedRemainingTime(ban.getRemainingTime());
+                                .formatRemainingTime(ban.getRemainingTime());
                         int lvl = bm.getLevel(uuid, ban.getReason());
 
                         try {

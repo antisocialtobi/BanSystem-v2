@@ -159,9 +159,9 @@ public class CMDbansystem implements Command {
 
                                 String formattedDuration;
                                 if (duration == -1)
-                                    formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration);
+                                    formattedDuration = timeFormatUtil.formatRemainingTime(duration);
                                 else
-                                    formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration * 1000);
+                                    formattedDuration = timeFormatUtil.formatRemainingTime(duration * 1000);
 
                                 String createSuccess = configurationUtil.getMessage("bansystem.ids.create.success")
                                         .replaceAll("%ID%", id)
@@ -258,9 +258,9 @@ public class CMDbansystem implements Command {
                                         try {
                                             String formattedDuration;
                                             if (duration != -1)
-                                                formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration * 1000);
+                                                formattedDuration = timeFormatUtil.formatRemainingTime(duration * 1000);
                                             else
-                                                formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration);
+                                                formattedDuration = timeFormatUtil.formatRemainingTime(duration);
 
                                             idManager.addLvl(id, duration, type, creator);
                                             banManager.log("added BanID-Lvl", creator, "",
@@ -380,7 +380,7 @@ public class CMDbansystem implements Command {
                                                     if (duration != -1)
                                                         duration = duration * 1000;
 
-                                                    String formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration);
+                                                    String formattedDuration = timeFormatUtil.formatRemainingTime(duration);
 
                                                     String setLvlDurationSuccess = configurationUtil.getMessage("bansystem.ids.edit.setlvlduration.success")
                                                             .replaceAll("%ID%", id)
@@ -600,7 +600,7 @@ public class CMDbansystem implements Command {
                                 if (rawduration != -1)
                                     rawduration = rawduration * 1000;
 
-                                String duration = timeFormatUtil.getFormattedRemainingTime(rawduration);
+                                String duration = timeFormatUtil.formatRemainingTime(rawduration);
                                 String lvls = configurationUtil.getMessage("bansystem.ids.edit.show.lvls")
                                         .replaceAll("%lvl%", lvl.toString())
                                         .replaceAll("%duration%", duration)

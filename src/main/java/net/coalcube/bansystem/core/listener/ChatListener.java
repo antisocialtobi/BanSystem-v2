@@ -77,38 +77,38 @@ public class ChatListener {
 
 
         if (startsWithBlockedCommnad || !message.startsWith("/")) {
-                Ban ban = banManager.getBan(uuid, Type.CHAT);
-                if (ban != null) {
-                    if (ban.getEnd() > System.currentTimeMillis()
-                            || ban.getEnd() == -1) {
-                        event.setCancelled(true);
-                        sender.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
-                                .replaceAll("%reason%", ban.getReason())
-                                .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                        .getFormattedRemainingTime(ban.getRemainingTime()))
-                                .replaceAll("%id%", ban.getId()));
-                        bansystem.getConsole().sendMessage("§8[§c§lMUTED§r§8] §f" + sender.getDisplayName() + "§f: " + message );
+            Ban ban = banManager.getBan(uuid, Type.CHAT);
+            if (ban != null) {
+                if (ban.getEnd() > System.currentTimeMillis()
+                        || ban.getEnd() == -1) {
+                    event.setCancelled(true);
+                    sender.sendMessage(configurationUtil.getMessage("Ban.Chat.Screen")
+                            .replaceAll("%reason%", ban.getReason())
+                            .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
+                                    .getFormattedRemainingTime(ban.getRemainingTime()))
+                            .replaceAll("%id%", ban.getId()));
+                    bansystem.getConsole().sendMessage("§8[§c§lMUTED§r§8] §f" + sender.getDisplayName() + "§f: " + message);
+                } else {
+                    if (config.getBoolean("needReason.Unmute")) {
+                        banManager.unBan(ban, bansystem.getConsole().getName(), "Strafe abgelaufen");
                     } else {
-                        if (config.getBoolean("needReason.Unmute")) {
-                            banManager.unBan(ban, bansystem.getConsole().getName(), "Strafe abgelaufen");
-                        } else {
-                            banManager.unBan(ban, bansystem.getConsole().getName());
-                        }
+                        banManager.unBan(ban, bansystem.getConsole().getName());
+                    }
 
-                        banManager.log("Unmuted Player", bansystem.getConsole().getName(), uuid.toString(), "Autounmute; banID: " + ban.getId());
+                    banManager.log("Unmuted Player", bansystem.getConsole().getName(), uuid.toString(), "Autounmute; banID: " + ban.getId());
 
-                        bansystem.getConsole().sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
-                                .replaceAll("%player%", sender.getDisplayName()));
-                        for (User all : bansystem.getAllPlayers()) {
-                            if (all.hasPermission("system.ban")) {
-                                all.sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
-                                        .replaceAll("%player%", sender.getDisplayName()));
-                            }
+                    bansystem.getConsole().sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
+                            .replaceAll("%player%", sender.getDisplayName()));
+                    for (User all : bansystem.getAllPlayers()) {
+                        if (all.hasPermission("system.ban")) {
+                            all.sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
+                                    .replaceAll("%player%", sender.getDisplayName()));
                         }
                     }
                 }
+            }
         }
-        if(!sender.hasPermission("bansys.bypasschatfilter") && !event.isCancelled()) {
+        if (!sender.hasPermission("bansys.bypasschatfilter") && !event.isCancelled()) {
             if (config.getBoolean("blacklist.words.enable")) {
                 if ((message.startsWith("/") && config.getBoolean("blacklist.words.checkcommands.enable") &&
                         blacklistUtil.hasBlockedWordsContains(message)) || (!message.startsWith("/") &&
@@ -125,7 +125,7 @@ public class ChatListener {
                         else
                             lvl = idManager.getLastLvl(id);
                         Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
-                        if(duration != -1) duration = duration * 1000;
+                        if (duration != -1) duration = duration * 1000;
                         Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
                         String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
 
@@ -133,10 +133,10 @@ public class ChatListener {
 
                         banManager.log("Banned Player", bansystem.getConsole().getName(), uuid.toString(),
                                 "Autoban; banID: " + ban.getId() + "; " +
-                                     "reason: " + ban.getReason() + "; " +
-                                     "Type: " + type + "; " +
-                                     "duration: " + ban.getDuration() + "; " +
-                                     "Chatmessage: " + message);
+                                        "reason: " + ban.getReason() + "; " +
+                                        "Type: " + type + "; " +
+                                        "duration: " + ban.getDuration() + "; " +
+                                        "Chatmessage: " + message);
 
                         metricsAdapter.addCustomChart(new SimplePie("automations", () -> {
                             return "Blacklist mute word";
@@ -207,7 +207,7 @@ public class ChatListener {
                         else
                             lvl = idManager.getLastLvl(id);
                         Long duration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
-                        if(duration != -1) duration = duration * 1000;
+                        if (duration != -1) duration = duration * 1000;
                         Type type = Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type"));
                         String enddate = simpleDateFormat.format(new Date(System.currentTimeMillis() + duration));
 
@@ -280,13 +280,13 @@ public class ChatListener {
         }
 
         // Chat cooldown
-        if(!event.isCancelled() && chatDelayEnabled
+        if (!event.isCancelled() && chatDelayEnabled
                 && !sender.hasPermission("bansys.bypasschatdelay")
                 && !message.startsWith("/")) {
-            if(chatDelayedPlayer.containsKey(uuid)) {
+            if (chatDelayedPlayer.containsKey(uuid)) {
                 long tmpReamingTime = chatDelayedPlayer.get(uuid);
                 tmpReamingTime = tmpReamingTime - System.currentTimeMillis();
-                if(tmpReamingTime <= 0) {
+                if (tmpReamingTime <= 0) {
                     chatDelayedPlayer.remove(uuid);
 
                 } else {

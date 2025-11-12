@@ -41,6 +41,7 @@ public class VelocityConfig implements Config {
         }
 
     }
+
     @Override
     public String getString(String key) {
         return (String) getParameterValue(key);
@@ -63,16 +64,16 @@ public class VelocityConfig implements Config {
         String[] keys = sectionPath.split("\\."); // Split the path by dot
         Map<?, ?> section = yamldata;
         List<String> sectionList = new ArrayList<>();
-        int i=0;
+        int i = 0;
         for (String key : keys) {
             i++;
 
-            if(i == keys.length) {
-                for(String sectionkey : ((Map<String, Object>)section.get(key)).keySet()) {
+            if (i == keys.length) {
+                for (String sectionkey : ((Map<String, Object>) section.get(key)).keySet()) {
                     sectionList.add(sectionkey);
                 }
             } else {
-                if(section.get(key) instanceof Map) {
+                if (section.get(key) instanceof Map) {
                     section = (Map<String, Object>) section.get(key);
                 } else {
                     System.err.println("Key not found or reached a non-map value");
@@ -120,9 +121,9 @@ public class VelocityConfig implements Config {
     private Object getParameterValue(String path) {
         String[] keys = path.split("\\.");
         Object value = null;
-        int i=1;
-        for(String key : keys) {
-            if(i == 1) {
+        int i = 1;
+        for (String key : keys) {
+            if (i == 1) {
                 value = yamldata.get(keys[0]);
             } else {
                 if (value instanceof Map) {
@@ -148,22 +149,22 @@ public class VelocityConfig implements Config {
         Map<String, Object> tmpYamlData2 = new LinkedHashMap<>();
         Map<String, Object> lastMap = new LinkedHashMap<>();
 
-        if(keys.length == 1) {
+        if (keys.length == 1) {
             root.put(path, lastMap);
         } else {
-            for(String entry : yamldata.keySet()) {
-                if(entry.equalsIgnoreCase(keys[0])) {
+            for (String entry : yamldata.keySet()) {
+                if (entry.equalsIgnoreCase(keys[0])) {
                     // path: VPN.autoban.ID value: 12
-                    int i=1;
-                    for(String key : keys) {
+                    int i = 1;
+                    for (String key : keys) {
                         System.out.println("key: " + key);
-                        if(i==1) {
+                        if (i == 1) {
                             lastMap = yamldata;
                         }
-                        if(i==keys.length) {
+                        if (i == keys.length) {
                             lastMap.put(key, value);
                         } else {
-                            if(lastMap.get(key) != null) {
+                            if (lastMap.get(key) != null) {
                                 lastMap = (Map<String, Object>) lastMap.get(key);
                             } else {
                                 lastMap = new LinkedHashMap<>();
@@ -174,24 +175,24 @@ public class VelocityConfig implements Config {
                     }
 
                     String newPath = path;
-                    for(int y=keys.length-1; y>0;y--) {
+                    for (int y = keys.length - 1; y > 0; y--) {
                         String currentKey;
                         System.out.println("y: " + y);
-                        if(newPath.contains(".")) {
+                        if (newPath.contains(".")) {
                             newPath = newPath.substring(0, newPath.lastIndexOf("."));
                         }
                         System.out.println("newPath: " + newPath);
-                        if(newPath.contains(".")) {
+                        if (newPath.contains(".")) {
                             currentKey = newPath.substring(newPath.lastIndexOf(".") + 1, newPath.length());
                         } else {
                             currentKey = newPath;
                         }
 
-                        if(getParameterValue(newPath) == null) {
+                        if (getParameterValue(newPath) == null) {
                             // bansys ids edit 1 add lvl 1123 CHAT
                             System.out.println("currentKey: " + currentKey);
-                            System.out.println("keys[keys.length-2]: " + keys[keys.length-2]);
-                            if(keys[keys.length-2].equalsIgnoreCase(currentKey)) {
+                            System.out.println("keys[keys.length-2]: " + keys[keys.length - 2]);
+                            if (keys[keys.length - 2].equalsIgnoreCase(currentKey)) {
                                 tmpYamlData1 = lastMap;
                                 System.out.println("tmpYamlData1 = lastMap");
                             } else {
@@ -203,15 +204,15 @@ public class VelocityConfig implements Config {
                         }
                         System.out.println("tmpYamlData1: " + tmpYamlData1);
 
-                        if(!tmpYamlData2.isEmpty()) {
-                            for(String keyset : tmpYamlData2.keySet()) {
+                        if (!tmpYamlData2.isEmpty()) {
+                            for (String keyset : tmpYamlData2.keySet()) {
                                 tmpYamlData1.put(keyset, tmpYamlData2.get(keyset));
                             }
                             System.out.println("puttet tmpYamlData2 onto tmp1");
                             System.out.println("tmpYamlData1: " + tmpYamlData1);
                         }
 
-                        if(newPath.contains(".")) {
+                        if (newPath.contains(".")) {
                             tmpYamlData2 = new LinkedHashMap<>();
                             tmpYamlData2.put(currentKey, tmpYamlData1);
                             System.out.println("tmpYamlData2 path: " + currentKey);

@@ -235,7 +235,7 @@ public class CMDcheck implements Command {
         List<String> suggests = new ArrayList<>();
         List<User> players = BanSystem.getInstance().getAllPlayers();
 
-        if(args.length == 0 || args.length == 1) {
+        if (args.length == 0 || args.length == 1) {
             for (User player : players) {
                 suggests.add(player.getName());
             }

@@ -18,13 +18,15 @@ public class UpdateChecker {
         newVersion = BanSystem.getInstance().getVersion();
         try {
             checkURL = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + projectID);
-        } catch(MalformedURLException e) {
+        } catch (MalformedURLException e) {
             BanSystem.getInstance().getConsole().sendMessage("§cCould not connect to Spigotmc.org!");
         }
     }
+
     public String getResourceUrl() {
         return "https://spigotmc.org/resources/" + project;
     }
+
     public boolean checkForUpdates() throws Exception {
         URLConnection con = checkURL.openConnection();
         newVersion = new BufferedReader(new InputStreamReader(con.getInputStream())).readLine();

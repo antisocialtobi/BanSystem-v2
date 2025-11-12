@@ -33,27 +33,27 @@ public class PlayerCommandPreprocessListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onCommandPreprocess(PlayerCommandPreprocessEvent e) {
-        if(!BanSystem.getInstance().getSQL().isConnected()) {
+        if (!BanSystem.getInstance().getSQL().isConnected()) {
             try {
                 BanSystem.getInstance().getSQL().connect();
             } catch (SQLException ex) {
                 return;
             }
         }
-        if(BanSystem.getInstance().getSQL().isConnected()) {
+        if (BanSystem.getInstance().getSQL().isConnected()) {
             Player p = e.getPlayer();
             String msg = e.getMessage();
             boolean startsWithBlockedCommnad = false;
 
-            for(Object s : blockedCommands) {
-                if(msg.startsWith(s.toString())) {
+            for (Object s : blockedCommands) {
+                if (msg.startsWith(s.toString())) {
                     startsWithBlockedCommnad = true;
                 }
             }
             try {
                 Ban mute = banManager.getBan(p.getUniqueId(), Type.CHAT);
-                if(mute != null) {
-                    if(mute.getEnd() > System.currentTimeMillis()
+                if (mute != null) {
+                    if (mute.getEnd() > System.currentTimeMillis()
                             || mute.getEnd() == -1) {
                         if (startsWithBlockedCommnad) {
                             e.setCancelled(true);
@@ -76,8 +76,8 @@ public class PlayerCommandPreprocessListener implements Listener {
                                 "Autounmute; banID: " + mute.getId());
                         Bukkit.getConsoleSender().sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
                                 .replaceAll("%player%", p.getDisplayName()));
-                        for(Player all : Bukkit.getOnlinePlayers()) {
-                            if(all.hasPermission("bansys.notify")) {
+                        for (Player all : Bukkit.getOnlinePlayers()) {
+                            if (all.hasPermission("bansys.notify")) {
                                 all.sendMessage(configurationUtil.getMessage("Ban.Chat.autounmute.success")
                                         .replaceAll("%player%", p.getDisplayName()));
 

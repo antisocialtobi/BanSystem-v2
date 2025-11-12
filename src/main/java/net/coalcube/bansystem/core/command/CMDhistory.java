@@ -118,7 +118,7 @@ public class CMDhistory implements Command {
                                 String id = "Not Found";
                                 String duration = timeFormatUtil.getFormattedRemainingTime(history.getDuration());
                                 String endDate;
-                                if(history.getEndDate() != null) {
+                                if (history.getEndDate() != null) {
                                     endDate = simpleDateFormat.format(history.getEndDate());
                                 } else {
                                     endDate = "§cNot available";
@@ -199,8 +199,8 @@ public class CMDhistory implements Command {
                 user.sendMessage(configurationUtil.getMessage("History.usage"));
             }
         } else {
-                user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
-            }
+            user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
+        }
     }
 
     /*
@@ -216,7 +216,7 @@ public class CMDhistory implements Command {
         List<String> suggests = new ArrayList<>();
         List<User> players = BanSystem.getInstance().getAllPlayers();
 
-        if(args.length == 0 || args.length == 1) {
+        if (args.length == 0 || args.length == 1) {
             for (User player : players) {
                 suggests.add(player.getName());
             }

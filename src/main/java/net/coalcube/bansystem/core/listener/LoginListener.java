@@ -124,7 +124,7 @@ public class LoginListener {
     public Event onPostJoin(User user, InetAddress inetAddress) throws SQLException, ExecutionException, InterruptedException {
         Event event = new Event();
         String ip = inetAddress.getHostAddress();
-        if(!sql.isConnected()) {
+        if (!sql.isConnected()) {
             return event;
         }
         if (user == null) {

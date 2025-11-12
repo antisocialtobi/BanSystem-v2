@@ -27,9 +27,9 @@ import java.util.concurrent.ExecutionException;
 public class BanManagerSQLite implements BanManager {
 
     private final SQLite sqlite;
-    SimpleDateFormat simpleDateFormat;
     private final YamlDocument config;
     private final MetricsAdapter metricsAdapter;
+    SimpleDateFormat simpleDateFormat;
 
     public BanManagerSQLite(SQLite sqlite, YamlDocument config) {
         this.sqlite = sqlite;
@@ -49,7 +49,7 @@ public class BanManagerSQLite implements BanManager {
                 id = "";
         Date creationDate = null;
 
-        while(rs.next()) {
+        while (rs.next()) {
             duration = rs.getLong("duration");
             reason = rs.getString("reason");
             creator = rs.getString("creator");
@@ -74,7 +74,7 @@ public class BanManagerSQLite implements BanManager {
         UUID player = null;
         Type type = null;
 
-        while(rs.next()) {
+        while (rs.next()) {
             id = rs.getString("id");
             duration = rs.getLong("duration");
             reason = rs.getString("reason");
@@ -103,7 +103,7 @@ public class BanManagerSQLite implements BanManager {
         UUID player = null;
         Type type = null;
 
-        while(rs.next()) {
+        while (rs.next()) {
             id = rs.getString("id");
             duration = rs.getLong("duration");
             reason = rs.getString("reason");
@@ -122,8 +122,8 @@ public class BanManagerSQLite implements BanManager {
     @Override
     public List<Ban> getAllBans(Type type) throws SQLException, ExecutionException, InterruptedException {
         List<Ban> bans = new ArrayList<>();
-        for(Ban ban : getAllBans()) {
-            if(ban.getType() == type) {
+        for (Ban ban : getAllBans()) {
+            if (ban.getType() == type) {
                 bans.add(ban);
             }
         }
@@ -139,7 +139,7 @@ public class BanManagerSQLite implements BanManager {
     public Log getLog(int id) throws SQLException, ExecutionException, InterruptedException, ParseException {
         ResultSet rs = sqlite.getResult("SELECT * FROM `logs` WHERE id=" + id + ";");
         Log log = null;
-        while(rs.next()) {
+        while (rs.next()) {
             String target, creator, action, note;
             Date date;
 
@@ -160,7 +160,7 @@ public class BanManagerSQLite implements BanManager {
     public List<Log> getAllLogs() throws SQLException, ExecutionException, InterruptedException, ParseException {
         ResultSet rs = sqlite.getResult("SELECT * FROM `logs` ORDER BY creationdate DESC;");
         List<Log> logs = new ArrayList<>();
-        while(rs.next()) {
+        while (rs.next()) {
             int id;
             String target, creator, action, note;
             Date date;
@@ -184,6 +184,7 @@ public class BanManagerSQLite implements BanManager {
     public void clearLogs() throws SQLException {
         sqlite.update("DELETE FROM logs;");
     }
+
     public void kick(UUID player, String creator) throws SQLException {
         kick(player, creator, "");
     }
@@ -221,7 +222,7 @@ public class BanManagerSQLite implements BanManager {
         sqlite.update("INSERT INTO `banhistories` (`id`, `player`, `duration`, `creator`, `reason`, `ip`, `type`, `creationdate`) " +
                 "VALUES ('" + id + "', '" + player + "', '" + time + "', '" + creator + "', '" + reason + "', " +
                 "'" + v4adress.getHostName() + "', '" + type + "', datetime('now', 'localtime'));");
-        if(type == Type.CHAT) {
+        if (type == Type.CHAT) {
             BanSystem.getInstance().addCachedMutedPlayerNames(UUIDFetcher.getName(player));
             metricsAdapter.addCustomChart(new SimplePie("punishments", () -> {
                 return "Mute";
@@ -244,7 +245,7 @@ public class BanManagerSQLite implements BanManager {
 
         sqlite.update("INSERT INTO `banhistories` (`id`, `player`, `duration`, `creator`, `reason`, `type`, `ip`,`creationdate`) " +
                 "VALUES ('" + id + "', '" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + type + "', '', datetime('now', 'localtime'));");
-        if(type == Type.CHAT) {
+        if (type == Type.CHAT) {
             BanSystem.getInstance().addCachedMutedPlayerNames(UUIDFetcher.getName(player));
             metricsAdapter.addCustomChart(new SimplePie("punishments", () -> {
                 return "Mute";
@@ -262,8 +263,8 @@ public class BanManagerSQLite implements BanManager {
     public void unBan(Ban ban, String unBanner, String reason) throws SQLException, ExecutionException, InterruptedException {
         sqlite.update("DELETE FROM `bans` WHERE id = '" + ban.getId() + "';");
         sqlite.update("INSERT INTO `unbans` (`id`, `player`, `unbanner`, `creationdate`, `reason`, `type`) " +
-                "VALUES ('" + ban.getId() + "', '" + ban.getPlayer() + "', '" + unBanner + "', datetime('now', 'localtime'), '" + reason + "','" + ban.getType() +"');");
-        if(ban.getType() == Type.NETWORK)
+                "VALUES ('" + ban.getId() + "', '" + ban.getPlayer() + "', '" + unBanner + "', datetime('now', 'localtime'), '" + reason + "','" + ban.getType() + "');");
+        if (ban.getType() == Type.NETWORK)
             BanSystem.getInstance().removeCachedBannedPlayerNames(UUIDFetcher.getName(ban.getPlayer()));
         else
             BanSystem.getInstance().removeCachedMutedPlayerNames(UUIDFetcher.getName(ban.getPlayer()));
@@ -315,7 +316,7 @@ public class BanManagerSQLite implements BanManager {
         while (resultSet.next()) {
             Long duration = resultSet.getLong("duration");
 
-            return (duration == -1) ? duration : getCreationDate(player, type) + duration ;
+            return (duration == -1) ? duration : getCreationDate(player, type) + duration;
         }
         return null;
     }
@@ -342,10 +343,10 @@ public class BanManagerSQLite implements BanManager {
 
     public int getLevel(UUID player, String reason) throws UnknownHostException, SQLException {
         int lvl = 0;
-        if(hasHistory(player, reason)) {
+        if (hasHistory(player, reason)) {
             ResultSet resultSet = sqlite.getResult("SELECT * FROM `banhistories` WHERE player = '" + player + "' AND reason = '" + reason + "';");
             while (resultSet.next()) {
-                lvl ++;
+                lvl++;
             }
         }
         return lvl;
@@ -365,7 +366,7 @@ public class BanManagerSQLite implements BanManager {
         List<History> list = new ArrayList<>();
         while (resultSet.next()) {
             InetAddress ip;
-            if(resultSet.getString("ip") == null || resultSet.getString("ip").isEmpty()) {
+            if (resultSet.getString("ip") == null || resultSet.getString("ip").isEmpty()) {
                 ip = null;
             } else {
                 ip = InetAddress.getByName(resultSet.getString("ip"));
@@ -385,7 +386,7 @@ public class BanManagerSQLite implements BanManager {
         resultSet = sqlite.getResult("SELECT * FROM `kicks` WHERE player = '" + player + "';");
         while (resultSet.next()) {
             HistoryType historyType = HistoryType.KICK;
-            if(resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
+            if (resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
                 historyType = HistoryType.KICKWITHREASON;
             list.add(new History(historyType,
                     UUID.fromString(resultSet.getString("player")),
@@ -401,11 +402,11 @@ public class BanManagerSQLite implements BanManager {
         while (resultSet.next()) {
             Type type = Type.valueOf(resultSet.getString("type"));
             HistoryType historyType = HistoryType.UNBAN;
-            if(type == Type.NETWORK) {
-                if(resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
+            if (type == Type.NETWORK) {
+                if (resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
                     historyType = HistoryType.UNBANWITHREASON;
             } else {
-                if(resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
+                if (resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
                     historyType = HistoryType.UNMUTEWITHREASON;
                 else
                     historyType = HistoryType.UNMUTE;
@@ -531,15 +532,15 @@ public class BanManagerSQLite implements BanManager {
         String uuid = UUID.randomUUID().toString();
         String id = "";
         int i = 0;
-        for(String character :  uuid.split("")) {
-            if(i >= 5) {
+        for (String character : uuid.split("")) {
+            if (i >= 5) {
                 break;
             }
             id = id + character;
             i++;
         }
         ResultSet rs = sqlite.getResult("SELECT id FROM `banhistories` WHERE id='" + id + "'");
-        while(rs.next()) {
+        while (rs.next()) {
             return generateNewID();
         }
 

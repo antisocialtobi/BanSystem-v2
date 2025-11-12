@@ -18,6 +18,10 @@
             <url>https://repo.opencollab.dev/maven-snapshots/</url>
         </repository>
         <repository>
+            <id>opencollab-releases</id>
+            <url>https://repo.opencollab.dev/maven-releases/</url>
+        </repository>
+        <repository>
             <id>papermc</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>

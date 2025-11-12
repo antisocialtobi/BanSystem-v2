@@ -1,5 +1,5 @@
 name: BanSystem
-version: 3.2
+version: 3.3
 author: Tobias Herzig
 main: net.coalcube.bansystem.spigot.BanSystemSpigot
 commands:

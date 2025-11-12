@@ -25,8 +25,8 @@ Ein umfangreiches Bestrafungssystem für Minecraft Server. Umfasst viele Funktio
 ## Installation
 
 1. Lade dir das Plugin herunter.
-2. Ziehe das Plugin in den Plugins-Ordner (bei Verwendung eines Proxys nur in den jeweiligen Plugins-Ordner ziehen *
-   *nicht in die Unterserver**).
+2. Ziehe das Plugin in den Plugins-Ordner (bei Verwendung eines Proxys nur in den jeweiligen Plugins-Ordner ziehen 
+   **nicht in die Unterserver**).
 3. Server starten.
 
 ### Ab der Version 1.19.1

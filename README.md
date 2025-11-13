@@ -61,8 +61,8 @@ automatisch gebannt werden.
 Das ID System ist komplett variabel, d.h. man kann IDs abändern, entfernen und hinzufügen. Es lassen sich alle IDs
 mithilfe von `/ban` auflisten. Die Zeit ist in Sekunden gerechnet, z.B. ein Tag sind `86400 Sekunden` oder für ein Jahr
 `31536000 Sekunden`.
-Für jede ID gibt es auch Level, d.h. wenn ein Spieler **zweimal** für den **gleichen Grund gebannt wird**, wird dieser *
-*länger gebannt**, insofern ein zweites Level bei der ID angegeben wurde.
+Für jede ID gibt es auch Level, d.h. wenn ein Spieler **zweimal** für den **gleichen Grund gebannt wird**, wird dieser 
+**länger gebannt**, insofern ein zweites Level bei der ID angegeben wurde.
 Falls ein Spieler schon mal für alle Level gebannt wurde, wird dieser für das letzte Level nochmal gebannt.
 
 ## VPN-Check API-Key

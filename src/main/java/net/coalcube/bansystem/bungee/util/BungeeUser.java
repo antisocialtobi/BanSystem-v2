@@ -29,7 +29,7 @@ public class BungeeUser implements User {
 
     @Override
     public void disconnect(String message) {
-        if(sender instanceof ProxiedPlayer)
+        if (sender instanceof ProxiedPlayer)
             ((ProxiedPlayer) sender).disconnect(message);
     }
 

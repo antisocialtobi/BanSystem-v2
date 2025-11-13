@@ -37,29 +37,32 @@ import java.util.concurrent.ExecutionException;
 
 public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
+    public static String prefix = "§8§l┃ §cBanSystem §8» §7";
     private static Plugin instance;
     private static BanManager banManager;
     private static IDManager idManager;
     private static URLUtil urlUtil;
     private static ConfigurationUtil configurationUtil;
+    private static String Banscreen;
+    private static List<String> blockedCommands, ads, blockedWords;
+    private static List<String> cachedBannedPlayerNames;
+    private static List<String> cachedMutedPlayerNames;
     private BlacklistUtil blacklistUtil;
     private Database sql;
     private MySQL mysql;
     private TimeFormatUtil timeFormatUtil;
     private YamlDocument config, messages, blacklist;
     private TextComponent textComponent;
-    private static String Banscreen;
-    private static List<String> blockedCommands, ads, blockedWords;
     private File sqlitedatabase;
     private String hostname, database, user, pw;
     private int port;
     private CommandSender console;
-    private static List<String> cachedBannedPlayerNames;
-    private static List<String> cachedMutedPlayerNames;
     private MetricsAdapter metricsAdapter;
-
-    public static String prefix = "§8§l┃ §cBanSystem §8» §7";
     private boolean isUpdateAvailable;
+
+    public static Plugin getPlugin() {
+        return instance;
+    }
 
     @Override
     public void onEnable() {
@@ -124,8 +127,8 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
                 console.sendMessage(prefix + "§cDebug Message: §e" + e.getMessage());
             }
             try {
-                if(mysql.isConnected()) {
-                    if(mysql.isOldDatabase()) {
+                if (mysql.isConnected()) {
+                    if (mysql.isOldDatabase()) {
                         console.sendMessage(prefix + "§7Die MySQL Daten vom dem alten BanSystem wurden §2importiert§7.");
                     }
                     mysql.createTables(config);
@@ -136,7 +139,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
                 e.printStackTrace();
             }
             try {
-                if(mysql.isConnected()) {
+                if (mysql.isConnected()) {
                     mysql.syncIDs(config);
                     console.sendMessage(prefix + "§7Die Ban IDs wurden §2synchronisiert§7.");
                 }
@@ -162,7 +165,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
                 e.printStackTrace();
             }
             try {
-                if(sqlite.isConnected()) {
+                if (sqlite.isConnected()) {
                     sqlite.createTables(config);
                     console.sendMessage(prefix + "§7Die SQLite Tabellen wurden §2erstellt§7.");
                 }
@@ -215,7 +218,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
         init(pluginmanager);
 
-        if(sql.isConnected()) {
+        if (sql.isConnected()) {
             try {
                 sql.updateTables();
             } catch (SQLException | ExecutionException | InterruptedException e) {
@@ -243,11 +246,6 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
         console.sendMessage(BanSystemSpigot.prefix + "§7Das BanSystem wurde gestoppt.");
 
-    }
-
-    @Override
-    public String getEnvironment() {
-        return Bukkit.getName();
     }
 
 
@@ -286,6 +284,11 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
             System.err.println("[Bansystem] Dateien konnten nicht erstellt werden.");
         }
     }*/
+
+    @Override
+    public String getEnvironment() {
+        return Bukkit.getName();
+    }
 
     private void createFileDatabase() {
         try {
@@ -358,7 +361,7 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
 
     private void init(PluginManager pluginManager) {
         getCommand("ban").setExecutor(new CommandWrapper(
-                new CMDban(banManager, config, messages, sql, configurationUtil),true));
+                new CMDban(banManager, config, messages, sql, configurationUtil), true));
         getCommand("check").setExecutor(new CommandWrapper(
                 new CMDcheck(banManager, sql, configurationUtil), true));
         getCommand("deletehistory").setExecutor(new CommandWrapper(
@@ -449,9 +452,9 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     private void initCachedBannedPlayerNames() throws SQLException, ExecutionException, InterruptedException {
         new Thread(() -> {
             try {
-                for(Ban ban : banManager.getAllBans()) {
+                for (Ban ban : banManager.getAllBans()) {
                     String name = UUIDFetcher.getName(ban.getPlayer());
-                    if(ban.getType() == Type.NETWORK) {
+                    if (ban.getType() == Type.NETWORK) {
                         cachedBannedPlayerNames.add(name);
                     } else {
                         cachedMutedPlayerNames.add(name);
@@ -490,10 +493,6 @@ public class BanSystemSpigot extends JavaPlugin implements BanSystem {
     @Override
     public BanManager getBanManager() {
         return banManager;
-    }
-
-    public static Plugin getPlugin() {
-        return instance;
     }
 
 }

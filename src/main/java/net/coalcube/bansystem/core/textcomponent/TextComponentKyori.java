@@ -29,25 +29,25 @@ public class TextComponentKyori implements TextComponent {
                 .text(configurationUtil.getMessage("bansystem.logs.show.buttons.previous"));
 
         next = next.clickEvent(ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.RUN_COMMAND,
-                        "/bansys logs show "+ (page+1)));
+                "/bansys logs show " + (page + 1)));
 
         previous = previous.clickEvent(ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.RUN_COMMAND,
-                        "/bansys logs show "+ (page-1)));
+                "/bansys logs show " + (page - 1)));
 
         String[] splitFooter = rawFooter.split("%");
 
-        for(String s : splitFooter) {
-            if(s.equalsIgnoreCase("next")) {
-                if(page < maxPage)
+        for (String s : splitFooter) {
+            if (s.equalsIgnoreCase("next")) {
+                if (page < maxPage)
                     footer = footer.append(next);
-            } else if(s.equalsIgnoreCase("previous")) {
-                if(page != 1)
+            } else if (s.equalsIgnoreCase("previous")) {
+                if (page != 1)
                     footer = footer.append(previous);
             } else {
                 footer = footer.append(Component.text(s));
             }
         }
-        if(user.getUniqueId() == null) {
+        if (user.getUniqueId() == null) {
             user.sendMessage(footer.toString());
         } else
             ((Player) user.getRawUser()).sendMessage(footer);
@@ -64,7 +64,7 @@ public class TextComponentKyori implements TextComponent {
                 "https://www.spigotmc.org/resources/bansystem-mit-ids.65863/"));
         comp = comp.hoverEvent(HoverEvent.showText(Component.text("Klicke um zur Webseite zu gelangen")));
 
-        if(user.getUniqueId() == null) {
+        if (user.getUniqueId() == null) {
             user.sendMessage(comp.toString());
         } else
             ((Player) user.getRawUser()).sendMessage(comp);

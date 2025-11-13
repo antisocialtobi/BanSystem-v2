@@ -15,8 +15,8 @@ import java.util.concurrent.ExecutionException;
 
 public class SQLite implements Database {
 
-    private Connection con;
     private final File database;
+    private Connection con;
 
     public SQLite(File database) {
         this.database = database;
@@ -167,12 +167,12 @@ public class SQLite implements Database {
         }
 
 
-        if(!banHistoryIDs) {
+        if (!banHistoryIDs) {
             update("ALTER TABLE `banhistories` ADD COLUMN `id` VARCHAR(16);");
             banSystem.sendConsoleMessage(prefix + "§7Tabelle §ebanhistories §7wurde geupdated.");
         }
 
-        if(!banIDs) {
+        if (!banIDs) {
             update("ALTER TABLE `bans` ADD COLUMN `id` VARCHAR(16);");
             ResultSet rs = getResult("SELECT * FROM `bans`;");
 
@@ -186,7 +186,7 @@ public class SQLite implements Database {
             banSystem.sendConsoleMessage(prefix + "§7Tabelle §ebans §7wurde geupdated.");
         }
 
-        if(!unbansIDs) {
+        if (!unbansIDs) {
             update("ALTER TABLE `unbans` ADD COLUMN `id` VARCHAR(16);");
             ResultSet rs = getResult("SELECT * FROM `unbans`;");
 
@@ -199,7 +199,7 @@ public class SQLite implements Database {
             banSystem.sendConsoleMessage(prefix + "§7Tabelle §eunbans §7wurde geupdated.");
         }
 
-        if(!banHistoryIDs) {
+        if (!banHistoryIDs) {
             ResultSet rs = getResult("SELECT * FROM `banhistories`;");
 
             while (rs.next()) {
@@ -209,7 +209,7 @@ public class SQLite implements Database {
                 Ban ban = banManager.getBan(player, type);
                 String id = banManager.generateNewID();
 
-                if(ban != null && Objects.equals(creationDate, dateFormat.format(ban.getCreationdate()))) {
+                if (ban != null && Objects.equals(creationDate, dateFormat.format(ban.getCreationdate()))) {
                     update("UPDATE `banhistories` SET id='" + ban.getId() + "' WHERE player='" + player
                             + "' AND type='" + type + "';");
                 } else {
@@ -218,7 +218,7 @@ public class SQLite implements Database {
                 }
             }
         }
-        if(!unbanReason) {
+        if (!unbanReason) {
             update("ALTER TABLE `unbans` ADD COLUMN `reason` VARCHAR(1000);");
         }
     }

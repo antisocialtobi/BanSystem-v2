@@ -14,6 +14,7 @@ public class CommandWrapper implements SimpleCommand {
     public CommandWrapper(Command cmd) {
         this.cmd = cmd;
     }
+
     @Override
     public void execute(final Invocation invocation) {
         cmd.execute(new VelocityUser(invocation.source()), invocation.arguments());

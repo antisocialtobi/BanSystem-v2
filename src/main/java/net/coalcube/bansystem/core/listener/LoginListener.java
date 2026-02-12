@@ -60,6 +60,10 @@ public class LoginListener {
         String ip = inetAddress.getHostAddress();
         Ban ban = null;
 
+        if (!sql.isConnected()) {
+            return e;
+        }
+
         try {
             if (!banManager.isSavedBedrockPlayer(uuid) && UUIDFetcher.getName(uuid) == null) {
                 if (org.geysermc.floodgate.api.FloodgateApi.getInstance().getPlayer(uuid) != null) {

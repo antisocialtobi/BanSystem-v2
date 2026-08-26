@@ -40,19 +40,19 @@ public class URLUtil {
         if (!ip.equals("127.0.0.1") || !ip.equals(config.getString("VPN.serverIP"))) {
             JSONObject jsonObject;
 
-            if(config.getString("VPN.apikey").isEmpty()) {
+            if (config.getString("VPN.apikey").isEmpty()) {
                 jsonObject = readJsonFromUrl("https://vpnapi.io/api/" + ip);
             } else {
                 jsonObject = readJsonFromUrl("https://vpnapi.io/api/" + ip + "?key=" + config.getString("VPN.apikey"));
             }
-            if(jsonObject.has("security")) {
+            if (jsonObject.has("security")) {
                 JSONObject structure = (JSONObject) jsonObject.get("security");
-                if(structure.get("vpn").toString().equals("true"))
+                if (structure.get("vpn").toString().equals("true"))
                     return true;
             } else {
                 BanSystem.getInstance().sendConsoleMessage(configurationUtil.getMessage("prefix")
-                                + "§cBei der VPN Abfrage ist ein Fehler aufgetreten: "
-                                + jsonObject.getString("message"));
+                        + "§cBei der VPN Abfrage ist ein Fehler aufgetreten: "
+                        + jsonObject.getString("message"));
             }
             return false;
         }

@@ -48,35 +48,35 @@ import java.util.concurrent.TimeUnit;
         description = "Punishment System", authors = {"Tobi"})
 public class BanSystemVelocity implements BanSystem {
 
+    public static String prefix = "§8§l┃ §cBanSystem §8» §7";
+    private static BanManager banManager;
+    private static IDManager idManager;
+    private static URLUtil urlUtil;
+    private static ConfigurationUtil configurationUtil;
+    private static String Banscreen;
+    private static List<String> blockedCommands, ads, blockedWords;
+    private static List<String> cachedBannedPlayerNames;
+    private static List<String> cachedMutedPlayerNames;
     private final ProxyServer server;
     private final Logger logger;
     private final Path dataDirectory;
     private final Metrics.Factory metricsFactory;
     private LegacyComponentSerializer lcs;
-    private static BanManager banManager;
-    private static IDManager idManager;
-    private static URLUtil urlUtil;
-    private static ConfigurationUtil configurationUtil;
     private BlacklistUtil blacklistUtil;
     private Database sql;
     private MySQL mysql;
     private TimeFormatUtil timeFormatUtil;
     private YamlDocument config, messages, blacklist;
     private TextComponent textComponent;
-    private static String Banscreen;
-    private static List<String> blockedCommands, ads, blockedWords;
     private File sqlitedatabase, configFile, messagesFile, blacklistFile;
     private String hostname, database, user, pw;
     private int port;
-    private static List<String> cachedBannedPlayerNames;
-    private static List<String> cachedMutedPlayerNames;
     private MetricsAdapter metricsAdapter;
-
-    public static String prefix = "§8§l┃ §cBanSystem §8» §7";
     private boolean isUpdateAvailable;
 
     @Inject
-    public BanSystemVelocity(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory, Metrics.Factory metricsFactory) {
+    public BanSystemVelocity(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory,
+                             Metrics.Factory metricsFactory) {
         this.server = server;
         this.logger = logger;
         this.dataDirectory = dataDirectory;
@@ -136,8 +136,8 @@ public class BanSystemVelocity implements BanSystem {
                 sendConsoleMessage(prefix + "§cDebug Message: §e" + e.getMessage());
             }
             try {
-                if(mysql.isConnected()) {
-                    if(mysql.isOldDatabase()) {
+                if (mysql.isConnected()) {
+                    if (mysql.isOldDatabase()) {
                         sendConsoleMessage(prefix + "§7Die MySQL Daten vom dem alten BanSystem wurden §2importiert§7.");
                     }
                     mysql.createTables(config);
@@ -148,7 +148,7 @@ public class BanSystemVelocity implements BanSystem {
                 e.printStackTrace();
             }
             try {
-                if(mysql.isConnected()) {
+                if (mysql.isConnected()) {
                     mysql.syncIDs(config);
                     sendConsoleMessage(prefix + "§7Die Ban IDs wurden §2synchronisiert§7.");
                 }
@@ -174,7 +174,7 @@ public class BanSystemVelocity implements BanSystem {
                 e.printStackTrace();
             }
             try {
-                if(sqlite.isConnected()) {
+                if (sqlite.isConnected()) {
                     sqlite.createTables(config);
                     sendConsoleMessage(prefix + "§7Die SQLite Tabellen wurden §2erstellt§7.");
                 }
@@ -183,7 +183,6 @@ public class BanSystemVelocity implements BanSystem {
                 sendConsoleMessage(prefix + e.getMessage() + " " + e.getCause());
             }
         }
-
 
         server.getScheduler()
                 .buildTask(this, () -> {
@@ -197,11 +196,12 @@ public class BanSystemVelocity implements BanSystem {
                 .delay(1, TimeUnit.HOURS)
                 .schedule();
 
-        if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.enable"))
+        if (config.getString("VPN.serverIP").equals("00.00.00.00") && config.getBoolean("VPN.enable")) {
             sendConsoleMessage(
                     prefix + "§cBitte trage die IP des Servers in der config.yml ein.");
+        }
 
-        if(sql.isConnected()) {
+        if (sql.isConnected()) {
             try {
                 sql.updateTables();
             } catch (SQLException | ExecutionException | InterruptedException e) {
@@ -237,8 +237,9 @@ public class BanSystemVelocity implements BanSystem {
 
     public void onDisable() {
         try {
-            if (sql.isConnected())
+            if (sql.isConnected()) {
                 sql.disconnect();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -250,7 +251,6 @@ public class BanSystemVelocity implements BanSystem {
     public String getEnvironment() {
         return server.getVersion().getName();
     }
-
 
     // create Config files
     /*private void createConfig() {
@@ -310,8 +310,9 @@ public class BanSystemVelocity implements BanSystem {
             for (String screen : messages.getStringList("Ban.Network.Screen")) {
                 if (Banscreen == null) {
                     Banscreen = screen.replaceAll("%P%", prefix) + "\n";
-                } else
+                } else {
                     Banscreen = Banscreen + screen.replaceAll("%P%", prefix) + "\n";
+                }
             }
             user = config.getString("mysql.user");
             hostname = config.getString("mysql.host");
@@ -342,15 +343,17 @@ public class BanSystemVelocity implements BanSystem {
 
     @Override
     public User getUser(String name) {
-        if(server.getPlayer(name).isPresent())
+        if (server.getPlayer(name).isPresent()) {
             return new VelocityUser(server.getPlayer(name).get());
+        }
         return new VelocityUser(null);
     }
 
     @Override
     public User getUser(UUID uniqueId) {
-        if(server.getPlayer(uniqueId).isPresent())
+        if (server.getPlayer(uniqueId).isPresent()) {
             return new VelocityUser(server.getPlayer(uniqueId).get());
+        }
         return new VelocityUser(null);
     }
 
@@ -483,9 +486,9 @@ public class BanSystemVelocity implements BanSystem {
     private void initCachedBannedPlayerNames() throws SQLException, ExecutionException, InterruptedException {
         new Thread(() -> {
             try {
-                for(Ban ban : banManager.getAllBans()) {
+                for (Ban ban : banManager.getAllBans()) {
                     String name = UUIDFetcher.getName(ban.getPlayer());
-                    if(ban.getType() == Type.NETWORK) {
+                    if (ban.getType() == Type.NETWORK) {
                         cachedBannedPlayerNames.add(name);
                     } else {
                         cachedMutedPlayerNames.add(name);

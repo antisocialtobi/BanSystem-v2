@@ -10,7 +10,7 @@ public class ServerSocket {
     public ServerSocket(int port) throws IOException {
         java.net.ServerSocket serverSocket = new java.net.ServerSocket(port);
 
-        System.out.println("Starting listening on Port "+port);
+        System.out.println("Starting listening on Port " + port);
 
         while (true) {
             Socket socket = serverSocket.accept();
@@ -25,7 +25,7 @@ public class ServerSocket {
             while ((line = br.readLine()) != null) {
                 pw.println(line);
                 pw.flush();
-                if(line.equals("quit")) {
+                if (line.equals("quit")) {
                     break;
                 }
 

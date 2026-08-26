@@ -61,7 +61,7 @@ public class TextComponentmd5 implements TextComponent {
         comp.setHoverEvent(new net.md_5.bungee.api.chat.HoverEvent(
                 net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT,
                 new net.md_5.bungee.api.chat.ComponentBuilder("Klicke um zur Webseite zu gelangen")
-                            .create()));
+                        .create()));
 
         user.sendMessage(comp);
     }

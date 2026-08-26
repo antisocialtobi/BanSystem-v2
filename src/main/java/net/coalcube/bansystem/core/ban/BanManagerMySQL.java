@@ -44,7 +44,7 @@ public class BanManagerMySQL implements BanManager {
                 id = "";
         Date creationDate = null;
 
-        while(rs.next()) {
+        while (rs.next()) {
             id = rs.getString("id");
             duration = rs.getLong("duration");
             reason = rs.getString("reason");
@@ -68,7 +68,7 @@ public class BanManagerMySQL implements BanManager {
         UUID player = null;
         Type type = null;
 
-        while(rs.next()) {
+        while (rs.next()) {
             id = rs.getString("id");
             duration = rs.getLong("duration");
             reason = rs.getString("reason");
@@ -97,7 +97,7 @@ public class BanManagerMySQL implements BanManager {
         UUID player = null;
         Type type = null;
 
-        while(rs.next()) {
+        while (rs.next()) {
             id = rs.getString("id");
             duration = rs.getLong("duration");
             reason = rs.getString("reason");
@@ -116,8 +116,8 @@ public class BanManagerMySQL implements BanManager {
     @Override
     public List<Ban> getAllBans(Type type) throws SQLException, ExecutionException, InterruptedException {
         List<Ban> bans = new ArrayList<>();
-        for(Ban ban : getAllBans()) {
-            if(ban.getType() == type) {
+        for (Ban ban : getAllBans()) {
+            if (ban.getType() == type) {
                 bans.add(ban);
             }
         }
@@ -133,7 +133,7 @@ public class BanManagerMySQL implements BanManager {
     public Log getLog(int id) throws SQLException, ExecutionException, InterruptedException {
         ResultSet rs = mysql.getResult("SELECT * FROM `logs` WHERE id=" + id + ";");
         Log log = null;
-        while(rs.next()) {
+        while (rs.next()) {
             String target, creator, action, note;
             Date date;
 
@@ -154,7 +154,7 @@ public class BanManagerMySQL implements BanManager {
     public List<Log> getAllLogs() throws SQLException, ExecutionException, InterruptedException {
         ResultSet rs = mysql.getResult("SELECT * FROM `logs` ORDER BY creationdate DESC;");
         List<Log> logs = new ArrayList<>();
-        while(rs.next()) {
+        while (rs.next()) {
             int id;
             String target, creator, action, note;
             Date date;
@@ -211,7 +211,7 @@ public class BanManagerMySQL implements BanManager {
 
     public Ban ban(UUID player, long time, String creator, Type type, String reason, InetAddress v4adress) throws IOException, SQLException, ExecutionException, InterruptedException {
         String id = generateNewID();
-        if(type == Type.NETWORK)
+        if (type == Type.NETWORK)
             BanSystem.getInstance().addCachedBannedPlayerNames(UUIDFetcher.getName(player));
         else
             BanSystem.getInstance().addCachedMutedPlayerNames(UUIDFetcher.getName(player));
@@ -221,7 +221,7 @@ public class BanManagerMySQL implements BanManager {
         mysql.update("INSERT INTO `banhistories` (`id`, `player`, `duration`, `creator`, `reason`, `ip`, `type`, `creationdate`) " +
                 "VALUES ('" + id + "', '" + player + "', '" + time + "', '" + creator + "', '" + reason + "', " +
                 "'" + v4adress.getHostName() + "', '" + type + "', NOW());");
-        if(type == Type.CHAT) {
+        if (type == Type.CHAT) {
             metricsAdapter.addCustomChart(new SimplePie("punishments", () -> {
                 return "Mute";
             }));
@@ -235,7 +235,7 @@ public class BanManagerMySQL implements BanManager {
 
     public Ban ban(UUID player, long time, String creator, Type type, String reason) throws IOException, SQLException, ExecutionException, InterruptedException {
         String id = generateNewID();
-        if(type == Type.NETWORK)
+        if (type == Type.NETWORK)
             BanSystem.getInstance().addCachedBannedPlayerNames(UUIDFetcher.getName(player));
         else
             BanSystem.getInstance().addCachedMutedPlayerNames(UUIDFetcher.getName(player));
@@ -246,7 +246,7 @@ public class BanManagerMySQL implements BanManager {
         mysql.update("INSERT INTO `banhistories` (`id`, `player`, `duration`, `creator`, `reason`, `type`, `ip`,`creationdate`) " +
                 "VALUES ('" + id + "', '" + player + "', '" + time + "', '" + creator + "', '" + reason + "', '" + type + "', '', NOW());");
 
-        if(type == Type.CHAT) {
+        if (type == Type.CHAT) {
             BanSystem.getInstance().addCachedMutedPlayerNames(UUIDFetcher.getName(player));
             metricsAdapter.addCustomChart(new SimplePie("punishments", () -> {
                 return "Mute";
@@ -262,7 +262,7 @@ public class BanManagerMySQL implements BanManager {
 
     @Override
     public void unBan(Ban ban, String unBanner, String reason) throws SQLException, ExecutionException, InterruptedException {
-        if(ban.getType() == Type.NETWORK)
+        if (ban.getType() == Type.NETWORK)
             BanSystem.getInstance().removeCachedBannedPlayerNames(UUIDFetcher.getName(ban.getPlayer()));
         else
             BanSystem.getInstance().removeCachedMutedPlayerNames(UUIDFetcher.getName(ban.getPlayer()));
@@ -393,7 +393,7 @@ public class BanManagerMySQL implements BanManager {
         List<History> list = new ArrayList<>();
         while (resultSet.next()) {
             InetAddress ip;
-            if(resultSet.getString("ip") == null || resultSet.getString("ip").isEmpty()) {
+            if (resultSet.getString("ip") == null || resultSet.getString("ip").isEmpty()) {
                 ip = null;
             } else {
                 ip = InetAddress.getByName(resultSet.getString("ip"));
@@ -412,7 +412,7 @@ public class BanManagerMySQL implements BanManager {
         resultSet = mysql.getResult("SELECT * FROM `kicks` WHERE player = '" + player + "';");
         while (resultSet.next()) {
             HistoryType historyType = HistoryType.KICK;
-            if(resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
+            if (resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
                 historyType = HistoryType.KICKWITHREASON;
             list.add(new History(historyType,
                     UUID.fromString(resultSet.getString("player")),
@@ -428,11 +428,11 @@ public class BanManagerMySQL implements BanManager {
         while (resultSet.next()) {
             Type type = Type.valueOf(resultSet.getString("type"));
             HistoryType historyType = HistoryType.UNBAN;
-            if(type == Type.NETWORK) {
-                if(resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
+            if (type == Type.NETWORK) {
+                if (resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
                     historyType = HistoryType.UNBANWITHREASON;
             } else {
-                if(resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
+                if (resultSet.getString("reason") != null && !resultSet.getString("reason").isEmpty())
                     historyType = HistoryType.UNMUTEWITHREASON;
                 else
                     historyType = HistoryType.UNMUTE;
@@ -558,15 +558,15 @@ public class BanManagerMySQL implements BanManager {
         String uuid = UUID.randomUUID().toString();
         String id = "";
         int i = 0;
-        for(String character :  uuid.split("")) {
-            if(i >= 5) {
+        for (String character : uuid.split("")) {
+            if (i >= 5) {
                 break;
             }
             id = id + character;
             i++;
         }
         ResultSet rs = mysql.getResult("SELECT id FROM `banhistories` WHERE id='" + id + "'");
-        while(rs.next()) {
+        while (rs.next()) {
             return generateNewID();
         }
 

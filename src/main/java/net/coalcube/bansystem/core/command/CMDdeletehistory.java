@@ -113,7 +113,8 @@ public class CMDdeletehistory implements Command {
                     } else {
                         user.sendMessage(configurationUtil.getMessage("History.historynotfound"));
                     }
-                } catch (UnknownHostException | SQLException | InterruptedException | ExecutionException | ParseException e) {
+                } catch (UnknownHostException | SQLException | InterruptedException | ExecutionException |
+                         ParseException e) {
                     user.sendMessage(configurationUtil.getMessage("Deletehistory.failed"));
                     e.printStackTrace();
                 }
@@ -121,8 +122,8 @@ public class CMDdeletehistory implements Command {
                 user.sendMessage(configurationUtil.getMessage("Deletehistory.usage"));
             }
         } else {
-                user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
-            }
+            user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
+        }
     }
 
     /*
@@ -139,7 +140,7 @@ public class CMDdeletehistory implements Command {
         List<String> suggests = new ArrayList<>();
         List<User> players = BanSystem.getInstance().getAllPlayers();
 
-        if(args.length == 0 || args.length == 1) {
+        if (args.length == 0 || args.length == 1) {
             for (User player : players) {
                 suggests.add(player.getName());
             }

@@ -35,7 +35,10 @@ import java.util.concurrent.TimeUnit;
 
 public class BanSystemBungee extends Plugin implements BanSystem {
 
+    public static String prefix = "§8§l┃ §cBanSystem §8» §7";
     private static Plugin instance;
+    private static List<String> cachedBannedPlayerNames;
+    private static List<String> cachedMutedPlayerNames;
     private BanManager banManager;
     private IDManager idManager;
     private URLUtil urlUtil;
@@ -48,16 +51,16 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     private net.coalcube.bansystem.core.textcomponent.TextComponent textComponent;
     private CommandSender console;
     private MetricsAdapter metricsAdapter;
-
-    private static List<String> cachedBannedPlayerNames;
-    private static List<String> cachedMutedPlayerNames;
     private String hostname, database, user, pw;
     private int port;
-    public static String prefix = "§8§l┃ §cBanSystem §8» §7";
     private String banScreen;
     private List<String> blockedCommands, ads, blockedWords, whitelist;
     private File sqliteDatabase;
     private boolean isUpdateAvailable;
+
+    public static Plugin getInstance() {
+        return instance;
+    }
 
     @Override
     public void onEnable() {
@@ -122,9 +125,9 @@ public class BanSystemBungee extends Plugin implements BanSystem {
                 console.sendMessage(new TextComponent(prefix + "§cDebug Message: §e" + e.getMessage()));
             }
             try {
-                if(mysql.isConnected()) {
+                if (mysql.isConnected()) {
                     mysql.createTables(config);
-                    if(mysql.isOldDatabase()) {
+                    if (mysql.isOldDatabase()) {
                         console.sendMessage(new TextComponent(prefix + "§7Die MySQL Daten vom dem alten BanSystem wurden §2importiert§7."));
                     }
                     console.sendMessage(new TextComponent(prefix + "§7Die MySQL Tabellen wurden §2erstellt§7."));
@@ -134,7 +137,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
                 e.printStackTrace();
             }
             try {
-                if(mysql.isConnected()) {
+                if (mysql.isConnected()) {
                     mysql.syncIDs(config);
                     console.sendMessage(new TextComponent(prefix + "§7Die Ban IDs wurden §2synchronisiert§7."));
                 }
@@ -194,8 +197,7 @@ public class BanSystemBungee extends Plugin implements BanSystem {
         init(pluginmanager);
 
 
-
-        if(sql.isConnected()) {
+        if (sql.isConnected()) {
             try {
                 sql.updateTables();
             } catch (SQLException | ExecutionException | InterruptedException e) {
@@ -442,9 +444,9 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     private void initCachedBannedPlayerNames() throws SQLException, ExecutionException, InterruptedException {
         new Thread(() -> {
             try {
-                for(Ban ban : banManager.getAllBans()) {
+                for (Ban ban : banManager.getAllBans()) {
                     String name = UUIDFetcher.getName(ban.getPlayer());
-                    if(ban.getType() == Type.NETWORK) {
+                    if (ban.getType() == Type.NETWORK) {
                         cachedBannedPlayerNames.add(name);
                     } else {
                         cachedMutedPlayerNames.add(name);
@@ -473,9 +475,5 @@ public class BanSystemBungee extends Plugin implements BanSystem {
     @Override
     public String getVersion() {
         return this.getDescription().getVersion();
-    }
-
-    public static Plugin getInstance() {
-        return instance;
     }
 }

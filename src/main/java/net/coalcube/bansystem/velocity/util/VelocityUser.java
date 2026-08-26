@@ -21,7 +21,7 @@ public class VelocityUser implements User {
     @SuppressWarnings("deprecation")
     @Override
     public void sendMessage(String msg) {
-        if(getUniqueId() == null) {
+        if (getUniqueId() == null) {
             LegacyComponentSerializer lcs = LegacyComponentSerializer.legacySection();
             sender.sendMessage(lcs.deserialize(msg));
         } else {
@@ -32,7 +32,7 @@ public class VelocityUser implements User {
 
     @Override
     public void sendMessage(TextComponent msg) {
-        if(getUniqueId() == null) {
+        if (getUniqueId() == null) {
             LegacyComponentSerializer lcs = LegacyComponentSerializer.legacySection();
             sender.sendMessage(lcs.deserialize(msg.getText()));
         } else {
@@ -44,7 +44,7 @@ public class VelocityUser implements User {
 
     @Override
     public void disconnect(String message) {
-        if(sender instanceof Player) {
+        if (sender instanceof Player) {
             LegacyComponentSerializer lcs = LegacyComponentSerializer.legacySection();
             ((Player) sender).disconnect(lcs.deserialize(message));
         }
@@ -67,7 +67,7 @@ public class VelocityUser implements User {
 
     @Override
     public UUID getUniqueId() {
-        if(sender == null)
+        if (sender == null)
             return null;
         return sender instanceof Player ? ((Player) sender).getUniqueId() : null;
     }

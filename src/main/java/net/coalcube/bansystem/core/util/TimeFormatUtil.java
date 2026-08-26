@@ -32,28 +32,21 @@ public final class TimeFormatUtil {
     }
 
     /**
-     * @deprecated use #formatRemainingTime(long remainingMillis)
-     */
-    public String getFormattedRemainingTime(long remainingMillis) {
-        return this.formatRemainingTime(remainingMillis);
-    }
-    
-    /**
      * Formats the remaining time.
      *
      * @param remainingMillis the remaining time in milliseconds. Use {@code -1L} for "never" and
-     *     {@code 0L} (or negative) for "now".
+     *                        {@code 0L} (or negative) for "now".
      * @return a localised, human-readable representation of the duration
      */
     public String formatRemainingTime(long remainingMillis) {
         if (remainingMillis == -1L) {
             return this.config.getMessage("TimeFormat.never");
         }
-        
+
         if (remainingMillis <= 0L) {
             return this.formatUnit("TimeFormat.seconds", "%sec%", 0);
         }
-        
+
         long seconds = remainingMillis / MILLIS_PER_SECOND;
         long minutes = seconds / SECONDS_PER_MINUTE;
         long hours = minutes / MINUTES_PER_HOUR;
@@ -100,14 +93,14 @@ public final class TimeFormatUtil {
     private String joinTimeParts(List<String> parts) {
         int size = parts.size();
         if (size == 1) {
-          return parts.get(0);
+            return parts.get(0);
         }
-        
+
         String and = " " + this.config.getMessage("and") + " ";
         if (size == 2) {
-          return parts.get(0) + and + parts.get(1);
+            return parts.get(0) + and + parts.get(1);
         }
-        
+
         List<String> firstParts = parts.subList(0, size - 1);
         String lastPart = parts.get(size - 1);
         return String.join(", ", firstParts) + and + lastPart;

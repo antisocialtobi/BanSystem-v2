@@ -7,9 +7,11 @@ import java.util.List;
 public class BlacklistUtil {
 
     private YamlDocument blacklist;
+
     public BlacklistUtil(YamlDocument blacklist) {
         this.blacklist = blacklist;
     }
+
     public boolean hasBlockedWordsContains(String message) {
         List<String> whitelist = blacklist.getStringList("Whitelist");
 
@@ -35,8 +37,8 @@ public class BlacklistUtil {
                     message.equalsIgnoreCase(word) ||
                     message.toUpperCase().equals(word) ||
                     message.toLowerCase().equals(word)) {
-                for(String whitelistRow : whitelist) {
-                    if(message.contains(whitelistRow) || message.equalsIgnoreCase(whitelistRow)) {
+                for (String whitelistRow : whitelist) {
+                    if (message.contains(whitelistRow) || message.equalsIgnoreCase(whitelistRow)) {
                         return false;
                     } else
                         return true;
@@ -45,8 +47,8 @@ public class BlacklistUtil {
             }
 
 
-            for(String pice : trimmed) {
-                if(pice.equalsIgnoreCase(word) && !whitelist.contains(word))
+            for (String pice : trimmed) {
+                if (pice.equalsIgnoreCase(word) && !whitelist.contains(word))
                     return true;
             }
         }
@@ -75,8 +77,8 @@ public class BlacklistUtil {
 
         String[] trimmed = message.split(" ");
 
-        for(String ad : blacklist.getStringList("Ads")) {
-            if(message.contains(ad)
+        for (String ad : blacklist.getStringList("Ads")) {
+            if (message.contains(ad)
                     || message.equalsIgnoreCase(ad)
                     || message.toUpperCase().equals(ad)
                     || message.toLowerCase().equals(ad)
@@ -84,15 +86,15 @@ public class BlacklistUtil {
                     || rawMessage.equalsIgnoreCase(ad)
                     || rawMessage.toUpperCase().equals(ad)
                     || rawMessage.toLowerCase().equals(ad))
-                for(String whitelistRow : whitelist) {
-                    if(message.contains(whitelistRow) || message.equalsIgnoreCase(whitelistRow)) {
+                for (String whitelistRow : whitelist) {
+                    if (message.contains(whitelistRow) || message.equalsIgnoreCase(whitelistRow)) {
                         return false;
                     } else
                         return true;
                 }
 
-            for(String word : trimmed) {
-                if(word.equalsIgnoreCase(ad) && !whitelist.contains(word))
+            for (String word : trimmed) {
+                if (word.equalsIgnoreCase(ad) && !whitelist.contains(word))
                     return true;
             }
 

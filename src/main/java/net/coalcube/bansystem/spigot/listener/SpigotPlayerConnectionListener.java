@@ -46,11 +46,11 @@ public class SpigotPlayerConnectionListener implements Listener {
         UUID uuid = e.getUniqueId();
         InetAddress ip = e.getAddress();
         Database sql = BanSystem.getInstance().getSQL();
-        if(!sql.isConnected()) return;
+        if (!sql.isConnected()) return;
 
         Event event = loginListener.onJoin(uuid, e.getName(), ip);
 
-        if(event.isCancelled()) {
+        if (event.isCancelled()) {
             e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, event.getCancelReason());
         }
 
@@ -77,7 +77,7 @@ public class SpigotPlayerConnectionListener implements Listener {
 
         try {
             Event event = loginListener.onPostJoin(user, ip);
-            if(event.isCancelled()) {
+            if (event.isCancelled()) {
                 e.setJoinMessage("");
                 new BukkitRunnable() {
                     @Override

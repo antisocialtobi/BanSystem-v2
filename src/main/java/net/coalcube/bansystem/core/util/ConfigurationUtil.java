@@ -11,7 +11,6 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 public class ConfigurationUtil {
@@ -100,7 +99,7 @@ public class ConfigurationUtil {
         if (msg.contains("%P%")) {
             msg = msg.replace("%P%", messages.getString("prefix"));
         }
-        
+
         if (msg.contains("&")) {
             msg = msg.replace("&", "§");
         }
@@ -109,7 +108,7 @@ public class ConfigurationUtil {
 
     public void update() throws IOException {
         // Messages
-        if(messages.get("History.body") != null)
+        if (messages.get("History.body") != null)
             messages.set("History.body", null);
         updateConfigValue(messages, "messages.yml", "file-version");
         updateConfigValue(messages, "messages.yml", "History.ban");
@@ -152,9 +151,9 @@ public class ConfigurationUtil {
     private Object getParameterValue(Map<String, Object> yamlData, String path) {
         String[] keys = path.split("\\.");
         Object value = null;
-        int i=1;
-        for(String key : keys) {
-            if(i == 1) {
+        int i = 1;
+        for (String key : keys) {
+            if (i == 1) {
                 value = yamlData.get(keys[0]);
             } else {
                 if (value instanceof Map) {
@@ -175,7 +174,7 @@ public class ConfigurationUtil {
     private void updateConfigValue(YamlDocument config, String resource, String path) {
         Yaml resourceYAML = new Yaml();
         Map<String, Object> resourceData = resourceYAML.load(banSystem.getResourceAsInputStream(resource));
-        if(config.get(path) == null) {
+        if (config.get(path) == null) {
             config.set(path, getParameterValue(resourceData, path));
         }
     }
@@ -187,6 +186,7 @@ public class ConfigurationUtil {
     public YamlDocument getMessagesConfig() {
         return messages;
     }
+
     public YamlDocument getBlacklist() {
         return blacklist;
     }

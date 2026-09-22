@@ -200,6 +200,22 @@ public class CMDban implements Command {
                             user.sendMessage(configurationUtil.getMessage("Ban.cannotban.yourself"));
                             return;
                         }
+
+                        if((target.hasPermission("bansys.ban") || target.hasPermission("bansys.ban.all") || hasPermissionForAnyID(target))
+                                && !user.hasPermission("bansys.ban.admin")) {
+                            user.sendMessage(configurationUtil.getMessage("Ban.cannotban.teammembers"));
+                            return;
+                        }
+
+                        if(target.hasPermission("bansys.ban.admin") && user.getUniqueId() != null) {
+                            user.sendMessage(configurationUtil.getMessage("Ban.cannotban.teammembers"));
+                            return;
+                        }
+
+                        if (target.hasPermission("bansys.ban.bypass") && !user.hasPermission("bansys.ban.admin")) {
+                            user.sendMessage(configurationUtil.getMessage("Ban.cannotban.bypassedplayers"));
+                            return;
+                        }
                     }
 
                     // Ban Player
@@ -220,21 +236,6 @@ public class CMDban implements Command {
                     if (BanSystem.getInstance().getUser(name).getUniqueId() != null) {
                         User target = BanSystem.getInstance().getUser(name.replaceAll("&", "§"));
 
-                        if ((target.hasPermission("bansys.ban") || target.hasPermission("bansys.ban.all") || hasPermissionForAnyID(target))
-                                && !user.hasPermission("bansys.ban.admin")) {
-                            user.sendMessage(configurationUtil.getMessage("Ban.cannotban.teammembers"));
-                            return;
-                        }
-
-                        if (target.hasPermission("bansys.ban.admin") && user.getUniqueId() != null) {
-                            user.sendMessage(configurationUtil.getMessage("Ban.cannotban.teammembers"));
-                            return;
-                        }
-
-                        if (target.hasPermission("bansys.ban.bypass") && !user.hasPermission("bansys.ban.admin")) {
-                            user.sendMessage(configurationUtil.getMessage("Ban.cannotban.bypassedplayers"));
-                            return;
-                        }
                         // Kick or send mute message
                         if (type == Type.NETWORK) {
                             String banScreen = configurationUtil.getMessage("Ban.Network.Screen");

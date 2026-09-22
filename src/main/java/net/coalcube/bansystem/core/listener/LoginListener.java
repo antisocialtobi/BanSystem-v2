@@ -61,6 +61,10 @@ public class LoginListener {
         String ip = inetAddress.getHostAddress();
         Ban ban = null;
 
+        if (!sql.isConnected()) {
+            return e;
+        }
+
         try {
             if (!banManager.isSavedBedrockPlayer(uuid) && UUIDFetcher.getName(uuid) == null) {
                 if (FloodgateApi.getInstance().getPlayer(uuid) != null) {

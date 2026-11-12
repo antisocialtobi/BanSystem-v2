@@ -4,5 +4,6 @@ import net.coalcube.bansystem.core.util.User;
 
 public interface TextComponent {
     void sendLogsFooter(User user, int page, int maxPage);
+
     void sendUpdateMessage(User user);
 }

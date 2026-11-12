@@ -116,9 +116,9 @@ public class CMDhistory implements Command {
 
                             if (history.getHistoryType().equals(HistoryType.BAN)) {
                                 String id = "Not Found";
-                                String duration = timeFormatUtil.getFormattedRemainingTime(history.getDuration());
+                                String duration = timeFormatUtil.formatRemainingTime(history.getDuration());
                                 String endDate;
-                                if(history.getEndDate() != null) {
+                                if (history.getEndDate() != null) {
                                     endDate = simpleDateFormat.format(history.getEndDate());
                                 } else {
                                     endDate = "§cNot available";
@@ -199,24 +199,20 @@ public class CMDhistory implements Command {
                 user.sendMessage(configurationUtil.getMessage("History.usage"));
             }
         } else {
-                user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
-            }
+            user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
+        }
     }
-
-    /*
-    /command        arg0+arg1  | permission
-    /history        <player>   | bansys.history.show
-    */
 
     @Override
     public List<String> suggest(User user, String[] args) {
         if (!user.hasPermission("bansys.history.show")) {
-            return List.of();
+            return new ArrayList<>();
         }
+
         List<String> suggests = new ArrayList<>();
         List<User> players = BanSystem.getInstance().getAllPlayers();
 
-        if(args.length == 0 || args.length == 1) {
+        if (args.length == 0 || args.length == 1) {
             for (User player : players) {
                 suggests.add(player.getName());
             }

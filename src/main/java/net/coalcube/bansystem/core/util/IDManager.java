@@ -31,15 +31,15 @@ public class IDManager {
         config.set("IDs." + id + ".lvl.1.type", type.toString());
         config.set("IDs." + id + ".lvl.1.duration", duration);
         config.save(configFile);
-        if(isMySQLused())
+        if (isMySQLused())
             database.update("INSERT INTO `ids` (`id`, `reason`, `lvl`, `duration`, `onlyadmin`, `type`, `creationdate`, `creator`) " +
-                "VALUES ('" + id + "', '" + reason + "', '1', '" + duration + "', " + onlyAdmin + ", '" + type.toString() + "', NOW(), '" + creator + "');");
+                    "VALUES ('" + id + "', '" + reason + "', '1', '" + duration + "', " + onlyAdmin + ", '" + type.toString() + "', NOW(), '" + creator + "');");
     }
 
     public void deleteID(String id) throws SQLException, IOException {
         config.remove("IDs." + id);
         config.save(configFile);
-        if(isMySQLused())
+        if (isMySQLused())
             database.update("DELETE FROM `ids` WHERE id='" + id + "';");
     }
 
@@ -49,7 +49,7 @@ public class IDManager {
         config.set("IDs." + id + ".lvl." + lvl + ".type", type.toString());
         config.set("IDs." + id + ".lvl." + lvl + ".duration", duration);
         config.save(configFile);
-        if(isMySQLused()) {
+        if (isMySQLused()) {
             database.update("INSERT INTO `ids` (`id`, `reason`, `lvl`, `duration`, `onlyadmin`, `type`, `creationdate`, `creator`) " +
                     "VALUES ('" + id + "', '" + getReason(id) + "', '" + lvl + "', '" + duration + "', " + getOnlyAdmins(id)
                     + ", '" + type.toString() + "', NOW(), '" + creator + "')");
@@ -59,7 +59,7 @@ public class IDManager {
     public void removeLvl(String id, String lvl) throws IOException, SQLException, ExecutionException, InterruptedException {
         config.remove("IDs." + id + ".lvl." + lvl);
         config.save(configFile);
-        if(isMySQLused())
+        if (isMySQLused())
             database.update("DELETE FROM `ids` WHERE id='" + id + "' AND lvl='" + lvl + "';");
 
         reassignLvls(id);
@@ -68,28 +68,28 @@ public class IDManager {
     public void setLvlDuration(String id, String lvl, long duration) throws IOException, SQLException {
         config.set("IDs." + id + ".lvl." + lvl + ".duration", duration);
         config.save(configFile);
-        if(isMySQLused())
+        if (isMySQLused())
             database.update("UPDATE `ids` SET duration='" + duration + "' WHERE id='" + id + "' AND lvl='" + lvl + "'");
     }
 
     public void setLvlType(String id, String lvl, Type type) throws IOException, SQLException {
         config.set("IDs." + id + ".lvl." + lvl + ".type", type.toString());
         config.save(configFile);
-        if(isMySQLused())
+        if (isMySQLused())
             database.update("UPDATE `ids` SET type='" + type.toString() + "' WHERE id='" + id + "' AND lvl='" + lvl + "'");
     }
 
     public void setOnlyAdmins(String id, boolean onlyAdmins) throws IOException, SQLException {
         config.set("IDs." + id + ".onlyAdmins", onlyAdmins);
         config.save(configFile);
-        if(isMySQLused())
+        if (isMySQLused())
             database.update("UPDATE `ids` SET onlyadmin=" + onlyAdmins + " WHERE id='" + id + "'");
     }
 
     public void setReason(String id, String reason) throws IOException, SQLException {
         config.set("IDs." + id + ".reason", reason);
         config.save(configFile);
-        if(isMySQLused())
+        if (isMySQLused())
             database.update("UPDATE `ids` SET reason='" + reason + "' WHERE id='" + id + "'");
     }
 
@@ -99,7 +99,7 @@ public class IDManager {
         HashMap<String, Type> type = new HashMap();
         HashMap<String, Long> duration = new HashMap();
 
-        for(Object lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
+        for (Object lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
             lvls.add(lvl.toString());
             type.put(lvl.toString(), Type.valueOf(config.getString("IDs." + id + ".lvl." + lvl + ".type")));
             duration.put(lvl.toString(), config.getLong("IDs." + id + ".lvl." + lvl + ".duration"));
@@ -108,7 +108,7 @@ public class IDManager {
 
         int count = 1;
 
-        for(String lvl : lvls) {
+        for (String lvl : lvls) {
             Type tmpType = type.get(lvl);
             long tmpDuration = duration.get(lvl);
 
@@ -120,7 +120,7 @@ public class IDManager {
 
         config.save(configFile);
 
-        if(isMySQLused()) {
+        if (isMySQLused()) {
             ResultSet rs = database.getResult("SELECT * FROM `ids` WHERE id='" + id + "' ORDER BY lvl ASC;");
             int count2 = 1;
 
@@ -162,8 +162,8 @@ public class IDManager {
 
     public int getLastLvl(String id) {
         int lastLvl = 0;
-        for(Object lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
-            if(lastLvl < Integer.valueOf(lvl.toString()))
+        for (Object lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
+            if (lastLvl < Integer.valueOf(lvl.toString()))
                 lastLvl = Integer.valueOf(lvl.toString());
         }
         return lastLvl;

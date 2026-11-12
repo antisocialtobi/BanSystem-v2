@@ -23,7 +23,7 @@ public class SpigotUser implements User {
 
     @Override
     public void sendMessage(TextComponent msg) {
-        if(sender instanceof Player)
+        if (sender instanceof Player)
             ((Player) sender).spigot().sendMessage(msg);
         else
             sender.sendMessage(msg.getText());
@@ -31,7 +31,7 @@ public class SpigotUser implements User {
 
     @Override
     public void disconnect(String message) {
-        if(sender instanceof Player)
+        if (sender instanceof Player)
             ((Player) sender).kickPlayer(message);
     }
 

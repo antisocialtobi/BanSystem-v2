@@ -107,7 +107,7 @@ public class CMDbansystem implements Command {
                 } else
                     user.sendMessage(configurationUtil.getMessage("bansystem.usage.syncids"));
             } else if (args[0].equalsIgnoreCase("ids")) {
-                if(args.length < 2) {
+                if (args.length < 2) {
                     sendHelp(user);
                     return;
                 }
@@ -141,7 +141,7 @@ public class CMDbansystem implements Command {
                             return;
                         }
 
-                        for(int i=6; i<args.length; i++) {
+                        for (int i = 6; i < args.length; i++) {
                             reason.append(args[i].replaceAll("&", "§")).append(" ");
                         }
 
@@ -151,17 +151,17 @@ public class CMDbansystem implements Command {
                             try {
                                 idManager.createID(id, reason.toString(), onlyAdmins, duration, type, creator);
                                 banManager.log("created BanID", creator, "",
-                                        "id: "+ id
-                                        + "; reason: " + reason
-                                        + "; duration: " + duration
-                                        + "; type: " + type
-                                        + "; onlyAdmins: " + onlyAdmins);
+                                        "id: " + id
+                                                + "; reason: " + reason
+                                                + "; duration: " + duration
+                                                + "; type: " + type
+                                                + "; onlyAdmins: " + onlyAdmins);
 
                                 String formattedDuration;
-                                if(duration == -1)
-                                    formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration);
+                                if (duration == -1)
+                                    formattedDuration = timeFormatUtil.formatRemainingTime(duration);
                                 else
-                                    formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration * 1000);
+                                    formattedDuration = timeFormatUtil.formatRemainingTime(duration * 1000);
 
                                 String createSuccess = configurationUtil.getMessage("bansystem.ids.create.success")
                                         .replaceAll("%ID%", id)
@@ -171,7 +171,7 @@ public class CMDbansystem implements Command {
                                         .replaceAll("%duration%", formattedDuration)
                                         .replaceAll("%type%", type.toString());
 
-                                if(user.getUniqueId() != null)
+                                if (user.getUniqueId() != null)
                                     user.sendMessage(createSuccess);
                                 else
                                     BanSystem.getInstance().sendConsoleMessage(createSuccess);
@@ -202,7 +202,7 @@ public class CMDbansystem implements Command {
                                 try {
                                     idManager.deleteID(id);
                                     banManager.log("deleted BanID", creator, "",
-                                            "id: "+ id);
+                                            "id: " + id);
                                     user.sendMessage(configurationUtil.getMessage("bansystem.ids.delete.success")
                                             .replaceAll("%ID%", id));
                                 } catch (SQLException | IOException e) {
@@ -257,14 +257,14 @@ public class CMDbansystem implements Command {
                                     if (idManager.existsID(id)) {
                                         try {
                                             String formattedDuration;
-                                            if(duration != -1)
-                                                formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration * 1000);
+                                            if (duration != -1)
+                                                formattedDuration = timeFormatUtil.formatRemainingTime(duration * 1000);
                                             else
-                                                formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration);
+                                                formattedDuration = timeFormatUtil.formatRemainingTime(duration);
 
                                             idManager.addLvl(id, duration, type, creator);
                                             banManager.log("added BanID-Lvl", creator, "",
-                                                    "id: "+ id
+                                                    "id: " + id
                                                             + ", duration: " + duration
                                                             + ", type: " + type);
 
@@ -274,7 +274,7 @@ public class CMDbansystem implements Command {
                                                     .replaceAll("%type%", type.toString())
                                                     .replaceAll("%ID%", id);
 
-                                            if(user.getUniqueId() != null)
+                                            if (user.getUniqueId() != null)
                                                 user.sendMessage(addlvlSuccess);
                                             else
                                                 BanSystem.getInstance().sendConsoleMessage(addlvlSuccess);
@@ -308,7 +308,7 @@ public class CMDbansystem implements Command {
 
                                     if (idManager.existsID(id)) {
                                         if (idManager.existsLvl(id, lvl)) {
-                                            if(lvl.equalsIgnoreCase("1")) {
+                                            if (lvl.equalsIgnoreCase("1")) {
                                                 user.sendMessage(configurationUtil.getMessage("bansystem.ids.edit.removelvl.cannotremovelastlvl")
                                                         .replaceAll("%ID%", id)
                                                         .replaceAll("%lvl%", lvl));
@@ -317,12 +317,13 @@ public class CMDbansystem implements Command {
                                             try {
                                                 idManager.removeLvl(id, lvl);
                                                 banManager.log("removed BanID-Lvl", creator, "",
-                                                        "id: "+ id
+                                                        "id: " + id
                                                                 + ", lvl: " + lvl);
                                                 user.sendMessage(configurationUtil.getMessage("bansystem.ids.edit.removelvl.success")
                                                         .replaceAll("%ID%", id)
                                                         .replaceAll("%lvl%", lvl));
-                                            } catch (SQLException | IOException | ExecutionException | InterruptedException e) {
+                                            } catch (SQLException | IOException | ExecutionException |
+                                                     InterruptedException e) {
                                                 user.sendMessage(configurationUtil.getMessage("bansystem.ids.edit.removelvl.failure")
                                                         .replaceAll("%ID%", id)
                                                         .replaceAll("%lvl%", lvl));
@@ -372,21 +373,21 @@ public class CMDbansystem implements Command {
                                                 try {
                                                     idManager.setLvlDuration(id, lvl, duration);
                                                     banManager.log("set banduration", creator, "",
-                                                            "id: "+ id
+                                                            "id: " + id
                                                                     + ", duration: " + duration
                                                                     + ", lvl: " + lvl);
 
-                                                    if(duration != -1)
+                                                    if (duration != -1)
                                                         duration = duration * 1000;
 
-                                                    String formattedDuration = timeFormatUtil.getFormattedRemainingTime(duration);
+                                                    String formattedDuration = timeFormatUtil.formatRemainingTime(duration);
 
                                                     String setLvlDurationSuccess = configurationUtil.getMessage("bansystem.ids.edit.setlvlduration.success")
                                                             .replaceAll("%ID%", id)
                                                             .replaceAll("%duration%", formattedDuration)
                                                             .replaceAll("%lvl%", lvl);
 
-                                                    if(user.getUniqueId() != null)
+                                                    if (user.getUniqueId() != null)
                                                         user.sendMessage(setLvlDurationSuccess);
                                                     else
                                                         BanSystem.getInstance().sendConsoleMessage(setLvlDurationSuccess);
@@ -436,7 +437,7 @@ public class CMDbansystem implements Command {
                                                 try {
                                                     idManager.setLvlType(id, lvl, type);
                                                     banManager.log("set bantype", creator, "",
-                                                            "id: "+ id
+                                                            "id: " + id
                                                                     + ", type: " + type
                                                                     + ", lvl: " + lvl);
 
@@ -445,7 +446,7 @@ public class CMDbansystem implements Command {
                                                             .replaceAll("%lvl%", lvl)
                                                             .replaceAll("%type%", type.toString());
 
-                                                    if(user.getUniqueId() != null)
+                                                    if (user.getUniqueId() != null)
                                                         user.sendMessage(setLvlTypeSuccess);
                                                     else
                                                         BanSystem.getInstance().sendConsoleMessage(setLvlTypeSuccess);
@@ -493,7 +494,7 @@ public class CMDbansystem implements Command {
                                                         .replaceAll("%onlyadmins%", onlyadmins ? configurationUtil.getMessage("true")
                                                                 : configurationUtil.getMessage("false"));
 
-                                                if(user.getUniqueId() != null)
+                                                if (user.getUniqueId() != null)
                                                     user.sendMessage(setOnlyAdminsSuccess);
                                                 else
                                                     BanSystem.getInstance().sendConsoleMessage(setOnlyAdminsSuccess);
@@ -510,7 +511,7 @@ public class CMDbansystem implements Command {
                                     } else {
                                         user.sendMessage(configurationUtil.getMessage("bansystem.usage.setonlyadmins"));
                                     }
-                                } else if(args[4].equalsIgnoreCase("reason")) {
+                                } else if (args[4].equalsIgnoreCase("reason")) {
                                     if (!user.hasPermission("bansys.ids.setreason")
                                             && !user.hasPermission("bansys.ids.*")
                                             && !user.hasPermission("bansys.*")) {
@@ -534,7 +535,7 @@ public class CMDbansystem implements Command {
                                                         .replaceAll("%ID%", id)
                                                         .replaceAll("%reason%", reason);
 
-                                                if(user.getUniqueId() != null)
+                                                if (user.getUniqueId() != null)
                                                     user.sendMessage(setReasonSuccess);
                                                 else
                                                     BanSystem.getInstance().sendConsoleMessage(setReasonSuccess);
@@ -577,7 +578,7 @@ public class CMDbansystem implements Command {
 
                             String reason = config.getString("IDs." + id + ".reason");
                             String onlyAdmins;
-                            if(config.getBoolean("IDs." + id + ".onlyAdmins")) {
+                            if (config.getBoolean("IDs." + id + ".onlyAdmins")) {
                                 onlyAdmins = configurationUtil.getMessage("true");
                             } else
                                 onlyAdmins = configurationUtil.getMessage("false");
@@ -588,18 +589,18 @@ public class CMDbansystem implements Command {
                                     .replaceAll("%onlyAdmins%", onlyAdmins)
                                     .replaceAll("%creator%", creator);
 
-                            if(user.getUniqueId() != null)
-                                 user.sendMessage(header);
+                            if (user.getUniqueId() != null)
+                                user.sendMessage(header);
                             else
                                 BanSystem.getInstance().sendConsoleMessage(header);
 
-                            for(Object lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
+                            for (Object lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
                                 long rawduration = config.getLong("IDs." + id + ".lvl." + lvl + ".duration");
 
-                                if(rawduration != -1)
+                                if (rawduration != -1)
                                     rawduration = rawduration * 1000;
 
-                                String duration = timeFormatUtil.getFormattedRemainingTime(rawduration);
+                                String duration = timeFormatUtil.formatRemainingTime(rawduration);
                                 String lvls = configurationUtil.getMessage("bansystem.ids.edit.show.lvls")
                                         .replaceAll("%lvl%", lvl.toString())
                                         .replaceAll("%duration%", duration)
@@ -607,7 +608,7 @@ public class CMDbansystem implements Command {
                                                 config.getString("IDs." + id + ".lvl." + lvl + ".type"))
                                         .replaceAll("%creator%", creator);
 
-                                if(user.getUniqueId() != null)
+                                if (user.getUniqueId() != null)
                                     user.sendMessage(lvls);
                                 else
                                     BanSystem.getInstance().sendConsoleMessage(lvls);
@@ -624,17 +625,17 @@ public class CMDbansystem implements Command {
                     sendHelp(user);
                 }
             } else if (args[0].equalsIgnoreCase("logs")) {
-                if(args.length < 2) {
+                if (args.length < 2) {
                     sendHelp(user);
                     return;
                 }
 
-                if(args[1].equalsIgnoreCase("show")) {
-                    if(!user.hasPermission("bansys.logs.show")) {
+                if (args[1].equalsIgnoreCase("show")) {
+                    if (!user.hasPermission("bansys.logs.show")) {
                         user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
                         return;
                     }
-                    if(args.length >= 2) {
+                    if (args.length >= 2) {
                         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yy HH:mm");
                         List<Log> allLogs;
                         int maxPage, page;
@@ -647,12 +648,12 @@ public class CMDbansystem implements Command {
 
                         maxPage = (int) Math.ceil((double) allLogs.size() / 10);
 
-                        if(allLogs.isEmpty()) {
+                        if (allLogs.isEmpty()) {
                             user.sendMessage(configurationUtil.getMessage("bansystem.logs.show.empty"));
                             return;
                         }
 
-                        if(args.length == 2) {
+                        if (args.length == 2) {
                             page = 1;
                         } else {
                             try {
@@ -662,7 +663,7 @@ public class CMDbansystem implements Command {
                                         .replaceAll("%maxpage%", String.valueOf(maxPage)));
                                 return;
                             }
-                            if(page > maxPage) {
+                            if (page > maxPage) {
                                 user.sendMessage(configurationUtil.getMessage("bansystem.logs.show.pageNotFound")
                                         .replaceAll("%maxpage%", String.valueOf(maxPage)));
                                 return;
@@ -672,9 +673,9 @@ public class CMDbansystem implements Command {
                         user.sendMessage(configurationUtil.getMessage("bansystem.logs.show.header"));
 
                         int row;
-                        for(int i=0; i<10; i++) {
-                            row = page*10-10+i;
-                            if(allLogs.size() > row) {
+                        for (int i = 0; i < 10; i++) {
+                            row = page * 10 - 10 + i;
+                            if (allLogs.size() > row) {
                                 Log log = allLogs.get(row);
 
                                 String creator = log.getCreator();
@@ -688,7 +689,7 @@ public class CMDbansystem implements Command {
                                 }
                                 try {
                                     UUID targetID = UUID.fromString(target);
-                                    if(UUIDFetcher.getName(targetID) != null)
+                                    if (UUIDFetcher.getName(targetID) != null)
                                         target = UUIDFetcher.getName(targetID);
                                 } catch (IllegalArgumentException ignored) {
                                 }
@@ -707,8 +708,8 @@ public class CMDbansystem implements Command {
                         textComponent.sendLogsFooter(user, page, maxPage);
 
                     }
-                } else if(args[1].equalsIgnoreCase("clear")) {
-                    if(!user.hasPermission("bansys.logs.clear")) {
+                } else if (args[1].equalsIgnoreCase("clear")) {
+                    if (!user.hasPermission("bansys.logs.clear")) {
                         user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
                         return;
                     }
@@ -748,48 +749,48 @@ public class CMDbansystem implements Command {
 
         List<String> suggests = new ArrayList<>();
 
-        if(args.length == 0 || args.length == 1) {
-            if(user.hasPermission("bansys.reload")) {
+        if (args.length == 0 || args.length == 1) {
+            if (user.hasPermission("bansys.reload")) {
                 suggests.add("reload");
             }
-            if(user.hasPermission("bansys.ids.create") ||
-                user.hasPermission("bansys.ids.delete") ||
-                user.hasPermission("bansys.ids.addlvl") ||
-                user.hasPermission("bansys.ids.removelvl") ||
-                user.hasPermission("bansys.ids.setduration") ||
-                user.hasPermission("bansys.ids.settype") ||
-                user.hasPermission("bansys.ids.setonlyadmins") ||
-                user.hasPermission("bansys.ids.setreason") ||
-                user.hasPermission("bansys.ids.show")) {
+            if (user.hasPermission("bansys.ids.create") ||
+                    user.hasPermission("bansys.ids.delete") ||
+                    user.hasPermission("bansys.ids.addlvl") ||
+                    user.hasPermission("bansys.ids.removelvl") ||
+                    user.hasPermission("bansys.ids.setduration") ||
+                    user.hasPermission("bansys.ids.settype") ||
+                    user.hasPermission("bansys.ids.setonlyadmins") ||
+                    user.hasPermission("bansys.ids.setreason") ||
+                    user.hasPermission("bansys.ids.show")) {
                 suggests.add("ids");
             }
-            if(user.hasPermission("bansys.logs.show")
-                || user.hasPermission("bansys.logs.clear")) {
+            if (user.hasPermission("bansys.logs.show")
+                    || user.hasPermission("bansys.logs.clear")) {
                 suggests.add("logs");
             }
-            if(user.hasPermission("bansys.syncids")) {
+            if (user.hasPermission("bansys.syncids")) {
                 suggests.add("syncids");
             }
             suggests.add("help");
             suggests.add("version");
             suggests.add("ver");
-        } else if(args.length == 2) {
-            if(args[0].equalsIgnoreCase("logs")) {
-                if(user.hasPermission("bansys.logs.show")) {
+        } else if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("logs")) {
+                if (user.hasPermission("bansys.logs.show")) {
                     suggests.add("show");
                 }
-                if(user.hasPermission("bansys.logs.clear")) {
+                if (user.hasPermission("bansys.logs.clear")) {
                     suggests.add("clear");
                 }
             }
-            if(args[0].equalsIgnoreCase("ids")) {
-                if(user.hasPermission("bansys.ids.create")) {
+            if (args[0].equalsIgnoreCase("ids")) {
+                if (user.hasPermission("bansys.ids.create")) {
                     suggests.add("create");
                 }
-                if(user.hasPermission("bansys.ids.delete")) {
+                if (user.hasPermission("bansys.ids.delete")) {
                     suggests.add("delete");
                 }
-                if(user.hasPermission("bansys.ids.addlvl") ||
+                if (user.hasPermission("bansys.ids.addlvl") ||
                         user.hasPermission("bansys.ids.removelvl") ||
                         user.hasPermission("bansys.ids.setduration") ||
                         user.hasPermission("bansys.ids.settype") ||
@@ -797,15 +798,15 @@ public class CMDbansystem implements Command {
                         user.hasPermission("bansys.ids.setreason")) {
                     suggests.add("edit");
                 }
-                if(user.hasPermission("bansys.ids.show")) {
+                if (user.hasPermission("bansys.ids.show")) {
                     suggests.add("show");
                 }
             }
-        } else if(args.length == 3) {
-            if(args[1].equalsIgnoreCase("edit") ||
+        } else if (args.length == 3) {
+            if (args[1].equalsIgnoreCase("edit") ||
                     args[1].equalsIgnoreCase("delete") ||
                     args[1].equalsIgnoreCase("show")) {
-                if(user.hasPermission("bansys.ids.create") ||
+                if (user.hasPermission("bansys.ids.create") ||
                         user.hasPermission("bansys.ids.delete") ||
                         user.hasPermission("bansys.ids.addlvl") ||
                         user.hasPermission("bansys.ids.removelvl") ||
@@ -818,9 +819,9 @@ public class CMDbansystem implements Command {
                     }
                 }
             }
-            if(args[0].equalsIgnoreCase("logs")) {
-                if(args[1].equalsIgnoreCase("show")) {
-                    if(user.hasPermission("bansys.logs.show")) {
+            if (args[0].equalsIgnoreCase("logs")) {
+                if (args[1].equalsIgnoreCase("show")) {
+                    if (user.hasPermission("bansys.logs.show")) {
                         try {
                             List<Log> allLogs = banManager.getAllLogs();
                             int maxPage = (int) Math.ceil((double) allLogs.size() / 10);
@@ -834,21 +835,21 @@ public class CMDbansystem implements Command {
                 }
             }
 
-        } else if(args.length == 4) {
-            if(args[0].equalsIgnoreCase("ids")) {
-                if(args[1].equalsIgnoreCase("create")) {
+        } else if (args.length == 4) {
+            if (args[0].equalsIgnoreCase("ids")) {
+                if (args[1].equalsIgnoreCase("create")) {
                     if (user.hasPermission("bansys.ids.create")) {
                         suggests.add("NETWORK");
                         suggests.add("CHAT");
                     }
-                } else if(args[1].equalsIgnoreCase("edit")) {
-                    if(user.hasPermission("bansys.ids.addlvl")) {
+                } else if (args[1].equalsIgnoreCase("edit")) {
+                    if (user.hasPermission("bansys.ids.addlvl")) {
                         suggests.add("add");
                     }
-                    if(user.hasPermission("bansys.ids.removelvl")) {
+                    if (user.hasPermission("bansys.ids.removelvl")) {
                         suggests.add("remove");
                     }
-                    if(user.hasPermission("bansys.ids.setduration") ||
+                    if (user.hasPermission("bansys.ids.setduration") ||
                             user.hasPermission("bansys.ids.settype") ||
                             user.hasPermission("bansys.ids.setonlyadmins") ||
                             user.hasPermission("bansys.ids.setreason")) {
@@ -856,65 +857,65 @@ public class CMDbansystem implements Command {
                     }
                 }
             }
-        } else if(args.length == 5) {
-            if(args[0].equalsIgnoreCase("ids")) {
+        } else if (args.length == 5) {
+            if (args[0].equalsIgnoreCase("ids")) {
                 if (args[1].equalsIgnoreCase("create")) {
-                    if(user.hasPermission("bansys.ids.create")) {
+                    if (user.hasPermission("bansys.ids.create")) {
                         suggests.add("true");
                         suggests.add("false");
                     }
                 }
                 if (args[1].equalsIgnoreCase("edit")) {
-                    if(args[3].equalsIgnoreCase("add")) {
-                        if(user.hasPermission("bansys.ids.addlvl")) {
+                    if (args[3].equalsIgnoreCase("add")) {
+                        if (user.hasPermission("bansys.ids.addlvl")) {
                             suggests.add("lvl");
                         }
                     }
-                    if(args[3].equalsIgnoreCase("remove")) {
-                        if(user.hasPermission("bansys.ids.removelvl")) {
+                    if (args[3].equalsIgnoreCase("remove")) {
+                        if (user.hasPermission("bansys.ids.removelvl")) {
                             suggests.add("lvl");
                         }
                     }
-                    if(args[3].equalsIgnoreCase("set")) {
-                        if(user.hasPermission("bansys.ids.setduration")) {
+                    if (args[3].equalsIgnoreCase("set")) {
+                        if (user.hasPermission("bansys.ids.setduration")) {
                             suggests.add("lvlduration");
                         }
-                        if(user.hasPermission("bansys.ids.settype")) {
+                        if (user.hasPermission("bansys.ids.settype")) {
                             suggests.add("lvltype");
                         }
-                        if(user.hasPermission("bansys.ids.setonlyadmins")) {
+                        if (user.hasPermission("bansys.ids.setonlyadmins")) {
                             suggests.add("onlyadmins");
                         }
-                        if(user.hasPermission("bansys.ids.setreason")) {
+                        if (user.hasPermission("bansys.ids.setreason")) {
                             suggests.add("reason");
                         }
                     }
                 }
             }
-        } else if(args.length == 6) {
-            if(args[0].equalsIgnoreCase("ids")) {
-                if(args[1].equalsIgnoreCase("edit")) {
-                    if(args[3].equalsIgnoreCase("remove")) {
-                        if(user.hasPermission("bansys.ids.removelvl")) {
+        } else if (args.length == 6) {
+            if (args[0].equalsIgnoreCase("ids")) {
+                if (args[1].equalsIgnoreCase("edit")) {
+                    if (args[3].equalsIgnoreCase("remove")) {
+                        if (user.hasPermission("bansys.ids.removelvl")) {
                             for (Object key : config.getSection("IDs." + args[2] + ".lvl").getKeys()) {
                                 suggests.add(key.toString());
                             }
                         }
-                    } else if(args[3].equalsIgnoreCase("set")) {
-                        if(args[4].equalsIgnoreCase("lvlduration")) {
-                            if(user.hasPermission("bansys.ids.setduration")) {
+                    } else if (args[3].equalsIgnoreCase("set")) {
+                        if (args[4].equalsIgnoreCase("lvlduration")) {
+                            if (user.hasPermission("bansys.ids.setduration")) {
                                 for (Object key : config.getSection("IDs." + args[2] + ".lvl").getKeys()) {
                                     suggests.add(key.toString());
                                 }
                             }
-                        } else if(args[4].equalsIgnoreCase("lvltype")) {
-                            if(user.hasPermission("bansys.ids.settype")) {
+                        } else if (args[4].equalsIgnoreCase("lvltype")) {
+                            if (user.hasPermission("bansys.ids.settype")) {
                                 for (Object key : config.getSection("IDs." + args[2] + ".lvl").getKeys()) {
                                     suggests.add(key.toString());
                                 }
                             }
-                        } else if(args[4].equalsIgnoreCase("onlyadmins")) {
-                            if(user.hasPermission("bansys.ids.setonlyadmins")) {
+                        } else if (args[4].equalsIgnoreCase("onlyadmins")) {
+                            if (user.hasPermission("bansys.ids.setonlyadmins")) {
                                 suggests.add("true");
                                 suggests.add("false");
                             }
@@ -922,19 +923,19 @@ public class CMDbansystem implements Command {
                     }
                 }
             }
-        } else if(args.length == 7) {
-            if(args[0].equalsIgnoreCase("ids")) {
-                if(args[1].equalsIgnoreCase("edit")) {
-                    if(args[3].equalsIgnoreCase("add")) {
-                        if(args[4].equalsIgnoreCase("lvl")) {
-                            if(user.hasPermission("bansys.ids.addlvl")) {
+        } else if (args.length == 7) {
+            if (args[0].equalsIgnoreCase("ids")) {
+                if (args[1].equalsIgnoreCase("edit")) {
+                    if (args[3].equalsIgnoreCase("add")) {
+                        if (args[4].equalsIgnoreCase("lvl")) {
+                            if (user.hasPermission("bansys.ids.addlvl")) {
                                 suggests.add("NETWORK");
                                 suggests.add("CHAT");
                             }
                         }
-                    } else if(args[3].equalsIgnoreCase("set")) {
-                        if(args[4].equalsIgnoreCase("lvltype")) {
-                            if(user.hasPermission("bansys.ids.settype")) {
+                    } else if (args[3].equalsIgnoreCase("set")) {
+                        if (args[4].equalsIgnoreCase("lvltype")) {
+                            if (user.hasPermission("bansys.ids.settype")) {
                                 suggests.add("NETWORK");
                                 suggests.add("CHAT");
                             }

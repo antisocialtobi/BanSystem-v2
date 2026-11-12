@@ -70,14 +70,14 @@ public class History {
     }
 
     public Date getEndDate() {
-        if(getDuration() == -1) {
+        if (getDuration() == -1) {
             return null;
         }
         return new Date(getCreateDate().getTime() + getDuration());
     }
 
     public String getId() {
-        if(id == null) {
+        if (id == null) {
             return "Not available";
         }
         return id;

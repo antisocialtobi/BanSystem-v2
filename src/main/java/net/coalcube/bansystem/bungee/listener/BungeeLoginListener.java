@@ -47,7 +47,7 @@ public class BungeeLoginListener implements Listener {
         event.registerIntent(BanSystemBungee.getInstance());
         new Thread(() -> {
             Event loginEvent = loginListener.onJoin(uuid, username, ip);
-            if(loginEvent.isCancelled()) {
+            if (loginEvent.isCancelled()) {
                 event.setCancelled(loginEvent.isCancelled());
                 event.setReason(new TextComponent(loginEvent.getCancelReason()));
             }
@@ -62,7 +62,7 @@ public class BungeeLoginListener implements Listener {
 
         try {
             Event postEvent = loginListener.onPostJoin(user, user.getAddress());
-            if(postEvent.isCancelled()) {
+            if (postEvent.isCancelled()) {
                 user.disconnect(postEvent.getCancelReason());
             }
         } catch (SQLException | ExecutionException | InterruptedException ex) {

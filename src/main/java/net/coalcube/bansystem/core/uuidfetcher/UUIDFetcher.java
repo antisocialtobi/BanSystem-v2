@@ -27,12 +27,9 @@ public class UUIDFetcher {
      * @see UUIDFetcher#getUUIDAt(String, long)
      */
     public static final long FEBRUARY_2015 = 1422748800000L;
-
-    private static Gson gson = new GsonBuilder().registerTypeAdapter(UUID.class, new UUIDTypeAdapter()).create();
-
     private static final String UUID_URL = "https://api.mojang.com/users/profiles/minecraft/%s?at=%d";
     private static final String NAME_URL = "https://sessionserver.mojang.com/session/minecraft/profile/%s";
-
+    private static Gson gson = new GsonBuilder().registerTypeAdapter(UUID.class, new UUIDTypeAdapter()).create();
     private static Map<String, UUID> uuidCache = new HashMap<>();
     private static Map<UUID, String> nameCache = new HashMap<>();
 
@@ -86,7 +83,7 @@ public class UUIDFetcher {
             return UUIDFetcher.uuidCache.get(name);
         }
         try {
-            if(BanSystem.getInstance().getBanManager().isSavedBedrockPlayer(name)) {
+            if (BanSystem.getInstance().getBanManager().isSavedBedrockPlayer(name)) {
                 UUID uuid = BanSystem.getInstance().getBanManager().getSavedBedrockUUID(name);
                 uuidCache.put(name, uuid);
                 return uuid;
@@ -130,12 +127,12 @@ public class UUIDFetcher {
      */
     public static String getName(UUID uuid) {
 
-        if(nameCache.containsKey(uuid)) {
+        if (nameCache.containsKey(uuid)) {
             return nameCache.get(uuid);
         }
 
         try {
-            if(BanSystem.getInstance().getBanManager().isSavedBedrockPlayer(uuid)) {
+            if (BanSystem.getInstance().getBanManager().isSavedBedrockPlayer(uuid)) {
                 String name = BanSystem.getInstance().getBanManager().getSavedBedrockUsername(uuid);
                 nameCache.put(uuid, name);
                 return name;
@@ -150,7 +147,7 @@ public class UUIDFetcher {
         } catch (IOException e) {
             return null;
         }
-        if(jsonObject != null && jsonObject.has("name")) {
+        if (jsonObject != null && jsonObject.has("name")) {
             String name = jsonObject.getString("name");
             nameCache.put(uuid, name);
             return name;
@@ -190,7 +187,7 @@ public class UUIDFetcher {
         try (InputStream is = new URL(url).openStream()) {
             BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             String jsonText = readAll(rd);
-            if(jsonText == null)
+            if (jsonText == null)
                 return null;
             JSONObject jsonObject = new JSONObject(jsonText);
             return jsonObject;
@@ -203,7 +200,7 @@ public class UUIDFetcher {
         while ((cp = rd.read()) != -1) {
             sb.append((char) cp);
         }
-        if(sb.length() == 0){
+        if (sb.length() == 0) {
             return null;
         }
         return sb.toString();

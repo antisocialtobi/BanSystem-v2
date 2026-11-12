@@ -1,10 +1,7 @@
 package net.coalcube.bansystem.core.util;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
+import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
@@ -167,16 +164,36 @@ public class WebHook {
             return title;
         }
 
+        public EmbedObject setTitle(String title) {
+            this.title = title;
+            return this;
+        }
+
         public String getDescription() {
             return description;
+        }
+
+        public EmbedObject setDescription(String description) {
+            this.description = description;
+            return this;
         }
 
         public String getUrl() {
             return url;
         }
 
+        public EmbedObject setUrl(String url) {
+            this.url = url;
+            return this;
+        }
+
         public Color getColor() {
             return color;
+        }
+
+        public EmbedObject setColor(Color color) {
+            this.color = color;
+            return this;
         }
 
         public Footer getFooter() {
@@ -187,8 +204,18 @@ public class WebHook {
             return thumbnail;
         }
 
+        public EmbedObject setThumbnail(String url) {
+            this.thumbnail = new Thumbnail(url);
+            return this;
+        }
+
         public Image getImage() {
             return image;
+        }
+
+        public EmbedObject setImage(String url) {
+            this.image = new Image(url);
+            return this;
         }
 
         public Author getAuthor() {
@@ -199,38 +226,8 @@ public class WebHook {
             return fields;
         }
 
-        public EmbedObject setTitle(String title) {
-            this.title = title;
-            return this;
-        }
-
-        public EmbedObject setDescription(String description) {
-            this.description = description;
-            return this;
-        }
-
-        public EmbedObject setUrl(String url) {
-            this.url = url;
-            return this;
-        }
-
-        public EmbedObject setColor(Color color) {
-            this.color = color;
-            return this;
-        }
-
         public EmbedObject setFooter(String text, String icon) {
             this.footer = new Footer(text, icon);
-            return this;
-        }
-
-        public EmbedObject setThumbnail(String url) {
-            this.thumbnail = new Thumbnail(url);
-            return this;
-        }
-
-        public EmbedObject setImage(String url) {
-            this.image = new Image(url);
             return this;
         }
 

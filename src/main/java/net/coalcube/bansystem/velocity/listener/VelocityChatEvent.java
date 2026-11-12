@@ -43,7 +43,7 @@ public class VelocityChatEvent {
 
         Event event = chatListener.onChat(user, msg);
 
-        if(event.isCancelled())
+        if (event.isCancelled())
             e.setResult(com.velocitypowered.api.event.player.PlayerChatEvent.ChatResult.denied());
     }
 }

@@ -49,7 +49,7 @@ public class MySQL implements Database {
 
     @Override
     public ResultSet getResult(String s) throws SQLException, ExecutionException, InterruptedException {
-        if(!isConnected()) {
+        if (!isConnected()) {
             connect();
         }
         final FutureTask<ResultSet> task = new FutureTask<>(() -> {
@@ -64,7 +64,7 @@ public class MySQL implements Database {
 
     @Override
     public void update(String qry) throws SQLException {
-        if(!isConnected()) {
+        if (!isConnected()) {
             connect();
         }
         new FutureTask<>(() -> {
@@ -104,12 +104,12 @@ public class MySQL implements Database {
 
         SimpleDateFormat parser = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
-        for(int i = 0; i<count; i++) {
+        for (int i = 0; i < count; i++) {
             ResultSet resultSet1 = getResult("SELECT * FROM `banhistory` WHERE UUID='" + bannedPlayer.get(i) + "' AND Ende='" + end.get(i) + "'");
             while (resultSet1.next()) {
 
                 long duration = resultSet1.getLong("duration");
-                duration = (duration != -1 ? duration*1000 : duration);
+                duration = (duration != -1 ? duration * 1000 : duration);
 
                 update("INSERT INTO `bans` (`player`, `duration`, `creationdate`, `creator`, `reason`, `ip`, `type`) " +
                         "VALUES ('" + bannedPlayer.get(i) + "', '" + duration + "', '"
@@ -219,7 +219,7 @@ public class MySQL implements Database {
                 " `type` VARCHAR(20) NOT NULL )" +
                 " ENGINE = InnoDB;");
 
-        if(!hasUnbanreason()) {
+        if (!hasUnbanreason()) {
             update("ALTER TABLE `unbans` \n" +
                     "ADD reason varchar(100) NOT NULL \n" +
                     "AFTER unbanner;");
@@ -227,8 +227,8 @@ public class MySQL implements Database {
     }
 
     public void syncIDs(YamlDocument config) throws SQLException, ExecutionException, InterruptedException {
-        for(Object id : config.getSection("IDs").getKeys()) {
-            if(!isIDexists(id.toString())) {
+        for (Object id : config.getSection("IDs").getKeys()) {
+            if (!isIDexists(id.toString())) {
                 for (Object lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
                     update("INSERT INTO ids " +
                             "VALUES ('" + id + "', '" +
@@ -239,8 +239,8 @@ public class MySQL implements Database {
                             config.getString("IDs." + id + ".lvl." + lvl + ".type") + "', NOW(), 'configsync');");
                 }
             }
-            for(Object lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
-                if(!isLvlSync(id.toString(), lvl.toString(), config)) {
+            for (Object lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
+                if (!isLvlSync(id.toString(), lvl.toString(), config)) {
                     update("DELETE FROM ids WHERE id='" + id + "' AND lvl='" + lvl + "';");
                     update("INSERT INTO ids " +
                             "VALUES ('" + id + "', '" +
@@ -252,18 +252,18 @@ public class MySQL implements Database {
                 }
             }
 
-            if(!isIDsync(id.toString(), config) || !isIDexists(id.toString())) {
-                if(isIDexists(id.toString()) && isIDfromConfig(id.toString())) {
+            if (!isIDsync(id.toString(), config) || !isIDexists(id.toString())) {
+                if (isIDexists(id.toString()) && isIDfromConfig(id.toString())) {
                     update("DELETE FROM ids WHERE id='" + id + "';");
                 }
-                for(Object lvl :  config.getSection("IDs." + id + ".lvl").getKeys()) {
+                for (Object lvl : config.getSection("IDs." + id + ".lvl").getKeys()) {
                     update("INSERT INTO ids " +
                             "VALUES ('" + id + "', '" +
-                            config.getString("IDs."+ id + ".reason") + "', '" +
+                            config.getString("IDs." + id + ".reason") + "', '" +
                             lvl + "', '" +
                             config.getLong("IDs." + id + ".lvl." + lvl + ".duration") + "', " +
-                            config.getBoolean("IDs."+ id + ".onlyAdmins") + ", '" +
-                            config.getString("IDs."+ id + ".lvl." + lvl + ".type") + "', NOW(), 'configsync');");
+                            config.getBoolean("IDs." + id + ".onlyAdmins") + ", '" +
+                            config.getString("IDs." + id + ".lvl." + lvl + ".type") + "', NOW(), 'configsync');");
                 }
             }
         }
@@ -271,11 +271,11 @@ public class MySQL implements Database {
         ResultSet resultSet = getResult("SELECT * FROM `ids`;");
 
         while (resultSet.next()) {
-            if(!config.getSection("IDs").getKeys().contains(resultSet.getString("id")) &&
+            if (!config.getSection("IDs").getKeys().contains(resultSet.getString("id")) &&
                     resultSet.getString("creator").equals("configsync")) {
                 update("DELETE FROM ids WHERE id='" + resultSet.getString("id") + "';");
             }
-            if(!resultSet.getString("creator").equals("configsync")) {
+            if (!resultSet.getString("creator").equals("configsync")) {
                 config.set("IDs." + resultSet.getInt("id") + ".reason", resultSet.getString("reason"));
                 config.set("IDs." + resultSet.getInt("id") + ".onlyAdmins", resultSet.getBoolean("onlyadmin"));
                 config.set("IDs." + resultSet.getInt("id") + ".lvl." + resultSet.getInt("lvl")
@@ -290,20 +290,20 @@ public class MySQL implements Database {
         ResultSet resultSet = getResult("SELECT * FROM `ids` WHERE id='" + id + "'");
 
         while (resultSet.next()) {
-            if(!(resultSet.getLong("duration") ==
+            if (!(resultSet.getLong("duration") ==
                     config.getLong("IDs." + id + ".lvl." + resultSet.getString("lvl") + ".duration"))) {
                 return false;
             }
 
-            if(!(resultSet.getString("type").equals(
+            if (!(resultSet.getString("type").equals(
                     config.getString("IDs." + id + ".lvl." + resultSet.getString("lvl") + ".type")))) {
                 return false;
             }
 
-            if(!(resultSet.getString("reason").equals(config.getString("IDs." + id + ".reason"))))
+            if (!(resultSet.getString("reason").equals(config.getString("IDs." + id + ".reason"))))
                 return false;
 
-            if(!(resultSet.getBoolean("onlyadmin") == config.getBoolean("IDs." + id + ".onlyAdmins")))
+            if (!(resultSet.getBoolean("onlyadmin") == config.getBoolean("IDs." + id + ".onlyAdmins")))
                 return false;
         }
         return true;
@@ -313,11 +313,11 @@ public class MySQL implements Database {
         ResultSet resultSet = getResult("SELECT * FROM `ids` WHERE id='" + id + "' AND lvl='" + lvl + "'");
 
         while (resultSet.next()) {
-            if(!(resultSet.getLong("duration") ==
+            if (!(resultSet.getLong("duration") ==
                     config.getLong("IDs." + id + ".lvl." + lvl + ".duration")))
                 return false;
 
-            if(!(resultSet.getString("type").equals(
+            if (!(resultSet.getString("type").equals(
                     config.getString("IDs." + id + ".lvl." + lvl + ".type"))))
                 return false;
 
@@ -407,12 +407,12 @@ public class MySQL implements Database {
         }
 
 
-        if(!banHistoryIDs) {
+        if (!banHistoryIDs) {
             update("ALTER TABLE `banhistories` ADD `id` VARCHAR(16) FIRST;");
             banSystem.sendConsoleMessage(prefix + "§7Tabelle §ebanhistories §7wurde geupdated.");
         }
 
-        if(!banIDs) {
+        if (!banIDs) {
             update("ALTER TABLE `bans` ADD `id` VARCHAR(16) FIRST;");
             ResultSet rs = getResult("SELECT * FROM `bans`;");
 
@@ -426,7 +426,7 @@ public class MySQL implements Database {
             banSystem.sendConsoleMessage(prefix + "§7Tabelle §ebans §7wurde geupdated.");
         }
 
-        if(!unbansIDs) {
+        if (!unbansIDs) {
             update("ALTER TABLE `unbans` ADD `id` VARCHAR(16) FIRST;");
             ResultSet rs = getResult("SELECT * FROM `unbans`;");
 
@@ -439,7 +439,7 @@ public class MySQL implements Database {
             banSystem.sendConsoleMessage(prefix + "§7Tabelle §eunbans §7wurde geupdated.");
         }
 
-        if(!banHistoryIDs) {
+        if (!banHistoryIDs) {
             ResultSet rs = getResult("SELECT * FROM `banhistories`;");
 
             while (rs.next()) {
@@ -448,7 +448,7 @@ public class MySQL implements Database {
                 Ban ban = banManager.getBan(player, type);
                 String id = banManager.generateNewID();
 
-                if(ban != null) {
+                if (ban != null) {
                     update("UPDATE `bans` SET id='" + ban.getId() + "' WHERE player='" + player + "' AND type='" + type + "';");
                 } else {
                     update("UPDATE `bans` SET id='" + id + "' WHERE player='" + player + "' AND type='" + type

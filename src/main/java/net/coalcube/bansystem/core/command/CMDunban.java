@@ -191,7 +191,7 @@ public class CMDunban implements Command {
                 }
             }
         } else {
-                user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
+            user.sendMessage(configurationUtil.getMessage("NoPermissionMessage"));
         }
     }
 

@@ -10,6 +10,7 @@ import net.coalcube.bansystem.core.textcomponent.TextComponent;
 import net.coalcube.bansystem.core.util.*;
 import net.coalcube.bansystem.core.uuidfetcher.UUIDFetcher;
 import org.bstats.charts.SimplePie;
+import org.geysermc.floodgate.api.FloodgateApi;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -66,7 +67,7 @@ public class LoginListener {
 
         try {
             if (!banManager.isSavedBedrockPlayer(uuid) && UUIDFetcher.getName(uuid) == null) {
-                if (org.geysermc.floodgate.api.FloodgateApi.getInstance().getPlayer(uuid) != null) {
+                if (FloodgateApi.getInstance().getPlayer(uuid) != null) {
                     banManager.saveBedrockUser(uuid, name);
                 }
             }
@@ -86,7 +87,7 @@ public class LoginListener {
                         e.setCancelReason(banScreen
                                 .replaceAll("%reason%", ban.getReason())
                                 .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                        .getFormattedRemainingTime(ban.getRemainingTime()))
+                                        .formatRemainingTime(ban.getRemainingTime()))
                                 .replaceAll("%creator%", ban.getCreator())
                                 .replaceAll("%enddate%", enddate)
                                 .replaceAll("&", "§")
@@ -128,7 +129,7 @@ public class LoginListener {
     public Event onPostJoin(User user, InetAddress inetAddress) throws SQLException, ExecutionException, InterruptedException {
         Event event = new Event();
         String ip = inetAddress.getHostAddress();
-        if(!sql.isConnected()) {
+        if (!sql.isConnected()) {
             return event;
         }
         if (user == null) {
@@ -171,7 +172,7 @@ public class LoginListener {
                             String banScreen = BanSystem.getInstance().getBanScreen()
                                     .replaceAll("%reason%", ban.getReason())
                                     .replaceAll("%reamingtime%",
-                                            BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
+                                            BanSystem.getInstance().getTimeFormatUtil().formatRemainingTime(
                                                     ban.getRemainingTime()))
                                     .replaceAll("%creator%", BanSystem.getInstance().getConsole().getName())
                                     .replaceAll("%enddate%", endDate)
@@ -186,7 +187,7 @@ public class LoginListener {
                                     .replaceAll("%player%", Objects.requireNonNull(user.getDisplayName()))
                                     .replaceAll("%reason%", reason)
                                     .replaceAll("%reamingtime%", BanSystem.getInstance().getTimeFormatUtil()
-                                            .getFormattedRemainingTime(duration))
+                                            .formatRemainingTime(duration))
                                     .replaceAll("%banner%", bansystem.getConsole().getName())
                                     .replaceAll("%enddate%", endDate)
                                     .replaceAll("%type%", type.toString())
@@ -303,7 +304,7 @@ public class LoginListener {
                     String banScreen = BanSystem.getInstance().getBanScreen()
                             .replaceAll("%reason%", ban.getReason())
                             .replaceAll("%reamingtime%",
-                                    BanSystem.getInstance().getTimeFormatUtil().getFormattedRemainingTime(
+                                    BanSystem.getInstance().getTimeFormatUtil().formatRemainingTime(
                                             ban.getRemainingTime()))
                             .replaceAll("%creator%", BanSystem.getInstance().getConsole().getName())
                             .replaceAll("%enddate%", endDate)
